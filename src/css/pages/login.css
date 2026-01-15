@@ -14,12 +14,13 @@
   width: 90%;
   max-width: 120vh;
   min-height: 70vh;
+  width: 50rem;
 
   display: flex;
   align-items: stretch;
 
   background: #FFFFFF;
-  border: 0.27vh solid #000000;
+  /* border: 0.27vh solid #000000; */
   padding: 2vh;
   border-radius: 3vh;
   overflow: hidden;
@@ -63,7 +64,7 @@
 .login-content h1 {
   font-family: Inter, system-ui, sans-serif;
   font-weight: 600;
-  font-size: 5.7vh;
+  font-size: 2.5rem;
   line-height: 100%;
   letter-spacing: 0vh;
   color: #000000;
@@ -78,9 +79,11 @@
 
 .login-stars {
   position: absolute;
+  left: 0px;
+  margin-top: 24.5rem;
   inset: 0;
-  width: 100%;
-  height: 100%;
+  width: 10.5625rem;
+  height: 11.6875rem;
   object-fit: contain;
   pointer-events: none;
 }
@@ -88,7 +91,7 @@
 .subtitle {
   font-family: "Nunito Sans", system-ui, sans-serif;
   font-weight: 500;
-  font-size: 4.3vh;
+  font-size: 2rem;
   line-height: 100%;
   letter-spacing: 0vh;
   color: #000000;
@@ -99,22 +102,18 @@
 
 
 .login-content input {
-  width: 100%;
-  height: 6.7vh;
+width: 95%;
+  line-height: 3rem;
   padding-left: 2.5vh;
   margin-bottom: 3vh;
-
-  font-size: 1.8vh;
+  font-size: 1rem;
   font-family: Inter, system-ui, sans-serif;
-
   background: #FFFFFF;
   color: #000000;
   caret-color: #000000;
-
-  border: 0.15vh solid #DADADA;
+  border: none;
   border-radius: 0.9vh;
-
-  box-shadow: 0vh 0vh 0.4vh #000000;
+  box-shadow: 0px 0px 4px 0px #00000080;
 }
 
 
@@ -188,10 +187,10 @@
     padding: 3vh;
   }
 
-  .login-svg {
+  /* .login-svg {
     max-width: 40vh;
     max-height: 50vh;
-  }
+  } */
 }
 
 

@@ -1,7 +1,9 @@
 import React from "react";
-import "../css/login.css";
+import "../css/pages/login.css";
+import "../css/layout/universal-layout.css";
 import LoginCardSVG  from "../assets/login_card.svg";
 import LoginStarsSVG from "../assets/login_stars.svg";
+import LoginStarPNG from "../assets/star-pattern.png";
 
 const Login = () => {
   return (
@@ -11,6 +13,7 @@ const Login = () => {
         <div className="login-svg-slot">
           <img src={LoginCardSVG} alt="Login card" className="login-svg login-card" />
           <img src={LoginStarsSVG} alt="Login decoration" className="login-svg login-stars" />
+          <img src={LoginStarPNG} alt="Login decoration" className="login-svg login-stars" style={{marginTop:'0px', marginLeft: '22rem'}}/>
         </div>
 
         <div className="login-content">
