@@ -1,0 +1,134 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+body {
+    background-color: #f9f9f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 50px 20px;
+    height: 100svh;
+    box-sizing: border-box;
+}
+
+.container {
+    background-color: #ffffff;
+    width: 53rem;
+  max-width: 100svh;
+    padding: 30px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    height: fit-content;
+}
+
+
+.section {
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 25px;
+    background-color: #fff;
+}
+
+.section-title {
+    font-size: 22px;
+    font-weight: 400;
+    margin-bottom: 25px;
+    color: #333;
+}
+
+.row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    flex: 1;
+}
+
+.half-width {
+    max-width: calc(50% - 10px);
+}
+
+input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #dcdcdc;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #555;
+    outline: none;
+    transition: border 0.3s;
+}
+
+input:focus {
+    border-color: #999;
+}
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+}
+
+.back-link {
+    color: #000;
+    text-decoration: underline;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.next-btn {
+    background-color: #000;
+    color: #fff;
+    border: none;
+    width: 100px;
+    height: 45px;
+    border-radius: 8px;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.next-btn:hover {
+    background-color: #222;
+}
+
+button{
+    background-image: url(../../assets/icons/arrow.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 31%;
+}
+
+@media (max-width: 600px) {
+    .row {
+        flex-direction: column;
+    }
+    .half-width {
+        max-width: 100%;
+    }
+}
+
+@media(max-width: 790px){
+    #root{
+        width: 100%;
+    }
+
+    body{
+        padding: 0rem;
+        align-items: start;
+    }
+
+    .container{
+        width: 100vw;
+    }
+}
