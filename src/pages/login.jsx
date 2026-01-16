@@ -10,29 +10,28 @@ const Login = () => {
     <div className="login-page">
       <div className="login-wrapper">
         
-        <div className="login-svg-slot">
-          <img src={LoginCardSVG} alt="Login card" className="login-svg login-card" />
+        <div className="login-svg-slot login-wrapper-item">
+          <div id="blue-style-container"></div>
+          {/* <img src={LoginCardSVG} alt="Login card" className="login-svg login-card" />
           <img src={LoginStarsSVG} alt="Login decoration" className="login-svg login-stars" />
-          <img src={LoginStarPNG} alt="Login decoration" className="login-svg login-stars" style={{marginTop:'0px', marginLeft: '22rem'}}/>
+          <img src={LoginStarPNG} alt="Login decoration" className="login-svg login-stars"/> */}
         </div>
 
-        <div className="login-content">
+        <div className="login-content login-wrapper-item">
           <h1>Hooter</h1>
           <p className="subtitle">Work Space Login</p>
 
-          <form>
+          <form id="login-form">
             <input type="email" placeholder="Email Address" />
             <input type="tel" placeholder="Mobile Number" />
             <input type="password" placeholder="Password" />
-
-            <div className="form-footer">
-              <span className="forgot">Forgot Password?</span>
-              <button className="submit-btn">
-                <span className="submit-arrow"></span>
-              </button>
-
-            </div>
           </form>
+
+          <div className="form-footer">
+            <span className="forgot">Forgot Password?</span>
+            <button className="submit-btn" form="login-form">
+            </button>
+          </div>
         </div>
 
       </div>

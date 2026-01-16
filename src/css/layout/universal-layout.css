@@ -1,5 +1,35 @@
+@font-face {
+    font-family: 'inter-semi-bold';
+    src: url(../../assets/fonts/Inter/static/Inter_18pt-SemiBold.ttf);
+    font-style: normal;
+    font-weight: 600;
+}
+
+@font-face {
+    font-family: 'nunito-sans';
+    src: url(../../assets/fonts/Nunito_Sans/NunitoSans-VariableFont_YTLC\,opsz\,wdth\,wght.ttf);
+    font-style: normal;
+    font-weight: 500;
+}
+
 *{
     margin: 0px;
     padding: 0px;
     font-size: clamp(10px, 12vw, 16px);
+}
+
+:root{
+    --main-color--: #ffff;
+    --second-color--: #000000;
+
+    font-family: 'nunito-sans';
+}
+
+body{
+    display: flex;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  height: 100svh;
+  width: 100%;
 }
