@@ -1,6 +1,7 @@
 import React from "react";
 import "../css/pages/login.css";
 import "../css/layout/universal-layout.css";
+import {ArrowProceedBttn} from '../components/proceed-bttn'
 import LoginCardSVG  from "../assets/login_card.svg";
 import LoginStarsSVG from "../assets/login_stars.svg";
 import LoginStarPNG from "../assets/star-pattern.png";
@@ -23,14 +24,12 @@ const Login = () => {
 
           <form id="login-form">
             <input type="email" placeholder="Email Address" />
-            <input type="tel" placeholder="Mobile Number" />
             <input type="password" placeholder="Password" />
           </form>
 
           <div className="form-footer">
             <span className="forgot">Forgot Password?</span>
-            <button className="submit-btn" form="login-form">
-            </button>
+            <ArrowProceedBttn/>
           </div>
         </div>
 

@@ -1,0 +1,17 @@
+.arrowBttn{
+    background-image: url('../../assets/icons/arrow.svg');
+background-repeat: no-repeat;
+  background-position: center center;
+  background-size: 31%;
+  width: 100px;
+  height: 45px;
+  background-color: var(--second-color--);
+  color: var(--main-color--);
+  border: medium;
+  border-radius: 8px;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

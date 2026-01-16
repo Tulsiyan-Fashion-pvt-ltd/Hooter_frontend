@@ -84,29 +84,9 @@ input:focus {
     cursor: pointer;
 }
 
-.next-btn {
-    background-color: #000;
-    color: #fff;
-    border: none;
-    width: 100px;
-    height: 45px;
-    border-radius: 8px;
-    font-size: 24px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
 
 .next-btn:hover {
     background-color: #222;
-}
-
-button{
-    background-image: url(../../assets/icons/arrow.svg);
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 31%;
 }
 
 @media (max-width: 600px) {

@@ -1,3 +1,4 @@
+import { ArrowProceedBttn } from "../components/proceed-bttn";
 import "../css/pages/register.css";
 import {Link} from "react-router-dom";
 
@@ -60,7 +61,7 @@ const Register = () => {
 
                     <div className="footer">
                         <Link to="#" className="back-link">Back</Link>
-                        <button type="submit" className="next-btn"></button>
+                        <ArrowProceedBttn/>
                     </div>
                 </form>
             </div>
