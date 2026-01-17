@@ -1,0 +1,149 @@
+.isolated-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 300px;            
+  height: 100vh;
+
+  background: #000000;
+  border-radius: 0px 20px 20px 0px;
+
+  box-sizing: border-box;
+  z-index: 10000;
+}
+
+
+.sidebar-header {
+  position: absolute;
+  top: 64px;
+  left: 28px;
+}
+
+.sidebar-title {
+  font-family: "Inter", sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 100%;
+  letter-spacing: 0;
+  color: #FFFFFF;
+}
+
+
+
+
+.sidebar-home,
+.sidebar-support {
+  position: absolute;
+  top: 150px;
+
+  width: 110px;
+  height: 44px;
+
+  background: #808080;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 100%;
+  letter-spacing: 0;
+
+  color: #FFFFFF;
+  cursor: pointer;
+}
+
+.sidebar-home {
+  left: 28px;
+}
+
+.sidebar-support {
+  left: 140px;
+}
+
+
+
+.sidebar-underline {
+  position: absolute;
+  top: 210px;
+  left: 28px;
+
+  width: 240px;
+  height: 5px;
+  border-radius: 2px;
+  background: #FFFFFF;
+}
+
+
+.sidebar-menu {
+  position: absolute;
+  top: 250px;
+  left: 28px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+
+
+
+.sidebar-item {
+  width: 200px;
+  margin: 0 auto;          
+
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+
+  column-gap: 6px;
+
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 100%;
+  letter-spacing: 0;
+
+  color: #FFFFFF;
+  cursor: pointer;
+}
+
+
+
+.sidebar-label {
+  display: flex;
+  align-items: center;
+  justify-self: center;   /* ⬅️ centers text inside the row */
+  white-space: nowrap;
+}
+
+
+.sidebar-arrow {
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: #FFFFFF;
+  flex-shrink: 0;
+}
+
+
+.sidebar-footer {
+  position: absolute;
+  bottom: 24px;
+  right: 28px;     
+  left: auto;
+
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 100%;
+  letter-spacing: 0;
+
+  color: #FFFFFF;
+  opacity: 0.7;
+
+  text-align: right;
+}
