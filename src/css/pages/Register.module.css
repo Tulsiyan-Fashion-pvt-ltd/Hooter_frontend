@@ -5,14 +5,19 @@
     font-family: 'Segoe UI', Arial, sans-serif;
 }
 
-body {
-    background-color: #f9f9f9;
+/* body {
+    
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 50px 20px;
     height: 100svh;
     box-sizing: border-box;
+} */
+
+.registerContainer{
+    height: 100svh;
+  display: flex;
 }
 
 .container {
@@ -23,6 +28,7 @@ body {
     border: 1px solid #e0e0e0;
     border-radius: 4px;
     height: fit-content;
+    margin: auto;
 }
 
 
@@ -47,11 +53,11 @@ body {
     margin-bottom: 20px;
 }
 
-.form-group {
+.formGroup {
     flex: 1;
 }
 
-.half-width {
+.halfWidth {
     max-width: calc(50% - 10px);
 }
 
@@ -66,10 +72,6 @@ input {
     transition: border 0.3s;
 }
 
-input:focus {
-    border-color: #999;
-}
-
 .footer {
     display: flex;
     justify-content: space-between;
@@ -77,7 +79,7 @@ input:focus {
     padding: 0 10px;
 }
 
-.back-link {
+.backLink {
     color: #000;
     text-decoration: underline;
     font-size: 14px;
@@ -85,15 +87,19 @@ input:focus {
 }
 
 
-.next-btn:hover {
+.nextBtn:hover {
     background-color: #222;
+}
+
+.proceedButton{
+    margin-left: 68%;
 }
 
 @media (max-width: 600px) {
     .row {
         flex-direction: column;
     }
-    .half-width {
+    .halfWidth {
         max-width: 100%;
     }
 }
@@ -101,11 +107,6 @@ input:focus {
 @media(max-width: 790px){
     #root{
         width: 100%;
-    }
-
-    body{
-        padding: 0rem;
-        align-items: start;
     }
 
     .container{
