@@ -26,14 +26,21 @@
 }
 
 body{
-    display: flex;
+    /* display: flex;
   justify-content: center;
   align-content: center;
-  align-items: center;
+  align-items: center; */
   height: 100svh;
   width: 100%;
+  background-color: #f9f9f9;
+}
+
+input{
+    border-radius: 6px;
+    box-sizing: border-box;
 }
 
 input:focus{
     outline: 1px solid black;
+    border: 1px solid #999;
 }
