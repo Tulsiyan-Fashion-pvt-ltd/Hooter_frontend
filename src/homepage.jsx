@@ -3,7 +3,7 @@ const Homepage = () => {
     return(
         <>
          <Sidebar />
-         <h1>homepage</h1>
+         <h1><center>homepage</center></h1>
         </>
     )
 }
