@@ -1,10 +1,11 @@
 import { useState } from "react";
-import "../css/pages/sidebar.css";
+import clsx from "clsx";
+import styles from "../css/pages/Sidebar.module.css";
 import { NavLink } from "react-router-dom";
-
 
 const Sidebar = () => {
   const [activeTopBtn, setActiveTopBtn] = useState("home");
+  const [activeMenuItem, setActiveMenuItem] = useState(null);
 
   const items = [
     "Catalog",
@@ -18,48 +19,68 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="isolated-sidebar">
-
-      {/* Brand */}
-      <div className="sidebar-header">
-        <span className="sidebar-title">Style Myntra</span>
+    <aside className={styles.isolatedSidebar}>
+      <div className={styles.sidebarHeader}>
+        <span className={styles.sidebarTitle}>Style Myntra</span>
       </div>
 
-      {/* Home & Support buttons */}
-      <button
-        className={`sidebar-top-btn sidebar-home ${
-          activeTopBtn === "home" ? "active" : ""
-        }`}
-        onClick={() => setActiveTopBtn("home")}
+      {/* Home */}
+      <NavLink
+        to="#"
+        onClick={(e) => {
+          e.preventDefault();
+          setActiveTopBtn("home");
+        }}
+        className={clsx(
+          styles.sidebarHome,
+          styles.noUnderline,
+          activeTopBtn === "home" && styles.active
+        )}
       >
         Home
-      </button>
+      </NavLink>
 
-      <button
-        className={`sidebar-top-btn sidebar-support ${
-          activeTopBtn === "support" ? "active" : ""
-        }`}
-        onClick={() => setActiveTopBtn("support")}
+      {/* Support */}
+      <NavLink
+        to="#"
+        onClick={(e) => {
+          e.preventDefault();
+          setActiveTopBtn("support");
+        }}
+        className={clsx(
+          styles.sidebarSupport,
+          styles.noUnderline,
+          activeTopBtn === "support" && styles.active
+        )}
       >
         Support
-      </button>
+      </NavLink>
 
-      {/* Underline */}
-      <div className="sidebar-underline"></div>
+      <div className={styles.sidebarUnderline}></div>
 
       {/* Menu items */}
-      <nav className="sidebar-menu">
+      <nav className={styles.sidebarMenu}>
         {items.map((item) => (
-          <div className="sidebar-item" key={item}>
-            <span className="sidebar-label">{item}</span>
-            <span className="sidebar-arrow">{'>'}</span>
-          </div>
+          <NavLink
+            key={item}
+            to="#"
+            onClick={(e) => {
+              e.preventDefault();
+              setActiveMenuItem(item);
+            }}
+            className={clsx(
+              styles.sidebarItem,
+              styles.noUnderline,
+              activeMenuItem === item && styles.active
+            )}
+          >
+            <span className={styles.sidebarLabel}>{item}</span>
+            <span className={styles.sidebarArrow} />
+          </NavLink>
         ))}
       </nav>
 
-      {/* Footer */}
-      <div className="sidebar-footer">© Powered by Hooter</div>
-
+      <div className={styles.sidebarFooter}>© Powered by Hooter</div>
     </aside>
   );
 };

@@ -1,8 +1,8 @@
-.isolated-sidebar {
+.isolatedSidebar {
   position: fixed;
   top: 0;
   left: 0;
-
+  text-decoration: none;
   width: 300px;            
   height: 100vh;
 
@@ -12,26 +12,36 @@
   box-sizing: border-box;
   z-index: 10000;
 }
+.isolatedSidebar::before,
+.isolatedSidebar::after{
+    content: "";
+    position: absolute;
+    background-image: url("../../assets/login_stars.svg");
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
 
-.isolated-sidebar::after {
-  content: "";
-  position: absolute;
+    pointer-events: none; 
+}
+.isolatedSidebar::before {
 
+  bottom: -40px;
+  left: -80px;
+
+  width: 187px;
+  height: 169px;
+}
+
+.isolatedSidebar::after {
   top: -80px;
   left: 190px;
 
-  width: 169px;
-  height: 187px;
+  width: 187px;
+  height: 169px;
 
-  background-image: url("../../assets/login_stars.svg");
-  background-repeat: no-repeat;
-  background-size: contain;
-  background-position: center;
-
-  pointer-events: none; 
 }
 
-.sidebar-header {
+.sidebarHeader {
   position: absolute;
   top: 40px;
   left: 18px;
@@ -41,7 +51,7 @@
   gap: 8px;
 }
 
-.sidebar-header::before {
+.sidebarHeader::before {
   content: "";
   width: 50px;
   height: 50px;
@@ -54,8 +64,7 @@
   flex-shrink: 0;
 }
 
-
-.sidebar-title {
+.sidebarTitle {
   font-family: "Inter", sans-serif;
   font-size: 18px;
   font-weight: 400;
@@ -64,11 +73,8 @@
   color: #FFFFFF;
 }
 
-
-
-
-.sidebar-home,
-.sidebar-support {
+.sidebarHome,
+.sidebarSupport {
   position: absolute;
   top: 130px;
 
@@ -91,7 +97,7 @@
   cursor: pointer;
 }
 
-.sidebar-home {
+.sidebarHome {
   position: absolute;
   top: 150px;
   left: 28px;
@@ -121,7 +127,7 @@
   cursor: pointer;
 }
 
-.sidebar-support {
+.sidebarSupport {
   position: absolute;
   top: 150px;
   left: 140px;
@@ -151,7 +157,7 @@
   cursor: pointer;
 }
 
-.sidebar-underline {
+.sidebarUnderline {
   position: absolute;
   top: 220px;
   left: 28px;
@@ -162,8 +168,7 @@
   background: #FFFFFF;
 }
 
-
-.sidebar-menu {
+.sidebarMenu {
   position: absolute;
   top: 240px;
   left: 28px;
@@ -173,10 +178,7 @@
   gap: 22px;
 }
 
-
-
-
-.sidebar-item {
+.sidebarItem {
   width: 220px;
   margin: 0 auto;          
 
@@ -195,64 +197,63 @@
   color: #FFFFFF;
   cursor: pointer;
 }
+
 /* 1. Catalog */
-.sidebar-menu .sidebar-item:nth-child(1) {
+.sidebarMenu .sidebarItem:nth-child(1) {
   background-image: url("../../assets/icons/catalog.svg");
 }
 
 /* 2. Inventory */
-.sidebar-menu .sidebar-item:nth-child(2) {
+.sidebarMenu .sidebarItem:nth-child(2) {
   background-image: url("../../assets/icons/inventory.svg");
 }
 
 /* 3. Order */
-.sidebar-menu .sidebar-item:nth-child(3) {
+.sidebarMenu .sidebarItem:nth-child(3) {
   background-image: url("../../assets/icons/order.svg");
 }
 
 /* 4. Shipping */
-.sidebar-menu .sidebar-item:nth-child(4) {
+.sidebarMenu .sidebarItem:nth-child(4) {
   background-image: url("../../assets/icons/shipping.svg");
 }
+
 /* 5. Payments */
-.sidebar-menu .sidebar-item:nth-child(5) {
+.sidebarMenu .sidebarItem:nth-child(5) {
   background-image: url("../../assets/icons/payment.svg");
 }
 
 /* 6. Stats */
-.sidebar-menu .sidebar-item:nth-child(6) {
+.sidebarMenu .sidebarItem:nth-child(6) {
   background-image: url("../../assets/icons/stats.svg");
 }
 
 /* 7. Settings */
-.sidebar-menu .sidebar-item:nth-child(7) {
+.sidebarMenu .sidebarItem:nth-child(7) {
   background-image: url("../../assets/icons/settings.svg");
 }
 
 /* 8. Logout */
-.sidebar-menu .sidebar-item:nth-child(8) {
+.sidebarMenu .sidebarItem:nth-child(8) {
   background-image: url("../../assets/icons/logout.svg");
 }
-.sidebar-menu .sidebar-item {
+
+.sidebarMenu .sidebarItem {
   background-repeat: no-repeat;
   background-position: 16px 45%;
-  background-size: 16px 16px;
+  background-size: 31px 31px;
 
-  padding-left: 44px;
+  padding-left: 60px;
 }
 
-
-
-.sidebar-label {
+.sidebarLabel {
   display: flex;
   align-items: center;
   justify-self: start;   
   white-space: nowrap;
 }
 
-
-
-.sidebar-arrow {
+.sidebarArrow {
   width: 30px;
   height: 30px;
 
@@ -265,9 +266,7 @@
   line-height: 0;
 }
 
-
-
-.sidebar-footer {
+.sidebarFooter {
   position: absolute;
   bottom: 24px;
   right: 28px;     
@@ -284,3 +283,17 @@
 
   text-align: right;
 }
+
+.noUnderline {
+  text-decoration: none;
+  color: #FFFFFF;
+}
+
+.noUnderline:link,
+.noUnderline:visited,
+.noUnderline:hover,
+.noUnderline:active {
+  text-decoration: none;
+  color: #FFFFFF;
+}
+
