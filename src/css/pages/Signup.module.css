@@ -48,6 +48,23 @@
     align-items: center;
 }
 
+.phoneNum{
+  padding-left: 48px;
+}
+
+.countryCode{
+    width: fit-content;
+  position: relative;
+  margin-bottom: -27px;
+  bottom: 40px;
+  left: 14px;
+}
+
+.inputError{
+    color: red;
+  font-size: 12px;
+}
+
 @media screen and (max-width: 540px) {
     .container{
         height: 100svh;
