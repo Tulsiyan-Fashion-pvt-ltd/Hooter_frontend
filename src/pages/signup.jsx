@@ -1,12 +1,14 @@
 import { useEffect } from 'react';
 import { ArrowProceedBttn } from '../components/proceed-bttn';
 import styles from '../css/pages/Signup.module.css'
+// import {route} from '../../react-api-base.env'
+const route = import.meta.env.VITE_BASEAPI;
 
 const Signup = () => {
     const submit = async ()=>{
-        console.log('clicking')
+        console.log(route);
         const name = document.querySelector('#name');
-        const response = await fetch('http://localhost:8800/signup', {
+        const response = await fetch(`${route}/signup`, {
             method: 'post',
             headers: {'Content-Type': 'application/json'},
             credentials: "include", 
