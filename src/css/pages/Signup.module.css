@@ -33,7 +33,7 @@
 }
 
 .inputFields{
-    margin-top: 10vh;
+    margin-top: 6vh;
   display: flex;
   flex-flow: column nowrap;
   height: fit-content;
