@@ -1,0 +1,67 @@
+.pageContent {
+  margin-left: 330px;    
+  min-height: 100vh;
+  padding: 24px;
+
+  box-sizing: border-box;
+  outline: 2px dashed #FF0000;
+  background-color: rgba(255, 0, 0, 0.08);
+}
+.subContainer {
+  outline: 2px dashed #0000FF;
+  background-color: rgba(0, 0, 255, 0.08);
+
+  box-sizing: border-box;
+}
+
+/* main dashboard grid */
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 273px);
+  grid-auto-rows: 149px;
+  gap: 24px;
+
+  box-sizing: border-box;
+}
+
+.subContainer {
+  outline: 2px dashed #0000FF;
+  background-color: rgba(0, 0, 255, 0.08);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+}
+
+.overview {
+  grid-column: 1 / -1;
+  height: 135px;
+  width: 1011px;
+}
+
+.smallBox {
+  width: 273px;
+  height: 149px;
+}
+
+
+.businessInsights {
+  grid-column: 1 / -1;
+  height: 140px;
+  width: 570px;
+}
+.bestSeller {
+  width: 420px;
+  height: 487px;
+
+  outline: 2px dashed #0000FF;
+  background-color: rgba(0, 0, 255, 0.08);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+}
