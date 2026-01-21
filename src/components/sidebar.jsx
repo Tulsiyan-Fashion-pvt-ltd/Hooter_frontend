@@ -8,10 +8,10 @@ const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(true);
 
   const items = [
+    "Home",
     "Catalog",
     "Inventory",
     "Order",
-    "Payments",
     "Shipping",
     "Contactless Payment",
     "Stats",

@@ -153,10 +153,10 @@
 }
 
 /* icon mapping */
-.sidebarMenu .sidebarItem:nth-child(1) { background-image: url("../../assets/icons/sidebar/catalog.svg"); }
-.sidebarMenu .sidebarItem:nth-child(2) { background-image: url("../../assets/icons/sidebar/inventory.svg"); }
-.sidebarMenu .sidebarItem:nth-child(3) { background-image: url("../../assets/icons/sidebar/orders.svg"); }
-.sidebarMenu .sidebarItem:nth-child(4) { background-image: url("../../assets/icons/sidebar/payments.svg"); }
+.sidebarMenu .sidebarItem:nth-child(1) { background-image: url("../../assets/icons/sidebar/Home.svg"); }
+.sidebarMenu .sidebarItem:nth-child(2) { background-image: url("../../assets/icons/sidebar/catalog.svg"); }
+.sidebarMenu .sidebarItem:nth-child(3) { background-image: url("../../assets/icons/sidebar/inventory.svg"); }
+.sidebarMenu .sidebarItem:nth-child(4) { background-image: url("../../assets/icons/sidebar/orders.svg"); }
 .sidebarMenu .sidebarItem:nth-child(5) { background-image: url("../../assets/icons/sidebar/shipping.svg"); }
 .sidebarMenu .sidebarItem:nth-child(6) { background-image: url("../../assets/icons/sidebar/cl_payment.svg"); }
 .sidebarMenu .sidebarItem:nth-child(7) { background-image: url("../../assets/icons/sidebar/stats.svg"); }
