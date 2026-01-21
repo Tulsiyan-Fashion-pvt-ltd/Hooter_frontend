@@ -2,8 +2,8 @@
   position: fixed;
   top: 0;
   left: 0;
-  text-decoration: none;
-  width: 300px;            
+
+  width: 300px;
   height: 100vh;
 
   background: #000000;
@@ -11,23 +11,26 @@
 
   box-sizing: border-box;
   z-index: 10000;
+
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: width;
 }
+
+/* decorative background */
 .isolatedSidebar::before,
-.isolatedSidebar::after{
-    content: "";
-    position: absolute;
-    background-image: url("../../assets/login_stars.svg");
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: center;
-
-    pointer-events: none; 
+.isolatedSidebar::after {
+  content: "";
+  position: absolute;
+  background-image: url("../../assets/login_stars.svg");
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  pointer-events: none;
 }
-.isolatedSidebar::before {
 
+.isolatedSidebar::before {
   bottom: -40px;
   left: -80px;
-
   width: 187px;
   height: 169px;
 }
@@ -35,12 +38,31 @@
 .isolatedSidebar::after {
   top: -80px;
   left: 190px;
-
   width: 187px;
   height: 169px;
-
 }
 
+/* toggle */
+.collapseToggle {
+  position: absolute;
+  top: 160px;
+  right: -14px;
+
+  width: 30px;
+  height: 30px;
+
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+
+  background: #ffffff;
+  font-family: monospace;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 0;
+}
+
+/* header */
 .sidebarHeader {
   position: absolute;
   top: 40px;
@@ -55,245 +77,180 @@
   content: "";
   width: 50px;
   height: 50px;
-
-  background-image: url("../../assets/icons/styleMyntra.svg");
+  background-image: url("../../assets/icons/sidebar/logo.svg");
   background-repeat: no-repeat;
   background-size: contain;
-  background-position: center;
-
-  flex-shrink: 0;
 }
 
 .sidebarTitle {
   font-family: "Inter", sans-serif;
   font-size: 18px;
-  font-weight: 400;
-  line-height: 100%;
-  letter-spacing: 0;
-  color: #FFFFFF;
+  color: #ffffff;
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity 0.3s ease 0.5s;
 }
 
-.sidebarHome,
-.sidebarSupport {
-  position: absolute;
-  top: 130px;
-
-  width: 110px;
-  height: 44px;
-
-  background: #808080;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  font-family: "Inter", sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 100%;
-  letter-spacing: 0;
-
-  color: #FFFFFF;
-  cursor: pointer;
-}
-
-.sidebarHome {
-  position: absolute;
-  top: 150px;
-  left: 28px;
-
-  width: 110px;
-  height: 44px;
-
-  background-color: #808080;
-  background-image: url("../../assets/icons/home.svg");
-  background-repeat: no-repeat;
-  background-position: 14px 45%;
-  background-size: 18px 18px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding-left: 32px;
-
-  font-family: "Inter", sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 100%;
-  letter-spacing: 0;
-
-  color: #FFFFFF;
-  cursor: pointer;
-}
-
-.sidebarSupport {
-  position: absolute;
-  top: 150px;
-  left: 140px;
-
-  width: 110px;
-  height: 44px;
-
-  background-color: #808080;
-  background-image: url("../../assets/icons/support.svg");
-  background-repeat: no-repeat;
-  background-position: 14px 45%;
-  background-size: 18px 18px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding-left: 32px;
-
-  font-family: "Inter", sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 100%;
-  letter-spacing: 0;
-
-  color: #FFFFFF;
-  cursor: pointer;
-}
-
+/* divider */
 .sidebarUnderline {
   position: absolute;
-  top: 220px;
   left: 28px;
 
   width: 220px;
   height: 5px;
   border-radius: 2px;
-  background: #FFFFFF;
+  background: #737373;
+    transition: left 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  
+}
+.sidebarUnderline.top {
+  top: 120px;
 }
 
+.sidebarUnderline.bottom {
+  bottom: 100px;
+}
+
+/* menu */
 .sidebarMenu {
   position: absolute;
-  top: 240px;
+  top: 150px;
   left: 28px;
+  right: 28px;
+  bottom: 80px;
 
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 25px;
+
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.sidebarMenu::-webkit-scrollbar {
+  display: none;
 }
 
 .sidebarItem {
   width: 220px;
-  margin: 0 auto;          
 
   display: grid;
-  grid-template-columns: 0.9fr auto;
+  grid-template-columns: 1fr auto;
   align-items: center;
 
-  column-gap: 2px;
-
-  font-family: "Inter", sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 100%;
-  letter-spacing: 0;
-
-  color: #FFFFFF;
-  cursor: pointer;
-}
-
-/* 1. Catalog */
-.sidebarMenu .sidebarItem:nth-child(1) {
-  background-image: url("../../assets/icons/catalog.svg");
-}
-
-/* 2. Inventory */
-.sidebarMenu .sidebarItem:nth-child(2) {
-  background-image: url("../../assets/icons/inventory.svg");
-}
-
-/* 3. Order */
-.sidebarMenu .sidebarItem:nth-child(3) {
-  background-image: url("../../assets/icons/order.svg");
-}
-
-/* 4. Shipping */
-.sidebarMenu .sidebarItem:nth-child(4) {
-  background-image: url("../../assets/icons/shipping.svg");
-}
-
-/* 5. Payments */
-.sidebarMenu .sidebarItem:nth-child(5) {
-  background-image: url("../../assets/icons/payment.svg");
-}
-
-/* 6. Stats */
-.sidebarMenu .sidebarItem:nth-child(6) {
-  background-image: url("../../assets/icons/stats.svg");
-}
-
-/* 7. Settings */
-.sidebarMenu .sidebarItem:nth-child(7) {
-  background-image: url("../../assets/icons/settings.svg");
-}
-
-/* 8. Logout */
-.sidebarMenu .sidebarItem:nth-child(8) {
-  background-image: url("../../assets/icons/logout.svg");
-}
-
-.sidebarMenu .sidebarItem {
   background-repeat: no-repeat;
-  background-position: 16px 45%;
+  background-position: 16px center;
   background-size: 31px 31px;
 
   padding-left: 60px;
+
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  color: #ffffff;
+  cursor: pointer;
 }
 
+/* icon mapping */
+.sidebarMenu .sidebarItem:nth-child(1) { background-image: url("../../assets/icons/sidebar/catalog.svg"); }
+.sidebarMenu .sidebarItem:nth-child(2) { background-image: url("../../assets/icons/sidebar/inventory.svg"); }
+.sidebarMenu .sidebarItem:nth-child(3) { background-image: url("../../assets/icons/sidebar/orders.svg"); }
+.sidebarMenu .sidebarItem:nth-child(4) { background-image: url("../../assets/icons/sidebar/payments.svg"); }
+.sidebarMenu .sidebarItem:nth-child(5) { background-image: url("../../assets/icons/sidebar/shipping.svg"); }
+.sidebarMenu .sidebarItem:nth-child(6) { background-image: url("../../assets/icons/sidebar/cl_payment.svg"); }
+.sidebarMenu .sidebarItem:nth-child(7) { background-image: url("../../assets/icons/sidebar/stats.svg"); }
+.sidebarMenu .sidebarItem:nth-child(8) { background-image: url("../../assets/icons/sidebar/settings.svg"); }
+
 .sidebarLabel {
-  display: flex;
-  align-items: center;
-  justify-self: start;   
   white-space: nowrap;
 }
 
 .sidebarArrow {
   width: 30px;
   height: 30px;
-
   background-image: url("../../assets/icons/arrow.svg");
   background-repeat: no-repeat;
-  background-position: center;
   background-size: contain;
-
-  font-size: 0;        
-  line-height: 0;
 }
 
+/* footer */
 .sidebarFooter {
   position: absolute;
   bottom: 24px;
-  right: 28px;     
-  left: auto;
+  left: 28px;
 
-  font-family: "Inter", sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 100%;
-  letter-spacing: 0;
+  width: 220px;
+  height: 48px;
 
-  color: #FFFFFF;
-  opacity: 0.7;
+  background: url("../../assets/icons/sidebar/hooter_logo.svg") no-repeat;
+  background-position: right 16px center;
+  background-size: 28px 28px;
 
-  text-align: right;
+    transition: left 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  color: transparent;
 }
+
 
 .noUnderline {
   text-decoration: none;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
-.noUnderline:link,
-.noUnderline:visited,
-.noUnderline:hover,
-.noUnderline:active {
-  text-decoration: none;
-  color: #FFFFFF;
+/* collapsed */
+.collapsed {
+  width: 80px;
 }
 
+/* hide text */
+.collapsed .sidebarTitle,
+.collapsed .sidebarLabel,
+.collapsed .sidebarArrow {
+  display: none;
+}
+
+
+/* underline */
+.collapsed .sidebarUnderline {
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  bottom: 72px;
+}
+
+/* header */
+.collapsed .sidebarHeader {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* menu */
+.collapsed .sidebarMenu {
+  left: 0;
+  right: 0;
+  top: 135px;
+  bottom: 90px;
+  width: 48px;
+  margin: 0 auto;
+  align-items: center;
+}
+
+/* icon-only */
+.collapsed .sidebarItem {
+  width: 48px;
+  height: 48px;
+  padding-left: 0;
+  background-position: center;
+  background-size: 28px 28px;
+  grid-template-columns: 1fr;
+}
+
+/* footer */
+.collapsed .sidebarFooter {
+  left: 50%;
+  width: 48px;
+  transform: translateX(-50%);
+  background-position: center;
+}
