@@ -33,7 +33,7 @@
 }
 
 .inputFields{
-    margin-top: 10vh;
+    margin-top: 6vh;
   display: flex;
   flex-flow: column nowrap;
   height: fit-content;
@@ -46,6 +46,23 @@
     display: flex;
     justify-content: end;
     align-items: center;
+}
+
+.phoneNum{
+  padding-left: 48px;
+}
+
+.countryCode{
+    width: fit-content;
+  position: relative;
+  margin-bottom: -27px;
+  bottom: 40px;
+  left: 14px;
+}
+
+.inputError{
+    color: red;
+  font-size: 12px;
 }
 
 @media screen and (max-width: 540px) {
