@@ -1,0 +1,32 @@
+.spinnerConainer {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100svw;
+    height: 100svh;
+    background-color: white;
+    display: flex;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 1px solid black;
+    border-radius: 50%;
+    border-top: 5px solid black;
+    border-left: 5px solid black;
+    border-bottom: 5px solid black;
+    border-right: 5px solid white;
+    margin: auto;
+    animation: spinner 1s linear reverse infinite;
+}
+
+@keyframes spinner {
+    to {
+        transform: rotate(0deg);
+    }
+
+    from {
+        transform: rotate(360deg);
+    }
+}
