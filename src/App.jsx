@@ -3,12 +3,15 @@ import Login from "./pages/login";
 import Homepage from "./pages/homepage";
 import Register from "./pages/register";
 import Signup from "./pages/signup";
-
+import {Protect} from './modules/auth';
 
 function App() {
   return (
     <Routes> 
-      <Route path="/" element={<Homepage/>} /> 
+      <Route path="/" element={
+        <Protect>
+          <Homepage/>
+        </Protect>} /> 
       <Route path="/login" element={<Login />} /> 
       <Route path="/register" element={<Register/>}/>
       <Route path="/signup" element={<Signup/>}/>

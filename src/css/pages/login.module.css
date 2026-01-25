@@ -85,3 +85,9 @@
   height: 100%;
   border-radius: 30px;
 }
+
+
+.errorMsg{
+  font-size: 14px;
+  color: red;
+}
