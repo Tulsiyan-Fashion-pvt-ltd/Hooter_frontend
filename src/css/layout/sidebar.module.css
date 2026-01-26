@@ -35,13 +35,6 @@
   height: 169px;
 }
 
-.isolatedSidebar::after {
-  top: -80px;
-  left: 190px;
-  width: 187px;
-  height: 169px;
-}
-
 /* toggle */
 .collapseToggle {
   position: absolute;

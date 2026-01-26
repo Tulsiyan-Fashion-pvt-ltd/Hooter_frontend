@@ -1,7 +1,11 @@
 .pageContent {
-  margin-left: 330px;
+  margin-left: 80px;
   min-height: 100vh;
   padding: 24px;
   background-color: #FFFF;
 }
 
+h2{
+  font-size: 20px;
+  margin-bottom: 14px;
+}
