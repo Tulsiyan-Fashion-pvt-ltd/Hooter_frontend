@@ -54,15 +54,14 @@ const Register = () => {
 
     async function submit(){
         setLoading(true);
-        if (pincode == '' || !validatePincode(pincode))
-        {   
-            return;
-        }
-
-        if (entityName==''|| brandName=='' || niche=='' || gstin=='' || plan=='' || address=='' || pincode=='' || estYear=='')
+        if (entityName==''|| brandName=='' || niche=='' || gstin=='' || plan=='' || address=='' || pincode=='' || estYear=='' || pincode == '' || !validatePincode(pincode))
         {   
             setFormError('Invalid value in field');
+            setLoading(false);
             return;
+        }else
+        {
+            setFormError('');
         }
 
         const response = await fetch(`${route}/register`, {
@@ -180,7 +179,7 @@ const Register = () => {
                     <ArrowProceedBttn onClick={submit} />
                 </div>
                 <div className={styles.row}>
-                    <div id="errorMessage">{formError}</div>
+                    <div id="errorMessage" className="errorMessage">{formError}</div>
                 </div>
             </div>
             {loading?<Spinner/>: ''}
