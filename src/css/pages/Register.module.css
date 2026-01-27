@@ -117,6 +117,13 @@ input, .item {
     margin: 14px 0px;
 }
 
+.description{
+    font-size: 12px;
+  color: #626262;
+  margin: 1rem auto;
+
+}
+
 @media (max-width: 600px) {
     .row {
         flex-direction: column;

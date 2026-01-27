@@ -19,6 +19,14 @@ const Register = () => {
     const [estYear, setEstYear] = useState('')
     const [formError, setFormError] = useState();
     const [loading, setLoading] = useState(false);
+    const [POC, setPOC] = useState({
+        'self': '',
+        'name': '',
+        'number': '',
+        'email': '',
+        'designation': '',
+        'access': '',
+    });
 
     let pincodeValueError = null;
 
@@ -54,53 +62,95 @@ const Register = () => {
 
     async function submit(){
         setLoading(true);
-        if (entityName==''|| brandName=='' || niche=='' || gstin=='' || plan=='' || address=='' || pincode=='' || estYear=='' || pincode == '' || !validatePincode(pincode))
-        {   
-            setFormError('Invalid value in field');
-            setLoading(false);
-            return;
-        }else
-        {
-            setFormError('');
-        }
+        const inputs = Array.from(document.querySelectorAll('input'));
+
+        inputs.forEach((element)=>{
+            if (element.value == '' || element.value == null)
+            {
+                element.className = 'incorrect-input';
+                setFormError('empty input field *');
+                return;
+            }
+        })
 
         const response = await fetch(`${route}/register`, {
             method: 'post',
             headers: {'Content-Type': 'application/json'},
             credentials: 'include',
             body: JSON.stringify({
-                'entity-name': entityName, 
-                'brand-name': brandName, 
-                'niche': niche,
-                'gstin': gstin,
-                'plan': plan,
-                'address': address,
-                'estYear': estYear
+                'brand': {
+                    'entity-name': entityName,
+                    'brand-name': brandName,
+                    'niche': niche,
+                    'gstin': gstin,
+                    'plan': plan,
+                    'address': address,
+                    'estYear': estYear
+                },
+                'poc': POC
             })
         })
         setLoading(false)
         console.log(response.status)
     }
 
+    // handling the poc checkbox
+    const [fetchedPOC, setFetchedPOC]=useState(null);
+    async function handlePOC(value){
+        // if the checkbox is checked the data is not available then fetch the data from the server
+        // else show the already fetched data from the state to avoid fetching same details
+        if (value==true)
+        {
+            setPOC((prev)=>({...prev, [self]:true}))
+        }
+        
+        if (value == true && (fetchedPOC==null))
+        {
+            const response = await fetch(`${route}/request-user-credentials`, {credentials: 'include'})
+            const user_data = await response.json();
+            setFetchedPOC(user_data.user_data);
+            // console.log(data.access)
+            setPOC(user_data.user_data)
+            console.log(fetchedPOC)
+        }
+
+        if (value==false)
+        {
+            setPOC({
+                'name': '',
+        'number': '',
+        'email': '',
+        'designation': '',
+        'access': '',
+            })
+        }
+        else if (value == true && fetchedPOC!=null)
+        {
+            setPOC(fetchedPOC);
+        }
+
+    }
+
     return (
         <div id="register-container" className={styles.registerContainer}>
             <div className={styles.container}>
+                <p className={styles.description}>* fields are compulsory</p>
                 <div className={styles.section}>
                     <h2 className={styles.sectionTitle}>Business Details</h2>
 
                     <div className={styles.row}>
                         <div className={styles.formGroup}>
-                            <input onChange={(e)=>{setEntityName(e.target.value)}} type="text" name='legal-name' placeholder="Legal Name" maxLength={255} required />
+                            <input onChange={(e)=>{setEntityName(e.target.value)}} type="text" name='legal-name' placeholder="Legal Name *" maxLength={255} required />
                         </div>
                         <div className={styles.formGroup}>
-                            <input onChange={(e)=>{setBrandName(e.target.value)}} type="text" name="brand-name" placeholder="Brand Name" maxLength={128} required />
+                            <input onChange={(e)=>{setBrandName(e.target.value)}} type="text" name="brand-name" placeholder="Brand Name *" maxLength={128} required />
                         </div>
                     </div>
 
                     <div className={styles.row}>
                         <div className={styles.formGroup}>
-                            <select onChange={(e)=>{setNiche(e.target.value)}} name="niche" id="niche" className={styles.item} placeholder='Brand Niche' defaultValue={'Brand Niche'} required>
-                                <option value="Brand Niche" disabled hidden>Brand Niche</option>
+                            <select onChange={(e)=>{setNiche(e.target.value)}} name="niche" id="niche" className={styles.item} placeholder='Brand Niche *' defaultValue={'Brand Niche'} required>
+                                <option value="Brand Niche" disabled hidden>Brand Niche *</option>
                                 {/* <option value="select" default disabled>SELECT</option> */}
                                 {niches.map((niche, key) => {
                                     return (<option key={key} value={niche}>{niche.charAt(0).toUpperCase() + niche.slice(1)}</option>)
@@ -114,7 +164,8 @@ const Register = () => {
 
                     <div className={styles.row}>
                         <div className={styles.formGroup}>
-                            <select  onChange={(e)=>{setPlan(e.target.value)}} name="plan" id="select-plan" className={styles.item}>
+                            <select  onChange={(e)=>{setPlan(e.target.value)}} name="plan" id="select-plan" className={styles.item} defaultValue={'default'}>
+                                <option value="default" hidden disabled>Select Plan *</option>
                                 <option value="lite">LITE</option>
                                 <option value="pro">PRO</option>
                                 <option value="ent">ENTERPRISE</option>
@@ -124,7 +175,7 @@ const Register = () => {
                             <input onChange={(e)=>{setAddress(e.target.value)}}
                                 type="text"
                                 name="address"
-                                placeholder="Registered Address"
+                                placeholder="Registered Address *"
                                 maxLength={500}
                             />
                         </div>
@@ -132,11 +183,11 @@ const Register = () => {
 
                     <div className={styles.row}>
                         <div className={styles.formGroup}>
-                            <input onChange={(e)=>{setPincode(e.target.value)}} type="text" name="pincode" placeholder="Area Pincode" maxLength={6} style={pincodeValueError ? incorrect : {}} />
+                            <input onChange={(e)=>{setPincode(e.target.value)}} type="text" name="pincode" placeholder="Area Pincode *" maxLength={6} style={pincodeValueError ? incorrect : {}} />
                         </div>
 
                         <div className={styles.formGroup}>
-                            <input onChange={(e)=>{setEstYear(e.target.value)}} type="text" name="est-yr" placeholder="Establishment Year" maxLength={4} />
+                            <input onChange={(e)=>{setEstYear(e.target.value)}} type="text" name="est-yr" placeholder="Establishment Year *" maxLength={4} />
                         </div>
                     </div>
                 </div>
@@ -145,31 +196,37 @@ const Register = () => {
                     <h2>POC</h2>
                     <div id="select" className={styles.selectPOC}>
                         <label htmlFor="selfPOC">
-                            <input onChange={(e)=>{setEntityName(e.target.value)}} type="checkbox" className={styles.selfPOC} name="selfPOC" id="selfPOC" />
+                            <input onChange={(e)=>{handlePOC(e.target.checked)}} type="checkbox" className={styles.selfPOC} name="selfPOC" id="selfPOC" />
                             I am the POC
                         </label>
                     </div>
                     <div className={styles.row}>
                         <div className={styles.formGroup}>
-                            <input onChange={(e)=>{setEntityName(e.target.value)}} type="text" placeholder="Full name" />
+                            <input onChange={(e)=>{setPOC((prev)=>({...prev, ['name']: e.target.value}))}} type="text" placeholder="Full name *" value={POC.name} />
                         </div>
                         <div className={styles.formGroup}>
-                            <input onChange={(e)=>{setEntityName(e.target.value)}} type="text" placeholder="User Designation" />
+                            <input onChange={(e)=>{setPOC((prev)=>({...prev, ['designation']: e.target.value}))}} type="text" placeholder="User Designation *" value={POC.designation}/>
                         </div>
                     </div>
 
                     <div className={styles.row}>
                         <div className={styles.formGroup}>
-                            <input onChange={(e)=>{setEntityName(e.target.value)}} type="text" placeholder="Contact Number" />
+                            <input onChange={(e)=>{setPOC((prev)=>({...prev, ['number']: e.target.value}))}} type="text" placeholder="Contact Number *" value={POC.number}/>
                         </div>
                         <div className={styles.formGroup}>
-                            <input onChange={(e)=>{setEntityName(e.target.value)}} type="email" placeholder="Email Address" />
+                            <input onChange={(e)=>{setPOC((prev)=>({...prev, ['email']: e.target.value}))}} type="email" placeholder="Email Address *" value={POC.email}/>
                         </div>
                     </div>
 
                     <div className={styles.row}>
                         <div className={`${styles.formGroup} ${styles.halfWidth}`}>
-                            <input onChange={(e)=>{setEntityName(e.target.value)}} type="text" placeholder="If POC For Future" />
+                            <select onChange={(e)=>{setPOC((prev)=>({...prev, ['access']: e.target.value}))}} name="acess" id="access" className={styles.item} value={POC.access==''? 'default': POC.access}>
+                                <option value="default" disabled hidden>Select User Access *</option>
+                                <option value="super_admin">Super Admin</option>
+                                <option value="admin">Admin</option> 
+                                <option value="super_user">Super User</option>
+                                <option value="user">User</option>
+                            </select>
                         </div>
                     </div>
                 </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import styles from "../css/pages/login.module.css";
 import "../css/layout/universal-layout.css";
 import { ArrowProceedBttn } from '../components/proceed-bttn'
