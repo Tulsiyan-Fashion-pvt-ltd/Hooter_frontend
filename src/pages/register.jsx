@@ -1,6 +1,6 @@
 import { ArrowProceedBttn } from "../components/proceed-bttn";
 import styles from "../css/pages/Register.module.css";
-import { Link, Route } from "react-router-dom";
+import { Link, Route, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { validatePincode } from "../modules/validate";
 import { Spinner } from "../components/spinner";
@@ -10,22 +10,24 @@ const route = import.meta.env.VITE_BASEAPI;
 const Register = () => {
     const [niches, setNiches] = useState([]);
     const [pincode, setPincode] = useState();
-    const [entityName, setEntityName] = useState('')
-    const [brandName, setBrandName] = useState('')
-    const [niche, setNiche] = useState('')
-    const [gstin, setGstin] = useState('')
-    const [plan, setPlan] = useState('')
-    const [address, setAddress] = useState('')
-    const [estYear, setEstYear] = useState('')
+    const [entityName, setEntityName] = useState('');
+    const [brandName, setBrandName] = useState('');
+    const [niche, setNiche] = useState('');
+    const [gstin, setGstin] = useState('');
+    const [plan, setPlan] = useState('');
+    const [address, setAddress] = useState('');
+    const [estYear, setEstYear] = useState('');
     const [formError, setFormError] = useState();
     const [loading, setLoading] = useState(false);
     const [POC, setPOC] = useState({
-        'self': '',
+        'self': 'false',
         'name': '',
         'number': '',
         'email': '',
         'designation': '',
         'access': '',
+        'password': '',
+        'confPassword':''
     });
 
     let pincodeValueError = null;
@@ -39,9 +41,7 @@ const Register = () => {
             if (response.status == 200) {
                 setNiches(data.niches);
             }
-
         }
-
         fetchNiches();
     }, [])
 
@@ -61,18 +61,54 @@ const Register = () => {
     // const correct = {outline: '1px solid green'};
 
     async function submit(){
-        setLoading(true);
         const inputs = Array.from(document.querySelectorAll('input'));
+        const select = Array.from(document.querySelectorAll('select'));
+
+        let error = false;
 
         inputs.forEach((element)=>{
-            if (element.value == '' || element.value == null)
+            if (element.getAttribute('name')!='gstin' && (element.value == '' || element.value == null))
             {
-                element.className = 'incorrect-input';
+                element.classList.add('incorrect-input');
                 setFormError('empty input field *');
+                error = true;
                 return;
+            }else
+            {
+                element.classList.remove('incorrect-input');
+                setFormError('');
             }
         })
 
+        select.forEach((element)=>{
+            if (element.selectedOptions[0].getAttribute('value') == 'default')
+            {
+                element.style.outline = '1px solid red';
+                setFormError('empty input field *');
+                error = true;
+                return;
+            }
+            else
+            {
+                element.style.outline = 'none';
+                setFormError('');
+            }
+        })
+
+        // validating password
+        if (POC.self==false&&(POC.password < 6 && POC.password != POC.confPassword))
+        {
+            setFormError("password must at least contain 6 characters. Password should match the confirm password")
+            return;
+        }
+
+        if (error == true)
+        {   
+            return;
+        }
+
+        setLoading(true);
+        try{
         const response = await fetch(`${route}/register`, {
             method: 'post',
             headers: {'Content-Type': 'application/json'},
@@ -90,8 +126,14 @@ const Register = () => {
                 'poc': POC
             })
         })
+
+        // console.log(response.status)
+    }
+    catch(error){
         setLoading(false)
-        console.log(response.status)
+        setFormError(error)
+    }
+        
     }
 
     // handling the poc checkbox
@@ -101,7 +143,7 @@ const Register = () => {
         // else show the already fetched data from the state to avoid fetching same details
         if (value==true)
         {
-            setPOC((prev)=>({...prev, [self]:true}))
+            setPOC((prev)=>({...prev, [self]:'true'}))
         }
         
         if (value == true && (fetchedPOC==null))
@@ -111,24 +153,34 @@ const Register = () => {
             setFetchedPOC(user_data.user_data);
             // console.log(data.access)
             setPOC(user_data.user_data)
-            console.log(fetchedPOC)
+            // console.log(fetchedPOC)
         }
 
         if (value==false)
         {
-            setPOC({
-                'name': '',
-        'number': '',
-        'email': '',
-        'designation': '',
-        'access': '',
-            })
+            setPOC((prev) => ({
+              ...prev,
+              ['self']: true,
+              ['name']: '',
+              ['number']: '',
+              ['email']: '',
+              ['designation']: '',
+              ['access']: '',
+              ['password']: '',
+              ['confPassword']: ''
+            }))
         }
         else if (value == true && fetchedPOC!=null)
         {
             setPOC(fetchedPOC);
         }
 
+    }
+
+
+    const navigate = useNavigate();
+    function handleBackButton(){
+        navigate(-1);
     }
 
     return (
@@ -149,8 +201,8 @@ const Register = () => {
 
                     <div className={styles.row}>
                         <div className={styles.formGroup}>
-                            <select onChange={(e)=>{setNiche(e.target.value)}} name="niche" id="niche" className={styles.item} placeholder='Brand Niche *' defaultValue={'Brand Niche'} required>
-                                <option value="Brand Niche" disabled hidden>Brand Niche *</option>
+                            <select onChange={(e)=>{setNiche(e.target.value)}} name="niche" id="niche" className={styles.item} placeholder='Brand Niche *' defaultValue={'default'} required>
+                                <option value="default" disabled hidden>Brand Niche *</option>
                                 {/* <option value="select" default disabled>SELECT</option> */}
                                 {niches.map((niche, key) => {
                                     return (<option key={key} value={niche}>{niche.charAt(0).toUpperCase() + niche.slice(1)}</option>)
@@ -229,10 +281,19 @@ const Register = () => {
                             </select>
                         </div>
                     </div>
+
+                    {(POC.self == 'false') &&(<div className={styles.row}>
+                        <div className={styles.formGroup}>
+                            <input onChange={(e)=>{setPOC((prev)=>({...prev, ['password']: e.target.value}))}} type="text" placeholder="Password *" value={POC.password}/>
+                        </div>
+                        <div className={styles.formGroup}>
+                            <input onChange={(e)=>{setPOC((prev)=>({...prev, ['confPassword']: e.target.value}))}} type="text" placeholder="Confirm Password password *" value={POC.confPassword}/>
+                        </div>
+                    </div>)}
                 </div>
 
                 <div className={styles.footer}>
-                    <Link to="#" className={styles.backLink}>Back</Link>
+                    <button onClick={handleBackButton} className={styles.backLink}>Back</button>
                     <ArrowProceedBttn onClick={submit} />
                 </div>
                 <div className={styles.row}>

@@ -2,7 +2,7 @@ import { useNavigate, } from 'react-router-dom';
 import { ArrowProceedBttn } from '../components/proceed-bttn';
 import styles from '../css/pages/Signup.module.css'
 import { validateEmail, validateInNumber } from "../modules/validate";
-import { useEffect } from 'react';
+// import { useEffect } from 'react';
 const route = import.meta.env.VITE_BASEAPI;
 
 const Signup = () => {
