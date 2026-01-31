@@ -127,12 +127,19 @@ const Register = () => {
             })
         })
 
-        // console.log(response.status)
-    }
-    catch(error){
-        setLoading(false)
-        setFormError(error)
-    }
+        const data = await response.get_json()
+
+        // if response is not 201 then stop loading spinner and show error message
+        if (response.status!=201)
+        {   
+            setFormError(data.message)
+            setLoading(false);
+        }
+        }
+        catch(error){
+            setLoading(false)
+            setFormError(error)
+        }
         
     }
 
@@ -150,9 +157,9 @@ const Register = () => {
         {
             const response = await fetch(`${route}/request-user-credentials`, {credentials: 'include'})
             const user_data = await response.json();
-            setFetchedPOC(user_data.user_data);
+            setFetchedPOC({...user_data.user_data, ['self']: 'true'});
             // console.log(data.access)
-            setPOC(user_data.user_data)
+            setPOC({...user_data.user_data, ['self']: 'true'})
             // console.log(fetchedPOC)
         }
 
