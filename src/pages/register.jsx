@@ -19,6 +19,8 @@ const Register = () => {
     const [estYear, setEstYear] = useState('');
     const [formError, setFormError] = useState();
     const [loading, setLoading] = useState(false);
+    const [POCSelect, setPOCSelect] = useState(false);
+    
     const [POC, setPOC] = useState({
         'self': 'false',
         'name': '',
@@ -96,7 +98,7 @@ const Register = () => {
         })
 
         // validating password
-        if (POC.self==false&&(POC.password < 6 && POC.password != POC.confPassword))
+        if (POC.self==false&&(POC.password.length < 6 || POC.password != POC.confPassword))
         {
             setFormError("password must at least contain 6 characters. Password should match the confirm password")
             return;
@@ -108,35 +110,56 @@ const Register = () => {
         }
 
         setLoading(true);
-        try{
-        const response = await fetch(`${route}/register`, {
-            method: 'post',
-            headers: {'Content-Type': 'application/json'},
-            credentials: 'include',
-            body: JSON.stringify({
-                'brand': {
-                    'entity-name': entityName,
-                    'brand-name': brandName,
-                    'niche': niche,
-                    'gstin': gstin,
-                    'plan': plan,
-                    'address': address,
-                    'estYear': estYear
-                },
-                'poc': POC
+        try {
+            const response = await fetch(`${route}/register`, {
+                method: 'post',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    'brand': {
+                        'entity-name': entityName,
+                        'brand-name': brandName,
+                        'niche': niche,
+                        'gstin': gstin,
+                        'plan': plan,
+                        'address': address,
+                        'estYear': estYear
+                    },
+                    'poc': POC
+                })
             })
-        })
 
-        const data = await response.get_json()
+            const data = await response.json()
 
-        // if response is not 201 then stop loading spinner and show error message
-        if (response.status!=201)
-        {   
-            setFormError(data.message)
+            // if response is not 201 then stop loading spinner and show error message
+            if (response.status != 201) {
+                setFormError(data.message);
+            }
+
+            setPincode('');
+            setEntityName('');
+            setBrandName('');
+            setNiche('');
+            setGstin('');
+            setPlan('');
+            setAddress('');
+            setEstYear('');
+            setPOC({
+                'self': 'false',
+                'name': '',
+                'number': '',
+                'email': '',
+                'designation': '',
+                'access': '',
+                'password': '',
+                'confPassword': ''
+            })
+            
+            setPOCSelect(false)
+
             setLoading(false);
         }
-        }
-        catch(error){
+        catch (error) {
             setLoading(false)
             setFormError(error)
         }
@@ -150,7 +173,7 @@ const Register = () => {
         // else show the already fetched data from the state to avoid fetching same details
         if (value==true)
         {
-            setPOC((prev)=>({...prev, [self]:'true'}))
+            setPOC((prev)=>({...prev, ['self']:'true'}))
         }
         
         if (value == true && (fetchedPOC==null))
@@ -167,7 +190,7 @@ const Register = () => {
         {
             setPOC((prev) => ({
               ...prev,
-              ['self']: true,
+              ['self']: 'false',
               ['name']: '',
               ['number']: '',
               ['email']: '',
@@ -255,7 +278,7 @@ const Register = () => {
                     <h2>POC</h2>
                     <div id="select" className={styles.selectPOC}>
                         <label htmlFor="selfPOC">
-                            <input onChange={(e)=>{handlePOC(e.target.checked)}} type="checkbox" className={styles.selfPOC} name="selfPOC" id="selfPOC" />
+                            <input onChange={(e)=>{setPOCSelect(e.target.checked); handlePOC(e.target.checked)}} type="checkbox" className={styles.selfPOC} name="selfPOC" id="selfPOC" checked={POCSelect}/>
                             I am the POC
                         </label>
                     </div>

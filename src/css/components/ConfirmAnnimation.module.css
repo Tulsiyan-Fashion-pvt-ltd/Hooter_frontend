@@ -1,0 +1,51 @@
+.body{
+    background-color: var(--main-color--2);
+    height: 100svh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.confimationCircle{
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background-color: var(--second-color--);
+    display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container{
+    border: 1px solid black;
+  padding: 5rem;
+}
+
+.checkContainer{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.check{
+    background-color: var(--main-color--);
+    border-radius: 50px;
+}
+
+.tickLeft{
+width: 12px;
+  height: 38px;
+  transform: rotate(-45deg);
+  position: relative;
+  right: 6px;
+  top: 10px;
+}
+
+.tickRight{
+width: 12px;
+  height: 65px;
+  transform: rotate(36deg);
+  position: relative;
+  left: 9px;
+}

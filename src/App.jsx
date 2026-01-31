@@ -5,6 +5,7 @@ import Register from "./pages/register";
 import Signup from "./pages/signup";
 import {Protect, PreventAuth} from './modules/auth';
 import Layout from "./layout";
+import ConfirmAnnimation from "./components/confirmAnnimation";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         </PreventAuth>}/>
 
       <Route path="/register" element={<Register/>}/>
+      <Route path="/confirm" element={<ConfirmAnnimation/>}/>
     </Routes>
   );
 }
