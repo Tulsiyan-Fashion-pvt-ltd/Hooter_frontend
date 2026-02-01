@@ -5,6 +5,10 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    position: absolute;
+  left: 0;
+  top: 0;
+  backdrop-filter: blur(2px);
 }
 
 .confimationCircle{
@@ -18,7 +22,7 @@
 }
 
 .container{
-    border: 1px solid black;
+    /* border: 1px solid black; */
   padding: 5rem;
 }
 
@@ -37,12 +41,12 @@
 
 .tickLeft{
 width: 12px;
-  height: 29px;
+  /* height: 29px; */
   transform: rotate(-45deg);
   position: relative;
   right: 1px;
   top: 15px;
-  animation: tickLeft 0.1s linear 1 normal forwards;
+  animation: tickLeft 0.1s linear 0.1s 1 normal forwards;
 }
 
 .tickRight{
@@ -51,7 +55,7 @@ width: 12px;
   transform: rotate(36deg);
   position: relative;
   left: 9px;
-  animation: tickRight 0.1s linear 0.1s 1 normal forwards;
+  animation: tickRight 0.1s linear 0.2s 1 normal forwards;
 }
 
 
