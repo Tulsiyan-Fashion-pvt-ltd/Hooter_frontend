@@ -6,6 +6,7 @@ import Signup from "./pages/signup";
 import {Protect, PreventAuth} from './modules/auth';
 import Layout from "./layout";
 import ConfirmAnnimation from "./components/confirmAnnimation";
+import './css/layout/animations.css'
 
 function App() {
   return (

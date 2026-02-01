@@ -26,6 +26,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
+  left: -6px;
 }
 
 .check{
@@ -35,17 +37,44 @@
 
 .tickLeft{
 width: 12px;
-  height: 38px;
+  height: 29px;
   transform: rotate(-45deg);
   position: relative;
-  right: 6px;
-  top: 10px;
+  right: 1px;
+  top: 15px;
+  animation: tickLeft 0.1s linear 1 normal forwards;
 }
 
 .tickRight{
 width: 12px;
-  height: 65px;
+  /* height: 65px; */
   transform: rotate(36deg);
   position: relative;
   left: 9px;
+  animation: tickRight 0.1s linear 0.1s 1 normal forwards;
+}
+
+
+@keyframes tickRight {
+  from{
+    height: 0px;
+    top: 22px;
+  left: -6px;
+  }
+
+  to{
+    height: 65px;
+    left: 9px;
+    top: 0px;
+  }
+}
+
+@keyframes tickLeft {
+  from{
+    height: 0px;
+  }
+
+  to{
+    height: 29px;
+  }
 }
