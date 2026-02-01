@@ -20,7 +20,7 @@
 .isolatedSidebar::before,
 .isolatedSidebar::after {
   content: "";
-  position: absolute;
+  /* position: absolute; */
   background-image: url("../../assets/login_stars.svg");
   background-repeat: no-repeat;
   background-size: contain;
@@ -37,7 +37,7 @@
 
 /* toggle */
 .collapseToggle {
-  position: absolute;
+  /* position: absolute; */
   top: 160px;
   right: -14px;
 
@@ -57,7 +57,7 @@
 
 /* header */
 .sidebarHeader {
-  position: absolute;
+  /* position: absolute; */
   top: 40px;
   left: 18px;
 
@@ -86,7 +86,7 @@
 
 /* divider */
 .sidebarUnderline {
-  position: absolute;
+  /* position: absolute; */
   left: 28px;
 
   width: 220px;
@@ -108,7 +108,7 @@
 
 /* menu */
 .sidebarMenu {
-  position: absolute;
+  /* position: absolute; */
   top: 150px;
   left: 28px;
   right: 28px;
@@ -169,7 +169,7 @@
 
 /* footer */
 .sidebarFooter {
-  position: absolute;
+  /* position: absolute; */
   bottom: 24px;
   left: 28px;
 
