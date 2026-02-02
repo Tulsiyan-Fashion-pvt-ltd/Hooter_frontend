@@ -37,12 +37,14 @@
 
 .isolatedSidebar::after {
   top: -80px;
-  left: 90%;
+  left: 80%;
   transform: translateX(-50%) scale(1);
-  width: 187px;
-  height: 169px;
-  
+
+  width: 150px;   
+  height: 150px;  
+  background-size: contain;
 }
+
 
 /* toggle */
 .collapseToggle {
