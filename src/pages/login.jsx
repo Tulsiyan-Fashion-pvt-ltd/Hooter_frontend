@@ -12,6 +12,7 @@ const Login = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   // function to handle the submit
   const login = async () => {
@@ -34,6 +35,7 @@ const Login = () => {
       return;
     }
 
+    setLoading(true);
     // after validation send the server all the info
     const response = await fetch(`${route}/login`, {
       method: 'POST',
@@ -43,6 +45,8 @@ const Login = () => {
     })
 
     const data = await response.json();
+
+    setLoading(false);
 
     if (response.status != 200) {
       setErrorMessage(data.message);
@@ -96,6 +100,7 @@ const Login = () => {
         </div>
 
       </div>
+      {loading? <Spinner/>: ''}
     </div>
   );
 
