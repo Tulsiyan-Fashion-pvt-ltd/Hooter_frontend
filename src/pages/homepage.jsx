@@ -1,16 +1,15 @@
 import { useState } from "react";
-import { useOutletContext } from "react-router-dom";
+// import { useOutletContext } from "react-router-dom";
 import styles from "../css/pages/Homepage.module.css";
 import clsx from "clsx";
 
 const Homepage = () => {
-  const { sidebarWidth } = useOutletContext();
   const [activePlatform, setActivePlatform] = useState(0);
 
   return (
     <main
       className={styles.pageContent}
-      style={{ marginLeft: sidebarWidth + 20 }}
+      // style={{ marginLeft: sidebarWidth + 20 }}
     >
       <div className={styles.pageContainer}>
         <section className={styles.dashboardGrid}>

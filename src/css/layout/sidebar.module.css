@@ -177,3 +177,23 @@ letter-spacing: 0%;
 {
   background-color: transparent;
 }
+
+.sidebarFooterContainer{
+  min-height: 16px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sidebarFooterIcon{
+  background-image: url(/src/assets/icons/sidebar/apple-touch-icon.png);
+  background-repeat: no-repeat;
+  width: 40px;
+  height: 40px;
+  background-size: contain;
+  border: 1px solid var(--main-color--);
+  border-radius: 50%;
+  background-size: 55%;
+  background-position: center;
+}
