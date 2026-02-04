@@ -62,7 +62,7 @@ const Sidebar = () => {
               )}
             > 
               <div className={clsx(styles.indicator, indicator==items[item]? styles.activeIndicator: styles.inactiveIndicator)}></div>
-              <span className={styles.itemIcons} />
+              <span className={clsx(styles.itemIcons, indicator==items[item]? styles.acitveItemIcons: '')} />
               {!collapsed && <span className={styles.sidebarLabel}>{item}</span>}
             </NavLink>
           ))}
