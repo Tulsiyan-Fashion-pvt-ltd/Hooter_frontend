@@ -8,6 +8,7 @@ import Layout from "./layout";
 import './css/layout/animations.css'
 import Catalog from "./pages/catelog";
 
+
 function App() {
   return (
     <Routes>
