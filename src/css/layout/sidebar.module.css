@@ -116,8 +116,8 @@ font-style: Regular;
 font-size: 20px;
 /* line-height: 100%; */
 letter-spacing: 0%;
-
 }
+
 
 .navigation a
 {
@@ -146,6 +146,17 @@ letter-spacing: 0%;
   border-radius: 0px 2px 2px 0px;
   transition: height 0.3s ease, opacity 0.3s ease, transform 0.25s ease;
 }
+
+.sidebarLabel{
+  opacity: 0.6;
+}
+
+.activeText
+{
+  opacity: 1;
+  color: var(--main-color--);
+}
+
 
 [key="Home"]
 {

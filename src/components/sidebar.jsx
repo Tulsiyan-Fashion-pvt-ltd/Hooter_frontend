@@ -6,7 +6,8 @@ import { NavLink } from "react-router-dom";
 const Sidebar = () => {
   const [activeMenuItem, setActiveMenuItem] = useState(null);
   const [collapsed, setCollapsed] = useState(true);
-  const [indicator, setIndicator] = useState('/');
+  const [indicator, setIndicator] = useState('/'); // indicator stores the values of the items' keys. 
+                                                  //  and we can match currently on which item in the sidebar menu we are in
 
   const items = {
     "Home": '/',
@@ -63,7 +64,7 @@ const Sidebar = () => {
             > 
               <div className={clsx(styles.indicator, indicator==items[item]? styles.activeIndicator: styles.inactiveIndicator)}></div>
               <span className={clsx(styles.itemIcons, indicator==items[item]? styles.acitveItemIcons: '')} />
-              {!collapsed && <span className={styles.sidebarLabel}>{item}</span>}
+              {!collapsed && <span className={clsx(styles.sidebarLabel, indicator==items[item]? styles.activeText: '')}>{item}</span>}
             </NavLink>
           ))}
         </div>
