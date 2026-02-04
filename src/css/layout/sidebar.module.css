@@ -105,7 +105,7 @@ h2
   display: flex;
   flex-flow: column nowrap;
   height: 100%;
-  padding: 45px 0px;
+  padding: 45px 0px 0px 5px;
 }
 
 .navigation a span
@@ -161,8 +161,8 @@ letter-spacing: 0%;
 
 .itemIcons
 {
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   display: block;
   background-repeat: no-repeat;
   background-size: contain;
