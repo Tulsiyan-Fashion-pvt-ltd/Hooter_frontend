@@ -6,6 +6,13 @@
 }
 
 @font-face {
+    font-family: 'inter';
+    src: url(../../assets/fonts/Inter/static/Inter_18pt-Regular.ttf);
+    font-style: normal;
+    font-weight: 400;
+}
+
+@font-face {
     font-family: 'nunito-sans';
     src: url(../../assets/fonts/Nunito_Sans/NunitoSans-VariableFont_YTLC\,opsz\,wdth\,wght.ttf);
     font-style: normal;

@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { useLayoutEffect, useState } from "react";
 import Sidebar from "./components/sidebar";
+import styles from './css/layout/Layout.module.css';
 
 const Layout = () => {
   const [sidebarWidth, setSidebarWidth] = useState(300);
@@ -18,10 +19,15 @@ const Layout = () => {
   }, []);
 
   return (
-    <>
-      <Sidebar />
-      <Outlet context={{ sidebarWidth }} />
-    </>
+    <div className={styles.globalBody}>
+      <div className={styles.sidebar_body}>
+        <Sidebar/>
+      </div>
+      
+      <div className={styles.globalOutlet}>
+        <Outlet/>
+      </div>
+    </div>
   );
 };
 

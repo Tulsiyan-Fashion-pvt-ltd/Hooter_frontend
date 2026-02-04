@@ -1,0 +1,84 @@
+.body{
+    background-color: var(--main-color--2);
+    height: 100svh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+  left: 0;
+  top: 0;
+  backdrop-filter: blur(2px);
+}
+
+.confimationCircle{
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background-color: var(--second-color--);
+    display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container{
+    /* border: 1px solid black; */
+  padding: 5rem;
+}
+
+.checkContainer{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  left: -6px;
+}
+
+.check{
+    background-color: var(--main-color--);
+    border-radius: 50px;
+}
+
+.tickLeft{
+width: 12px;
+  /* height: 29px; */
+  transform: rotate(-45deg);
+  position: relative;
+  right: 1px;
+  top: 15px;
+  animation: tickLeft 0.1s linear 0.1s 1 normal forwards;
+}
+
+.tickRight{
+width: 12px;
+  /* height: 65px; */
+  transform: rotate(36deg);
+  position: relative;
+  left: 9px;
+  animation: tickRight 0.1s linear 0.2s 1 normal forwards;
+}
+
+
+@keyframes tickRight {
+  from{
+    height: 0px;
+    top: 22px;
+  left: -6px;
+  }
+
+  to{
+    height: 65px;
+    left: 9px;
+    top: 0px;
+  }
+}
+
+@keyframes tickLeft {
+  from{
+    height: 0px;
+  }
+
+  to{
+    height: 29px;
+  }
+}

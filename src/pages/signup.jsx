@@ -2,10 +2,13 @@ import { useNavigate, } from 'react-router-dom';
 import { ArrowProceedBttn } from '../components/proceed-bttn';
 import styles from '../css/pages/Signup.module.css'
 import { validateEmail, validateInNumber } from "../modules/validate";
-
+import { Spinner } from '../components/spinner';
+import { useState } from 'react';
+// import { useEffect } from 'react';
 const route = import.meta.env.VITE_BASEAPI;
 
 const Signup = () => {
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const submit = async ()=>{
@@ -54,6 +57,7 @@ const Signup = () => {
             return;
         }
 
+        setLoading(true);
         const response = await fetch(`${route}/signup`, {
             method: 'post',
             headers: {'Content-Type': 'application/json'},
@@ -68,6 +72,7 @@ const Signup = () => {
         })
 
         const data = await response.json();
+        setLoading(false);
         if (data.status == 'ok' && response.status == 200){
             navigate('/');
         }else if (response.status == 409){
@@ -97,6 +102,7 @@ const Signup = () => {
                     </div>
                 </div>
             </div>
+            {loading?<Spinner/>:''}
         </div>
     )
 }
