@@ -144,7 +144,7 @@ letter-spacing: 0%;
   position: absolute;
   left: 0px;
   border-radius: 0px 2px 2px 0px;
-  transition: height 0.3s ease, opacity 0.3s ease, transform 0.25s ease;
+  transition: opacity 0.3s ease, height 0.3s ease;
 }
 
 .sidebarLabel{
@@ -205,6 +205,8 @@ letter-spacing: 0%;
 .inactiveIndicator
 {
   background-color: white;
+  opacity: 0;
+  height: 0px;
 }
 
 .sidebarFooterContainer{
