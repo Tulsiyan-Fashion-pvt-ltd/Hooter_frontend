@@ -1,52 +1,51 @@
-#root{
+.root {
   margin: 0rem auto;
 }
 
-h1{
+.heading {
   font-family: 'inter-semi-bold';
 }
 
-.login-page{
+.loginPage {
   display: flex;
   height: 100svh;
 }
 
-.login-content .subtitle{
+.subtitle {
   font-family: 'nunito-sans';
   font-size: 2rem;
-  color: #000000CC;
+  color: #000000cc;
 }
 
-.login-wrapper{
-  /* border: 1px solid black; */
+.loginWrapper {
   display: flex;
   flex-flow: row wrap;
   justify-content: center;
   align-items: end;
   min-width: 300px;
-  height: 30rem;
+  /* height: 30rem; */
   max-width: 100vw;
   width: 50rem;
   box-sizing: border-box;
   margin: auto;
 }
 
-.login-wrapper-item{
-width: 45%;
+.loginWrapperItem {
+  width: 45%;
   height: 100%;
   margin: 0rem auto;
 }
 
-.login-content{
- display: flex;
+.loginContent {
+  display: flex;
   flex-flow: column nowrap;
   justify-content: center;
   align-items: start;
-  padding: 0rem 0rem;
+  padding: 0rem;
   height: fit-content;
 }
 
-.login-wrapper form{
+.form {
   display: flex;
   flex-flow: column nowrap;
   width: 100%;
@@ -56,19 +55,16 @@ width: 45%;
   margin: 2rem auto;
 }
 
-#login-form input{
-  /* padding-left: 1rem;
-  line-height: 2.5rem; */
+/* .input {
   border: none;
   box-shadow: 0px 0px 4px 0px #00000080;
-}
+} */
 
-.submit-btn{
+.submitBtn {
   width: 6rem;
   height: 4rem;
-  opacity: 1;
   border-radius: 20px;
-  background-image: url(../../assets/icons/arrow.svg);
+  background-image: url('../../assets/icons/arrow.svg');
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center;
@@ -76,17 +72,22 @@ width: 45%;
   border: none;
 }
 
-
-.form-footer{
+.formFooter {
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-#blue-style-container{
+.blueStyleContainer {
   background-color: var(--second-color--);
-    width: 100%;
-    height: 100%;
-    border-radius: 30px;
+  width: 100%;
+  height: 100%;
+  border-radius: 30px;
+}
+
+
+.errorMsg{
+  font-size: 14px;
+  color: red;
 }

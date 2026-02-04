@@ -48,3 +48,8 @@ input:focus{
 .incorrect-input{
     outline: 1px solid red;
 }
+
+.errorMessage{
+    font-family: 14px;
+    color: red;
+}

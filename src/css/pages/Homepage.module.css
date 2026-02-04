@@ -1,7 +1,123 @@
+/* page wrapper */
 .pageContent {
-  margin-left: 330px;
   min-height: 100vh;
-  padding: 24px;
-  background-color: #FFFF;
+  padding-right: 30px;
+  background-color: #ffffff;
 }
 
+/* inner container */
+.pageContainer {
+  padding: 24px;
+}
+
+/* vertical layout */
+.dashboardGrid {
+  display: flex;
+  flex-direction: column;
+}
+
+/* base card */
+.card {
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+}
+
+/* platforms */
+.platforms {
+  height: 120px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.platformsRow {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  width: 100%;
+}
+
+.platformBtn {
+  position: relative;
+  height: 56px;
+  min-width: 120px;
+  background: rgba(0, 0, 0, 0.12);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+}
+.platformBtn::before {
+  content: "";
+  position: absolute;
+  left: -14px;
+  top: 6px;
+  bottom: 6px;
+  width: 5px;
+  background: #0040D6;
+  border-radius: 999px;
+  opacity: 0;
+  transform: scaleY(0.6);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.active::before {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+
+.platformBtnText {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  white-space: nowrap;
+}
+
+.active::before {
+  content: "";
+  position: absolute;
+  left: -14px;
+  top: 6px;
+  bottom: 6px;
+  width: 5px;
+  background: #0040D6;
+  border-radius: 999px;
+  
+}
+
+
+/* vertical gap */
+.gap29 {
+  height: 29px;
+}
+
+/* middle row container */
+.middleRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  column-gap: 20px;
+}
+
+/* middle row cards */
+.orders,
+.shipping,
+.activeUsers,
+.returns {
+  height: 170px;
+}
+
+/* vertical gap */
+.gap32 {
+  height: 32px;
+}
+
+/* business insights */
+.businessInsights {
+  height: 300px;
+}

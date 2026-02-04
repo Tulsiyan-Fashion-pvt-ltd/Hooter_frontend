@@ -1,6 +1,6 @@
 import { useState } from "react";
 import clsx from "clsx";
-import styles from "../css/pages/Sidebar.module.css";
+import styles from "../css/layout/Sidebar.module.css";
 import { NavLink } from "react-router-dom";
 
 const Sidebar = () => {
@@ -57,7 +57,6 @@ const Sidebar = () => {
             )}
           >
             <span className={styles.sidebarLabel}>{item}</span>
-            <span className={styles.sidebarArrow} />
           </NavLink>
         ))}
       </nav>

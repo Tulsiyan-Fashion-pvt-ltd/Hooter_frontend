@@ -61,7 +61,7 @@
     max-width: calc(50% - 10px);
 }
 
-input {
+input, .item {
     width: 100%;
     padding: 14px 16px;
     border: 1px solid #dcdcdc;
@@ -70,6 +70,12 @@ input {
     color: #555;
     outline: none;
     transition: border 0.3s;
+}
+
+.item{
+    width: 100%;
+  height: 100%;
+  padding-left: 16px;
 }
 
 .footer {
@@ -93,6 +99,29 @@ input {
 
 .proceedButton{
     margin-left: 68%;
+}
+
+.selfPOC{
+    width: fit-content;
+    margin-right: 10px;
+    outline: none;
+    border: none;
+}
+
+.selfPOC:focus{
+    outline: none;
+    border: none;
+}
+
+.selectPOC{
+    margin: 14px 0px;
+}
+
+.description{
+    font-size: 12px;
+  color: #626262;
+  margin: 1rem auto;
+
 }
 
 @media (max-width: 600px) {

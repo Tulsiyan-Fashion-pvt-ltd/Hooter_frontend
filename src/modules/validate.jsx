@@ -9,3 +9,10 @@ export function validateInNumber(num){
 
     return numberRegex.test(num);
 }
+
+export function validatePincode(pin)
+{
+    const pincodeRegex = /^\d{6}$/;
+
+    return pincodeRegex.test(pin);
+}
