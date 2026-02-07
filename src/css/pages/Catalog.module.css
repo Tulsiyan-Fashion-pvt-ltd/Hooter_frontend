@@ -1,0 +1,155 @@
+/* CatalogUpload.module.css */
+
+.header{
+    background:linear-gradient(90deg,#0f2027,#203a43,#2c5364);
+    color:#fff;
+    padding:25px;
+}
+
+.header h1{
+    font-size:26px;
+}
+
+.header p{
+    opacity:0.8;
+}
+
+.container{
+    padding:20px;
+}
+
+.topActions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.btn{
+    padding:10px 15px;
+    border:none;
+    border-radius:5px;
+    font-size:14px;
+    cursor:pointer;
+}
+
+.btnPrimary{
+    background:#2563eb;
+    color:#fff;
+}
+
+.btnLight{
+    background:#e5e7eb;
+}
+
+.cards{
+    display:flex;
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.card{
+    background:#fff;
+    padding:15px;
+    width:200px;
+    border-radius:8px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+
+.card h3{
+    font-size:14px;
+    color:#555;
+}
+
+.card p{
+    font-size:24px;
+    font-weight:bold;
+    margin-top:10px;
+}
+
+.tabs{
+    display:flex;
+    gap:15px;
+    border-bottom:1px solid #ddd;
+    margin-bottom:15px;
+}
+
+.tabs a{
+    padding:10px;
+    text-decoration:none;
+    color:#555;
+    font-size:14px;
+}
+
+.activeTab{
+    color:#2563eb;
+    border-bottom:2px solid #2563eb;
+}
+
+.filters{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:10px;
+}
+
+.select,
+.input{
+    padding:8px;
+    border:1px solid #ccc;
+    border-radius:5px;
+}
+
+.table{
+    width:100%;
+    border-collapse:collapse;
+    background:#fff;
+    border-radius:8px;
+    overflow:hidden;
+}
+
+.th,
+.td{
+    padding:12px;
+    border-bottom:1px solid #eee;
+    text-align:left;
+    font-size:14px;
+}
+
+.th{
+    background:#f1f5f9;
+}
+
+.image{
+    width:40px;
+    border-radius:5px;
+}
+
+.status{
+    padding:5px 10px;
+    border-radius:12px;
+    font-size:12px;
+}
+
+.statusActive{
+    background:#dcfce7;
+    color:#15803d;
+}
+
+.statusPause{
+    background:#fef3c7;
+    color:#92400e;
+}
+
+.actions a{
+    margin-right:10px;
+    text-decoration:none;
+    font-size:13px;
+}
+
+.edit{
+    color:#2563eb;
+}
+
+.delete{
+    color:#dc2626;
+}

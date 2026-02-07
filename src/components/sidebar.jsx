@@ -1,24 +1,28 @@
 import { useState } from "react";
 import clsx from "clsx";
 import styles from "../css/layout/sidebar.module.css";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
   const [activeMenuItem, setActiveMenuItem] = useState(null);
   const [collapsed, setCollapsed] = useState(true);
-  const [indicator, setIndicator] = useState('/'); // indicator stores the values of the items' keys. 
+
+  // setting up the indicator as per the current location
+  const path = useLocation();
+  const [indicator, setIndicator] = useState(path.pathname); // indicator stores the values of the items' keys. 
                                                   //  and we can match currently on which item in the sidebar menu we are in
 
   const items = {
     "Home": '/',
     "Catalog": '/catalog',
     "Inventory": '/inventory',
-    "Order": '/order',
+    "Order": '/orders',
     "Shipping": '/shipping',
     "Payments": '/payments',
     "Stats": '/stats',
     "Settings": '/settings',
   }
+
 
   return (
     <aside

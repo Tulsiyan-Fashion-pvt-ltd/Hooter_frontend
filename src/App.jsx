@@ -6,7 +6,8 @@ import Signup from "./pages/signup";
 import { Protect, PreventAuth } from './modules/auth';
 import Layout from "./layout";
 import './css/layout/animations.css'
-import Catalog from "./pages/catelog";
+import Catalog from "./pages/catalog";
+import Orders from "./pages/Orders";
 
 
 function App() {
@@ -26,6 +27,12 @@ function App() {
               <Catalog />
             </Protect>
           }/>
+
+        <Route path="/orders" element={
+          <Protect>
+            <Orders/>
+          </Protect>
+        }/>
       </Route>
 
       <Route path="/register" element={
