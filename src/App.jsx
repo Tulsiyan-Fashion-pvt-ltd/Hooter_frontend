@@ -7,7 +7,8 @@ import { Protect, PreventAuth } from './modules/auth';
 import Layout from "./layout";
 import './css/layout/animations.css'
 import Catalog from "./pages/catalog";
-import Orders from "./pages/Orders";
+import Orders from "./pages/orders";
+import AddCatalog from "./pages/add-catalog";
 
 
 function App() {
@@ -15,24 +16,30 @@ function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element=
-        {
-          <Protect>
-            <Homepage />
-          </Protect>
-        } />
+          {
+            <Protect>
+              <Homepage />
+            </Protect>
+          } />
 
         <Route path='/catalog' element=
           {
             <Protect>
               <Catalog />
             </Protect>
-          }/>
+          } />
+
+        <Route path="/catalog/add-catalog" element={
+          <Protect>
+            <AddCatalog />
+          </Protect>
+        } />
 
         <Route path="/orders" element={
           <Protect>
-            <Orders/>
+            <Orders />
           </Protect>
-        }/>
+        } />
       </Route>
 
       <Route path="/register" element={

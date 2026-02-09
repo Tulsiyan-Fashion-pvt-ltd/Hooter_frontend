@@ -1,4 +1,5 @@
 import styles from '../css/pages/Catalog.module.css'
+import { NavLink } from 'react-router-dom';
 
 export default function Catalog()
 {
@@ -37,13 +38,17 @@ export default function Catalog()
 
   <div className={styles.container}>
     <div className={styles.topActions}>
+      <NavLink to='./add-catalog'>
       <button className={`${styles.btn} ${styles.btnPrimary}`}>
         Add Catalog in Bulk
       </button>
+      </NavLink>  
 
+    
       <button className={`${styles.btn} ${styles.btnLight}`}>
         Add Single Catalog
       </button>
+    
     </div>
 
     <div className={styles.cards}>

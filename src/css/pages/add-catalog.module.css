@@ -1,0 +1,322 @@
+/* BASE TYPOGRAPHY */
+body {
+    font-size: 14px;
+    color: #222;
+}
+
+/* MAIN */
+.main {
+    max-width: 1100px;
+    margin: auto;
+}
+
+/* SHADOW */
+.top,
+.card {
+    box-shadow: 0px 4px 8px 0px #00000040;
+}
+
+/* TOP CARD */
+.top {
+    background: white;
+    padding: 20px;
+    border-radius: 6px;
+}
+
+/* TITLE */
+.top h1 {
+    font-size: 2em;       /* default */
+    font-weight: 600;
+    margin-bottom: 0.5em;
+}
+
+.top p {
+    font-size: 1em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+/* STEPS */
+.steps {
+    display: flex;
+    gap: 20px;
+}
+
+.step {
+    font-size: 1em;
+    color: #888;
+    cursor: pointer;
+    padding-bottom: 4px;
+}
+
+.step.active {
+    color: #1a73e8;
+    font-weight: 600;
+    border-bottom: 2px solid #1a73e8;
+}
+
+.check {
+    color: green;
+    margin-right: 5px;
+}
+
+/* MANDATORY ROW */
+.mandatory-row {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mandatory {
+    font-size: 0.9em;
+    color: #555;
+}
+
+.mandatory span {
+    color: red;
+}
+
+.guideline a {
+    font-size: 0.85em;
+    color: #c25a00;
+    background: #fff3e0;
+    border: 1px solid orange;
+    padding: 6px 10px;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+/* AFTER TOP */
+.after_top {
+    margin-top: 18px;
+    display: flex;
+    gap: 20px;
+}
+
+/* LEFT FORM */
+.left {
+    flex: 2;
+    background: white;
+    border-radius: 6px;
+    padding: 20px;
+    box-shadow: 0px 4px 8px 0px #00000040;
+}
+
+.left h3 {
+    font-size: 1.17em;   /* default */
+    margin-bottom: 12px;
+}
+
+.left h4 {
+    font-size: 1em;      /* default */
+    margin-bottom: 10px;
+}
+
+/* INFO BOX */
+.info-box {
+    background: #f3f7ff;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 15px;
+}
+
+.info-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1em;
+    margin-bottom: 4px;
+}
+
+.tick {
+    background: #0b4ddb;
+    color: white;
+    font-size: 0.85em;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.info-text {
+    font-size: 0.85em;
+    color: #666;
+    margin-left: 26px;
+}
+
+.note {
+    font-size: 0.85em;
+    color: #777;
+    margin: 6px 0 15px;
+}
+
+/* LISTING */
+.line {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 14px;
+}
+
+/* PILL */
+.pill {
+    min-width: 140px;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.9em;
+    position: relative;
+}
+
+/* BLUE STRIP */
+.pill::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 3px;
+    height: 100%;
+    background: #1a73e8;
+    border-radius: 0 6px 6px 0;
+}
+
+.required {
+    color: red;
+}
+
+/* INPUT */
+.line input {
+    flex: 1;
+    border: none;
+    border-bottom: 1px solid #999;
+    padding: 8px 4px;
+    font-size: 1em;
+    outline: none;
+}
+
+.line input:focus {
+    border-color: #1a73e8;
+}
+
+/* BUTTONS */
+.buttons {
+    margin-top: 22px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.draft,
+.submit {
+    font-size: 1em;
+}
+
+.draft {
+    background: #eee;
+    border: none;
+    padding: 8px 14px;
+}
+
+.submit {
+    background: #0b4ddb;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+}
+
+/* RIGHT */
+.right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* CARDS */
+.card1,
+.card2 {
+    background: white;
+    border-radius: 6px;
+    padding: 15px;
+    box-shadow: 0px 4px 8px 0px #00000040;
+}
+
+.card1 {
+    flex: 2;
+}
+
+.card2 {
+    flex: 1;
+}
+
+/* TITLES */
+.card1 h4,
+.card2 h4 {
+    font-size: 1em;
+    margin-bottom: 12px;
+}
+
+/* IMAGE GRID */
+.image-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.img-box {
+    background: #f2f6ff;
+    height: 90px;
+    font-size: 0.85em;
+    text-align: center;
+    padding-top: 8px;
+    border-radius: 6px;
+}
+
+/* CAMERA */
+.circle {
+    margin: 10px auto 0;
+    width: 40px;
+    height: 40px;
+    border: 2px dashed #1a73e8;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* BUTTON */
+.blue-btn {
+    width: 100%;
+    margin-top: 12px;
+    background: #0b4ddb;
+    color: white;
+    border: none;
+    padding: 8px;
+    font-size: 1em;
+}
+
+/* CHANNEL */
+.channel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1em;
+    margin-bottom: 10px;
+}
+
+/* RESPONSIVE */
+@media(max-width:768px) {
+    .after_top {
+        flex-direction: column;
+    }
+
+    .mandatory-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}
