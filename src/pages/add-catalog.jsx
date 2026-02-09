@@ -98,32 +98,6 @@ export default function AddCatalog() {
 
                             <button className={styles["blue-btn"]}>Add more image</button>
                         </div>
-
-                        <div className={`${styles.card2} ${styles.shadow}`}>
-                            <h4>Add Channel</h4>
-
-                            <div className={styles.channel}>
-                                <span>🛒 Flipkart</span>
-                                <input type="checkbox" />
-                            </div>
-
-                            <div className={styles.channel}>
-                                <span>🛍 Shopify</span>
-                                <input type="checkbox" defaultChecked />
-                            </div>
-
-                            <div className={styles.channel}>
-                                <span>👗 Myntra</span>
-                                <input type="checkbox" />
-                            </div>
-
-                            <div className={styles.channel}>
-                                <span>📦 Amazon</span>
-                                <input type="checkbox" />
-                            </div>
-
-                            <button className={styles["blue-btn"]}>Add more image</button>
-                        </div>
                     </div>
                 </div>
             </div>
