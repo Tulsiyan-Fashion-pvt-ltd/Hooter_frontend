@@ -1,5 +1,10 @@
 /* CatalogUpload.module.css */
 
+.mainContainer{
+    max-width: 1149px;
+    /* margin: auto;                        */
+}
+
 .header{
     background:linear-gradient(90deg,#0f2027,#203a43,#2c5364);
     color:#fff;
@@ -15,14 +20,14 @@
 }
 
 .container{
-    padding:20px;
+    padding:20px 0px;
 }
 
 .topActions{
     display:flex;
     justify-content:flex-end;
     gap:10px;
-    margin-bottom:20px;
+    margin-bottom:4rem;
 }
 
 .btn{

@@ -1,6 +1,6 @@
 .globalOrdersContainer{
     max-width: 1149px;
-    margin: auto;
+    /* margin: auto; */
     display: flex;
   flex-flow: column nowrap;
   gap: 30px;
