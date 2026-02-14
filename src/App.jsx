@@ -9,6 +9,7 @@ import './css/layout/animations.css'
 import Catalog from "./pages/catalog";
 import Orders from "./pages/orders";
 import AddCatalog from "./pages/add-catalog";
+import AddBulkCatalog from "./pages/add-bulk-catalog";
 
 
 function App() {
@@ -34,6 +35,12 @@ function App() {
             <AddCatalog />
           </Protect>
         } />
+
+        <Route path="/catalog/add-bulk-catalog" element={
+          <Protect>
+            <AddBulkCatalog/>
+          </Protect>
+        }/>
 
         <Route path="/orders" element={
           <Protect>

@@ -37,10 +37,11 @@ export default function Catalog() {
 
       <div className={styles.container}>
         <div className={styles.topActions}>
-
-          <button className={`${styles.btn} ${styles.btnPrimary}`}>
-            Add Catalog in Bulk
-          </button>
+          <NavLink to='./add-bulk-catalog'>
+            <button className={`${styles.btn} ${styles.btnPrimary}`}>
+              Add Catalog in Bulk
+            </button>
+          </NavLink>
 
           <NavLink to='./add-catalog'>
             <button className={`${styles.btn} ${styles.btnLight}`}>
@@ -116,8 +117,8 @@ export default function Catalog() {
                 <td className={styles.td}>
                   <span
                     className={`${styles.status} ${p.status === "Active"
-                        ? styles.statusActive
-                        : styles.statusPause
+                      ? styles.statusActive
+                      : styles.statusPause
                       }`}
                   >
                     {p.status}

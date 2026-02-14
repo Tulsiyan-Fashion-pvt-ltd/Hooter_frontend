@@ -1,0 +1,253 @@
+/* BulkCatalog.module.css */
+
+/* =========================
+   MAIN WRAPPER
+========================= */
+.main {
+  max-width: 1100px;
+  /* margin: 40px auto; */
+  padding: 0 20px;
+}
+
+/* =========================
+   TOP CONTAINER
+========================= */
+.topContainer {
+  background: #ffffff;
+  padding: 24px 28px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
+  border-left: 1px solid #000000;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 16px;
+}
+
+.link {
+  font-size: 16px;
+  color: #0040d6;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+/* Section Header */
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  margin-top: 12px;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.required {
+  color: red;
+}
+
+/* Warning Box */
+.warningBox {
+  display: flex;
+  background: #ffebd1;
+  border: 1px solid #ffc06e;
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 3px;
+}
+
+.hr1 {
+  margin-top: 8px;
+}
+
+.icon {
+  background-color: #ff9306;
+  padding: 2px 6px;
+  margin-right: 6px;
+  color: white;
+  font-weight: bold;
+}
+
+/* =========================
+   UPLOAD SECTION
+========================= */
+.uploadSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 28px 0;
+}
+
+.uploadBtn {
+  background: #0040d6;
+  color: #ffffff;
+  border: none;
+  padding: 10px 22px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 2px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12);
+}
+
+.uploadInfo {
+  text-align: right;
+  font-size: 14px;
+  color: #555;
+}
+
+.uploadInfo a {
+  color: #0040d6;
+  text-decoration: none;
+}
+
+.uploadInfo a:hover {
+  text-decoration: underline;
+}
+
+/* =========================
+   MAIN CONTENT AREA
+========================= */
+.mainContainer {
+  display: flex;
+  gap: 30px;
+}
+
+/* =========================
+   LEFT CARD
+========================= */
+.leftSection {
+  flex: 3;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  padding: 28px;
+}
+
+.leftHeading {
+  font-size: 22px;
+  font-weight: 500;
+  margin-bottom: 18px;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.hr2 {
+  width: 100%;
+  height: 2px;
+  background-color: #000000;
+  margin: 0 0 16px 0;
+}
+
+/* Copy Box */
+.copyBox {
+  background: #0040d60d;
+  padding: 14px;
+  font-size: 14px;
+  margin-bottom: 40px;
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  margin-bottom: 50px;
+  color: #666;
+}
+
+.emptyState strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+.emptyState p {
+  font-size: 14px;
+}
+
+/* Buttons */
+.buttonRow {
+  display: flex;
+  justify-content: space-between;
+}
+
+.draft {
+  background: #0040d60d;
+  border: none;
+  padding: 10px 22px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.submit {
+  background: #0040d6;
+  color: #ffffff;
+  border: none;
+  padding: 10px 30px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* =========================
+   RIGHT SIDE
+========================= */
+.rightSection {
+  flex: 1;
+  padding-top: 20px;
+}
+
+.errorText {
+  color: #e51300;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.fixBtn {
+  background: #e513001a;
+  border: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #e51300;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+  .mainContainer {
+    flex-direction: column;
+  }
+
+  .buttonRow {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .submit,
+  .draft {
+    width: 100%;
+  }
+
+  .uploadSection {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .uploadInfo {
+    text-align: left;
+  }
+}
