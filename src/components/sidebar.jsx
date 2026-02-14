@@ -36,7 +36,7 @@ const Sidebar = () => {
         className={styles.collapseToggle}
         onClick={() => setCollapsed((prev) => !prev)}
       >
-        {collapsed ? ">>" : "<<"}
+        {collapsed ? ">" : "<"}
       </button>
 
       {/* Header */}

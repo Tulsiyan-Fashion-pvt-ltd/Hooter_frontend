@@ -17,9 +17,7 @@ function App() {
       <Route element={<Layout />}>
         <Route path="/" element=
           {
-            <Protect>
               <Homepage />
-            </Protect>
           } />
 
         <Route path='/catalog' element=
