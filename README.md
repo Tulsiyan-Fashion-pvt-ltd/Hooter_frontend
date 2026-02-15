@@ -1,157 +1,83 @@
-# E-Commerce Dashboard - Complete Documentation
+# E-Commerce Dashboard - Backend Implementation Guide
 
-## Overview
-This is a multi-platform e-commerce dashboard with dynamic data visualization, platform filtering, and business insights. The dashboard is fully prepared for backend integration with mock data currently in place.
-
----
-
-## 🎨 Features
-
-### 1. Platform Filtering
-- 8 platform buttons with active state indicator
-- Platforms: All, Flipkart, Amazon, Shopify, Website, Meesho, Myntra, Ajio
-- Clicking a platform automatically fetches and displays platform-specific data
-
-### 2. Metric Cards (4 cards)
-- **Orders Card**
-  - Icon: `src\assets\icons\sidebar\orders-active.svg`
-  - Shows total orders count
-  - Bar chart visualization
-  
-- **Shipping Performance Card**
-  - Icon: `src\assets\icons\sidebar\shipping-active.svg`
-  - Shows items in transit
-  - Line chart visualization
-  
-- **Active Users Card**
-  - Icon: `src\assets\icons\users.svg`
-  - Shows active user count
-  - Donut/pie chart with percentage
-  
-- **Returns Card**
-  - Icon: `src\assets\icons\returns.svg`
-  - Shows returned items count
-  - Bar chart visualization
-
-### 3. Dynamic Color System
-All metrics have **automatic color coding** based on trend:
-- **Positive trends (+)**: Green (#00C853)
-- **Negative trends (-)**: Red (#D32F2F)
-
-This applies to:
-- Percentage change text
-- Arrow indicators (up/down)
-- Chart colors (bars, lines, pie charts)
-- Background colors for pie chart segments
-
-### 4. Metric Card Features
-- Icon with colored background box
-- Metric title
-- Menu button (⋮)
-- **Underline below header**
-- Main value display
-- Percentage change with dynamic color
-- "Since Last Week" label
-- Mini chart visualization
-
-### 5. Business Insights Section
-- Tabbed navigation (All, Top Rated, Best Seller, New Listings, Out Of Stocks)
-- **Best Seller** section with:
-  - Product image
-  - Product details (stock, price, units sold)
-  - Bar chart for sales data
-  
-- **Statistics** section with:
-  - Weekly performance line chart
-  - Overlaid mini bar chart
-  - Overlaid donut chart
-  - Product thumbnail overlay
+## 📋 Overview
+This dashboard displays multi-platform e-commerce metrics with dynamic data visualization. All data is pulled from backend APIs for real-time updates.
 
 ---
 
-## 📁 File Structure
+## 🎯 Quick Start for Backend Integration
 
-```
-src/
-├── components/
-│   └── pages/
-│       └── Homepage.jsx          # Main dashboard component
-├── css/
-│   └── pages/
-│       └── Homepage.module.css   # Dashboard styles
-└── assets/
-    └── icons/
-        ├── sidebar/
-        │   ├── orders-active.svg
-        │   └── shipping-active.svg
-        ├── users.svg
-        └── returns.svg
-```
-
----
-
-## 🔧 Installation
-
-### Prerequisites
-- Node.js (v14 or higher)
-- npm or yarn
-
-### Install Dependencies
+### Step 1: Install Dependencies
 ```bash
 npm install recharts clsx
 ```
-or
-```bash
-yarn add recharts clsx
+
+### Step 2: Set Up Environment Variables
+Create a `.env` file in your project root:
+```env
+REACT_APP_API_URL=http://localhost:3001
 ```
 
-### Required Libraries
-- `recharts` - For charts and data visualization
-- `clsx` - For conditional CSS classes
+For production:
+```env
+REACT_APP_API_URL=https://api.yourproduction.com
+```
+
+### Step 3: Enable Backend API Calls
+Open `Homepage.jsx` and look for these two functions:
+
+#### Function 1: `fetchDashboardData()` (around line 60)
+**Find this:**
+```javascript
+// TODO: Replace with actual API endpoint
+// const response = await fetch(`/api/dashboard/metrics?platform=${activePlatform}`);
+// const data = await response.json();
+// setMetricsData(data.metrics);
+// setChartData(data.charts);
+```
+
+**Replace with:**
+```javascript
+const response = await fetch(
+  `${process.env.REACT_APP_API_URL}/api/dashboard/metrics?platform=${activePlatform}`
+);
+const data = await response.json();
+setMetricsData(data.metrics);
+setChartData(data.charts);
+```
+
+**Then delete** all the mock data below it (`mockMetrics`, `mockCharts`)
+
+#### Function 2: `fetchBusinessInsightsData()` (around line 100)
+**Find this:**
+```javascript
+// TODO: Replace with actual API endpoint
+// const response = await fetch(`/api/business-insights?tab=${activeTab}&platform=${activePlatform}`);
+// const data = await response.json();
+// setBestSellerData(data.bestSeller);
+// setStatisticsData(data.statistics);
+```
+
+**Replace with:**
+```javascript
+const response = await fetch(
+  `${process.env.REACT_APP_API_URL}/api/business-insights?tab=${activeTab}&platform=${activePlatform}`
+);
+const data = await response.json();
+setBestSellerData(data.bestSeller);
+setStatisticsData(data.statistics);
+```
+
+**Then delete** all the mock data below it (`mockBestSeller`, `mockStatistics`)
 
 ---
 
-## 🚀 Current Setup (Mock Data)
+## 🔌 Required API Endpoints
 
-The dashboard currently runs with **mock data** that demonstrates all functionality:
+### Endpoint 1: Dashboard Metrics
+**GET** `/api/dashboard/metrics?platform={platformId}`
 
-### How It Works Now:
-1. `fetchDashboardData()` is called when platform changes
-2. `fetchBusinessInsightsData()` is called when tab changes
-3. Mock data is loaded into state variables
-4. UI updates automatically based on state
-
-### Mock Data Structure:
-
-**Metrics Data:**
-```javascript
-{
-  orders: { value: 42, change: 12, trend: "up" },
-  shipping: { value: 36, change: -12, trend: "down" },
-  activeUsers: { value: 108, change: 12, trend: "up", percentage: 60 },
-  returns: { value: 16, change: -8, trend: "down" }
-}
-```
-
-**Chart Data:**
-```javascript
-{
-  ordersBarData: [{ day: 1, value: 25 }, ...],
-  shippingTrend: [{ day: 1, value: 20 }, ...],
-  returnsBarData: [{ day: 1, value: 15 }, ...]
-}
-```
-
----
-
-## 🔌 Backend Integration Guide
-
-### Step 1: Create Backend API Endpoints
-
-You need to create **2 main endpoints**:
-
-#### Endpoint 1: Dashboard Metrics
-**URL:** `GET /api/dashboard/metrics?platform={platformId}`
+Returns metrics for the 4 cards in the middle row and their chart data.
 
 **Response Format:**
 ```json
@@ -160,23 +86,22 @@ You need to create **2 main endpoints**:
     "orders": {
       "value": 42,
       "change": 12,
-      "trend": "up"
+      "percentage": 65
     },
     "shipping": {
       "value": 36,
-      "change": -12,
-      "trend": "down"
+      "change": -8,
+      "percentage": 45
     },
     "activeUsers": {
       "value": 108,
-      "change": 12,
-      "trend": "up",
-      "percentage": 60
+      "change": 18,
+      "percentage": 72
     },
     "returns": {
       "value": 16,
-      "change": -8,
-      "trend": "down"
+      "change": -15,
+      "percentage": 30
     }
   },
   "charts": {
@@ -211,8 +136,18 @@ You need to create **2 main endpoints**:
 }
 ```
 
-#### Endpoint 2: Business Insights
-**URL:** `GET /api/business-insights?tab={tabId}&platform={platformId}`
+**Field Descriptions:**
+- `value`: Main metric number displayed
+- `change`: Percentage change (positive or negative number)
+- `percentage`: Percentage value for pie chart (0-100)
+- Chart data: 7 days of data for each metric's visualization
+
+---
+
+### Endpoint 2: Business Insights
+**GET** `/api/business-insights?tab={tabId}&platform={platformId}`
+
+Returns best seller product details and statistics chart data.
 
 **Response Format:**
 ```json
@@ -257,97 +192,16 @@ You need to create **2 main endpoints**:
 }
 ```
 
-### Step 2: Configure Environment Variables
-
-Create a `.env` file in your project root:
-
-```env
-REACT_APP_API_URL=http://localhost:3001
-```
-
-For production:
-```env
-REACT_APP_API_URL=https://api.yourproduction.com
-```
-
-### Step 3: Update Homepage.jsx
-
-#### In `fetchDashboardData()` function:
-
-**Find this section (around line 62):**
-```javascript
-// TODO: Replace with actual API endpoint
-// const response = await fetch(`/api/dashboard/metrics?platform=${activePlatform}`);
-// const data = await response.json();
-// setMetricsData(data.metrics);
-// setChartData(data.charts);
-
-// MOCK DATA - Remove when backend is ready
-const mockMetrics = { ... };
-const mockCharts = { ... };
-
-setMetricsData(mockMetrics);
-setChartData(mockCharts);
-```
-
-**Replace with:**
-```javascript
-const response = await fetch(
-  `${process.env.REACT_APP_API_URL}/api/dashboard/metrics?platform=${activePlatform}`
-);
-const data = await response.json();
-setMetricsData(data.metrics);
-setChartData(data.charts);
-```
-
-#### In `fetchBusinessInsightsData()` function:
-
-**Find this section (around line 99):**
-```javascript
-// TODO: Replace with actual API endpoint
-// const response = await fetch(`/api/business-insights?tab=${activeTab}&platform=${activePlatform}`);
-// const data = await response.json();
-// setBestSellerData(data.bestSeller);
-// setStatisticsData(data.statistics);
-
-// MOCK DATA - Remove when backend is ready
-const mockBestSeller = { ... };
-const mockStatistics = { ... };
-
-setBestSellerData(mockBestSeller);
-setStatisticsData(mockStatistics);
-```
-
-**Replace with:**
-```javascript
-const response = await fetch(
-  `${process.env.REACT_APP_API_URL}/api/business-insights?tab=${activeTab}&platform=${activePlatform}`
-);
-const data = await response.json();
-setBestSellerData(data.bestSeller);
-setStatisticsData(data.statistics);
-```
-
-### Step 4: Remove Mock Data
-
-After implementing the API calls, **delete** all the mock data objects:
-- `mockMetrics`
-- `mockCharts`
-- `mockBestSeller`
-- `mockStatistics`
-
-### Step 5: Test the Integration
-
-1. Start your backend server
-2. Start your React app: `npm start`
-3. Test platform switching - should trigger API calls
-4. Test tab switching - should trigger API calls
-5. Check browser Network tab to verify API calls
-6. Check console for any errors
+**Field Descriptions:**
+- `sellingPrice`: Price in Rupees (₹)
+- `chartData`: Blue/red bar chart data (use "blue" or "red" keys)
+- `weeklyData`: Two line chart series (blue and red lines)
+- `barData`: Small bar chart overlay data
+- `piePercentage`: Returns donut chart percentage (0-100)
 
 ---
 
-## 📊 Platform & Tab IDs
+## 🔢 Platform & Tab ID Reference
 
 ### Platform IDs
 ```javascript
@@ -372,135 +226,158 @@ After implementing the API calls, **delete** all the mock data objects:
 
 ---
 
-## 🎨 Color Scheme
+## 🎨 How The Dashboard Works
 
-### Primary Colors
-- **Blue**: `#0040D6` (Primary brand color, positive trends)
-- **Red**: `#D32F2F` (Negative trends, alerts)
-- **Green**: `#00C853` (Positive changes)
+### Automatic Data Fetching
+The dashboard automatically fetches data when:
+1. **Platform button is clicked** → Triggers `fetchDashboardData()` and `fetchBusinessInsightsData()`
+2. **Tab is clicked** → Triggers `fetchBusinessInsightsData()`
 
-### Background Colors
-- **Page Background**: `#FAFAFA`
-- **Card Background**: `#FFFFFF`
+### Dynamic Color Coding
+All metrics have **automatic color coding**:
+- **Positive changes (+)**: Green text, blue charts
+- **Negative changes (-)**: Red text, red charts
 
-### Chart Colors
-- **Blue Bars/Lines**: `#0040D6`
-- **Red Bars/Lines**: `#D32F2F`
-- **Light Blue**: `#E3E8FF` (backgrounds)
-- **Light Red**: `#FFE3E3` (backgrounds)
+This applies to:
+- Percentage containers (green/red background)
+- Arrow indicators (up/down)
+- Chart colors (bars, lines, pie charts)
 
----
-
-## 🔄 Data Flow
-
-```
-User clicks platform button
-         ↓
-activePlatform state updates
-         ↓
-useEffect triggers
-         ↓
-fetchDashboardData() called
-         ↓
-API call to /api/dashboard/metrics?platform={id}
-         ↓
-Response data → state (metricsData, chartData)
-         ↓
-UI re-renders with new data
-         ↓
-Dynamic colors apply based on trend values
-```
+### What Updates Automatically
+When new data arrives from the API:
+- All 4 metric cards (Orders, Shipping, Users, Returns)
+- All metric values and percentages
+- All mini charts (bars, lines, pie)
+- Best Seller product info
+- Statistics line chart
+- Returns overlay charts
 
 ---
 
-## 🐛 Troubleshooting
+## 📁 Required SVG Icon Paths
 
-### Issue: Icons not showing
-**Solution:** Verify SVG file paths are correct:
-- `src\assets\icons\sidebar\orders-active.svg`
-- `src\assets\icons\sidebar\shipping-active.svg`
-- `src\assets\icons\users.svg`
-- `src\assets\icons\returns.svg`
+Make sure these SVG files exist at these paths:
+```
+src/assets/icons/sidebar/orders-active.svg
+src/assets/icons/sidebar/shipping-active.svg
+src/assets/icons/sidebar/stats-active.svg
+src/assets/icons/users.svg
+src/assets/icons/returns.svg
+src/assets/icons/note.svg
+```
+
+---
+
+## ✅ Backend Integration Checklist
+
+Before going live:
+- [ ] Create both API endpoints
+- [ ] Set up environment variables (.env file)
+- [ ] Uncomment API calls in `fetchDashboardData()`
+- [ ] Uncomment API calls in `fetchBusinessInsightsData()`
+- [ ] Delete all mock data objects
+- [ ] Configure CORS on backend
+- [ ] Test all 8 platform switches
+- [ ] Test all 5 tab switches
+- [ ] Verify color changes work (positive/negative)
+- [ ] Test with real product images
+- [ ] Verify all charts render correctly
+
+---
+
+## 🐛 Common Issues & Solutions
+
+### Issue: Colors not changing
+**Solution:** Ensure `change` values are **numbers**, not strings
+```javascript
+// ✅ Correct
+"change": 12
+
+// ❌ Wrong
+"change": "12"
+```
+
+### Issue: Pie chart stuck at same value
+**Solution:** Return dynamic `percentage` value (0-100) from API
 
 ### Issue: Charts not rendering
 **Solution:** 
-1. Verify `recharts` is installed: `npm list recharts`
-2. Check data format matches expected structure
-3. Open browser console for errors
-
-### Issue: Colors not changing dynamically
-**Solution:**
-1. Verify `change` values in API response are numbers (not strings)
-2. Check that `getTrendColor()` function is working
-3. Verify CSS is loading correctly
-
-### Issue: API calls not triggering
-**Solution:**
-1. Check `.env` file exists and has correct URL
-2. Verify environment variable: `console.log(process.env.REACT_APP_API_URL)`
-3. Restart development server after changing `.env`
-4. Check browser Network tab for failed requests
+1. Check data format matches examples exactly
+2. Verify `recharts` is installed
+3. Check browser console for errors
 
 ### Issue: CORS errors
-**Solution:** Configure CORS on your backend to allow requests from your React app origin
+**Solution:** Configure your backend to allow requests from React app origin
+```javascript
+// Express.js example
+app.use(cors({
+  origin: 'http://localhost:3000'
+}));
+```
+
+### Issue: Environment variable not working
+**Solution:**
+1. Restart development server after changing `.env`
+2. Verify with: `console.log(process.env.REACT_APP_API_URL)`
+3. Make sure variable starts with `REACT_APP_`
 
 ---
 
-## 📝 Important Notes
+## 🎯 Testing Your Backend
 
-1. **Dynamic Color System**: Colors automatically change based on whether the `change` value is positive or negative. No manual configuration needed.
+### Test with Mock Platforms
+Try switching between platforms and verify:
+- Different data loads for each platform
+- Positive/negative changes update colors
+- Charts update with new data
+- No console errors
 
-2. **Pie Chart Updates**: The Active Users pie chart now dynamically updates based on the `percentage` value from the API.
+### Test with Mock Tabs
+Click each Business Insights tab and verify:
+- Best seller data updates
+- Statistics chart updates
+- Product images load correctly
 
-3. **Loading States**: A loading indicator appears while data is being fetched.
-
-4. **Error Handling**: Basic error handling is implemented. Consider adding user-facing error messages.
-
-5. **Underlines**: All metric cards have a subtle underline below the header for visual separation.
-
-6. **Mock Data**: Current implementation uses mock data for demonstration. This will be replaced with real API calls.
-
----
-
-## 🚀 Next Steps
-
-1. Set up your backend API endpoints
-2. Configure environment variables
-3. Replace mock data with API calls
-4. Test thoroughly with different platforms and tabs
-5. Add additional error handling if needed
-6. Optimize performance if needed
-7. Add loading skeletons for better UX (optional)
+### API Response Time
+- Dashboard should load within 2 seconds
+- Add loading states if backend is slow
+- Consider caching frequently accessed data
 
 ---
 
-## 📞 Support
+## 🚀 Production Deployment
 
-If you encounter issues:
-1. Check browser console for errors
-2. Verify API response format matches expected structure
-3. Check Network tab for failed requests
-4. Ensure all dependencies are installed
-5. Restart development server
-
----
-
-## ✅ Checklist for Backend Integration
-
-- [ ] Backend API endpoints created
-- [ ] `.env` file configured
-- [ ] Mock data commented out in `fetchDashboardData()`
-- [ ] Mock data commented out in `fetchBusinessInsightsData()`
-- [ ] API calls implemented and tested
-- [ ] CORS configured on backend
-- [ ] Error handling verified
-- [ ] All platforms tested
-- [ ] All tabs tested
-- [ ] Dynamic colors working correctly
-- [ ] Charts rendering properly
-- [ ] Icons displaying correctly
+1. Update `.env.production` with production API URL
+2. Build the app: `npm run build`
+3. Ensure backend CORS allows production domain
+4. Test all features in production environment
+5. Monitor API response times
+6. Set up error logging
 
 ---
 
+## 📝 Notes
+
+- **Currency**: All prices display in Rupees (₹)
+- **Font**: All text uses Inter font with 400 weight
+- **Data Refresh**: Data refreshes on platform/tab change only (not automatic polling)
+- **Charts**: Uses Recharts library - all chart data must match format exactly
+
+---
+
+## 💡 Optional Enhancements
+
+Consider adding these features:
+- Loading skeletons during data fetch
+- Error boundaries for failed API calls
+- Retry mechanism for network failures
+- Real-time updates with WebSocket
+- Data caching to reduce API calls
+- Export functionality for reports
+
+---
+
+**Version:** 2.0.0  
 **Last Updated:** February 2026
-**Version:** 1.0.0
+
+For questions or issues, check the troubleshooting section or review the inline TODO comments in the code.

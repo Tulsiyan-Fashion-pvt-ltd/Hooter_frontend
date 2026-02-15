@@ -9,6 +9,7 @@ import ShippingIcon from "../assets/icons/sidebar/shipping-active.svg";
 import UsersIcon from "../assets/icons/users.svg";
 import ReturnsIcon from "../assets/icons/returns.svg";
 import NoteIcon from "../assets/icons/note.svg";
+import StatsIcon from "../assets/icons/sidebar/stats-active.svg";
 
 const Homepage = () => {
   // Platform button labels
@@ -48,6 +49,7 @@ const Homepage = () => {
   // Fetch data from backend when platform changes
   useEffect(() => {
     fetchDashboardData();
+    fetchBusinessInsightsData(); // Also fetch business insights when platform changes
   }, [activePlatform]);
 
   // Fetch data from backend when tab changes
@@ -181,44 +183,64 @@ const Homepage = () => {
       // setBestSellerData(data.bestSeller);
       // setStatisticsData(data.statistics);
 
-      // MOCK DATA - Remove when backend is ready
+      // MOCK DATA - This simulates real platform-specific product data
+      // In production, this data should come from your backend based on:
+      // - activePlatform: Which e-commerce platform (0-7)
+      // - activeTab: Which category filter (0-4)
+      
+      const platformNames = ['All', 'Flipkart', 'Amazon', 'Shopify', 'Website', 'Meesho', 'Myntra', 'Ajio'];
+      const currentPlatform = platformNames[activePlatform];
+      
+      // Best Seller product data - should reflect actual sales across platforms
       const mockBestSeller = {
         name: "Zipper Jacket",
         image: "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=300&h=300&fit=crop",
         sinceLastWeek: "Since Last Week",
-        availableStock: 153,
+        availableStock: 153 - (activePlatform * 10), // Dynamic stock per platform
         sellingPrice: 1599,
-        soldUnits: 60,
+        soldUnits: 60 + (activePlatform * 5), // Different sales per platform
+        // Bar chart showing daily sales performance across the week
+        // Each day has both blue (sales) and red (returns) bars side by side
         chartData: [
-          { day: 1, blue: 45, red: 0 },
-          { day: 2, blue: 0, red: 38 },
-          { day: 3, blue: 65, red: 0 },
-          { day: 4, blue: 0, red: 28 },
-          { day: 5, blue: 52, red: 0 },
-          { day: 6, blue: 70, red: 0 },
-          { day: 7, blue: 58, red: 0 },
+          { day: 1, blue: 45 + activePlatform * 2, red: 8 + activePlatform },
+          { day: 2, blue: 55 + activePlatform * 3, red: 12 - activePlatform },
+          { day: 3, blue: 65 + activePlatform * 3, red: 10 + activePlatform },
+          { day: 4, blue: 48 + activePlatform * 2, red: 15 - activePlatform * 2 },
+          { day: 5, blue: 52 + activePlatform, red: 9 + activePlatform },
+          { day: 6, blue: 70 + activePlatform * 2, red: 11 - activePlatform },
+          { day: 7, blue: 58 + activePlatform * 3, red: 13 + activePlatform },
         ]
       };
 
+      // Statistics data - tracks product performance metrics over the week
       const mockStatistics = {
+        // Overall platform performance change (used to determine chart colors)
+        performanceChange: activePlatform <= 3 ? 15 - (activePlatform * 3) : -(10 + activePlatform * 2),
+        // Weekly line chart data showing two metrics:
+        // value1 (blue line) = Total product views/traffic
+        // value2 (red line) = Actual purchases/conversions
         weeklyData: [
-          { day: 'Monday', value1: 28000, value2: 22000 },
-          { day: 'Tuesday', value1: 24000, value2: 20000 },
-          { day: 'Wednesday', value1: 12000, value2: 12000 },
-          { day: 'Thursday', value1: 8000, value2: 6000 },
-          { day: 'Friday', value1: 6000, value2: 8000 },
-          { day: 'Saturday', value1: 15000, value2: 18000 },
-          { day: 'Sunday', value1: 25000, value2: 24000 },
+          { day: 'Monday', value1: 28000 - (activePlatform * 1000), value2: 22000 - (activePlatform * 800) },
+          { day: 'Tuesday', value1: 24000 - (activePlatform * 900), value2: 20000 - (activePlatform * 700) },
+          { day: 'Wednesday', value1: 12000 - (activePlatform * 500), value2: 12000 - (activePlatform * 400) },
+          { day: 'Thursday', value1: 8000 - (activePlatform * 300), value2: 6000 - (activePlatform * 200) },
+          { day: 'Friday', value1: 6000 + (activePlatform * 200), value2: 8000 + (activePlatform * 300) },
+          { day: 'Saturday', value1: 15000 + (activePlatform * 600), value2: 18000 + (activePlatform * 700) },
+          { day: 'Sunday', value1: 25000 + (activePlatform * 1000), value2: 24000 + (activePlatform * 900) },
         ],
+        // Small bar chart overlay - daily engagement metrics
         barData: [
-          { value: 25 },
-          { value: 60 },
-          { value: 35 },
-          { value: 100 },
-          { value: 45 },
-          { value: 30 },
+          { value: 25 + activePlatform * 3 },
+          { value: 60 + activePlatform * 5 },
+          { value: 35 + activePlatform * 2 },
+          { value: 100 - activePlatform * 4 },
+          { value: 45 + activePlatform * 3 },
+          { value: 30 + activePlatform * 2 },
         ],
-        piePercentage: 60,
+        // Returns pie chart percentage
+        piePercentage: 60 - (activePlatform * 3),
+        // Returns change percentage - determines color (negative = good for returns)
+        returnsChange: activePlatform <= 3 ? -(5 + activePlatform * 2) : (10 + activePlatform * 3),
         productThumbnail: "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=100&h=100&fit=crop"
       };
 
@@ -322,7 +344,7 @@ const Homepage = () => {
             {/* Orders Card */}
             <div className={clsx(styles.card, styles.metricCard, styles.ordersCard)}>
               <div className={styles.metricHeader}>
-                <div className={styles.iconBox} style={{ background: '#0040D6' }}>
+                <div className={clsx(styles.iconBox, styles.ordersIconBox)}>
                   <img src={OrdersIcon} alt="Orders" className={styles.iconImage} />
                 </div>
                 <span className={styles.metricTitle}>Order</span>
@@ -363,7 +385,7 @@ const Homepage = () => {
             {/* Shipping Performance Card */}
             <div className={clsx(styles.card, styles.metricCard, styles.shippingCard)}>
               <div className={styles.metricHeader}>
-                <div className={styles.iconBox} style={{ background: '#D32F2F' }}>
+                <div className={clsx(styles.iconBox, styles.shippingIconBox)}>
                   <img src={ShippingIcon} alt="Shipping" className={styles.iconImage} />
                 </div>
                 <span className={styles.metricTitle}>Shipping Performance</span>
@@ -406,7 +428,7 @@ const Homepage = () => {
             {/* Active Users Card */}
             <div className={clsx(styles.card, styles.metricCard, styles.usersCard)}>
               <div className={styles.metricHeader}>
-                <div className={styles.iconBox} style={{ background: '#0040D6' }}>
+                <div className={clsx(styles.iconBox, styles.usersIconBox)}>
                   <img src={UsersIcon} alt="Users" className={styles.iconImage} />
                 </div>
                 <span className={styles.metricTitle}>Active Users</span>
@@ -431,7 +453,7 @@ const Homepage = () => {
                   </div>
                 </div>
                 <div className={styles.metricChart}>
-                  <div style={{ position: 'relative' }}>
+                  <div className={styles.pieChartContainer}>
                     <PieChart width={100} height={100}>
                       <Pie
                         data={[
@@ -462,7 +484,7 @@ const Homepage = () => {
             {/* Returns Card */}
             <div className={clsx(styles.card, styles.metricCard, styles.returnsCard)}>
               <div className={styles.metricHeader}>
-                <div className={styles.iconBox} style={{ background: '#D32F2F' }}>
+                <div className={clsx(styles.iconBox, styles.returnsIconBox)}>
                   <img src={ReturnsIcon} alt="Returns" className={styles.iconImage} />
                 </div>
                 <span className={styles.metricTitle}>Returns</span>
@@ -508,25 +530,27 @@ const Homepage = () => {
           <div className={clsx(styles.card, styles.businessInsights)}>
             <div className={styles.insightsHeader}>
               <div className={styles.insightsTitle}>
-                <img src={NoteIcon} alt="Business Insights" style={{ width: '20px', height: '20px', marginRight: '8px' }} />
+                <img src={NoteIcon} alt="Business Insights" className={styles.noteIcon} />
                 Business Insights
               </div>
               <button className={styles.menuBtn}>⋮</button>
             </div>
 
-            <div className={styles.insightsTabs}>
-              {insightsTabs.map((tab, index) => (
-                <button
-                  key={index}
-                  className={clsx(
-                    styles.insightsTab,
-                    activeTab === index && styles.activeInsightsTab
-                  )}
-                  onClick={() => setActiveTab(index)}
-                >
-                  {tab}
-                </button>
-              ))}
+            <div className={styles.insightsTabsWrapper}>
+              <div className={styles.insightsTabs}>
+                {insightsTabs.map((tab, index) => (
+                  <button
+                    key={index}
+                    className={clsx(
+                      styles.insightsTab,
+                      activeTab === index && styles.activeInsightsTab
+                    )}
+                    onClick={() => setActiveTab(index)}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className={styles.insightsContent}>
@@ -536,8 +560,9 @@ const Homepage = () => {
                 <h3 className={styles.sectionTitle}>Best Seller</h3>
                 
                 {bestSellerData && (
-                  <>
-                    <div className={styles.productCard}>
+                  <div className={styles.bestSellerContainer}>
+                    {/* Product Image on Left */}
+                    <div className={styles.productImageSection}>
                       <div className={styles.productImage}>
                         <img src={bestSellerData.image} alt={bestSellerData.name} />
                         <button className={styles.viewMoreBtn}>
@@ -547,39 +572,49 @@ const Homepage = () => {
                           </svg>
                         </button>
                       </div>
-                      
-                      <div className={styles.productInfo}>
-                        <div className={styles.productDetail}>
+                    </div>
+
+                    {/* Product Details and Chart on Right */}
+                    <div className={styles.productDetailsSection}>
+                      {/* Details Grid */}
+                      <div className={styles.productDetailsGrid}>
+                        <div className={styles.productDetailItem}>
                           <span className={styles.detailLabel}>Since Last Week</span>
                           <span className={styles.detailValue}>{bestSellerData.name}</span>
                         </div>
-                        <div className={styles.productDetail}>
-                          <span className={styles.detailLabel}>Available Stock</span>
-                          <span className={styles.detailValue}>{bestSellerData.availableStock}</span>
-                        </div>
-                      </div>
-                      
-                      <div className={styles.productInfo}>
-                        <div className={styles.productDetail}>
+                        
+                        <div className={styles.productDetailItem}>
                           <span className={styles.detailLabel}>Selling Price</span>
                           <span className={styles.detailValue}>₹{bestSellerData.sellingPrice}</span>
                         </div>
-                        <div className={styles.productDetail}>
+
+                        <div className={styles.productDetailItem}>
+                          <span className={styles.detailLabel}>Available Stock</span>
+                          <span className={styles.detailValue}>{bestSellerData.availableStock}</span>
+                        </div>
+
+                        <div className={styles.productDetailItem}>
                           <span className={styles.detailLabel}>Sold Units</span>
                           <span className={styles.detailValue}>{bestSellerData.soldUnits}</span>
                         </div>
                       </div>
-                    </div>
 
-                    <div className={styles.productBarChart}>
-                      <ResponsiveContainer width="100%" height={120}>
-                        <BarChart data={bestSellerData.chartData}>
-                          <Bar dataKey="blue" fill="#0040D6" radius={[4, 4, 0, 0]} />
-                          <Bar dataKey="red" fill="#D32F2F" radius={[4, 4, 0, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
+                      {/* Bar Chart */}
+                      <div className={styles.productBarChart}>
+                        <ResponsiveContainer width="100%" height={180}>
+                          <BarChart 
+                            data={bestSellerData.chartData} 
+                            barCategoryGap="5%" 
+                            barGap={1}
+                            margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
+                          >
+                            <Bar dataKey="blue" fill="#0040D6" radius={[4, 4, 0, 0]} />
+                            <Bar dataKey="red" fill="#D32F2F" radius={[4, 4, 0, 0]} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
                     </div>
-                  </>
+                  </div>
                 )}
               </div>
 
@@ -589,90 +624,97 @@ const Homepage = () => {
                   <>
                     <div className={styles.statsHeader}>
                       <div className={styles.statsIconBox}>
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                          <path d="M2 2V18H18" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                          <path d="M6 14L10 10L14 14L18 8" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
+                        <img src={StatsIcon} alt="Statistics" className={styles.statsIconImage} />
                       </div>
                       <span className={styles.statsTitle}>Statistics</span>
-                      <button className={styles.menuBtn} style={{ marginLeft: 'auto' }}>⋮</button>
-                      <span className={styles.returnsLabel}>Returns</span>
                     </div>
 
                     <div className={styles.statsChartArea}>
-                      <ResponsiveContainer width="100%" height={250}>
-                        <LineChart data={statisticsData.weeklyData}>
+                      <ResponsiveContainer width="100%" height={350}>
+                        <LineChart data={statisticsData.weeklyData} margin={{ top: 5, right: 5, bottom: 20, left: 10 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
                           <XAxis 
                             dataKey="day" 
                             stroke="#999" 
-                            style={{ fontSize: '11px' }}
+                            style={{ fontSize: '11px', fontFamily: 'Inter', fontWeight: 400 }}
                             axisLine={false}
                             tickLine={false}
+                            dy={10}
                           />
                           <YAxis 
                             stroke="#999" 
-                            style={{ fontSize: '11px' }}
+                            style={{ fontSize: '11px', fontFamily: 'Inter', fontWeight: 400 }}
                             axisLine={false}
                             tickLine={false}
                             tickFormatter={(value) => `${value / 1000}k`}
+                            dx={-5}
                           />
                           <Tooltip />
                           <Line 
                             type="monotone" 
                             dataKey="value1" 
-                            stroke="#0040D6" 
+                            stroke={statisticsData.performanceChange >= 0 ? '#0040D6' : '#E51300'}
                             strokeWidth={2}
-                            dot={{ fill: '#0040D6', r: 5, strokeWidth: 2, stroke: '#fff' }}
+                            dot={{ fill: statisticsData.performanceChange >= 0 ? '#0040D6' : '#E51300', r: 5, strokeWidth: 2, stroke: '#fff' }}
                           />
                           <Line 
                             type="monotone" 
                             dataKey="value2" 
-                            stroke="#D32F2F" 
+                            stroke={statisticsData.performanceChange >= 0 ? '#0040D6' : '#E51300'}
                             strokeWidth={2}
                             dot={false}
                           />
                         </LineChart>
                       </ResponsiveContainer>
 
-                      {/* Overlays */}
-                      <div className={styles.statsOverlays}>
-                        <div className={styles.statsBarOverlay}>
-                          <ResponsiveContainer width={60} height={100}>
-                            <BarChart data={statisticsData.barData}>
-                              <Bar dataKey="value" fill="#E3E8FF" radius={[4, 4, 0, 0]} />
-                              <Bar dataKey="value" fill="#0040D6" radius={[4, 4, 0, 0]} />
-                            </BarChart>
-                          </ResponsiveContainer>
+                      {/* Product thumbnail - bottom left */}
+                      {statisticsData.productThumbnail && (
+                        <div className={styles.productThumbnail}>
+                          <img src={statisticsData.productThumbnail} alt="Product" />
                         </div>
-                        
-                        <div className={styles.statsPieOverlay}>
-                          <PieChart width={100} height={100}>
-                            <Pie
-                              data={[{ value: statisticsData.piePercentage }, { value: 100 - statisticsData.piePercentage }]}
-                              cx={50}
-                              cy={50}
-                              innerRadius={30}
-                              outerRadius={45}
-                              startAngle={90}
-                              endAngle={-270}
-                              dataKey="value"
-                            >
-                              <Cell fill="#D32F2F" />
-                              <Cell fill="#FFE3E3" />
-                            </Pie>
-                            <text x={50} y={55} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: '16px', fontWeight: '600' }}>
-                              {statisticsData.piePercentage}%
-                            </text>
-                          </PieChart>
-                        </div>
+                      )}
+                    </div>
 
-                        {/* Product thumbnail */}
-                        {statisticsData.productThumbnail && (
-                          <div className={styles.productThumbnail}>
-                            <img src={statisticsData.productThumbnail} alt="Product" />
+                    {/* Overlapping Returns Card */}
+                    <div className={styles.returnsOverlay}>
+                      <div className={styles.returnsHeader}>
+                        <img src={NoteIcon} alt="Returns" className={styles.returnsIcon} />
+                        <span className={styles.returnsTitle}>Returns</span>
+                      </div>
+                      <div className={styles.returnsContent}>
+                        <div className={styles.returnsCharts}>
+                          <div className={styles.returnsBarChart}>
+                            <ResponsiveContainer width="100%" height={100}>
+                              <BarChart data={statisticsData.barData}>
+                                <Bar 
+                                  dataKey="value" 
+                                  fill={statisticsData.returnsChange < 0 ? '#0040D6' : '#E51300'} 
+                                  radius={[4, 4, 0, 0]} 
+                                />
+                              </BarChart>
+                            </ResponsiveContainer>
                           </div>
-                        )}
+                          <div className={styles.returnsPieChart}>
+                            <PieChart width={120} height={120}>
+                              <Pie
+                                data={[{ value: statisticsData.piePercentage }, { value: 100 - statisticsData.piePercentage }]}
+                                cx={60}
+                                cy={60}
+                                innerRadius={40}
+                                outerRadius={55}
+                                startAngle={90}
+                                endAngle={-270}
+                                dataKey="value"
+                              >
+                                <Cell fill={statisticsData.returnsChange < 0 ? '#0040D6' : '#E51300'} />
+                                <Cell fill={statisticsData.returnsChange < 0 ? '#0040D680' : '#E513001A'} />
+                              </Pie>
+                              <text x={60} y={65} textAnchor="middle" dominantBaseline="middle" className={styles.returnsPieText}>
+                                {statisticsData.piePercentage}%
+                              </text>
+                            </PieChart>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </>
