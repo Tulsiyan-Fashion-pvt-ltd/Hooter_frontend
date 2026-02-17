@@ -10,15 +10,16 @@ import Catalog from "./pages/catalog";
 import Orders from "./pages/orders";
 import AddCatalog from "./pages/add-catalog";
 import AddBulkCatalog from "./pages/add-bulk-catalog";
-
+import Inventory from "./pages/inventory";
 
 function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element=
-          {
+          { <Protect>
               <Homepage />
+            </Protect>
           } />
 
         <Route path='/catalog' element=
@@ -37,6 +38,12 @@ function App() {
         <Route path="/catalog/add-bulk-catalog" element={
           <Protect>
             <AddBulkCatalog/>
+          </Protect>
+        }/>
+
+        <Route path="/inventory" element={
+          <Protect>
+            <Inventory/>
           </Protect>
         }/>
 
