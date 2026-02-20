@@ -15,14 +15,14 @@
 }
 
 .container{
-    padding:20px;
+    padding:20px 0px;
 }
 
 .topActions{
     display:flex;
     justify-content:flex-end;
     gap:10px;
-    margin-bottom:20px;
+    margin-bottom:4rem;
 }
 
 .btn{

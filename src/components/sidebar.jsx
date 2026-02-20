@@ -5,11 +5,11 @@ import { NavLink, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
   const [activeMenuItem, setActiveMenuItem] = useState(null);
-  const [collapsed, setCollapsed] = useState(true);
+  const [collapsed, setCollapsed] = useState(false);
 
   // setting up the indicator as per the current location
   const path = useLocation();
-  const [indicator, setIndicator] = useState(path.pathname); // indicator stores the values of the items' keys. 
+  const [indicator, setIndicator] = useState(`/${path.pathname.split("/")[1]}`); // indicator stores the values of the items' keys. 
                                                   //  and we can match currently on which item in the sidebar menu we are in
 
   const items = {

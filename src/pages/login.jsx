@@ -36,23 +36,28 @@ const Login = () => {
     }
 
     setLoading(true);
-    // after validation send the server all the info
-    const response = await fetch(`${route}/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: "include",
-      body: JSON.stringify({ 'email': email, 'password': password })
-    })
+    try {
+      // after validation send the server all the info
+      const response = await fetch(`${route}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: "include",
+        body: JSON.stringify({ 'email': email, 'password': password })
+      })
 
-    const data = await response.json();
+      const data = await response.json();
 
-    setLoading(false);
+      setLoading(false);
 
-    if (response.status != 200) {
-      setErrorMessage(data.message);
-    }else
-    {
-      navigate('/');
+      if (response.status != 200) {
+        setErrorMessage(data.message);
+      } else {
+        navigate('/');
+      }
+    }
+    catch {
+      setLoading(false);
+      alert('unable to ping the server')
     }
   }
 
