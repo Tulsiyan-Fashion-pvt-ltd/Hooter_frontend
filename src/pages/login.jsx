@@ -52,6 +52,7 @@ const Login = () => {
       if (response.status != 200) {
         setErrorMessage(data.message);
       } else {
+        console.log(response)
         navigate('/');
       }
     }

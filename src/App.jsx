@@ -15,49 +15,44 @@ import Inventory from "./pages/inventory";
 function App() {
   return (
     <Routes>
-      <Route element={<Layout />}>
+      <Route element={
+        <Protect>
+          <Layout />
+        </Protect>
+        }>
+
         <Route path="/" element=
-          { <Protect>
-              <Homepage />
-            </Protect>
+          {
+            <Homepage />
           } />
 
         <Route path='/catalog' element=
           {
-            <Protect>
               <Catalog />
-            </Protect>
           } />
 
         <Route path="/catalog/add-catalog" element={
-          <Protect>
             <AddCatalog />
-          </Protect>
         } />
 
         <Route path="/catalog/add-bulk-catalog" element={
-          <Protect>
             <AddBulkCatalog/>
-          </Protect>
         }/>
 
         <Route path="/inventory" element={
-          <Protect>
             <Inventory/>
-          </Protect>
         }/>
 
         <Route path="/orders" element={
-          <Protect>
             <Orders />
-          </Protect>
         } />
       </Route>
 
       <Route path="/register" element={
         <Protect>
           <Register />
-        </Protect>}
+        </Protect>
+      }
       />
 
       <Route path="/login" element={
