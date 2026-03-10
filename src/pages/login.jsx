@@ -50,10 +50,11 @@ const Login = () => {
       setLoading(false);
 
       if (response.status != 200) {
-        setErrorMessage(data.message);
+        setErrorMessage(data.login.message);
       } else {
-        console.log(response)
-        navigate('/');
+        // console.log(data.brand_connection.Status.redirect)
+        // server will decide whether the page should be redirected to the home page, register brand page or pick a brand as super admin
+        navigate(data.brand_connection.Status.redirect);
       }
     }
     catch {
