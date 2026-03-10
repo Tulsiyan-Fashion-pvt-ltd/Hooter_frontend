@@ -5,6 +5,7 @@ import { ArrowProceedBttn } from '../components/proceed-bttn'
 import { Spinner } from '../components/spinner';
 import { useNavigate } from "react-router-dom";
 import { validateEmail } from "../modules/validate";
+
 const route = import.meta.env.VITE_BASEAPI;
 
 const Login = () => {
@@ -14,39 +15,36 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // function to handle the submit
   const login = async () => {
-    let error = null;
-    const inputs = Array.from(document.querySelectorAll('input'));
+    setErrorMessage('');
 
-    // verify all the inputs and senitize them
-    inputs.forEach((element) => {
-      // removing the incorrect input style
-      element.classList.remove('incorrect-input');
+    // 🔹 Validation
+    if (!email.trim() || !password.trim()) {
+      setErrorMessage("All fields are required");
+      return;
+    }
 
-      // verify the whether the inputs are empty or not
-      if ((email == "") || (element.getAttribute('id') == 'email' && !validateEmail(email))) {
-        element.classList.add('incorrect-input');
-        error = true;
-      }
-    })
-
-    if (error == true) {
+    if (!validateEmail(email)) {
+      setErrorMessage("Invalid email format");
       return;
     }
 
     setLoading(true);
+
     try {
-      // after validation send the server all the info
       const response = await fetch(`${route}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: "include",
-        body: JSON.stringify({ 'email': email, 'password': password })
-      })
+        body: JSON.stringify({ email, password })
+      });
 
-      const data = await response.json();
+      let data = {};
+      try {
+        data = await response.json();
+      } catch {}
 
+<<<<<<< Updated upstream
       setLoading(false);
 
       if (response.status != 200) {
@@ -55,62 +53,68 @@ const Login = () => {
         // console.log(data.brand_connection.Status.redirect)
         // server will decide whether the page should be redirected to the home page, register brand page or pick a brand as super admin
         navigate(data.brand_connection.Status.redirect);
+=======
+      if (!response.ok) {
+        setErrorMessage(data.message || "Login failed");
+      } else {
+        navigate('/');
+>>>>>>> Stashed changes
       }
-    }
-    catch {
+
+    } catch (err) {
+      console.error(err);
+      setErrorMessage("Unable to reach the server");
+    } finally {
       setLoading(false);
-      alert('unable to ping the server')
     }
-  }
+  };
 
   return (
     <div className={styles.loginPage}>
       <div className={styles.loginWrapper}>
 
-        <div className={`${styles.loginSvgSlot} ${styles.loginWrapperItem}`} style={{ display: 'none' }}>
-          <div className={styles.blueStyleContainer}></div>
-          {/*
-      <img src={LoginCardSVG} alt="Login card" className={`${styles.loginSvg} ${styles.loginCard}`} />
-      <img src={LoginStarsSVG} alt="Login decoration" className={`${styles.loginSvg} ${styles.loginStars}`} />
-      <img src={LoginStarPNG} alt="Login decoration" className={styles.loginSvg} />
-      */}
-        </div>
-
         <div className={`${styles.loginContent} ${styles.loginWrapperItem}`}>
           <h1 className={styles.heading}>Hooter</h1>
           <p className={styles.subtitle}>Work Space Login</p>
 
-          <form className={styles.form}>
+          <form
+            className={styles.form}
+            onSubmit={(e) => {
+              e.preventDefault();
+              login();
+            }}
+          >
             <input
               id="email"
               type="email"
               placeholder="Email Address"
               className={styles.input}
-              onChange={(e) => { setEmail(e.target.value) }}
-              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
+
             <input
               id="password"
               type="password"
               placeholder="Password"
               className={styles.input}
-              onChange={(e) => { setPassword(e.target.value) }}
-              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
+
             <div className={styles.errorMsg}>{errorMessage}</div>
+
+            <div className={styles.formFooter}>
+              <span className={styles.forgot}>Forgot Password?</span>
+              <ArrowProceedBttn type="submit" />
+            </div>
           </form>
-
-          <div className={styles.formFooter}>
-            <span className={styles.forgot}>Forgot Password?</span>
-            <ArrowProceedBttn onClick={login} />
-          </div>
         </div>
-
       </div>
-      {loading? <Spinner/>: ''}
+
+      {loading && <Spinner />}
     </div>
   );
-
 };
 
 export default Login;

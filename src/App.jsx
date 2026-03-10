@@ -48,7 +48,7 @@ function App() {
         } />
       </Route>
 
-      <Route path="/register" element={
+      <Route path="/register-brand" element={
         <Protect>
           <Register />
         </Protect>
