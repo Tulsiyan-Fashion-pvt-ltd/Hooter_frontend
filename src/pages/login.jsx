@@ -44,7 +44,6 @@ const Login = () => {
         data = await response.json();
       } catch {}
 
-<<<<<<< Updated upstream
       setLoading(false);
 
       if (response.status != 200) {
@@ -53,12 +52,6 @@ const Login = () => {
         // console.log(data.brand_connection.Status.redirect)
         // server will decide whether the page should be redirected to the home page, register brand page or pick a brand as super admin
         navigate(data.brand_connection.Status.redirect);
-=======
-      if (!response.ok) {
-        setErrorMessage(data.message || "Login failed");
-      } else {
-        navigate('/');
->>>>>>> Stashed changes
       }
 
     } catch (err) {
