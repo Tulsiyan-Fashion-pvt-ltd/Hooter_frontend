@@ -47,10 +47,8 @@ const Login = () => {
 
       const data = await response.json();
 
-      setLoading(false);
-
-      if (response.status != 200) {
-        setErrorMessage(data.message);
+      if (!response.ok) {
+        setErrorMessage(data.message || "Login failed");
       } else {
         navigate('/');
       }
