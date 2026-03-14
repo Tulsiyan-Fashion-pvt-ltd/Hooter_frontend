@@ -33,15 +33,15 @@ const Register = () => {
         'password': '',
         'confPassword':''
     });
-    console.log(POC)
-    console.log(pincode,
-entityName,
-brandName,
-niche,
-gstin,
-plan,
-address,
-estYear,)
+    // console.log(POC)
+//     console.log(pincode,
+// entityName,
+// brandName,
+// niche,
+// gstin,
+// plan,
+// address,
+// estYear,)
 
     const [pincodeValueError, setPincodeValueError] = useState(false);
 

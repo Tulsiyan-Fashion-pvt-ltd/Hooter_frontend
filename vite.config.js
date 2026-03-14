@@ -6,6 +6,6 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: true,
-    allowedHosts: ['workspace.h0oter.com']
+    allowedHosts: ['workspace.h0oter.com', 'staging_workspace.h0oter.com']
   }
 })
