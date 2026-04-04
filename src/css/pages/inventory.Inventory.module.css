@@ -66,12 +66,11 @@
 
 .textUnique,
 .textOverview,
-.textCard {
+.textCard,
+.textNum {
   font-family: Inter, sans-serif;
-  line-height: 21px;
   letter-spacing: 0px;
 }
-
 .textUnique {
   font-weight: 400;
   font-size: 15px;
@@ -90,6 +89,12 @@
   line-height: 100%;
   letter-spacing: 0%;
   color: #000000B2;
+}
+.textNum {
+  font-weight: 400;
+  font-size: 20px;
+  color: #000000;
+  line-height: 100%;
 }
 /* ================= OVERVIEW ================= */
 
@@ -155,7 +160,7 @@
   width: 273px;
   height: 134px;
   border-radius: 8px;
-  box-shadow: 0px 4px 8px #00000040;
+  box-shadow: 0px 4px 8px 0px #00000040;
   background: #FFFFFF;
   padding: 10px;
   flex-shrink: 0; 
@@ -201,7 +206,7 @@
   align-items: flex-end;
   justify-content: space-between;
   height: calc(100% - 40px);
-  margin-top: 8px;
+  padding-top: 18px;
 }
 .inBox2 h3 {
   font-size: 20px;

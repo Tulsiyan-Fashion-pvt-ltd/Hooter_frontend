@@ -46,7 +46,7 @@ export default function Inventory() {
                                 <div className={styles.line}></div>
 
                                 <div className={styles.inBox2}>
-                                    <h3>38</h3>
+                                    <h3 className={styles.textNum}>38</h3>
                                     <button>
                                         View details 
                                         <img src="/src/assets/icons/arrow_black.svg" className={styles.arrowIcon} alt="" />
@@ -65,7 +65,7 @@ export default function Inventory() {
                                 <div className={styles.line}></div>
 
                                 <div className={styles.inBox2}>
-                                    <h3>6 SKU’s</h3>
+                                    <h3 className={styles.textNum}>6 SKU’s</h3>
                                     <button>
                                         View details 
                                         <img src="/src/assets/icons/arrow_black.svg" className={styles.arrowIcon} alt="" />
@@ -84,7 +84,7 @@ export default function Inventory() {
                                 <div className={styles.line}></div>
 
                                 <div className={styles.inBox2}>
-                                    <h3>26 SKU’s</h3>
+                                    <h3 className={styles.textNum}>26 SKU’s</h3>
                                     <button>
                                         View details
                                         <img src="/src/assets/icons/arrow_black.svg" className={styles.arrowIcon} alt="" />
