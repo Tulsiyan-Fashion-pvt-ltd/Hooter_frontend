@@ -17,6 +17,6 @@
   min-width: 0;
   height: 100svh;
   overflow-y: scroll;
-  padding: 1rem;
+  padding: 2rem;
   transition: all 0.3s ease;
 }
