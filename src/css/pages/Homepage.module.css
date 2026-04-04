@@ -1,7 +1,6 @@
-/* page wrapper */
+/* ================= Page Wrapper ================= */
 .pageContent {
   min-height: 100vh;
-  padding-right: 0;
   background-color: #FAFAFA;
   font-family: 'Inter', sans-serif;
   font-weight: 400;
@@ -9,14 +8,15 @@
 
 /* inner container */
 .pageContainer {
-  /* padding: 24px; */
-  padding-right: 24px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* vertical layout */
 .dashboardGrid {
   display: flex;
   flex-direction: column;
+  gap: 0;
 }
 
 /* base card */
@@ -28,7 +28,7 @@
 
 /* ================= Platforms Section ================= */
 .platforms {
-  height: 120px;
+  min-height: 80px;
   padding: 16px 20px;
   display: flex;
   align-items: center;
@@ -39,12 +39,18 @@
   align-items: center;
   gap: 8px;
   width: 100%;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.platformsRow::-webkit-scrollbar {
+  display: none;
 }
 
 .platformBtn {
   position: relative;
-  height: 56px;
-  padding: 0 8px 0 18px;
+  height: 48px;
+  padding: 0 12px 0 18px;
   background: none;
   border: none;
   border-radius: 8px;
@@ -52,8 +58,9 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
+  white-space: nowrap;
 }
 
 .platformBtn::before {
@@ -70,65 +77,62 @@
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
-.platformBtn:first-child::before {
-  left: 5px;
-}
-
 .platformBtn.active::before {
   opacity: 1;
-  color: #0040D6;
   transform: scaleY(1);
 }
 
 .platformBtnText {
-  font-size: 14px;
+  font-size: clamp(11px, 1.1vw, 14px);
   font-weight: 400;
   font-family: 'Inter', sans-serif;
   color: #3A3D40;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .platformBtn.active .platformBtnText {
   color: #0040D6;
 }
 
-/* vertical gap */
-.gap29 {
-  height: 29px;
-}
+/* vertical gaps */
+.gap29 { height: 24px; }
+.gap32 { height: 28px; }
 
 /* ================= Metric Cards ================= */
 .middleRow {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  column-gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 20px;
 }
 
 .metricCard {
-  height: 230px;
+  min-height: 200px;
+  height: auto;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  min-width: 0; /* prevent overflow in grid */
 }
 
 .metricHeader {
   display: flex;
-  align-items: center;
-  padding: 16px 20px 12px 20px;
-  gap: 12px;
-  position: relative;
-  min-height: 72px;
+  align-items: flex-start;
+  padding: 16px 16px 12px 16px;
+  gap: 10px;
+  min-height: 68px;
 }
 
 .iconBox {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   padding: 8px;
-  align-self: flex-start;
 }
 
 .iconImage {
@@ -138,11 +142,12 @@
 }
 
 .metricTitle {
-  font-size: 16px;
+  font-size: clamp(13px, 1.1vw, 16px);
   font-weight: 500;
   color: #333;
   flex: 1;
   line-height: 1.3;
+  min-width: 0;
 }
 
 .menuBtn {
@@ -151,22 +156,24 @@
   font-size: 20px;
   color: #000000;
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 2px 6px;
   line-height: 1;
-  align-self: flex-start;
+  flex-shrink: 0;
 }
 
 .headerUnderline {
   height: 1px;
   background: #000000;
-  margin: 0 20px 8px 20px;
+  margin: 0 16px 8px 16px;
 }
 
 .metricBody {
   flex: 1;
   display: flex;
-  padding: 0 20px 20px 20px;
-  gap: 16px;
+  padding: 0 16px 16px 16px;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
 }
 
 .metricLeft {
@@ -174,15 +181,14 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-width: 0;
 }
 
 .metricValue {
   font-family: 'Inter', sans-serif;
-  font-size: 20px;
+  font-size: clamp(16px, 1.5vw, 20px);
   font-weight: 400;
-  font-style: normal;
-  line-height: 100%;
-  letter-spacing: 0%;
+  line-height: 1.2;
   color: #333;
 }
 
@@ -191,6 +197,7 @@
   align-items: center;
   gap: 6px;
   font-size: 13px;
+  flex-wrap: wrap;
 }
 
 .percentageContainer {
@@ -199,19 +206,24 @@
   gap: 4px;
   padding: 4px 8px;
   border-radius: 6px;
+  flex-shrink: 0;
 }
 
 .changeLabel {
   color: #999;
   font-weight: 400;
+  font-size: clamp(10px, 0.9vw, 13px);
 }
 
 .metricChart {
-  width: 100px;
+  width: clamp(80px, 8vw, 110px);
+  max-width: 110px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
+  overflow: hidden;
 }
 
 .pieChartText {
@@ -219,16 +231,12 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-/* vertical gap */
-.gap32 {
-  height: 32px;
+  white-space: nowrap;
 }
 
 /* ================= Business Insights ================= */
@@ -255,12 +263,19 @@
 .insightsTabsWrapper {
   padding: 0 20px;
   border-bottom: 0.67px solid #f0f0f0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.insightsTabsWrapper::-webkit-scrollbar {
+  display: none;
 }
 
 .insightsTabs {
   display: inline-flex;
   gap: 0;
   position: relative;
+  min-width: max-content;
 }
 
 .insightsTab {
@@ -275,11 +290,10 @@
   position: relative;
   border-bottom: 0.67px solid #f0f0f0;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
-.insightsTab:hover {
-  color: #0040D6;
-}
+.insightsTab:hover { color: #0040D6; }
 
 .activeInsightsTab {
   color: #0040D6;
@@ -315,13 +329,13 @@
 
 .productImageSection {
   flex-shrink: 0;
-  width: 380px;
+  width: clamp(200px, 30%, 380px);
 }
 
 .productImage {
   position: relative;
   width: 100%;
-  height: 480px;
+  height: clamp(300px, 40vw, 480px);
   background: #f5f5f5;
   border-radius: 8px;
   overflow: hidden;
@@ -356,12 +370,13 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  min-width: 0;
 }
 
 .productDetailsGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px 40px;
+  gap: 16px 32px;
 }
 
 .productDetailItem {
@@ -379,7 +394,7 @@
 }
 
 .detailValue {
-  font-size: 18px;
+  font-size: clamp(14px, 1.4vw, 18px);
   font-weight: 600;
   color: #333;
 }
@@ -410,22 +425,20 @@
 }
 
 .statsIconBox {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   background: #0040D6;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
-.statsIconImage {
-  width: 24px;
-  height: 24px;
-}
+.statsIconImage { width: 24px; height: 24px; }
 
 .statsTitle {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 400;
   font-family: 'Inter', sans-serif;
   color: #333;
@@ -458,7 +471,7 @@
   position: absolute;
   top: 20px;
   right: -40px;
-  width: 320px;
+  width: 300px;
   background: white;
   border: 2px solid #0040D6;
   border-radius: 12px;
@@ -473,10 +486,7 @@
   padding: 16px 20px;
 }
 
-.returnsIcon {
-  width: 20px;
-  height: 20px;
-}
+.returnsIcon { width: 20px; height: 20px; }
 
 .returnsTitle {
   font-size: 16px;
@@ -485,9 +495,7 @@
   color: #333;
 }
 
-.returnsContent {
-  padding: 20px;
-}
+.returnsContent { padding: 20px; }
 
 .returnsCharts {
   display: flex;
@@ -495,368 +503,17 @@
   align-items: center;
 }
 
-.returnsBarChart {
-  flex: 1;
-}
-
-.returnsPieChart {
-  flex-shrink: 0;
-}
-
-/* Inline style replacements */
-.noteIcon {
-  width: 20px;
-  height: 20px;
-  margin-right: 8px;
-}
-
-.ordersIconBox {
-  background: #0040D6;
-}
-
-.shippingIconBox {
-  background: #D32F2F;
-}
-
-.usersIconBox {
-  background: #0040D6;
-}
-
-.returnsIconBox {
-  background: #D32F2F;
-}
-
-.pieChartContainer {
-  position: relative;
-}
-
-.returnsPieText {
-  font-size: 18px;
-  font-weight: 600;
-  font-family: 'Inter', sans-serif;
-}
-
-/* ================= Responsive Design ================= */
-
-/* Large tablets and small desktops (1200px and below) */
-@media (max-width: 1200px) {
-  .middleRow {
-    grid-template-columns: repeat(2, 1fr);
-    row-gap: 20px;
-  }
-
-  .insightsContent {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-
-  .bestSellerContainer {
-    flex-direction: column;
-  }
-
-  .productImageSection {
-    width: 100%;
-  }
-
-  .returnsOverlay {
-    position: relative;
-    top: 0;
-    right: 0;
-    margin-top: 20px;
-  }
-}
-
-/* Tablets (992px and below) */
-@media (max-width: 992px) {
-  .platformsRow {
-    gap: 6px;
-  }
-
-  .platformBtn {
-    padding: 0 8px 0 16px;
-    font-size: 13px;
-  }
-
-  .metricCard {
-    height: auto;
-    min-height: 200px;
-  }
-
-  .productDetailsGrid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .statsChartArea {
-    padding: 16px;
-  }
-
-  .returnsOverlay {
-    width: 100%;
-  }
-}
-
-/* Small tablets (768px and below) */
-@media (max-width: 768px) {
-  .pageContainer {
-    padding: 16px;
-  }
-
-  .platforms {
-    height: auto;
-    padding: 12px 16px;
-  }
-
-  .platformsRow {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .platformBtn {
-    flex: 0 1 auto;
-    min-width: fit-content;
-  }
-
-  .middleRow {
-    grid-template-columns: 1fr;
-  }
-
-  .metricHeader {
-    padding: 12px 16px 10px 16px;
-  }
-
-  .metricBody {
-    padding: 0 16px 16px 16px;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .metricChart {
-    width: 100%;
-  }
-
-  .insightsTabs {
-    flex-wrap: wrap;
-  }
-
-  .insightsTab {
-    padding: 10px 16px;
-    font-size: 13px;
-  }
-
-  .statisticsSection {
-    border-width: 1px;
-  }
-
-  .productThumbnail {
-    width: 60px;
-    height: 60px;
-    bottom: 45px;
-    left: 70px;
-  }
-}
-
-/* Mobile devices (576px and below) */
-@media (max-width: 576px) {
-  .pageContent {
-    padding-right: 0;
-  }
-
-  .pageContainer {
-    padding: 12px;
-  }
-
-  .platforms {
-    padding: 10px 12px;
-  }
-
-  .platformBtn {
-    height: 48px;
-    padding: 0 8px 0 18px;
-    font-size: 12px;
-  }
-
-  .platformBtnText {
-    font-size: 12px;
-  }
-
-  .gap29 {
-    height: 16px;
-  }
-
-  .gap32 {
-    height: 20px;
-  }
-
-  .metricCard {
-    min-height: 180px;
-  }
-
-  .metricValue {
-    font-size: 18px;
-  }
-
-  .insightsHeader {
-    padding: 16px 16px 12px 16px;
-  }
-
-  .insightsTitle {
-    font-size: 16px;
-  }
-
-  .insightsTabsWrapper {
-    padding: 0 16px;
-  }
-
-  .insightsTab {
-    padding: 8px 12px;
-    font-size: 12px;
-  }
-
-  .insightsContent {
-    padding: 16px;
-  }
-
-  .sectionTitle {
-    font-size: 16px;
-  }
-
-  .productImage {
-    height: 300px;
-  }
-
-  .detailLabel {
-    font-size: 11px;
-  }
-
-  .detailValue {
-    font-size: 16px;
-  }
-
-  .productBarChart {
-    height: 150px;
-  }
-
-  .statsHeader {
-    padding: 12px 16px;
-  }
-
-  .statsTitle {
-    font-size: 16px;
-  }
-
-  .statsChartArea {
-    padding: 12px;
-  }
-
-  .returnsOverlay {
-    border-width: 1px;
-  }
-
-  .returnsHeader {
-    padding: 12px 16px;
-  }
-
-  .returnsTitle {
-    font-size: 14px;
-  }
-
-  .returnsContent {
-    padding: 16px;
-  }
-
-  .returnsCharts {
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .productThumbnail {
-    display: none;
-  }
-}
-
-/* Extra small devices (400px and below) */
-@media (max-width: 400px) {
-  .platformBtn {
-    padding: 0 6px 0 16px;
-  }
-
-  .platformBtn::before {
-    left: 4px;
-  }
-
-  .metricHeader {
-    gap: 8px;
-  }
-
-  .iconBox {
-    width: 40px;
-    height: 40px;
-  }
-
-  .metricTitle {
-    font-size: 14px;
-  }
-
-  .insightsTab {
-    padding: 8px 10px;
-    font-size: 11px;
-  }
-}
-
-.productCard {
-  background: #fff;
-  border: 1px solid #E0E0E0;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.productInfo {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  padding: 16px;
-  border-top: 1px solid #E0E0E0;
-}
-
-.productDetail {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-/* ================= Statistics Section ================= */
-.statisticsSection {
-  border: 2px solid #0040D6;
-  border-radius: 12px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-}
-
-.statsHeader {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.statsIconBox {
-  width: 40px;
-  height: 40px;
-  background: #0040D6;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.statsTitle {
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
-}
-
+.returnsBarChart { flex: 1; }
+.returnsPieChart { flex-shrink: 0; }
+
+/* ================= Icon helpers ================= */
+.noteIcon { width: 20px; height: 20px; margin-right: 8px; }
+.ordersIconBox { background: #0040D6; }
+.shippingIconBox { background: #D32F2F; }
+.usersIconBox { background: #0040D6; }
+.returnsIconBox { background: #D32F2F; }
+.pieChartContainer { position: relative; }
+.returnsPieText { font-size: 18px; font-weight: 600; font-family: 'Inter', sans-serif; }
 .returnsLabel {
   background: #E3E8FF;
   color: #0040D6;
@@ -866,47 +523,71 @@
   font-weight: 500;
 }
 
-.statsChartArea {
-  position: relative;
-  flex: 1;
+/* ================= Responsive Breakpoints ================= */
+
+@media (max-width: 1300px) {
+  .insightsContent {
+    grid-template-columns: 1fr;
+  }
+  .bestSellerContainer {
+    flex-direction: column;
+  }
+  .productImageSection {
+    width: 100%;
+  }
+  .returnsOverlay {
+    position: relative;
+    top: 0;
+    right: 0;
+    margin-top: 20px;
+    width: 100%;
+  }
 }
 
-.statsOverlays {
-  position: absolute;
-  top: 0;
-  right: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding: 20px;
+@media (max-width: 900px) {
+  .pageContainer {
+    padding: 16px;
+  }
+  .metricCard {
+    min-height: 180px;
+  }
+  .productDetailsGrid {
+    grid-template-columns: 1fr;
+  }
+  .productThumbnail {
+    width: 60px;
+    height: 60px;
+    bottom: 40px;
+    left: 70px;
+  }
 }
 
-.statsBarOverlay {
-  background: white;
-  border: 2px solid #0040D6;
-  border-radius: 8px;
-  padding: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.statsPieOverlay {
-  background: white;
-  border: 2px solid #D32F2F;
-  border-radius: 8px;
-  padding: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.productThumbnail {
-  width: 70px;
-  height: 70px;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.productThumbnail img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+@media (max-width: 640px) {
+  .pageContainer {
+    padding: 12px;
+  }
+  .gap29 { height: 14px; }
+  .gap32 { height: 16px; }
+  .metricBody {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .metricChart {
+    width: 100%;
+    max-width: 100%;
+  }
+  .insightsTab {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+  .productImage {
+    height: 260px;
+  }
+  .returnsCharts {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .productThumbnail {
+    display: none;
+  }
 }
