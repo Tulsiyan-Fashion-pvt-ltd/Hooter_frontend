@@ -42,7 +42,9 @@ const Login = () => {
       let data = {};
       try {
         data = await response.json();
-      } catch {}
+      } catch {
+        /* response has no JSON body */
+      }
 
       setLoading(false);
 

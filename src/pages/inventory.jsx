@@ -5,6 +5,7 @@ export default function Inventory() {
         <div className={styles.InventoryGlobalContainer}>
             <div className={styles.pageWrapper}>
                 <div className={styles.customBox}>
+                    <img src="/src/assets/icons/hero.svg" className={styles.heroBg} alt="" />
                     <div className={styles.leftCustom}>
                         <h1>Manage Inventory</h1>
                         <p>
@@ -22,8 +23,8 @@ export default function Inventory() {
                 <div className={styles.overview}>
                     <div className={styles.firstRow}>
                         <div className={styles.overLeft}>
-                            <div className={styles.overIcon}></div>
-                            <p>
+                            <img src="/src/assets/icons/inventory.svg" className={styles.iconSm} alt="" />
+                            <p className={styles.textSm}>
                                 Have unique products to sell? Choose from the options below
                             </p>
                         </div>
@@ -31,23 +32,24 @@ export default function Inventory() {
                     </div>
 
                     <div className={styles.secondRow}>
-                        <h2 className={styles.overH}>Overview</h2>
+                        <h2 className={styles.textOverview}>Overview</h2>
 
                         <div className={styles.ovrBx}>
                             {/* Box 1 */}
                             <div className={styles.overBox}>
                                 <div className={styles.inBox1}>
-                                    <div className={styles.inSb}></div>
-                                    <h3>Sellable Inventory</h3>
-                                    <div className={styles.menu}>⋮</div>
+                                     <img src="/src/assets/icons/note.svg" className={styles.iconSm} alt="" />
+                                    <h3 className={styles.textCard}>Sellable Inventory</h3>
+                                    <button className={styles.menuBtn}>⋮</button>
                                 </div>
 
                                 <div className={styles.line}></div>
 
                                 <div className={styles.inBox2}>
-                                    <h3>38</h3>
+                                    <h3 className={styles.textNum}>38</h3>
                                     <button>
-                                        View details <span>→</span>
+                                        View details 
+                                        <img src="/src/assets/icons/arrow_black.svg" className={styles.arrowIcon} alt="" />
                                     </button>
                                 </div>
                             </div>
@@ -55,17 +57,18 @@ export default function Inventory() {
                             {/* Box 2 */}
                             <div className={styles.overBox}>
                                 <div className={styles.inBox1}>
-                                    <div className={styles.inSb}></div>
-                                    <h3>Out of Stock</h3>
-                                    <div className={styles.menu}>⋮</div>
+                                    <img src="/src/assets/icons/note.svg" className={styles.iconSm} alt="" />
+                                    <h3 className={styles.textCard}>Out of Stock</h3>
+                                    <button className={styles.menuBtn}>⋮</button>
                                 </div>
 
                                 <div className={styles.line}></div>
 
                                 <div className={styles.inBox2}>
-                                    <h3>6 SKU’s</h3>
+                                    <h3 className={styles.textNum}>6 SKU’s</h3>
                                     <button>
-                                        View details <span>→</span>
+                                        View details 
+                                        <img src="/src/assets/icons/arrow_black.svg" className={styles.arrowIcon} alt="" />
                                     </button>
                                 </div>
                             </div>
@@ -73,17 +76,18 @@ export default function Inventory() {
                             {/* Box 3 */}
                             <div className={styles.overBox}>
                                 <div className={styles.inBox1}>
-                                    <div className={styles.inSb}></div>
-                                    <h3>Low Stocks</h3>
-                                    <div className={styles.menu}>⋮</div>
+                                    <img src="/src/assets/icons/note.svg" className={styles.iconSm} alt="" />
+                                    <h3 className={styles.textCard}>Low Stocks</h3>
+                                    <button className={styles.menuBtn}>⋮</button>
                                 </div>
 
                                 <div className={styles.line}></div>
 
                                 <div className={styles.inBox2}>
-                                    <h3>26 SKU’s</h3>
+                                    <h3 className={styles.textNum}>26 SKU’s</h3>
                                     <button>
-                                        View details <span>→</span>
+                                        View details
+                                        <img src="/src/assets/icons/arrow_black.svg" className={styles.arrowIcon} alt="" />
                                     </button>
                                 </div>
                             </div>
