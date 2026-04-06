@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "../css/pages/add-catalog.module.css";
 import useCatalogForm from "../hooks/useCatalogForm";
 import CatalogSelector from "../components/CatalogSelector";
@@ -19,25 +19,64 @@ export default function AddCatalog() {
     handleSubmit,
   } = useCatalogForm();
 
+  const [validationError, setValidationError] = useState(null);
+  const [missingFields, setMissingFields] = useState(new Set());
   const fixedFields = [
     { key: "sku-id", label: "SKU ID", required: true },
     { key: "title", label: "Product Title", required: true },
     { key: "price", label: "Product Price", required: true },
-    { key: "compared-price", label: "Compared Price", required: false },
-    { key: "purchasing-cost", label: "Purchasing Cost", required: false },
-    { key: "vendor", label: "Vendor", required: false },
+    { key: "compared-price", label: "Compared Price", required: true },
+    { key: "purchasing-cost", label: "Purchasing Cost", required: true },
+    { key: "vendor", label: "Vendor", required: true },
     { key: "ean", label: "EAN", required: false },
     { key: "hsn", label: "HSN", required: false },
-    { key: "net-weight", label: "Net Weight", required: false },
-    { key: "dead-weight", label: "Dead Weight", required: false },
-    { key: "volumetric-weight", label: "Volumetric Weight", required: false },
+    { key: "net-weight", label: "Net Weight", required: true },
+    { key: "dead-weight", label: "Dead Weight", required: true },
+    { key: "volumetric-weight", label: "Volumetric Weight", required: true },
     { key: "brand-name", label: "Brand Name", required: true },
   ];
 
   const formatLabel = (str) =>
     str.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
   const hasAttributes = Object.keys(fieldAttributes).length > 0;
   const noAttributes = selectedType && !hasAttributes && !error;
+
+  // ── Validation + submit ───────────────────────────────
+  const handleValidatedSubmit = () => {
+    const missing = [];
+    const missingKeys = new Set();
+
+    fixedFields.forEach(({ key, label, required }) => {
+      if (required && !fixedValues[key]?.toString().trim()) {
+        missing.push(label);
+        missingKeys.add(key);
+      }
+    });
+
+    Object.entries(fieldAttributes).forEach(([key, rule]) => {
+      if (key === "niche_id") return;
+      const isRequired =
+        rule === "*" || (Array.isArray(rule) && rule.includes("*"));
+      if (isRequired && !dynamicValues[key]?.toString().trim()) {
+        missing.push(formatLabel(key));
+        missingKeys.add(key);
+      }
+    });
+
+    if (missing.length > 0) {
+      setValidationError(
+        `Please fill in the following required fields: ${missing.join(", ")}`,
+      );
+      setMissingFields(missingKeys);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    setValidationError(null);
+    setMissingFields(new Set());
+    handleSubmit();
+  };
 
   if (success) {
     return (
@@ -101,7 +140,24 @@ export default function AddCatalog() {
           </div>
         </div>
 
-        {/* ── ERROR BANNER ── */}
+        {/* ── VALIDATION ERROR BANNER ── */}
+        {validationError && (
+          <div
+            style={{
+              background: "#fff0f0",
+              border: "1px solid #E51300",
+              borderRadius: "8px",
+              padding: "12px 16px",
+              marginBottom: "16px",
+              color: "#E51300",
+              fontSize: "14px",
+            }}
+          >
+            ⚠ {validationError}
+          </div>
+        )}
+
+        {/* ── API ERROR BANNER ── */}
         {error && (
           <div
             style={{
@@ -169,7 +225,19 @@ export default function AddCatalog() {
                     <input
                       placeholder="Type Here..."
                       value={fixedValues[key]}
-                      onChange={(e) => handleFixedChange(key, e.target.value)}
+                      style={
+                        missingFields.has(key)
+                          ? { border: "1.5px solid #E51300" }
+                          : {}
+                      }
+                      onChange={(e) => {
+                        handleFixedChange(key, e.target.value);
+                        setMissingFields((prev) => {
+                          const s = new Set(prev);
+                          s.delete(key);
+                          return s;
+                        });
+                      }}
                     />
                   </div>
                 ))}
@@ -179,11 +247,20 @@ export default function AddCatalog() {
               <div className={styles.listing}>
                 {Object.entries(fieldAttributes).map(([key, rule]) => {
                   if (key === "niche_id") return null;
+
                   const isRequired =
                     rule === "*" || (Array.isArray(rule) && rule.includes("*"));
                   const isDropdown = Array.isArray(rule);
+
+                  // Filter out "*" and convert booleans → Yes / No
                   const options = isDropdown
-                    ? rule.filter((v) => v !== "*")
+                    ? rule
+                        .filter((v) => v !== "*")
+                        .map((v) => ({
+                          value: String(v),
+                          label:
+                            v === true ? "Yes" : v === false ? "No" : String(v),
+                        }))
                     : [];
 
                   return (
@@ -197,15 +274,25 @@ export default function AddCatalog() {
                       {isDropdown ? (
                         <select
                           value={dynamicValues[key] || ""}
-                          onChange={(e) =>
-                            handleDynamicChange(key, e.target.value)
+                          style={
+                            missingFields.has(key)
+                              ? { border: "1.5px solid #E51300" }
+                              : {}
                           }
+                          onChange={(e) => {
+                            handleDynamicChange(key, e.target.value);
+                            setMissingFields((prev) => {
+                              const s = new Set(prev);
+                              s.delete(key);
+                              return s;
+                            });
+                          }}
                           className={styles.select_field}
                         >
                           <option value="">Select...</option>
                           {options.map((opt) => (
-                            <option key={opt} value={opt}>
-                              {opt}
+                            <option key={opt.value} value={opt.value}>
+                              {opt.label}
                             </option>
                           ))}
                         </select>
@@ -213,9 +300,19 @@ export default function AddCatalog() {
                         <input
                           placeholder="Type Here..."
                           value={dynamicValues[key] || ""}
-                          onChange={(e) =>
-                            handleDynamicChange(key, e.target.value)
+                          style={
+                            missingFields.has(key)
+                              ? { border: "1.5px solid #E51300" }
+                              : {}
                           }
+                          onChange={(e) => {
+                            handleDynamicChange(key, e.target.value);
+                            setMissingFields((prev) => {
+                              const s = new Set(prev);
+                              s.delete(key);
+                              return s;
+                            });
+                          }}
                         />
                       )}
                     </div>
@@ -227,7 +324,7 @@ export default function AddCatalog() {
                 <button className={styles.draft}>Save as draft</button>
                 <button
                   className={styles.submit}
-                  onClick={handleSubmit}
+                  onClick={handleValidatedSubmit}
                   disabled={submitting}
                   style={{ opacity: submitting ? 0.7 : 1 }}
                 >
