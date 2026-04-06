@@ -1,62 +1,144 @@
 /**
  * CatalogSelector Component
  *
- * A reusable cascade dropdown selector for niche, sub-niche, category and product type.
+ * A self-contained reusable cascade dropdown selector for niche, sub-niche, category and product type.
+ * Fetches its own niche data internally — no need to pass dropdown state or options from outside.
  *
  * USAGE:
- * 1. Import the hook and component:
- *    import useCatalogForm from '../hooks/useCatalogForm';
+ * 1. Import the component:
  *    import CatalogSelector from '../modules/CatalogSelector';
  *
- * 2. Destructure the required values from the hook:
- *    const {
- *      selectedNiche, selectedSubNiche, selectedCategory, selectedType,
- *      nicheOptions, subNicheOptions, categoryOptions, productTypeOptions,
- *      handleNicheChange, handleSubNicheChange, handleCategoryChange, handleTypeChange,
- *    } = useCatalogForm();
+ * 2. Use it with a single prop:
+ *    <CatalogSelector onTypeSelect={(typeId) => doSomethingWithTypeId(typeId)} />
  *
- * 3. Use the component:
- *    <CatalogSelector
- *      selectedNiche={selectedNiche}
- *      selectedSubNiche={selectedSubNiche}
- *      selectedCategory={selectedCategory}
- *      selectedType={selectedType}
- *      nicheOptions={nicheOptions}
- *      subNicheOptions={subNicheOptions}
- *      categoryOptions={categoryOptions}
- *      productTypeOptions={productTypeOptions}
- *      handleNicheChange={handleNicheChange}
- *      handleSubNicheChange={handleSubNicheChange}
- *      handleCategoryChange={handleCategoryChange}
- *      handleTypeChange={handleTypeChange}
- *    />
+ * PROPS:
+ * - onTypeSelect (function, required) — called with the selected product type ID
+ *   whenever the user picks a product type from the last dropdown.
  *
- * NOTE:
- * - Dropdowns cascade in order: Niche → Sub-niche → Category → Product
- * - Each dropdown is disabled until the previous one is selected
+ * INTERNALS:
  * - Fetches niche data from GET /catalog/niche-data on mount
- * - Fetches attribute fields from GET /catalog/attribute-fields?type=<id> on product select
+ * - Manages all 4 dropdown states and cascade logic internally
  * - Requires login session cookie (credentials: 'include')
+ * - Uses VITE_BASEAPI env variable for the API base URL
  */
 
+import { useState, useEffect } from "react";
 import styles from "../css/pages/add-catalog.module.css";
 
-export default function CatalogSelector({
-  selectedNiche,
-  selectedSubNiche,
-  selectedCategory,
-  selectedType,
-  nicheOptions,
-  subNicheOptions,
-  categoryOptions,
-  productTypeOptions,
-  handleNicheChange,
-  handleSubNicheChange,
-  handleCategoryChange,
-  handleTypeChange,
-}) {
+const BASE_URL = import.meta.env.VITE_BASEAPI;
+
+const fmt = (str) =>
+  str?.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+export default function CatalogSelector({ onTypeSelect }) {
+  // ── Niche data from API ───────────────────────────────
+  const [nicheData, setNicheData] = useState({});
+
+  // ── Dropdown selections ───────────────────────────────
+  const [selectedNiche, setSelectedNiche] = useState("");
+  const [selectedSubNiche, setSelectedSubNiche] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedType, setSelectedType] = useState("");
+
+  // ── Dropdown options ──────────────────────────────────
+  const [nicheOptions, setNicheOptions] = useState([]);
+  const [subNicheOptions, setSubNicheOptions] = useState([]);
+  const [categoryOptions, setCategoryOptions] = useState([]);
+  const [productTypeOptions, setProductTypeOptions] = useState([]);
+
+  // ── Fetch niche data on mount ─────────────────────────
+  useEffect(() => {
+    const fetchNicheData = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/catalog/niche-data`, {
+          credentials: "include",
+        });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.msg || "Failed to load categories");
+
+        const data = json.niche_data;
+        setNicheData(data);
+        setNicheOptions(
+          Object.entries(data).map(([id, val]) => ({
+            id,
+            label: fmt(val.niche),
+          })),
+        );
+      } catch (err) {
+        console.error("CatalogSelector fetch error:", err.message);
+      }
+    };
+
+    fetchNicheData();
+  }, []);
+
+  // ── Cascade: niche → sub-niches ───────────────────────
+  const handleNicheChange = (nicheId) => {
+    setSelectedNiche(nicheId);
+    setSelectedSubNiche("");
+    setSelectedCategory("");
+    setSelectedType("");
+    setSubNicheOptions([]);
+    setCategoryOptions([]);
+    setProductTypeOptions([]);
+
+    if (!nicheId) return;
+    const subniches = nicheData[nicheId]?.subniches || {};
+    setSubNicheOptions(
+      Object.entries(subniches).map(([id, val]) => ({
+        id,
+        label: fmt(val.subniche) ?? `Sub-niche ${id}`,
+      })),
+    );
+  };
+
+  // ── Cascade: sub-niche → categories ──────────────────
+  const handleSubNicheChange = (subNicheId) => {
+    setSelectedSubNiche(subNicheId);
+    setSelectedCategory("");
+    setSelectedType("");
+    setCategoryOptions([]);
+    setProductTypeOptions([]);
+
+    if (!subNicheId) return;
+    const categories =
+      nicheData[selectedNiche]?.subniches?.[subNicheId]?.categories || {};
+    setCategoryOptions(
+      Object.entries(categories).map(([id, val]) => ({
+        id,
+        label: fmt(val.category),
+      })),
+    );
+  };
+
+  // ── Cascade: category → product types ────────────────
+  const handleCategoryChange = (categoryId) => {
+    setSelectedCategory(categoryId);
+    setSelectedType("");
+    setProductTypeOptions([]);
+
+    if (!categoryId) return;
+    const products =
+      nicheData[selectedNiche]?.subniches?.[selectedSubNiche]?.categories?.[
+        categoryId
+      ]?.products || {};
+    setProductTypeOptions(
+      Object.entries(products).map(([id, val]) => ({
+        id,
+        label: fmt(val.product),
+      })),
+    );
+  };
+
+  // ── Product type selected → notify parent ─────────────
+  const handleTypeChange = (typeId) => {
+    setSelectedType(typeId);
+    if (typeId) onTypeSelect(typeId);
+  };
+
   return (
     <div className={styles.dropdown_row}>
+      {/* Niche */}
       <div className={styles.dropdown_wrap}>
         <label className={styles.dropdown_label}>Niche *</label>
         <select
@@ -73,6 +155,7 @@ export default function CatalogSelector({
         </select>
       </div>
 
+      {/* Sub-niche */}
       <div className={styles.dropdown_wrap}>
         <label className={styles.dropdown_label}>Sub-niche *</label>
         <select
@@ -91,6 +174,7 @@ export default function CatalogSelector({
         </select>
       </div>
 
+      {/* Category */}
       <div className={styles.dropdown_wrap}>
         <label className={styles.dropdown_label}>Category *</label>
         <select
@@ -109,6 +193,7 @@ export default function CatalogSelector({
         </select>
       </div>
 
+      {/* Product Type */}
       <div className={styles.dropdown_wrap}>
         <label className={styles.dropdown_label}>Product *</label>
         <select
