@@ -1,6 +1,7 @@
 import React from 'react';
 import styles from '../css/pages/add-catalog.module.css';
 import useCatalogForm from '../hooks/useCatalogForm';
+import CatalogSelector from '../components/CatalogSelector';
 
 export default function AddCatalog() {
   const {
@@ -85,70 +86,20 @@ export default function AddCatalog() {
 </div>
 
           {/* ── 4 CASCADE DROPDOWNS — always visible in header ── */}
-          <div className={styles.dropdown_row}>
-            <div className={styles.dropdown_wrap}>
-              <label className={styles.dropdown_label}>Niche *</label>
-              <select
-                value={selectedNiche}
-                onChange={e => handleNicheChange(e.target.value)}
-                className={styles.dropdown_select}
-              >
-                <option value="">Select Niche</option>
-                {nicheOptions.map(o => (
-                  <option key={o.id} value={o.id}>{o.label}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className={styles.dropdown_wrap}>
-              <label className={styles.dropdown_label}>Sub-niche *</label>
-              <select
-                value={selectedSubNiche}
-                onChange={e => handleSubNicheChange(e.target.value)}
-                disabled={!selectedNiche}
-                className={styles.dropdown_select} 
-                style={{ opacity: !selectedNiche ? 0.5 : 1 }}
-              >
-                <option value="">Select Sub-niche</option>
-                {subNicheOptions.map(o => (
-                  <option key={o.id} value={o.id}>{o.label}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className={styles.dropdown_wrap}>
-              <label className={styles.dropdown_label}>Category *</label>
-              <select
-                value={selectedCategory}
-                onChange={e => handleCategoryChange(e.target.value)}
-                disabled={!selectedSubNiche}
-                className={styles.dropdown_select}
-                style={{ opacity: !selectedSubNiche ? 0.5 : 1 }}
-              >
-                <option value="">Select Category</option>
-                {categoryOptions.map(o => (
-                  <option key={o.id} value={o.id}>{o.label}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className={styles.dropdown_wrap}>
-              <label className={styles.dropdown_label}>Product *</label>
-              <select
-                value={selectedType}
-                onChange={e => handleTypeChange(e.target.value)}
-                disabled={!selectedCategory}
-                className={styles.dropdown_select}
-                style={{ opacity: !selectedCategory ? 0.5 : 1 }}
-              >
-                <option value="">Select Product</option>
-                {productTypeOptions.map(o => (
-                  <option key={o.id} value={o.id}>{o.label}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
+          <CatalogSelector
+  selectedNiche={selectedNiche}
+  selectedSubNiche={selectedSubNiche}
+  selectedCategory={selectedCategory}
+  selectedType={selectedType}
+  nicheOptions={nicheOptions}
+  subNicheOptions={subNicheOptions}
+  categoryOptions={categoryOptions}
+  productTypeOptions={productTypeOptions}
+  handleNicheChange={handleNicheChange}
+  handleSubNicheChange={handleSubNicheChange}
+  handleCategoryChange={handleCategoryChange}
+  handleTypeChange={handleTypeChange}
+/>
           <div className={styles["mandatory-row"]}>
             <p className={styles.mandatory}>
               Mandatory Fields<span>*</span>
