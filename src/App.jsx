@@ -19,52 +19,34 @@ function App() {
         <Protect>
           <Layout />
         </Protect>
-        }>
-
-        <Route path="/" element=
-          {
-            <Homepage />
-          } />
-
-        <Route path='/catalog' element=
-          {
-              <Catalog />
-          } />
-
-        <Route path="/catalog/add-catalog" element={
-            <AddCatalog />
-        } />
-
-        <Route path="/catalog/add-bulk-catalog" element={
-            <AddBulkCatalog/>
-        }/>
-
-        <Route path="/inventory" element={
-            <Inventory/>
-        }/>
-
-        <Route path="/orders" element={
-            <Orders />
-        } />
+      }>
+        <Route path="/" element={<Homepage />} />
+        <Route path='/catalog' element={<Catalog />} />
+        <Route path="/catalog/add-catalog" element={<AddCatalog />} />
+        <Route path="/catalog/add-bulk-catalog" element={<AddBulkCatalog />} />
+        <Route path="/inventory" element={<Inventory />} />
+        <Route path="/orders" element={<Orders />} />
       </Route>
 
       <Route path="/register-brand" element={
         <Protect>
           <Register />
         </Protect>
-      }
-      />
+      } />
 
       <Route path="/login" element={
         <PreventAuth>
           <Login />
-        </PreventAuth>} />
+        </PreventAuth>
+      } />
 
       <Route path="/signup" element={
         <PreventAuth>
           <Signup />
-        </PreventAuth>} />
-      <Route path="/*" element={<>404</>}></Route>
+        </PreventAuth>
+      } />
+
+      <Route path="/*" element={<>404</>} />
     </Routes>
   );
 }
