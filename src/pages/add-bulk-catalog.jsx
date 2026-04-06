@@ -284,36 +284,54 @@ export default function AddBulkCatalog(){
                             Add product details individually
                         </a>
 
-                        <div className={styles.sectionHeader}>
-                            <h2 className={styles.sectionTitle}>
-                                Mandatory Fields <span className={styles.required}>*</span>
-                            </h2>
+                        {/* Steps Section */}
+                        <div className={styles.row}>
+                            <div className={styles.steps}>
+                                <div className={`${styles.step} ${!selectedType ? styles.active : ''}`}>
+                                    {selectedType ? (
+                                        <span className={styles.check}>✔</span>
+                                    ) : (
+                                        <span>1&nbsp;</span>
+                                    )}
+                                    Select Category
+                                </div>
+                                <div className={`${styles.step} ${selectedType ? styles.active : ''}`}>
+                                    <span>2&nbsp;</span>
+                                    Upload & Process
+                                </div>
+                            </div>
+                        </div>
 
-                            <div className={styles.warningBox}>
-                                <span className={styles.icon}>!</span>
-                                <p>Follow guidelines to reduce quality check failures</p>
+                        {/* Cascade Dropdowns */}
+                        <CatalogSelector
+                            selectedNiche={selectedNiche}
+                            selectedSubNiche={selectedSubNiche}
+                            selectedCategory={selectedCategory}
+                            selectedType={selectedType}
+                            nicheOptions={nicheOptions}
+                            subNicheOptions={subNicheOptions}
+                            categoryOptions={categoryOptions}
+                            productTypeOptions={productTypeOptions}
+                            handleNicheChange={handleNicheChange}
+                            handleSubNicheChange={handleSubNicheChange}
+                            handleCategoryChange={handleCategoryChange}
+                            handleTypeChange={handleTypeChange}
+                            styles={styles}
+                        />
+
+                        <div className={styles["mandatory-row"]}>
+                            <p className={styles.mandatory}>
+                                Mandatory Fields<span>*</span>
+                            </p>
+
+                            <div className={`${styles.guideline} ${styles.small}`}>
+                                <a href="#">⚠ Follow guidelines to reduce quality check failures</a>
                             </div>
                         </div>
 
                         <hr className={styles.hr1} />
                     </div>
                 </header>
-
-                <CatalogSelector
-                    selectedNiche={selectedNiche}
-                    selectedSubNiche={selectedSubNiche}
-                    selectedCategory={selectedCategory}
-                    selectedType={selectedType}
-                    nicheOptions={nicheOptions}
-                    subNicheOptions={subNicheOptions}
-                    categoryOptions={categoryOptions}
-                    productTypeOptions={productTypeOptions}
-                    handleNicheChange={handleNicheChange}
-                    handleSubNicheChange={handleSubNicheChange}
-                    handleCategoryChange={handleCategoryChange}
-                    handleTypeChange={handleTypeChange}
-                    styles={styles}
-                />
 
                 {catalogLoading && (
                     <div style={{
@@ -327,156 +345,161 @@ export default function AddBulkCatalog(){
                     </div>
                 )}
 
-                <div className={styles.uploadSection}>
-                    <label htmlFor="file-upload" className={styles.uploadBtn}>
-                        {uploadLoading ? 'Processing...' : 'Upload Excel File'}
-                    </label>
-                    <input
-                        id="file-upload"
-                        type="file"
-                        accept=".xlsx,.xls"
-                        onChange={handleFileSelect}
-                        key={fileInputKey}
-                        style={{ display: 'none' }}
-                        disabled={uploadLoading}
-                    />
-
-                    <div className={styles.uploadInfo}>
-                        <p>
-                            Please fill all the Mandatory{" "}
-                            <span className={styles.required}>*</span> fields
-                        </p>
-                        <button 
-                            onClick={handleDownloadTemplate}
-                            disabled={uploadLoading || !selectedType}
-                            style={{ 
-                                background: 'none', 
-                                border: 'none', 
-                                color: '#007bff',
-                                cursor: uploadLoading || !selectedType ? 'not-allowed' : 'pointer',
-                                textDecoration: 'underline'
-                            }}
-                        >
-                            {uploadLoading ? 'Downloading...' : 'Download Sample Excel File'}
-                        </button>
-                    </div>
-                </div>
-
-                <div className={styles.mainContainer}>
-                    {/* LEFT BIG SECTION */}
-                    <div className={styles.leftSection}>
-                        <h2 className={styles.leftHeading}>Upload & Process</h2>
-
-                        <hr className={styles.hr2} />
-
-                        {selectedFile && (
-                            <div className={styles.fileInfo} style={{
-                                padding: '12px',
-                                backgroundColor: '#e8f5e9',
-                                borderRadius: '4px',
-                                marginBottom: '16px',
-                                borderLeft: '4px solid #4caf50'
-                            }}>
-                                <p style={{ margin: '0 0 8px 0', fontWeight: '500' }}>
-                                    ✓ File selected: {selectedFile.name}
-                                </p>
-                                <p style={{ margin: '0', fontSize: '0.9em', color: '#555' }}>
-                                    Size: {(selectedFile.size / 1024).toFixed(2)} KB
-                                </p>
-                            </div>
-                        )}
-
-                        {uploadStatus === 'error' && (
-                            <div style={{
-                                padding: '12px',
-                                backgroundColor: '#ffebee',
-                                borderRadius: '4px',
-                                marginBottom: '16px',
-                                borderLeft: '4px solid #f44336'
-                            }}>
-                                <p style={{ margin: '0', color: '#c62828' }}>
-                                    ⚠ {errorMessage}
-                                </p>
-                                {errorFile && (
-                                    <button
-                                        onClick={handleDownloadErrorFile}
-                                        style={{
-                                            marginTop: '8px',
-                                            padding: '6px 12px',
-                                            backgroundColor: '#f44336',
-                                            color: 'white',
-                                            border: 'none',
-                                            borderRadius: '4px',
-                                            cursor: 'pointer',
-                                            fontSize: '0.9em'
-                                        }}
-                                    >
-                                        Download Error Report
-                                    </button>
-                                )}
-                            </div>
-                        )}
-
-                        {uploadStatus === 'success' && (
-                            <div style={{
-                                padding: '12px',
-                                backgroundColor: '#e8f5e9',
-                                borderRadius: '4px',
-                                marginBottom: '16px',
-                                borderLeft: '4px solid #4caf50'
-                            }}>
-                                <p style={{ margin: '0', color: '#2e7d32', fontWeight: '500' }}>
-                                    ✓ {errorMessage}
-                                </p>
-                            </div>
-                        )}
-
-                        <div className={styles.copyBox}>
-                            <input type="checkbox" id="copy" disabled />
-                            <label htmlFor="copy" style={{ opacity: 0.6 }}>
-                                Copy input details to all products
-                                <br />
-                                <small>
-                                    If you want to change specific fields for particular product like Color, Fabric etc
-                                </small>
+                {/* STEP 2: Upload & Process - Show when product type is selected */}
+                {selectedType && !catalogLoading && (
+                    <>
+                        <div className={styles.uploadSection}>
+                            <label htmlFor="file-upload" className={styles.uploadBtn}>
+                                {uploadLoading ? 'Processing...' : 'Upload Excel File'}
                             </label>
+                            <input
+                                id="file-upload"
+                                type="file"
+                                accept=".xlsx,.xls"
+                                onChange={handleFileSelect}
+                                key={fileInputKey}
+                                style={{ display: 'none' }}
+                                disabled={uploadLoading}
+                            />
+
+                            <div className={styles.uploadInfo}>
+                                <p>
+                                    Please fill all the Mandatory{" "}
+                                    <span className={styles.required}>*</span> fields
+                                </p>
+                                <button 
+                                    onClick={handleDownloadTemplate}
+                                    disabled={uploadLoading}
+                                    style={{ 
+                                        background: 'none', 
+                                        border: 'none', 
+                                        color: '#007bff',
+                                        cursor: uploadLoading ? 'not-allowed' : 'pointer',
+                                        textDecoration: 'underline'
+                                    }}
+                                >
+                                    {uploadLoading ? 'Downloading...' : 'Download Sample Excel File'}
+                                </button>
+                            </div>
                         </div>
 
-                        <div className={styles.buttonRow}>
-                            <button 
-                                className={styles.draft}
-                                onClick={handleSaveDraft}
-                                disabled={uploadLoading || !selectedFile}
-                            >
-                                Save as draft
-                            </button>
-                            <button 
-                                className={styles.submit}
-                                onClick={handleUpload}
-                                disabled={uploadLoading || !selectedFile}
-                            >
-                                {uploadLoading ? 'Uploading...' : 'Submit'}
-                            </button>
-                        </div>
-                    </div>
+                        <div className={styles.mainContainer}>
+                            {/* LEFT BIG SECTION */}
+                            <div className={styles.leftSection}>
+                                <h2 className={styles.leftHeading}>Upload & Process</h2>
 
-                    {/* RIGHT SIDE COLUMN */}
-                    <div className={styles.rightSection}>
-                        <div style={{
-                            padding: '16px',
-                            backgroundColor: '#f5f5f5',
-                            borderRadius: '4px'
-                        }}>
-                            <h3 style={{ margin: '0 0 12px 0', fontSize: '1em' }}>Upload Status</h3>
-                            <p style={{ margin: '0 0 8px 0', color: '#666' }}>
-                                {!selectedFile ? 'No file selected' : `File: ${selectedFile.name}`}
-                            </p>
-                            <p style={{ margin: '0', fontSize: '0.9em', color: '#999' }}>
-                                Select an Excel file and click Submit to upload your bulk catalog
-                            </p>
+                                <hr className={styles.hr2} />
+
+                                {selectedFile && (
+                                    <div className={styles.fileInfo} style={{
+                                        padding: '12px',
+                                        backgroundColor: '#e8f5e9',
+                                        borderRadius: '4px',
+                                        marginBottom: '16px',
+                                        borderLeft: '4px solid #4caf50'
+                                    }}>
+                                        <p style={{ margin: '0 0 8px 0', fontWeight: '500' }}>
+                                            ✓ File selected: {selectedFile.name}
+                                        </p>
+                                        <p style={{ margin: '0', fontSize: '0.9em', color: '#555' }}>
+                                            Size: {(selectedFile.size / 1024).toFixed(2)} KB
+                                        </p>
+                                    </div>
+                                )}
+
+                                {uploadStatus === 'error' && (
+                                    <div style={{
+                                        padding: '12px',
+                                        backgroundColor: '#ffebee',
+                                        borderRadius: '4px',
+                                        marginBottom: '16px',
+                                        borderLeft: '4px solid #f44336'
+                                    }}>
+                                        <p style={{ margin: '0', color: '#c62828' }}>
+                                            ⚠ {errorMessage}
+                                        </p>
+                                        {errorFile && (
+                                            <button
+                                                onClick={handleDownloadErrorFile}
+                                                style={{
+                                                    marginTop: '8px',
+                                                    padding: '6px 12px',
+                                                    backgroundColor: '#f44336',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.9em'
+                                                }}
+                                            >
+                                                Download Error Report
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+
+                                {uploadStatus === 'success' && (
+                                    <div style={{
+                                        padding: '12px',
+                                        backgroundColor: '#e8f5e9',
+                                        borderRadius: '4px',
+                                        marginBottom: '16px',
+                                        borderLeft: '4px solid #4caf50'
+                                    }}>
+                                        <p style={{ margin: '0', color: '#2e7d32', fontWeight: '500' }}>
+                                            ✓ {errorMessage}
+                                        </p>
+                                    </div>
+                                )}
+
+                                <div className={styles.copyBox}>
+                                    <input type="checkbox" id="copy" disabled />
+                                    <label htmlFor="copy" style={{ opacity: 0.6 }}>
+                                        Copy input details to all products
+                                        <br />
+                                        <small>
+                                            If you want to change specific fields for particular product like Color, Fabric etc
+                                        </small>
+                                    </label>
+                                </div>
+
+                                <div className={styles.buttonRow}>
+                                    <button 
+                                        className={styles.draft}
+                                        onClick={handleSaveDraft}
+                                        disabled={uploadLoading || !selectedFile}
+                                    >
+                                        Save as draft
+                                    </button>
+                                    <button 
+                                        className={styles.submit}
+                                        onClick={handleUpload}
+                                        disabled={uploadLoading || !selectedFile}
+                                    >
+                                        {uploadLoading ? 'Uploading...' : 'Submit'}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* RIGHT SIDE COLUMN */}
+                            <div className={styles.rightSection}>
+                                <div style={{
+                                    padding: '16px',
+                                    backgroundColor: '#f5f5f5',
+                                    borderRadius: '4px'
+                                }}>
+                                    <h3 style={{ margin: '0 0 12px 0', fontSize: '1em' }}>Upload Status</h3>
+                                    <p style={{ margin: '0 0 8px 0', color: '#666' }}>
+                                        {!selectedFile ? 'No file selected' : `File: ${selectedFile.name}`}
+                                    </p>
+                                    <p style={{ margin: '0', fontSize: '0.9em', color: '#999' }}>
+                                        Select an Excel file and click Submit to upload your bulk catalog
+                                    </p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    </>
+                )}
             </div>
         </div>
     )

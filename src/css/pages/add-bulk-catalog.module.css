@@ -13,7 +13,8 @@
   padding: 24px 28px;
   border: 1px solid #e0e0e0;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
-  border-left: 1px solid #000000;
+  border-left: 4px solid #000000;
+  margin-bottom: 0;
 }
 
 .title {
@@ -69,6 +70,84 @@
 
 .hr1 {
   margin-top: 8px;
+  margin-bottom: 0;
+}
+
+/* STEPS */
+.row {
+  display: flex;
+  gap: 20px;
+  margin: 2rem 0rem;
+  margin-top: 12px;
+}
+
+.steps {
+  display: flex;
+  gap: 20px;
+  margin: 0;
+}
+
+.step {
+  font-size: 1em;
+  color: #000000B2;
+  cursor: pointer;
+  padding-bottom: 4px;
+  white-space: nowrap;
+}
+
+.step.active {
+  color: #0040D6;
+  font-weight: 600;
+  border-bottom: 2px solid #0040D6;
+}
+
+.check {
+  color: green;
+  margin-right: 5px;
+  font-weight: 600;
+}
+
+/* MANDATORY ROW */
+.mandatory-row {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mandatory {
+  font-size: 0.9em;
+  color: #555;
+  margin: 0;
+}
+
+.mandatory span {
+  color: red;
+  font-weight: 600;
+}
+
+.guideline {
+  margin-bottom: 0;
+}
+
+.guideline.small {
+  margin-bottom: 0;
+}
+
+.guideline a {
+  font-size: 0.85em;
+  color: #c25a00;
+  background: #fff3e0;
+  border: 1px solid orange;
+  padding: 6px 10px;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+.guideline a:hover {
+  background: #ffe0b2;
 }
 
 .icon {
