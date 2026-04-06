@@ -1,18 +1,35 @@
 import { useState, useEffect } from 'react';
 import styles from '../css/pages/add-bulk-catalog.module.css';
+import useCatalogForm from '../hooks/useCatalogForm';
+import CatalogSelector from '../components/CatalogSelector';
 
 const route = import.meta.env.VITE_BASEAPI;
 
 export default function AddBulkCatalog(){
     const [selectedFile, setSelectedFile] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [fileInputKey, setFileInputKey] = useState(0);
+    const [sessionValid, setSessionValid] = useState(true);
+    const [uploadLoading, setUploadLoading] = useState(false);
     const [uploadStatus, setUploadStatus] = useState(null); // 'success', 'error', null
     const [errorMessage, setErrorMessage] = useState('');
     const [errorFile, setErrorFile] = useState(null);
-    const [productTypeId, setProductTypeId] = useState('');
-    const [productTypeInput, setProductTypeInput] = useState('');
-    const [fileInputKey, setFileInputKey] = useState(0);
-    const [sessionValid, setSessionValid] = useState(true);
+
+    // Use the catalog form hook for cascade dropdowns
+    const {
+        selectedNiche,
+        selectedSubNiche,
+        selectedCategory,
+        selectedType,
+        nicheOptions,
+        subNicheOptions,
+        categoryOptions,
+        productTypeOptions,
+        handleNicheChange,
+        handleSubNicheChange,
+        handleCategoryChange,
+        handleTypeChange,
+        loading: catalogLoading,
+    } = useCatalogForm();
 
     // Verify session on component load
     useEffect(() => {
@@ -34,35 +51,16 @@ export default function AddBulkCatalog(){
         verifySession();
     }, []);
 
-    // Get brand and product type from localStorage or URL params
+    // Save selected product type to localStorage when it changes
     useEffect(() => {
-        // Try to get productTypeId from localStorage or URL params
-        const params = new URLSearchParams(window.location.search);
-        const typeFromUrl = params.get('type');
-        if (typeFromUrl) {
-            setProductTypeId(typeFromUrl);
-            setProductTypeInput(typeFromUrl);
-        } else {
-            const savedType = localStorage.getItem('selectedProductTypeId');
-            if (savedType) {
-                setProductTypeId(savedType);
-                setProductTypeInput(savedType);
-            }
+        if (selectedType) {
+            localStorage.setItem('selectedProductTypeId', selectedType);
         }
-    }, []);
-
-    // Handle product type change
-    const handleProductTypeChange = (value) => {
-        setProductTypeInput(value);
-        if (value.trim()) {
-            setProductTypeId(value.trim());
-            localStorage.setItem('selectedProductTypeId', value.trim());
-        }
-    };
+    }, [selectedType]);
 
     // Download Excel template
     const handleDownloadTemplate = async () => {
-        if (!productTypeId) {
+        if (!selectedType) {
             setErrorMessage('Please select a product type first');
             setUploadStatus('error');
             return;
@@ -75,9 +73,9 @@ export default function AddBulkCatalog(){
         }
 
         try {
-            setLoading(true);
+            setUploadLoading(true);
             const response = await fetch(
-                `${route}/catalog/bulk-excel-sheet?type=${productTypeId}`,
+                `${route}/catalog/bulk-excel-sheet?type=${selectedType}`,
                 {
                     method: 'GET',
                     credentials: 'include',
@@ -115,7 +113,7 @@ export default function AddBulkCatalog(){
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `bulk_upload_template_${productTypeId}.xlsx`);
+            link.setAttribute('download', `bulk_upload_template_${selectedType}.xlsx`);
             document.body.appendChild(link);
             link.click();
             link.parentNode.removeChild(link);
@@ -128,7 +126,7 @@ export default function AddBulkCatalog(){
             setErrorMessage(error.message || 'Failed to download template');
             setUploadStatus('error');
         } finally {
-            setLoading(false);
+            setUploadLoading(false);
         }
     };
 
@@ -157,7 +155,7 @@ export default function AddBulkCatalog(){
             return;
         }
 
-        if (!productTypeId) {
+        if (!selectedType) {
             setErrorMessage('Please select a product type first');
             setUploadStatus('error');
             return;
@@ -170,10 +168,10 @@ export default function AddBulkCatalog(){
         }
 
         try {
-            setLoading(true);
+            setUploadLoading(true);
             const formData = new FormData();
             formData.append('sheet', selectedFile);
-            formData.append('type', productTypeId);
+            formData.append('type', selectedType);
 
             const response = await fetch(
                 `${route}/catalog/bulk-catalog`,
@@ -237,7 +235,7 @@ export default function AddBulkCatalog(){
             setErrorMessage(error.message || 'An error occurred during upload');
             setUploadStatus('error');
         } finally {
-            setLoading(false);
+            setUploadLoading(false);
         }
     };
 
@@ -250,7 +248,7 @@ export default function AddBulkCatalog(){
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `bulk_upload_errors_${productTypeId}.xlsx`);
+            link.setAttribute('download', `bulk_upload_errors_${selectedType}.xlsx`);
             document.body.appendChild(link);
             link.click();
             link.parentNode.removeChild(link);
@@ -301,48 +299,37 @@ export default function AddBulkCatalog(){
                     </div>
                 </header>
 
-                <div style={{
-                    padding: '20px',
-                    backgroundColor: '#fafafa',
-                    borderRadius: '8px',
-                    marginBottom: '20px',
-                    border: '1px solid #e0e0e0'
-                }}>
-                    <label style={{
-                        display: 'block',
-                        marginBottom: '8px',
-                        fontWeight: '600',
-                        color: '#333'
+                <CatalogSelector
+                    selectedNiche={selectedNiche}
+                    selectedSubNiche={selectedSubNiche}
+                    selectedCategory={selectedCategory}
+                    selectedType={selectedType}
+                    nicheOptions={nicheOptions}
+                    subNicheOptions={subNicheOptions}
+                    categoryOptions={categoryOptions}
+                    productTypeOptions={productTypeOptions}
+                    handleNicheChange={handleNicheChange}
+                    handleSubNicheChange={handleSubNicheChange}
+                    handleCategoryChange={handleCategoryChange}
+                    handleTypeChange={handleTypeChange}
+                    styles={styles}
+                />
+
+                {catalogLoading && (
+                    <div style={{
+                        padding: '20px',
+                        textAlign: 'center',
+                        backgroundColor: '#f5f5f5',
+                        borderRadius: '8px',
+                        marginBottom: '20px'
                     }}>
-                        Product Type ID <span className={styles.required}>*</span>
-                    </label>
-                    <input
-                        type="text"
-                        value={productTypeInput}
-                        onChange={(e) => handleProductTypeChange(e.target.value)}
-                        placeholder="Enter product type ID (e.g., shirt, pants, etc.)"
-                        style={{
-                            width: '100%',
-                            padding: '12px',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd',
-                            fontSize: '1em',
-                            boxSizing: 'border-box',
-                            marginBottom: '8px'
-                        }}
-                    />
-                    <p style={{
-                        margin: '8px 0 0 0',
-                        fontSize: '0.85em',
-                        color: '#666'
-                    }}>
-                        This is required to download the template and upload your bulk catalog.
-                    </p>
-                </div>
+                        Loading categories...
+                    </div>
+                )}
 
                 <div className={styles.uploadSection}>
                     <label htmlFor="file-upload" className={styles.uploadBtn}>
-                        {loading ? 'Processing...' : 'Upload Excel File'}
+                        {uploadLoading ? 'Processing...' : 'Upload Excel File'}
                     </label>
                     <input
                         id="file-upload"
@@ -351,7 +338,7 @@ export default function AddBulkCatalog(){
                         onChange={handleFileSelect}
                         key={fileInputKey}
                         style={{ display: 'none' }}
-                        disabled={loading}
+                        disabled={uploadLoading}
                     />
 
                     <div className={styles.uploadInfo}>
@@ -361,16 +348,16 @@ export default function AddBulkCatalog(){
                         </p>
                         <button 
                             onClick={handleDownloadTemplate}
-                            disabled={loading}
+                            disabled={uploadLoading || !selectedType}
                             style={{ 
                                 background: 'none', 
                                 border: 'none', 
                                 color: '#007bff',
-                                cursor: loading ? 'not-allowed' : 'pointer',
+                                cursor: uploadLoading || !selectedType ? 'not-allowed' : 'pointer',
                                 textDecoration: 'underline'
                             }}
                         >
-                            {loading ? 'Downloading...' : 'Download Sample Excel File'}
+                            {uploadLoading ? 'Downloading...' : 'Download Sample Excel File'}
                         </button>
                     </div>
                 </div>
@@ -459,16 +446,16 @@ export default function AddBulkCatalog(){
                             <button 
                                 className={styles.draft}
                                 onClick={handleSaveDraft}
-                                disabled={loading || !selectedFile}
+                                disabled={uploadLoading || !selectedFile}
                             >
                                 Save as draft
                             </button>
                             <button 
                                 className={styles.submit}
                                 onClick={handleUpload}
-                                disabled={loading || !selectedFile}
+                                disabled={uploadLoading || !selectedFile}
                             >
-                                {loading ? 'Uploading...' : 'Submit'}
+                                {uploadLoading ? 'Uploading...' : 'Submit'}
                             </button>
                         </div>
                     </div>
