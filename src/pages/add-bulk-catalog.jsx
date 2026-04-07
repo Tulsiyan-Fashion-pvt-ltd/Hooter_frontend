@@ -271,21 +271,7 @@ export default function AddBulkCatalog(){
                         </div>
 
                         {/* Cascade Dropdowns */}
-                        <CatalogSelector
-                            selectedNiche={selectedNiche}
-                            selectedSubNiche={selectedSubNiche}
-                            selectedCategory={selectedCategory}
-                            selectedType={selectedType}
-                            nicheOptions={nicheOptions}
-                            subNicheOptions={subNicheOptions}
-                            categoryOptions={categoryOptions}
-                            productTypeOptions={productTypeOptions}
-                            handleNicheChange={handleNicheChange}
-                            handleSubNicheChange={handleSubNicheChange}
-                            handleCategoryChange={handleCategoryChange}
-                            handleTypeChange={handleTypeChange}
-                            styles={styles}
-                        />
+                        <CatalogSelector onTypeSelect={handleTypeChange} />
 
                         <div className={styles["mandatory-row"]}>
                             <p className={styles.mandatory}>
