@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import {useNavigate} from 'react-router-dom';
 import styles from '../css/pages/add-bulk-catalog.module.css';
 import useCatalogForm from '../hooks/useCatalogForm';
 import CatalogSelector from '../components/CatalogSelector';
@@ -8,11 +9,11 @@ const route = import.meta.env.VITE_BASEAPI;
 export default function AddBulkCatalog(){
     const [selectedFile, setSelectedFile] = useState(null);
     const [fileInputKey, setFileInputKey] = useState(0);
-    const [sessionValid, setSessionValid] = useState(true);
     const [uploadLoading, setUploadLoading] = useState(false);
     const [uploadStatus, setUploadStatus] = useState(null); // 'success', 'error', null
     const [errorMessage, setErrorMessage] = useState('');
     const [errorFile, setErrorFile] = useState(null);
+    const navigate = useNavigate();
 
     // Use the catalog form hook for cascade dropdowns
     const {
@@ -31,25 +32,6 @@ export default function AddBulkCatalog(){
         loading: catalogLoading,
     } = useCatalogForm();
 
-    // Verify session on component load
-    useEffect(() => {
-        async function verifySession() {
-            try {
-                const response = await fetch(`${route}/session`, {
-                    credentials: 'include'
-                });
-                if (response.status !== 200) {
-                    setSessionValid(false);
-                    setErrorMessage('Your session has expired. Please log in again.');
-                    setUploadStatus('error');
-                }
-            } catch (error) {
-                console.error('Session check error:', error);
-            }
-        }
-
-        verifySession();
-    }, []);
 
     // Save selected product type to localStorage when it changes
     useEffect(() => {
@@ -62,12 +44,6 @@ export default function AddBulkCatalog(){
     const handleDownloadTemplate = async () => {
         if (!selectedType) {
             setErrorMessage('Please select a product type first');
-            setUploadStatus('error');
-            return;
-        }
-
-        if (!sessionValid) {
-            setErrorMessage('Your session has expired. Please log in again.');
             setUploadStatus('error');
             return;
         }
@@ -93,7 +69,6 @@ export default function AddBulkCatalog(){
                 try {
                     const errorData = JSON.parse(errorText);
                     if (errorData.status === 'user is not logged in') {
-                        setSessionValid(false);
                         setErrorMessage('Your session has expired. Please log in again.');
                         setUploadStatus('error');
                         setTimeout(() => {
@@ -161,11 +136,6 @@ export default function AddBulkCatalog(){
             return;
         }
 
-        if (!sessionValid) {
-            setErrorMessage('Your session has expired. Please log in again.');
-            setUploadStatus('error');
-            return;
-        }
 
         try {
             setUploadLoading(true);
@@ -184,11 +154,10 @@ export default function AddBulkCatalog(){
 
             // Check if user is not logged in
             if (response.status === 401 || response.statusText === 'Unauthorized') {
-                setSessionValid(false);
                 setErrorMessage('Your session has expired. Please log in again.');
                 setUploadStatus('error');
                 setTimeout(() => {
-                    window.location.href = '/login';
+                    navigate("/login");
                 }, 2000);
                 return;
             }
@@ -197,7 +166,6 @@ export default function AddBulkCatalog(){
 
             // Check for "user is not logged in" in response
             if (data.status === 'user is not logged in') {
-                setSessionValid(false);
                 setErrorMessage('Your session has expired. Please log in again.');
                 setUploadStatus('error');
                 setTimeout(() => {
