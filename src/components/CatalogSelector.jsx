@@ -145,6 +145,7 @@ export default function CatalogSelector({ onTypeSelect }) {
           value={selectedNiche}
           onChange={(e) => handleNicheChange(e.target.value)}
           className={styles.dropdown_select}
+          disabled={Object.keys(nicheData).length === 0}
         >
           <option value="">Select Niche</option>
           {nicheOptions.map((o) => (
