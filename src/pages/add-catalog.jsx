@@ -2,10 +2,14 @@ import React from "react";
 import styles from "../css/pages/add-catalog.module.css";
 import useCatalogForm from "../hooks/useCatalogForm";
 import CatalogSelector from "../components/CatalogSelector";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import camera from "../assets/icons/upload_photo.svg"; 
 
 export default function AddCatalog() {
   const imageContainerRef = useRef()
+  const [preview, setPreview] = useState({});
+  console.log(preview)
+
   const {
     selectedType,
     handleTypeChange,
@@ -14,6 +18,7 @@ export default function AddCatalog() {
     fieldAttributes,
     imageAttributes,
     addImageAttribute,
+    changeImageCustomKey,
     dynamicValues,
     handleDynamicChange,
     submitting,
@@ -61,6 +66,24 @@ export default function AddCatalog() {
   function addCustomCimageContainer(){
     const orderCount = imageContainerRef.current.childElementCount;
     addImageAttribute("custom", [orderCount, "custom"]);
+  }
+
+  function uploadImage(key){
+    const input = document.createElement('input');
+    input.type = "file";
+    input.accept = "image/*";
+
+    input.onchange = (e)=>{
+      const file = e.target.files[0];
+
+      if (file) {
+        const imageUrl = URL.createObjectURL(file);
+        setPreview((prev)=>({...prev, [key]: imageUrl}));
+      }
+    }
+
+    input.click();
+    console.log(preview.key)
   }
 
   return (
@@ -262,7 +285,7 @@ export default function AddCatalog() {
                     const isRequired = rule.includes("*");
                     return (
                       <div className={styles.imageCardContainer} style={{order: `${rule[0]}`}}>
-                        <input
+                        <input className={styles.imageTypeTag}
                           style={{
                             fontSize: "13px",
                             marginBottom: "8px",
@@ -271,13 +294,17 @@ export default function AddCatalog() {
                           placeholder = {`${formatLabel(key)}`+
                                   `${isRequired ? " *" : ""}`}
                           disabled={!rule.includes("custom")}
+
+                          onChange={(e) => {changeImageCustomKey(key, e.target.value)}}
+                          autoFocus={rule.includes("custom")}
                         />
                         <div
                           key={key}
                           className={styles["img-box"]}
                           style={{padding: "12px" }}
                         >
-                          <div className={styles.circle}></div>
+                          <div className={styles.circle} onClick={() => {uploadImage(key)}}
+                            style={{backgroundImage: preview[key]?`url(${preview[key]})`: `url(${camera})`}}></div>
                           <p
                             style={{
                               fontSize: "11px",

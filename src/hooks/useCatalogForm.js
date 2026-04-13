@@ -96,7 +96,7 @@ export default function useCatalogForm() {
           }))
         }));
         
-        console.log('Transformed niche data:', transformedNiches); // Debug log
+        // console.log('Transformed niche data:', transformedNiches); // Debug log
         setNicheOptions(transformedNiches);
         setError('');
       } catch (err) {
@@ -263,8 +263,8 @@ export default function useCatalogForm() {
 
   const changeImageCustomKey = (oldKey="custom", newKey) => {
     setImageAttributes((prev)=> {
-      const {oldKey, ...rest} = prev;
-      return {...rest, newKey:prev.oldKey}
+      const {[oldKey]: value, ...rest} = prev;
+      return {...rest, [newKey]:value}
     })
   }
 
@@ -349,6 +349,7 @@ export default function useCatalogForm() {
     handleFixedChange,
     fieldAttributes,
     imageAttributes,
+    changeImageCustomKey,
     dynamicValues,
     handleDynamicChange,
     addImageAttribute,

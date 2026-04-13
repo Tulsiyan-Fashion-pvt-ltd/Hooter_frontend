@@ -303,9 +303,16 @@ body {
     justify-content: center;
     align-items: center;
     background-image: url(../../assets/icons/upload_photo.svg);
-    background-size: auto;
+    background-size: contain;
     background-repeat: no-repeat;
     background-position: center center;
+    cursor: pointer;
+}
+
+.imageTypeTag{
+    border: none;
+    background-color: white;
+    height: 0px;
 }
 
 /* BUTTON */
