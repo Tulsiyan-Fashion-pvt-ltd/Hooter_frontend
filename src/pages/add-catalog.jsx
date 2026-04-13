@@ -2,8 +2,10 @@ import React from "react";
 import styles from "../css/pages/add-catalog.module.css";
 import useCatalogForm from "../hooks/useCatalogForm";
 import CatalogSelector from "../components/CatalogSelector";
+import { useRef } from "react";
 
 export default function AddCatalog() {
+  const imageContainerRef = useRef()
   const {
     selectedType,
     handleTypeChange,
@@ -11,6 +13,7 @@ export default function AddCatalog() {
     handleFixedChange,
     fieldAttributes,
     imageAttributes,
+    addImageAttribute,
     dynamicValues,
     handleDynamicChange,
     submitting,
@@ -53,6 +56,11 @@ export default function AddCatalog() {
         </div>
       </div>
     );
+  }
+
+  function addCustomCimageContainer(){
+    const orderCount = imageContainerRef.current.childElementCount;
+    addImageAttribute("custom", [orderCount, "custom"]);
   }
 
   return (
@@ -249,48 +257,44 @@ export default function AddCatalog() {
                 >
                   Fields marked with * are required.
                 </p>
-                <div className={styles["image-grid"]}>
+                <div className={styles["image-grid"]} ref={imageContainerRef}>
                   {Object.entries(imageAttributes).map(([key, rule]) => {
-                    const isRequired = rule === "*";
+                    const isRequired = rule.includes("*");
                     return (
-                      <div
-                        key={key}
-                        className={styles["img-box"]}
-                        style={{ height: "auto", padding: "12px" }}
-                      >
-                        <p
+                      <div className={styles.imageCardContainer} style={{order: `${rule[0]}`}}>
+                        <input
                           style={{
                             fontSize: "13px",
                             marginBottom: "8px",
                             fontWeight: 500,
                           }}
+                          placeholder = {`${formatLabel(key)}`+
+                                  `${isRequired ? " *" : ""}`}
+                          disabled={!rule.includes("custom")}
+                        />
+                        <div
+                          key={key}
+                          className={styles["img-box"]}
+                          style={{padding: "12px" }}
                         >
-                          {formatLabel(key)}
-                          {isRequired ? " *" : ""}
-                        </p>
-                        <div className={styles.circle}>📷</div>
-                        <p
-                          style={{
-                            fontSize: "11px",
-                            color: "#888",
-                            marginTop: "6px",
-                          }}
-                        >
-                          {isRequired ? "Required" : "Optional"}
-                        </p>
+                          <div className={styles.circle}></div>
+                          <p
+                            style={{
+                              fontSize: "11px",
+                              color: "#888",
+                              marginTop: "6px",
+                            }}
+                          >
+                            {isRequired ? "Required" : "Optional"}
+                          </p>
+                        </div>
                       </div>
                     );
                   })}
                 </div>
-                <input
-                  type="file"
-                  id="imageUpload"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                />
                 <button
                   className={styles["blue-btn"]}
-                  onClick={() => document.getElementById("imageUpload").click()}
+                  onClick={addCustomCimageContainer}
                 >
                   + Add more image
                 </button>

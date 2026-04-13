@@ -256,6 +256,18 @@ export default function useCatalogForm() {
     }));
   };
 
+  // handle custom image attribute
+  const addImageAttribute = (key, value)=>{
+    setImageAttributes((prev) => ({...prev, [key]: value}))
+  }
+
+  const changeImageCustomKey = (oldKey="custom", newKey) => {
+    setImageAttributes((prev)=> {
+      const {oldKey, ...rest} = prev;
+      return {...rest, newKey:prev.oldKey}
+    })
+  }
+
   // Submit form
   const handleSubmit = async () => {
     try {
@@ -339,6 +351,7 @@ export default function useCatalogForm() {
     imageAttributes,
     dynamicValues,
     handleDynamicChange,
+    addImageAttribute,
     // Status
     loading,
     submitting,
