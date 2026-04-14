@@ -8,8 +8,8 @@ import camera from "../assets/icons/upload_photo.svg";
 export default function AddCatalog() {
   const imageContainerRef = useRef()
   const [preview, setPreview] = useState({});
+  const [imageLink, setImageLink] = useState({});
   console.log(preview)
-
   const {
     selectedType,
     handleTypeChange,
@@ -78,12 +78,36 @@ export default function AddCatalog() {
 
       if (file) {
         const imageUrl = URL.createObjectURL(file);
-        setPreview((prev)=>({...prev, [key]: imageUrl}));
+        setPreview((prev)=>({...prev, [key]: {"url": imageUrl, "object": file},}));
       }
     }
 
     input.click();
-    console.log(preview.key)
+  }
+
+  async function handleImageLink(key, link){
+    console.log(link)
+    try{
+      const response = await fetch(link);
+      const image = await response.blob();
+      console.log(image)
+
+      if (!response.ok) {
+        console.log(running)
+        setPreview((prev)=>({...prev, [key]: {"url": "", "object": null}}));
+        return;
+      }
+
+      if (image) {
+        const imageUrl = URL.createObjectURL(image);
+        setPreview((prev)=>({...prev, [key]: {"url": imageUrl, "object": image}}));
+      }else{
+        setPreview((prev)=>({...prev, [key]: {"url": "", "object": null}}));
+      }
+    }
+    catch{
+      setPreview((prev)=>({...prev, [key]: {"url": "", "object": null}}));
+    }
   }
 
   return (
@@ -304,7 +328,9 @@ export default function AddCatalog() {
                           style={{padding: "12px" }}
                         >
                           <div className={styles.circle} onClick={() => {uploadImage(key)}}
-                            style={{backgroundImage: preview[key]?`url(${preview[key]})`: `url(${camera})`}}></div>
+                            style={{backgroundImage: preview[key]?
+                            preview[key]["url"] && preview[key]["url"] != ""? `url(${preview[key]["url"]})`: `url(${camera})`
+                          : `url(${camera})`}}></div>
                           <p
                             style={{
                               fontSize: "11px",
@@ -315,6 +341,9 @@ export default function AddCatalog() {
                             {isRequired ? "Required" : "Optional"}
                           </p>
                         </div>
+
+                        <input type="text" placeholder="Image link" className={styles.imageLink} 
+                        onChange={(e)=>{handleImageLink(key, e.target.value)}}/>
                       </div>
                     );
                   })}

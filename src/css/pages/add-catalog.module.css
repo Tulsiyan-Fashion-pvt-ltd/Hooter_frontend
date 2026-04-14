@@ -294,6 +294,11 @@ body {
     min-height: 90px;
 }
 
+.imageLink{
+    margin-top: 10px;
+    height: 1.5rem;
+}
+
 /* CAMERA */
 .circle {
     /* margin: 10px auto 0; */
