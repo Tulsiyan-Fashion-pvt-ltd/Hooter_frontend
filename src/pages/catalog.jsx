@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import styles from '../css/pages/Catalog.module.css'
 import { NavLink } from 'react-router-dom';
+import imageNA from '../assets/icons/imagena.png';
 
 const route = import.meta.env.VITE_BASEAPI;
 
@@ -9,10 +10,11 @@ export default function Catalog() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [stats, setStats] = useState({
-    total: 0,
-    bulk: 0,
-    single: 0
+    pending: 0,
+    completed: 0,
+    total: 0
   });
+
 
   useEffect(() => {
     fetchCatalogs();
@@ -36,13 +38,15 @@ export default function Catalog() {
       }
 
       const data = await response.json();
+      console.log(data)
       
-      if (data.status === 'ok') {
-        setProducts(data.data || []);
+      if (response.status === 200) {
+        setProducts(data["catalog-list"]|| []);
+        const count = data.count;
         setStats({
-          total: data.count || 0,
-          bulk: Math.floor((data.count || 0) / 2),
-          single: Math.ceil((data.count || 0) / 2)
+          total: count.total,
+          pending: count.pending,
+          completed: count.completed
         });
       } else {
         setError(data.message || 'Failed to load catalogs');
@@ -63,6 +67,10 @@ export default function Catalog() {
       console.log('Delete:', uskuId);
     }
   };
+
+  function snakeToPlainText(snake){
+    return snake.charAt(0).toUpperCase() + snake.slice(1).replace("_", " ")
+  }
 
   return (
     <div className={styles.mainContainer}>
@@ -91,18 +99,18 @@ export default function Catalog() {
 
         <div className={styles.cards}>
           <div className={styles.card}>
-            <h3>Total Uploads Done</h3>
+            <h3>Total Uploaded Catalog</h3>
             <p>{stats.total}</p>
           </div>
 
           <div className={styles.card}>
-            <h3>Bulk Uploads</h3>
-            <p>{stats.bulk}</p>
+            <h3>Pending Uploads</h3>
+            <p>{stats.pending}</p>
           </div>
 
           <div className={styles.card}>
-            <h3>Single Uploads</h3>
-            <p>{stats.single}</p>
+            <h3>Completed Uplaods</h3>
+            <p>{stats.completed}</p>
           </div>
         </div>
 
@@ -162,11 +170,14 @@ export default function Catalog() {
           <table className={styles.table}>
             <thead>
               <tr>
+                <th className={styles.th}>Product Image</th>
                 <th className={styles.th}>SKU ID</th>
                 <th className={styles.th}>Title</th>
+                <th className={styles.th}>Status</th>
                 <th className={styles.th}>Product Type</th>
                 <th className={styles.th}>MRP</th>
-                <th className={styles.th}>Brand</th>
+                <th className={styles.th}>Compared Price</th>
+                <th className={styles.th}>Purchasing Price</th>
                 <th className={styles.th}>Options</th>
               </tr>
             </thead>
@@ -174,11 +185,14 @@ export default function Catalog() {
             <tbody>
               {products.map((p, index) => (
                 <tr key={p.usku_id || index}>
+                  <td className={styles.td}><img className={styles.productImage} src={p.image_url? `${route}${p.image_url}`: imageNA} alt="image" /></td>
                   <td className={styles.td}>{p.sku_id || p.usku_id}</td>
                   <td className={styles.td}>{p.product_title}</td>
-                  <td className={styles.td}>{p.product_type || 'N/A'}</td>
-                  <td className={styles.td}>Rs {p.mrp || 0}</td>
-                  <td className={styles.td}>{p.brand_name}</td>
+                  <td className={styles.td} style={{color: p.status==="completed"? "green":"red"}}>{p.status}</td>
+                  <td className={styles.td}>{snakeToPlainText(p.product_type) || 'N/A'}</td>
+                  <td className={styles.td}>Rs {p.price || 0}</td>
+                  <td className={styles.td}>Rs {p.compared_price || 0}</td>
+                  <td className={styles.td}>Rs {p.purchasing_cost || 0}</td>
 
                   <td className={`${styles.td} ${styles.actions}`}>
                     <a href="#" className={styles.edit}>Edit</a>
