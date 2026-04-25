@@ -48,6 +48,15 @@ export default function CatalogSelector({ onTypeSelect }) {
 
   // ── Fetch niche data on mount ─────────────────────────
   useEffect(() => {
+    setSelectedNiche("");
+    setSelectedSubNiche("");
+    setSelectedCategory("");
+    setSelectedType("");
+    setNicheOptions([]);
+    setSubNicheOptions([])
+    setCategoryOptions([])
+    setProductTypeOptions([]);
+    
     const fetchNicheData = async () => {
       try {
         const res = await fetch(`${BASE_URL}/catalog/niche-data`, {

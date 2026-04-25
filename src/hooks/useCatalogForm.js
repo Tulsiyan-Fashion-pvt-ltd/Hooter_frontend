@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const route = import.meta.env.VITE_BASEAPI;
 
@@ -35,23 +36,26 @@ export default function useCatalogForm() {
 
   // Form data states
   const [fixedValues, setFixedValues] = useState({
-    'sku-id': '',
+    'sku_id': '',
     'title': '',
     'price': '',
-    'compared-price': '',
-    'purchasing-cost': '',
+    'compared_price': '',
+    'purchasing_cost': '',
     'vendor': '',
     'ean': '',
     'hsn': '',
-    'net-weight': '',
-    'dead-weight': '',
-    'volumetric-weight': '',
-    'brand-name': '',
+    'net_weight': '',
+    'dead_weight': '',
+    'volumetric_weight': '',
+    'brand_name': '',
   });
 
   const [dynamicValues, setDynamicValues] = useState({});
   const [fieldAttributes, setFieldAttributes] = useState({});
   const [imageAttributes, setImageAttributes] = useState({});
+  const [images, setImages] = useState({});
+  const [preview, setPreview] = useState({});
+  // console.log(Object.keys(images).map((item)=>{console.log(images[item].order)}));
 
   // Loading and status states
   const [loading, setLoading] = useState(true);
@@ -59,6 +63,7 @@ export default function useCatalogForm() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
+  const navigate = useNavigate();
   // Fetch niche data on component mount
   useEffect(() => {
     const fetchNicheData = async () => {
@@ -73,7 +78,7 @@ export default function useCatalogForm() {
         }
 
         const data = await response.json();
-        console.log('Raw API response:', data); // Debug log
+        // console.log('Raw API response:', data); // Debug log
         
         // API returns nested object structure under "niche_data"
         const nicheData = data.niche_data || {};
@@ -205,14 +210,32 @@ export default function useCatalogForm() {
         }
 
         const data = await response.json();
+        console.log(data)
         
         // Handle both direct fields/images and nested structure
         const fields = data.fields || data.field_attributes || {};
         const images = data.images || data.image_attributes || {};
         
+        // clearing the value of fixed values as well when the new new niche type is fetched
+        setFixedValues({
+          'sku_id': '',
+          'title': '',
+          'price': '',
+          'compared_price': '',
+          'purchasing_cost': '',
+          'vendor': '',
+          'ean': '',
+          'hsn': '',
+          'net_weight': '',
+          'dead_weight': '',
+          'volumetric_weight': '',
+          'brand_name': '',
+        });
         setFieldAttributes(fields);
         setImageAttributes(images);
+        setPreview({});
         setDynamicValues({});
+
         setError('');
       } catch (err) {
         console.error('Error fetching attribute fields:', err);
@@ -244,7 +267,7 @@ export default function useCatalogForm() {
   const handleFixedChange = (key, value) => {
     setFixedValues((prev) => ({
       ...prev,
-      [key]: value,
+      [key]: value==''? null: value,
     }));
   };
 
@@ -252,7 +275,7 @@ export default function useCatalogForm() {
   const handleDynamicChange = (key, value) => {
     setDynamicValues((prev) => ({
       ...prev,
-      [key]: value,
+      [key]: value==''? null: value,
     }));
   };
 
@@ -268,6 +291,12 @@ export default function useCatalogForm() {
     })
   }
 
+  const uploadImageData = (key, object, order) => {
+    setImages((prev)=>({...prev, [key]: 
+      {...prev.key, ["image"]: object, ["order"]: order}
+    }));
+  }
+
   // Submit form
   const handleSubmit = async () => {
     try {
@@ -280,7 +309,7 @@ export default function useCatalogForm() {
         return;
       }
 
-      if (!fixedValues['sku-id'] || !fixedValues['title'] || !fixedValues['price'] || !fixedValues['brand-name']) {
+      if (!fixedValues['sku_id'] || !fixedValues['title'] || !fixedValues['price'] || !fixedValues['brand_name']) {
         setError('Please fill in all mandatory fields');
         return;
       }
@@ -295,37 +324,70 @@ export default function useCatalogForm() {
         }
       }
 
-      // Prepare payload
-      const payload = {
-        type: selectedType,
-        fixed: fixedValues,
-        dynamic: dynamicValues,
-      };
+      async function submitCatalog() {
+        // Prepare payload
+        const payload = {
+          type: selectedType,
+          data: {...fixedValues,...dynamicValues}
+        };
 
-      const response = await fetch(`${route}/catalog/add-product`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
+        const response = await fetch(`${route}/catalog/single-catalog`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
 
-      if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.msg || 'Failed to add catalog');
+        if (!response.ok) {
+          throw new Error(data.msg || 'Failed to add catalog');
+        }
+
+        return {"status": "ok", "uskuId": data['usku_id']}
       }
 
-      setSuccess(true);
-      setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 2000);
+      async function submitImages(uskuID) {
+        await Promise.all(
+          Object.keys(images).map(async (item) => {
+            const form = new FormData();
+            form.append('image', images[item].image);
+            // console.log(`${route}/catalog/image?usku-id=${uskuID}&order=${images[item].order}&image-type=${item}`)
+            const response = await fetch(
+              `${route}/catalog/image?usku-id=${uskuID}&order=${images[item].order}&image-type=${item}`,
+              {
+                method: "POST",
+                credentials: "include",
+                body: form
+              }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+              throw new Error(data.msg || 'Image upload Failed');
+            }
+          })
+        );
+      }
+
+      const catalogUpload = await submitCatalog();
+      console.log(catalogUpload)
+      if (catalogUpload.status==="ok"){
+        await submitImages(catalogUpload.uskuId);
+        setSuccess(true);
+        setTimeout(()=>{
+          navigate("/catalog");
+        }, 200);
+      }
     } catch (err) {
       console.error('Submission error:', err);
       setError(err.message || 'An error occurred while submitting');
     } finally {
       setSubmitting(false);
     }
+    
   };
 
   return {
@@ -349,10 +411,12 @@ export default function useCatalogForm() {
     handleFixedChange,
     fieldAttributes,
     imageAttributes,
+    preview, setPreview,
     changeImageCustomKey,
     dynamicValues,
     handleDynamicChange,
     addImageAttribute,
+    uploadImageData,
     // Status
     loading,
     submitting,

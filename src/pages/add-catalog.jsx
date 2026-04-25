@@ -2,14 +2,14 @@ import React from "react";
 import styles from "../css/pages/add-catalog.module.css";
 import useCatalogForm from "../hooks/useCatalogForm";
 import CatalogSelector from "../components/CatalogSelector";
-import { useRef, useState } from "react";
+import { useRef, useState} from "react";
+import { Link } from "react-router-dom";
 import camera from "../assets/icons/upload_photo.svg"; 
 
 export default function AddCatalog() {
   const imageContainerRef = useRef()
-  const [preview, setPreview] = useState({});
   const [imageLink, setImageLink] = useState({});
-  console.log(preview)
+  // console.log(preview)
   const {
     selectedType,
     handleTypeChange,
@@ -19,6 +19,9 @@ export default function AddCatalog() {
     imageAttributes,
     addImageAttribute,
     changeImageCustomKey,
+    preview,
+    setPreview,
+    uploadImageData,
     dynamicValues,
     handleDynamicChange,
     submitting,
@@ -28,18 +31,18 @@ export default function AddCatalog() {
   } = useCatalogForm();
 
   const fixedFields = [
-    { key: "sku-id", label: "SKU ID", required: true },
+    { key: "sku_id", label: "SKU ID", required: true },
     { key: "title", label: "Product Title", required: true },
     { key: "price", label: "Product Price", required: true },
-    { key: "compared-price", label: "Compared Price", required: false },
-    { key: "purchasing-cost", label: "Purchasing Cost", required: false },
+    { key: "compared_price", label: "Compared Price", required: true },
+    { key: "purchasing_cost", label: "Purchasing Cost", required: false },
     { key: "vendor", label: "Vendor", required: false },
     { key: "ean", label: "EAN", required: false },
     { key: "hsn", label: "HSN", required: false },
-    { key: "net-weight", label: "Net Weight", required: false },
-    { key: "dead-weight", label: "Dead Weight", required: false },
-    { key: "volumetric-weight", label: "Volumetric Weight", required: false },
-    { key: "brand-name", label: "Brand Name", required: true },
+    { key: "net_weight", label: "Net Weight", required: false },
+    { key: "dead_weight", label: "Dead Weight", required: false },
+    { key: "volumetric_weight", label: "Volumetric Weight", required: false },
+    { key: "brand_name", label: "Brand Name", required: true },
   ];
 
   const formatLabel = (str) =>
@@ -68,7 +71,7 @@ export default function AddCatalog() {
     addImageAttribute("custom", [orderCount, "custom"]);
   }
 
-  function uploadImage(key){
+  function uploadImage(key, order){
     const input = document.createElement('input');
     input.type = "file";
     input.accept = "image/*";
@@ -79,6 +82,8 @@ export default function AddCatalog() {
       if (file) {
         const imageUrl = URL.createObjectURL(file);
         setPreview((prev)=>({...prev, [key]: {"url": imageUrl, "object": file},}));
+
+        uploadImageData(key, file, order)
       }
     }
 
@@ -117,8 +122,7 @@ export default function AddCatalog() {
         <div className={styles.top}>
           <h1>Add Single Catalog</h1>
           <p>
-            Add the product photos and we will auto-fill some of the product
-            description
+            Add the information for your catalog
           </p>
 
           {/* ── STEPS ── */}
@@ -151,7 +155,7 @@ export default function AddCatalog() {
               Mandatory Fields<span>*</span>
             </p>
             <div className={`${styles.guideline} ${styles.small}`}>
-              <a href="#">⚠ Follow guidelines to reduce quality check</a>
+              <Link to="#">⚠ Follow guidelines to reduce quality check</Link>
             </div>
           </div>
         </div>
@@ -271,6 +275,7 @@ export default function AddCatalog() {
                           onChange={(e) =>
                             handleDynamicChange(key, e.target.value)
                           }
+                          required={rule === "*" || rule.includes("*")? true: false}
                         />
                       )}
                     </div>
@@ -308,7 +313,7 @@ export default function AddCatalog() {
                   {Object.entries(imageAttributes).map(([key, rule]) => {
                     const isRequired = rule.includes("*");
                     return (
-                      <div className={styles.imageCardContainer} style={{order: `${rule[0]}`}}>
+                      <div key={key} className={styles.imageCardContainer} style={{order: `${rule[0]}`}}>
                         <input className={styles.imageTypeTag}
                           style={{
                             fontSize: "13px",
@@ -327,7 +332,7 @@ export default function AddCatalog() {
                           className={styles["img-box"]}
                           style={{padding: "12px" }}
                         >
-                          <div className={styles.circle} onClick={() => {uploadImage(key)}}
+                          <div className={styles.circle} onClick={() => {uploadImage(key, rule[0])}}
                             style={{backgroundImage: preview[key]?
                             preview[key]["url"] && preview[key]["url"] != ""? `url(${preview[key]["url"]})`: `url(${camera})`
                           : `url(${camera})`}}></div>

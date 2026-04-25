@@ -11,6 +11,7 @@ import Orders from "./pages/orders";
 import AddCatalog from "./pages/add-catalog";
 import AddBulkCatalog from "./pages/add-bulk-catalog";
 import Inventory from "./pages/inventory";
+import EditInventory from './pages/edit-catalog';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path='/catalog' element={<Catalog />} />
         <Route path="/catalog/add-catalog" element={<AddCatalog />} />
         <Route path="/catalog/add-bulk-catalog" element={<AddBulkCatalog />} />
+        <Route path="/catalog/edit" element={<EditInventory/>}/>
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/orders" element={<Orders />} />
       </Route>
