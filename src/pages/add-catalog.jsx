@@ -35,6 +35,7 @@ export default function AddCatalog() {
     { key: "title", label: "Product Title", required: true },
     { key: "price", label: "Product Price", required: true },
     { key: "compared_price", label: "Compared Price", required: true },
+    { key: "discount", label: "Discount", required: false },
     { key: "purchasing_cost", label: "Purchasing Cost", required: false },
     { key: "vendor", label: "Vendor", required: false },
     { key: "ean", label: "EAN", required: false },
@@ -227,8 +228,12 @@ export default function AddCatalog() {
                     </span>
                     <input
                       placeholder="Type Here..."
-                      value={fixedValues[key]}
+                      value={key==="discount"? (()=>{
+                        const factor = Math.pow(10, 2);
+                        return `${Math.trunc((((fixedValues["compared_price"]-fixedValues["price"])/fixedValues["compared_price"])*100)*factor)/factor}%`
+                        })() : fixedValues[key]}
                       onChange={(e) => handleFixedChange(key, e.target.value)}
+                      disabled={key==="discount"?true:false}
                     />
                   </div>
                 ))}
