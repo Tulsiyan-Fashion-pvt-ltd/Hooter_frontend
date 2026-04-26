@@ -164,6 +164,7 @@ export default function AddCatalog() {
         {/* ── ERROR BANNER ── */}
         {error && (
           <div
+            id="error"
             style={{
               background: "#fff0f0",
               border: "1px solid #E51300",
@@ -330,6 +331,7 @@ export default function AddCatalog() {
                           disabled={!rule.includes("custom")}
 
                           onChange={(e) => {changeImageCustomKey(key, e.target.value)}}
+                          value={`${formatLabel(key)}`+`${isRequired ? " *" : ""}`}
                           autoFocus={rule.includes("custom")}
                         />
                         <div

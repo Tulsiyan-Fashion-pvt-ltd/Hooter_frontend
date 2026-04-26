@@ -55,7 +55,7 @@ export default function useCatalogForm() {
   const [imageAttributes, setImageAttributes] = useState({});
   const [images, setImages] = useState({});
   const [preview, setPreview] = useState({});
-  // console.log(Object.keys(images).map((item)=>{console.log(images[item].order)}));
+  // console.log(imageAttributes);
 
   // Loading and status states
   const [loading, setLoading] = useState(true);
@@ -280,6 +280,8 @@ export default function useCatalogForm() {
   };
 
   // handle custom image attribute
+  // the custom image attribute will have the value as [order, "custom"]
+  // to recognise that this key is custom even when it's renamed to something else
   const addImageAttribute = (key, value)=>{
     setImageAttributes((prev) => ({...prev, [key]: value}))
   }
@@ -372,14 +374,41 @@ export default function useCatalogForm() {
         );
       }
 
+      async function updateStatus(uskuId){
+        const response = await fetch(`${route}/catalog/mark-complete?usku-id=${uskuId}`,
+          {
+            method: "PUT",
+            credentials: "include",
+            headers: {"Content-Type": "application/json"}
+          }
+        )
+
+        const data = await response.json();
+
+        if (!response.ok){
+          throw new Error(data.msg || 'status update failed');
+        }
+      }
+
       const catalogUpload = await submitCatalog();
       console.log(catalogUpload)
       if (catalogUpload.status==="ok"){
-        await submitImages(catalogUpload.uskuId);
+        try{
+          await submitImages(catalogUpload.uskuId);
+        }
+        catch (err) {
+          setError("image upload failed");
+          navigate("#error")
+          setTimeout(() => {
+            navigate("/catalog");
+          }, 5000);
+          return;
+        }
+        await updateStatus(catalogUpload.uskuId);
         setSuccess(true);
         setTimeout(()=>{
           navigate("/catalog");
-        }, 200);
+        }, 5000);
       }
     } catch (err) {
       console.error('Submission error:', err);
