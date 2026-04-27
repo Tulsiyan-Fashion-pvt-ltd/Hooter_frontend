@@ -140,18 +140,37 @@
     color:#92400e;
 }
 
-.actions a{
+.actionButtons{
+    display: flex;
+    flex-flow: row nowrap;
+    gap: 1rem;
+}
+
+.actions div{
     margin-right:10px;
     text-decoration:none;
     font-size:13px;
 }
 
 .edit{
+    border: none;
+    background-color: transparent;
     color:#2563eb;
+    display: inline-block;
+    text-decoration: none;
 }
 
 .delete{
+    border: none;
+    background-color: transparent;
     color:#dc2626;
+    display: inline-block;
+}
+
+button:hover{
+    border: none;
+    outline: none;
+    cursor: pointer;
 }
 
 .productImage{

@@ -155,7 +155,7 @@ body {
 .info-text {
     font-size: 0.85em;
     color: #666;
-    margin-left: 26px;
+    /* margin-left: 26px; */
 }
 
 .note {
@@ -216,7 +216,7 @@ body {
 
 /* BUTTONS */
 .buttons {
-    margin-top: 22px;
+    margin-top: 3rem;
     display: flex;
     justify-content: space-between;
 }
@@ -229,7 +229,7 @@ body {
 .draft {
     background: #eee;
     border: none;
-    padding: 8px 14px;
+    padding: 0.8rem 3rem;
     cursor: pointer;
 }
 
@@ -237,13 +237,14 @@ body {
     background: #0b4ddb;
     color: white;
     border: none;
-    padding: 8px 20px;
+    padding: 0.8rem 4rem;
+    font-weight: bolder;
     cursor: pointer;
 }
 
 /* RIGHT */
 .right {
-    flex: 1;
+    width: 381px;
     display: flex;
     flex-direction: column;
     gap: 15px;
@@ -254,7 +255,7 @@ body {
 .card2 {
     background: white;
     /* border-radius: 6px; */
-    padding: 15px;
+    padding: 20px;
     box-shadow: 0px 4px 8px 0px #00000040;
 }
 

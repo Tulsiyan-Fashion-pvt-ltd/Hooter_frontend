@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import styles from '../css/pages/Catalog.module.css'
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link} from 'react-router-dom';
 import imageNA from '../assets/icons/imagena.png';
 
 const route = import.meta.env.VITE_BASEAPI;
@@ -64,7 +64,16 @@ export default function Catalog() {
   const handleDelete = async (uskuId) => {
     if (window.confirm('Are you sure you want to delete this catalog?')) {
       // TODO: Implement delete endpoint
+      const response = await fetch(`${route}/catalog?usku-id=${uskuId}`,
+        {
+          method: "DELETE",
+          credentials: "include"
+        }
+      );
+      
+      const data = await response.json();
       console.log('Delete:', uskuId);
+      await fetchCatalogs();
     }
   };
 
@@ -116,10 +125,10 @@ export default function Catalog() {
 
         <div className={styles.tabs}>
           <a href="#" className={styles.activeTab}>All ({stats.total})</a>
-          <a href="#">Action Required (0)</a>
-          <a href="#">QC In Progress (0)</a>
-          <a href="#">QC Error (0)</a>
-          <a href="#">QC Pass (0)</a>
+          <a href="#">Completed ({stats.completed})</a>
+          <a href="#">Pending ({stats.pending})</a>
+          {/* <a href="#">QC Error (0)</a> */}
+          {/* <a href="#">QC Pass (0)</a> */}
           <a href="#">Draft (0)</a>
         </div>
 
@@ -195,9 +204,9 @@ export default function Catalog() {
                   <td className={styles.td}>Rs {p.purchasing_cost || 0}</td>
 
                   <td className={`${styles.td} ${styles.actions}`}>
-                    <a href="#" className={styles.edit}>Edit</a>
-                    <a 
-                      href="#" 
+                    <div className={styles.actionButtons}>
+                    <Link to={`/catalog/edit?id=${p.usku_id}&type=${p.type_id}`} className={styles.edit}>Edit</Link>
+                    <button  
                       className={styles.delete}
                       onClick={(e) => {
                         e.preventDefault();
@@ -205,7 +214,8 @@ export default function Catalog() {
                       }}
                     >
                       Delete
-                    </a>
+                    </button>
+                    </div>
                   </td>
                 </tr>
               ))}

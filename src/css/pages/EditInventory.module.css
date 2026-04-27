@@ -1,9 +1,21 @@
+.globalEditCatalogContainer{
+    padding: 20px;
+    min-height: 100dvh;
+}
+
 .top{
     background-color: white;
     /* border: 1px solid black; */
-    padding: 2.5rem 2rem;
+    padding: 20px;
     box-shadow: 0px 4px 8px 0px #00000040;
     border-left: 1px solid #000000;
+    margin-bottom: 3rem;
+}
+
+h1{
+        font-size: 2em;
+    font-weight: 600;
+    margin-bottom: 10px;
 }
 
 .heading{
@@ -31,4 +43,181 @@
 
 .guidlineText{
     font-size: 0.85em;
+}
+
+.bottom{
+    width: 100%;
+    /* box-shadow: 0px 4px 8px 0px #00000040; */
+    min-height: 80vh;
+    /* border: 1px solid black; */
+    display: flex;
+    flex-flow: row nowrap;
+    gap:20px;
+}
+
+
+.leftSection{
+        flex: 1;
+    background: white;
+    /* border-radius: 6px; */
+    padding: 20px;
+    box-shadow: 0px 4px 8px 0px #00000040;
+}
+
+.rightSection{
+    width: 381px;
+        background: white;
+    /* border-radius: 6px; */
+    padding: 20px;
+    box-shadow: 0px 4px 8px 0px #00000040;
+}
+
+.infoBox{
+        background: #f3f7ff;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 15px;
+}
+
+.note{
+        font-size: 0.85em;
+    color: #666;
+}
+
+.productAttribute{
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    margin-bottom: 14px;
+    margin-right: 4rem;
+}
+
+.title{
+        min-width: 140px;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.9em;
+    position: relative;
+}
+
+.title::after{
+        content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 3px;
+    height: 100%;
+    background: #1a73e8;
+    border-radius: 0 6px 6px 0;
+}
+
+.attributeInputField{
+        flex: 1;
+    border: none;
+    border-bottom: 1px solid black;
+    padding: 8px 4px;
+    font-size: 1em;
+    outline: none;
+    border-radius: 0px;
+}
+
+.productAttribute input:focus{
+    outline: none;
+    border: none;
+    border-bottom: 1px solid #1a73e8;
+}
+
+.attributeInputField:active, .attributeInputField:focus
+{
+    /* outline: none; */
+    /* border: none; */
+    border-bottom: 1px solid black;
+}
+
+
+.draft {
+    background: #eee;
+    border: none;
+    padding: 0.8rem 3rem;
+    cursor: pointer;
+}
+
+.submit {
+    background: #0b4ddb;
+    color: white;
+    border: none;
+    padding: 0.8rem 4rem;
+    font-weight: bolder;
+    cursor: pointer;
+}
+
+.buttons{
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    margin-top: 3rem;
+}
+
+
+.imageContainer{
+    margin-top: 12px;
+    display: flex;
+    flex-flow: row wrap;
+    gap: 12px;
+}
+
+.imageCards{
+    list-style: none;
+    gap: 8px;
+    display: flex;
+    flex-flow: column nowrap;
+    flex: 0 0 48%;
+}
+
+.previewContainer{
+    background: #f2f6ff;
+    height: 157px;
+    font-size: 0.85em;
+    text-align: center;
+    padding-top: 8px;
+    border-radius: 6px;
+    padding: 12px;
+}
+
+.imageNote{
+    font-size: 0.85em;
+    color: rgb(136, 136, 136);
+    margin-top: 6px;
+}
+
+.preview{
+    width: 100%;
+    height: 90%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    /* background-image: url('../../assets/icons/upload_photo.svg'); */
+}
+
+.imageTag {
+    border: none;
+    background-color: white;
+    height: 0px;
+}
+
+.imageFromLink{
+    /* margin-top: 10px; */
+    height: 1.5rem;
+}
+
+.moreImageBttn{
+        width: 100%;
+    margin-top: 12px;
+    background: #0b4ddb;
+    color: white;
+    border: none;
+    padding: 8px;
+    font-size: 1em;
 }

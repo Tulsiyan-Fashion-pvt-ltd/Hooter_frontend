@@ -208,7 +208,7 @@ export default function AddCatalog() {
 
               <div className={styles["info-box"]}>
                 <div className={styles["info-top"]}>
-                  <span className={styles.tick}>✔</span>
+                  {/* <span className={styles.tick}>✔</span> */}
                   <p>Fill in all required fields marked with *</p>
                 </div>
                 <p className={styles["info-text"]}>
@@ -217,7 +217,7 @@ export default function AddCatalog() {
                 </p>
               </div>
 
-              <h4>Listing Information</h4>
+              <h2>Listing Information</h2>
               <div className={styles.listing}>
                 {fixedFields.map(({ key, label, required }) => (
                   <div className={styles.line} key={key}>
@@ -297,7 +297,7 @@ export default function AddCatalog() {
                   disabled={submitting}
                   style={{ opacity: submitting ? 0.7 : 1 }}
                 >
-                  {submitting ? "Submitting..." : "Submit Catalog ✓"}
+                  {submitting ? "Submitting..." : "Submit"}
                 </button>
               </div>
             </div>
@@ -305,7 +305,7 @@ export default function AddCatalog() {
             {/* RIGHT — Images */}
             <div className={styles.right}>
               <div className={styles.card1}>
-                <h4>Add Images</h4>
+                <h2>Add Images</h2>
                 <p
                   style={{
                     fontSize: "0.85em",
