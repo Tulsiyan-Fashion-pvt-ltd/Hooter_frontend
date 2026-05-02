@@ -25,12 +25,13 @@ export default function EditInventory() {
 
     const [field, setField] = useState({});   // stores the value for the attribute demo{"sku_id": "data"}
     const [dynamicAttribute, setDynamicAttribute] = useState({}); // stores the attribute information for the catalog demo {"sku_id": "*"}
-    const [imageAttribute, setImageAttribute] = useState({});
+    const [imageAttribute, setImageAttribute] = useState({});  // {"front": [order, "*"]}
+    const [imageField, setImageField] = useState({}); // storing data in {"front": {"image": object, "url": url, "order": integer}, ...}
     const [error, setError] = useState();
     const imageContainerRef = useRef();
 
 
-    console.log(imageAttribute);
+    // console.log(imageField);
 
     
 
@@ -42,10 +43,10 @@ export default function EditInventory() {
     }
 
     // add custom image
-    function addImageAttribute(){
+    function addImageAttribute(key="custom"){
         const order = imageContainerRef.current.childElementCount;
         setImageAttribute((prev)=>({
-            ...prev, ["custom"]: [order, "custom"]
+            ...prev, [key]: [prev[key]? prev[key][0]: order, "custom"]
         }))
     }
 
@@ -57,14 +58,44 @@ export default function EditInventory() {
     }
 
 
+    function handleFile(key, order){
+        const input = document.createElement('input');
+        input.type = "file";
+        input.accept = "image/*";
+
+        input.onchange = (e)=>{
+            const file = e.target.files[0];
+            const url = URL.createObjectURL(file);
+
+            setImageField((prev)=>({
+                ...prev, [key]: {"image": file, "url": url, "order": order}
+            }));
+        }
+
+        input.click();
+    }
+
+
+    async function handleURL(key, url, order){
+        const response = await fetch(url);
+
+        const image = await response.blob();
+
+        setImageField((prev)=>({
+            ...prev,
+            [key]: {...prev.key, ["image"]: image, ["url"]: url}
+        }));
+    }
+
+
     /*
         fetch the attribute data from the server
     */
     useEffect(() => {
-        async function fetchAttribute() {
-            const uskuId = searchParams.get("id");
-            const type = searchParams.get("type");
+        const uskuId = searchParams.get("id");
+        const type = searchParams.get("type");
 
+        async function fetchAttribute() {
             try {
                 const response = await fetch(`${route}/catalog/attribute-fields?type=${type}`, {
                     credentials: "include"
@@ -81,12 +112,55 @@ export default function EditInventory() {
                 setImageAttribute(data["image_attributes"]);
             }
             catch (e) {
-                setError(e);
+                setError(e.message);
             }
         }
+        
+        
 
         fetchAttribute();
     }, [])
+
+    useEffect(()=>{
+        const uskuId = searchParams.get("id");
+        // fetch the saved details from the server
+        async function fetchCatalogData(){
+            try {
+                const [catalogResponse, imgResponse] = await Promise.all([fetch(`${route}/catalog?usku-id=${uskuId}`, {
+                    credentials: "include"
+                }), 
+                fetch(`${route}/catalog/image?usku-id=${uskuId}`, {
+                    credentials: "include"
+                })]);
+
+
+                const data = await catalogResponse.json();
+                const images = await imgResponse.json();
+                console.log(data)
+                console.log(images)
+
+                if (!catalogResponse.ok) {
+                    throw new Error(data.msg);
+                    console.log(data);
+                }
+
+                setField({...data})
+
+                Object.keys(images).forEach((key)=>{
+                    console.log(images[key]["web-webp_card"])
+                    addImageAttribute(key);
+                    handleURL(key, `${route}${images[key]["webp_card"]}`);
+                })
+            }
+            catch (e){
+                console.log(e);
+                setError(e.message);
+            }
+            
+        }
+
+        fetchCatalogData();
+    }, [dynamicAttribute]);
 
     return (
         <div className={styles.globalEditCatalogContainer}>
@@ -113,6 +187,8 @@ export default function EditInventory() {
                 <hr style={{ marginTop: "1rem" }} />
             </div>
 
+            {error && <div>{error.message || String(error)}</div>}
+
             <div className={styles.bottom}>
                 <div className={styles.leftSection}>
                     <h2 className={styles.description}>Edit product details</h2>
@@ -136,7 +212,7 @@ export default function EditInventory() {
                                                 {label} {required?"*": ""}
                                             </div>
                                             <input type="text" placeholder='Type Here...' className={styles.attributeInputField} 
-                                            value={field.key}
+                                            value={field[key]? field[key]: ""}
                                             onChange={(e)=>{handleEntryInput(key, e.target.value)}}
                                             />
                                         </li>
@@ -150,8 +226,14 @@ export default function EditInventory() {
                         <ul className={styles.productAttributeList}>
                             {
                                 Object.entries(dynamicAttribute).map(([key, value]) => {
-                                    const required = value === "*" || value.includes("*")? true: false;
+                                    const required = value === "*" || value.includes("*") ? true : false;
                                     const label = key.charAt(0).toUpperCase() + key.slice(1).replaceAll("_", " ");
+                                    const isDropdown = Array.isArray(value);
+
+                                    const options = isDropdown
+                                        ? value.filter((v) => v !== "*")
+                                        : [];
+
 
                                     return (
                                         <li className={styles.productAttribute} key={key}>
@@ -160,10 +242,26 @@ export default function EditInventory() {
                                             >
                                                 {label} {required?"*": ""}
                                             </div>
-                                            <input type="text" placeholder='Type Here...' className={styles.attributeInputField} 
-                                            value={field.key}
-                                            onChange={(e)=>{handleEntryInput(key, e.target.value)}}
-                                            />
+
+                                            {isDropdown ? (<select
+                                                value={field[key] || ""}
+                                                onChange={(e) =>
+                                                    handleEntryInput(key, e.target.value)
+                                                }
+                                                className={styles.selectField}
+                                            >
+                                                <option value="">Select...</option>
+                                                {options.map((opt) => (
+                                                    <option key={opt} value={opt}>
+                                                        {opt}
+                                                    </option>
+                                                ))}
+                                            </select>) : (
+                                                <input type="text" placeholder='Type Here...' className={styles.attributeInputField}
+                                                    value={field[key] ? field[key] : ""}
+                                                    onChange={(e) => { handleEntryInput(key, e.target.value) }}
+                                                />
+                                            )}
                                         </li>
                                     )
                                 })
@@ -184,28 +282,30 @@ export default function EditInventory() {
                     <ul className={styles.imageContainer} ref={imageContainerRef}>
                         {
                             Object.entries(imageAttribute).map(([key, value]) => {
-                                const label = key.charAt(0).toUpperCase() + key.slice(1).replaceAll("_", " ")
+                                const label = key.charAt(0).toUpperCase() + key.slice(1).replaceAll("_", " ") + (value.includes("*")? " *": "");
 
                                 return (
                                     <li className={styles.imageCards} style={{order: value[0]}}>
                                         <input className={styles.imageTag} type="text" placeholder={label} 
                                         disabled={value.includes("custom")? false: true} 
-                                        onChange={(e)=>{renameImageAttribute(key, e.target.value)}}/>
+                                        onChange={(e)=>{renameImageAttribute(key, e.target.value)}}
+                                        value={label}/>
 
                                         <div className={styles.previewContainer}>
-                                            <div className={styles.preview} style={{backgroundImage: `url("${camera}")`}}>
-                                                <input type="image" style={{width: "100%", height: "100%"}}/>
+                                            <div className={styles.preview} style={imageField[key]? {backgroundImage: `url("${imageField[key].url}")`}: {backgroundImage: `url("${camera}")`}}
+                                            onClick={()=>{handleFile(key, value[0])}}>
                                             </div>
                                             <p className={styles.imageNote}>Required</p>
                                         </div>
 
-                                        <input type="text" placeholder='Image link' className={styles.imageFromLink} />
+                                        <input type="text" placeholder='Image link' className={styles.imageFromLink}
+                                        onChange={(e)=>{handleURL(key, e.target.value)}} />
                                     </li>
                                 )
                             })
                         }
                     </ul>
-                    <button className={styles.moreImageBttn} onClick={addImageAttribute}>+ Add more image</button>
+                    <button className={styles.moreImageBttn} onClick={()=>{addImageAttribute()}}>+ Add more image</button>
                 </div>
             </div>
         </div>

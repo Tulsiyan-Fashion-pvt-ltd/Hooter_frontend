@@ -25,7 +25,7 @@ export default function Catalog() {
       setLoading(true);
       setError('');
       
-      const response = await fetch(`${route}/catalog/list`, {
+      const response = await fetch(`${route}/catalog`, {
         method: 'GET',
         credentials: 'include',
         headers: {

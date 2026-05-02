@@ -221,3 +221,15 @@ h1{
     padding: 8px;
     font-size: 1em;
 }
+
+.selectField{
+        flex: 1;
+    border: none;
+    border-bottom: 1px solid black;
+    padding: 8px 4px;
+    font-size: 1em;
+    outline: none;
+    border-radius: 0px;
+    background: transparent;
+    cursor: pointer;
+}
