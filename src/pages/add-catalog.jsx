@@ -32,7 +32,7 @@ export default function AddCatalog() {
 
   const fixedFields = [
     { key: "sku_id", label: "SKU ID", required: true },
-    { key: "title", label: "Product Title", required: true },
+    { key: "product_title", label: "Product Title", required: true },
     { key: "price", label: "Product Price", required: true },
     { key: "compared_price", label: "Compared Price", required: true },
     { key: "discount", label: "Discount", required: false },
@@ -40,9 +40,9 @@ export default function AddCatalog() {
     { key: "vendor", label: "Vendor", required: false },
     { key: "ean", label: "EAN", required: false },
     { key: "hsn", label: "HSN", required: false },
-    { key: "net_weight", label: "Net Weight", required: false },
-    { key: "dead_weight", label: "Dead Weight", required: false },
-    { key: "volumetric_weight", label: "Volumetric Weight", required: false },
+    { key: "net_weight_kg", label: "Net Weight", required: false },
+    { key: "dead_weight_kg", label: "Dead Weight", required: false },
+    { key: "volumetric_weight_kg", label: "Volumetric Weight", required: false },
     { key: "brand_name", label: "Brand Name", required: true },
   ];
 

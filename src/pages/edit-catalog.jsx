@@ -2,14 +2,14 @@ import styles from '../css/pages/EditInventory.module.css';
 import {useState, useEffect, useRef} from 'react';
 import {useSearchParams} from 'react-router-dom';
 import camera from '../assets/icons/upload_photo.svg';
-import e from 'cors';
+import { useNavigate } from 'react-router-dom';
 
 const route = import.meta.env.VITE_BASEAPI
 
 export default function EditInventory() {
     const fixedFields = [
         { key: "sku_id", label: "SKU ID", required: true },
-        { key: "title", label: "Product Title", required: true },
+        { key: "product_title", label: "Product Title", required: true },
         { key: "price", label: "Product Price", required: true },
         { key: "compared_price", label: "Compared Price", required: true },
         { key: "discount", label: "Discount", required: false },
@@ -17,9 +17,9 @@ export default function EditInventory() {
         { key: "vendor", label: "Vendor", required: false },
         { key: "ean", label: "EAN", required: false },
         { key: "hsn", label: "HSN", required: false },
-        { key: "net_weight", label: "Net Weight", required: false },
-        { key: "dead_weight", label: "Dead Weight", required: false },
-        { key: "volumetric_weight", label: "Volumetric Weight", required: false },
+        { key: "net_weight_kg", label: "Net Weight", required: false },
+        { key: "dead_weight_kg", label: "Dead Weight", required: false },
+        { key: "volumetric_weight_kg", label: "Volumetric Weight", required: false },
         { key: "brand_name", label: "Brand Name", required: true },
     ];
 
@@ -28,7 +28,9 @@ export default function EditInventory() {
     const [imageAttribute, setImageAttribute] = useState({});  // {"front": [order, "*"]}
     const [imageField, setImageField] = useState({}); // storing data in {"front": {"image": object, "url": url, "order": integer}, ...}
     const [error, setError] = useState();
+    const [success, setSuccess] = useState();
     const imageContainerRef = useRef();
+    const navigate = useNavigate();
 
 
     // console.log(imageField);
@@ -85,6 +87,37 @@ export default function EditInventory() {
             ...prev,
             [key]: {...prev.key, ["image"]: image, ["url"]: url}
         }));
+    }
+
+
+    async function submit(){
+        const type = searchParams.get("type");
+        const uskuId = searchParams.get("id");
+
+        const catalog_data = {"type": type, "data": {...field, ["usku_id"]: uskuId}};
+
+        try{
+            const response = await fetch(`${route}/catalog`, {
+                method: 'PUT',
+                credentials: "include",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(catalog_data)
+            })
+
+            const data = await response.json();
+            console.log(data)
+
+            if (!response.ok){
+                throw new Error(data.msg);
+            }
+
+            setSuccess(true);
+            navigate("/catalog");
+        }
+        catch(e){
+            console.log(e);
+            setError(e);
+        }
     }
 
 
@@ -212,8 +245,12 @@ export default function EditInventory() {
                                                 {label} {required?"*": ""}
                                             </div>
                                             <input type="text" placeholder='Type Here...' className={styles.attributeInputField} 
-                                            value={field[key]? field[key]: ""}
+                                                value={key === "discount" ? (() => {
+                                                    const factor = Math.pow(10, 2);
+                                                    return `${Math.trunc((((field["compared_price"] - field["price"]) / field["compared_price"]) * 100) * factor) / factor}%`
+                                                })() : field[key]? field[key]: ''}
                                             onChange={(e)=>{handleEntryInput(key, e.target.value)}}
+                                            disabled={key==="discount"? true: false}
                                             />
                                         </li>
                                     )
@@ -260,6 +297,7 @@ export default function EditInventory() {
                                                 <input type="text" placeholder='Type Here...' className={styles.attributeInputField}
                                                     value={field[key] ? field[key] : ""}
                                                     onChange={(e) => { handleEntryInput(key, e.target.value) }}
+                                                    disabled={key=="discount"? true: false}
                                                 />
                                             )}
                                         </li>
@@ -271,7 +309,7 @@ export default function EditInventory() {
 
                     <div className={styles.buttons}>
                         <button className={styles.draft}>Save as draft</button>
-                        <button className={styles.submit}>Submit</button>
+                        <button className={styles.submit} onClick={submit}>Submit</button>
                     </div>
                 </div>
 
@@ -285,7 +323,7 @@ export default function EditInventory() {
                                 const label = key.charAt(0).toUpperCase() + key.slice(1).replaceAll("_", " ") + (value.includes("*")? " *": "");
 
                                 return (
-                                    <li className={styles.imageCards} style={{order: value[0]}}>
+                                    <li key={key} className={styles.imageCards} style={{order: value[0]}}>
                                         <input className={styles.imageTag} type="text" placeholder={label} 
                                         disabled={value.includes("custom")? false: true} 
                                         onChange={(e)=>{renameImageAttribute(key, e.target.value)}}
