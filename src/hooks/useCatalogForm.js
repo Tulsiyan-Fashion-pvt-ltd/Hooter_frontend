@@ -35,20 +35,7 @@ export default function useCatalogForm() {
   const [productTypeOptions, setProductTypeOptions] = useState([]);
 
   // Form data states
-  const [fixedValues, setFixedValues] = useState({
-    'sku_id': '',
-    'title': '',
-    'price': '',
-    'compared_price': '',
-    'purchasing_cost': '',
-    'vendor': '',
-    'ean': '',
-    'hsn': '',
-    'net_weight': '',
-    'dead_weight': '',
-    'volumetric_weight': '',
-    'brand_name': '',
-  });
+  const [fixedValues, setFixedValues] = useState({});
 
   const [dynamicValues, setDynamicValues] = useState({});
   const [fieldAttributes, setFieldAttributes] = useState({});
@@ -217,20 +204,7 @@ export default function useCatalogForm() {
         const images = data.images || data.image_attributes || {};
         
         // clearing the value of fixed values as well when the new new niche type is fetched
-        setFixedValues({
-          'sku_id': '',
-          'title': '',
-          'price': '',
-          'compared_price': '',
-          'purchasing_cost': '',
-          'vendor': '',
-          'ean': '',
-          'hsn': '',
-          'net_weight': '',
-          'dead_weight': '',
-          'volumetric_weight': '',
-          'brand_name': '',
-        });
+        setFixedValues({});
         setFieldAttributes(fields);
         setImageAttributes(images);
         setPreview({});
@@ -286,10 +260,11 @@ export default function useCatalogForm() {
     setImageAttributes((prev) => ({...prev, [key]: value}))
   }
 
-  const changeImageCustomKey = (oldKey="custom", newKey) => {
+  const changeImageCustomKey = (oldKey="custom", label) => {
+    const newKey = label.charAt(0).toLowerCase()+ label.slice(1).replaceAll(" ", "_");
     setImageAttributes((prev)=> {
       const {[oldKey]: value, ...rest} = prev;
-      return {...rest, [newKey]:value}
+      return {...rest, [newKey]:value};
     })
   }
 
@@ -311,7 +286,7 @@ export default function useCatalogForm() {
         return;
       }
 
-      if (!fixedValues['sku_id'] || !fixedValues['title'] || !fixedValues['price'] || !fixedValues['brand_name']) {
+      if (!fixedValues['sku_id'] || !fixedValues['product_title'] || !fixedValues['price'] || !fixedValues['brand_name']) {
         setError('Please fill in all mandatory fields');
         return;
       }

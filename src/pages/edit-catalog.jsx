@@ -27,13 +27,14 @@ export default function EditInventory() {
     const [dynamicAttribute, setDynamicAttribute] = useState({}); // stores the attribute information for the catalog demo {"sku_id": "*"}
     const [imageAttribute, setImageAttribute] = useState({});  // {"front": [order, "*"]}
     const [imageField, setImageField] = useState({}); // storing data in {"front": {"image": object, "url": url, "order": integer}, ...}
+    const [editImage, setEditImage] = useState({}); // this variable stores the same formate as imageField but for edited image
     const [error, setError] = useState();
     const [success, setSuccess] = useState();
     const imageContainerRef = useRef();
     const navigate = useNavigate();
 
 
-    // console.log(imageField);
+    console.log(imageField);
 
     
 
@@ -52,7 +53,8 @@ export default function EditInventory() {
         }))
     }
 
-    function renameImageAttribute(oldkey, newkey){
+    function renameImageAttribute(oldkey, label){
+        const newkey = label.charAt(0).toLowerCase()+ label.slice(1).replaceAll(" ", "_");
         setImageAttribute((prev)=> {
             const {[oldkey]: value, ...rest} = prev;
             return {...rest, [newkey]:value};
@@ -69,7 +71,7 @@ export default function EditInventory() {
             const file = e.target.files[0];
             const url = URL.createObjectURL(file);
 
-            setImageField((prev)=>({
+            setEditImage((prev)=>({
                 ...prev, [key]: {"image": file, "url": url, "order": order}
             }));
         }
@@ -79,45 +81,125 @@ export default function EditInventory() {
 
 
     async function handleURL(key, url, order){
+        // console.log(key, url, order)
         const response = await fetch(url);
 
         const image = await response.blob();
 
-        setImageField((prev)=>({
+
+        setEditImage((prev)=>({
             ...prev,
-            [key]: {...prev.key, ["image"]: image, ["url"]: url}
+            [key]: {...prev.key, ["image"]: image, ["url"]: url, ["order"]: order}
         }));
     }
 
 
-    async function submit(){
+    async function showCatalogImages(key, url, order){
+        // console.log(key, url, order)
+        const response = await fetch(url);
+
+        const image = await response.blob();
+
+
+        setImageField((prev)=>({
+            ...prev,
+            [key]: {...prev.key, ["image"]: image, ["url"]: url, ["order"]: order}
+        }));
+    }
+
+
+    async function submit() {
         const type = searchParams.get("type");
         const uskuId = searchParams.get("id");
 
-        const catalog_data = {"type": type, "data": {...field, ["usku_id"]: uskuId}};
+        async function submit_catalog() {
+            const catalog_data = { "type": type, "data": { ...field, ["usku_id"]: uskuId } };
 
-        try{
-            const response = await fetch(`${route}/catalog`, {
-                method: 'PUT',
-                credentials: "include",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(catalog_data)
+            try {
+                const response = await fetch(`${route}/catalog`, {
+                    method: 'PUT',
+                    credentials: "include",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(catalog_data)
+                })
+
+                const data = await response.json();
+                // console.log(data)
+
+                if (!response.ok) {
+                    throw new Error(data.msg);
+                }
+
+            }
+            catch (e) {
+                console.log(e);
+                setError(e);
+            }
+        }
+
+
+        // login
+        // the submit images repeates the saved images which are altered
+        // the saved images will not be ping to the server to save again and it will not happen anyways
+        // to save the bandwidth the recieved images are webp and the server does not accept webp
+        // so we save the bandwidth and increase the spead by only sending the image which has changed
+        async function submit_images(){
+            Object.entries(editImage).forEach(async ([keys, {image, url, order}])=>{
+                const form = new FormData();
+                form.append("image", image);
+
+                console.log(image)
+
+                console.log(`${route}/catalog/image?usku-id=${uskuId}&order=${order}&image-type=${keys}`)
+                try{
+                    const response = await fetch(`${route}/catalog/image?usku-id=${uskuId}&order=${order}&image-type=${keys}`, {
+                        method: 'POST',
+                        credentials: "include",
+                        body: form
+                    })
+
+                    const data = await response.json();
+
+                    if (!response.ok){
+                        throw new Error(data.msg);
+                    }
+                }
+                catch(e)
+                {
+                    console.log(e);
+                    setError(e);
+                }
             })
+        }
+
+        async function updateStatus() {
+            const response = await fetch(`${route}/catalog/mark-complete?usku-id=${uskuId}`,
+                {
+                    method: "PUT",
+                    credentials: "include",
+                    headers: { "Content-Type": "application/json" }
+                }
+            )
 
             const data = await response.json();
-            console.log(data)
 
-            if (!response.ok){
-                throw new Error(data.msg);
+            if (!response.ok) {
+                throw new Error(data.msg || 'status update failed');
             }
 
             setSuccess(true);
             navigate("/catalog");
         }
-        catch(e){
-            console.log(e);
-            setError(e);
+
+        try{
+            await Promise.all([submit_catalog(),
+            submit_images()]);
         }
+        catch{
+            setError("could not update catalog");
+        }
+
+        await updateStatus();
     }
 
 
@@ -138,7 +220,7 @@ export default function EditInventory() {
 
                 if (!response.ok) {
                     throw new Error(data.msg || "Could not fetch the item details");
-                    console.log(data);
+                    // console.log(data);
                 }
 
                 setDynamicAttribute(data["field_attributes"]);
@@ -169,8 +251,8 @@ export default function EditInventory() {
 
                 const data = await catalogResponse.json();
                 const images = await imgResponse.json();
-                console.log(data)
-                console.log(images)
+                // console.log(data)
+                // console.log(images)
 
                 if (!catalogResponse.ok) {
                     throw new Error(data.msg);
@@ -179,10 +261,10 @@ export default function EditInventory() {
 
                 setField({...data})
 
-                Object.keys(images).forEach((key)=>{
-                    console.log(images[key]["web-webp_card"])
+                Object.entries(images).forEach(([key, {order, url}])=>{
+                    // console.log(url)
                     addImageAttribute(key);
-                    handleURL(key, `${route}${images[key]["webp_card"]}`);
+                    showCatalogImages(key, `${route}${url["webp_card"]}`, order);
                 })
             }
             catch (e){
@@ -323,21 +405,21 @@ export default function EditInventory() {
                                 const label = key.charAt(0).toUpperCase() + key.slice(1).replaceAll("_", " ") + (value.includes("*")? " *": "");
 
                                 return (
-                                    <li key={key} className={styles.imageCards} style={{order: value[0]}}>
+                                    <li key={value[0]} className={styles.imageCards} style={{order: value[0]}}>
                                         <input className={styles.imageTag} type="text" placeholder={label} 
                                         disabled={value.includes("custom")? false: true} 
                                         onChange={(e)=>{renameImageAttribute(key, e.target.value)}}
                                         value={label}/>
 
                                         <div className={styles.previewContainer}>
-                                            <div className={styles.preview} style={imageField[key]? {backgroundImage: `url("${imageField[key].url}")`}: {backgroundImage: `url("${camera}")`}}
+                                            <div className={styles.preview} style={editImage[key]? {backgroundImage: `url("${editImage[key].url}")`}: imageField[key]? {backgroundImage: `url("${imageField[key].url}")`}: {backgroundImage: `url("${camera}")`}}
                                             onClick={()=>{handleFile(key, value[0])}}>
                                             </div>
                                             <p className={styles.imageNote}>Required</p>
                                         </div>
 
                                         <input type="text" placeholder='Image link' className={styles.imageFromLink}
-                                        onChange={(e)=>{handleURL(key, e.target.value)}} />
+                                        onChange={(e)=>{handleURL(key, e.target.value, value[0])}} />
                                     </li>
                                 )
                             })
