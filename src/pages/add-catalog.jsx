@@ -1,9 +1,15 @@
-import React, { useState } from "react";
+import React from "react";
 import styles from "../css/pages/add-catalog.module.css";
 import useCatalogForm from "../hooks/useCatalogForm";
 import CatalogSelector from "../components/CatalogSelector";
+import { useRef, useState} from "react";
+import { Link } from "react-router-dom";
+import camera from "../assets/icons/upload_photo.svg"; 
 
 export default function AddCatalog() {
+  const imageContainerRef = useRef()
+  const [imageLink, setImageLink] = useState({});
+  // console.log(preview)
   const {
     selectedType,
     handleTypeChange,
@@ -11,6 +17,11 @@ export default function AddCatalog() {
     handleFixedChange,
     fieldAttributes,
     imageAttributes,
+    addImageAttribute,
+    changeImageCustomKey,
+    preview,
+    setPreview,
+    uploadImageData,
     dynamicValues,
     handleDynamicChange,
     submitting,
@@ -19,64 +30,26 @@ export default function AddCatalog() {
     handleSubmit,
   } = useCatalogForm();
 
-  const [validationError, setValidationError] = useState(null);
-  const [missingFields, setMissingFields] = useState(new Set());
   const fixedFields = [
-    { key: "sku-id", label: "SKU ID", required: true },
-    { key: "title", label: "Product Title", required: true },
+    { key: "sku_id", label: "SKU ID", required: true },
+    { key: "product_title", label: "Product Title", required: true },
     { key: "price", label: "Product Price", required: true },
-    { key: "compared-price", label: "Compared Price", required: true },
-    { key: "purchasing-cost", label: "Purchasing Cost", required: true },
-    { key: "vendor", label: "Vendor", required: true },
+    { key: "compared_price", label: "Compared Price", required: true },
+    { key: "discount", label: "Discount", required: false },
+    { key: "purchasing_cost", label: "Purchasing Cost", required: false },
+    { key: "vendor", label: "Vendor", required: false },
     { key: "ean", label: "EAN", required: false },
     { key: "hsn", label: "HSN", required: false },
-    { key: "net-weight", label: "Net Weight", required: true },
-    { key: "dead-weight", label: "Dead Weight", required: true },
-    { key: "volumetric-weight", label: "Volumetric Weight", required: true },
-    { key: "brand-name", label: "Brand Name", required: true },
+    { key: "net_weight_kg", label: "Net Weight", required: false },
+    { key: "dead_weight_kg", label: "Dead Weight", required: false },
+    { key: "volumetric_weight_kg", label: "Volumetric Weight", required: false },
+    { key: "brand_name", label: "Brand Name", required: true },
   ];
 
   const formatLabel = (str) =>
     str.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-
   const hasAttributes = Object.keys(fieldAttributes).length > 0;
   const noAttributes = selectedType && !hasAttributes && !error;
-
-  // ── Validation + submit ───────────────────────────────
-  const handleValidatedSubmit = () => {
-    const missing = [];
-    const missingKeys = new Set();
-
-    fixedFields.forEach(({ key, label, required }) => {
-      if (required && !fixedValues[key]?.toString().trim()) {
-        missing.push(label);
-        missingKeys.add(key);
-      }
-    });
-
-    Object.entries(fieldAttributes).forEach(([key, rule]) => {
-      if (key === "niche_id") return;
-      const isRequired =
-        rule === "*" || (Array.isArray(rule) && rule.includes("*"));
-      if (isRequired && !dynamicValues[key]?.toString().trim()) {
-        missing.push(formatLabel(key));
-        missingKeys.add(key);
-      }
-    });
-
-    if (missing.length > 0) {
-      setValidationError(
-        `Please fill in the following required fields: ${missing.join(", ")}`,
-      );
-      setMissingFields(missingKeys);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-
-    setValidationError(null);
-    setMissingFields(new Set());
-    handleSubmit();
-  };
 
   if (success) {
     return (
@@ -94,6 +67,55 @@ export default function AddCatalog() {
     );
   }
 
+  function addCustomCimageContainer(){
+    const orderCount = imageContainerRef.current.childElementCount;
+    addImageAttribute("custom", [orderCount, "custom"]);
+  }
+
+  function uploadImage(key, order){
+    const input = document.createElement('input');
+    input.type = "file";
+    input.accept = "image/*";
+
+    input.onchange = (e)=>{
+      const file = e.target.files[0];
+
+      if (file) {
+        const imageUrl = URL.createObjectURL(file);
+        setPreview((prev)=>({...prev, [key]: {"url": imageUrl, "object": file},}));
+
+        uploadImageData(key, file, order)
+      }
+    }
+
+    input.click();
+  }
+
+  async function handleImageLink(key, link){
+    console.log(link)
+    try{
+      const response = await fetch(link);
+      const image = await response.blob();
+      console.log(image)
+
+      if (!response.ok) {
+        console.log(running)
+        setPreview((prev)=>({...prev, [key]: {"url": "", "object": null}}));
+        return;
+      }
+
+      if (image) {
+        const imageUrl = URL.createObjectURL(image);
+        setPreview((prev)=>({...prev, [key]: {"url": imageUrl, "object": image}}));
+      }else{
+        setPreview((prev)=>({...prev, [key]: {"url": "", "object": null}}));
+      }
+    }
+    catch{
+      setPreview((prev)=>({...prev, [key]: {"url": "", "object": null}}));
+    }
+  }
+
   return (
     <div className={styles.globalAddCatalogContainer}>
       <div className={styles.main}>
@@ -101,8 +123,7 @@ export default function AddCatalog() {
         <div className={styles.top}>
           <h1>Add Single Catalog</h1>
           <p>
-            Add the product photos and we will auto-fill some of the product
-            description
+            Add the information for your catalog
           </p>
 
           {/* ── STEPS ── */}
@@ -135,31 +156,15 @@ export default function AddCatalog() {
               Mandatory Fields<span>*</span>
             </p>
             <div className={`${styles.guideline} ${styles.small}`}>
-              <a href="#">⚠ Follow guidelines to reduce quality check</a>
+              <Link to="#">⚠ Follow guidelines to reduce quality check</Link>
             </div>
           </div>
         </div>
 
-        {/* ── VALIDATION ERROR BANNER ── */}
-        {validationError && (
-          <div
-            style={{
-              background: "#fff0f0",
-              border: "1px solid #E51300",
-              borderRadius: "8px",
-              padding: "12px 16px",
-              marginBottom: "16px",
-              color: "#E51300",
-              fontSize: "14px",
-            }}
-          >
-            ⚠ {validationError}
-          </div>
-        )}
-
-        {/* ── API ERROR BANNER ── */}
+        {/* ── ERROR BANNER ── */}
         {error && (
           <div
+            id="error"
             style={{
               background: "#fff0f0",
               border: "1px solid #E51300",
@@ -203,7 +208,7 @@ export default function AddCatalog() {
 
               <div className={styles["info-box"]}>
                 <div className={styles["info-top"]}>
-                  <span className={styles.tick}>✔</span>
+                  {/* <span className={styles.tick}>✔</span> */}
                   <p>Fill in all required fields marked with *</p>
                 </div>
                 <p className={styles["info-text"]}>
@@ -212,7 +217,7 @@ export default function AddCatalog() {
                 </p>
               </div>
 
-              <h4>Listing Information</h4>
+              <h2>Listing Information</h2>
               <div className={styles.listing}>
                 {fixedFields.map(({ key, label, required }) => (
                   <div className={styles.line} key={key}>
@@ -224,20 +229,12 @@ export default function AddCatalog() {
                     </span>
                     <input
                       placeholder="Type Here..."
-                      value={fixedValues[key]}
-                      style={
-                        missingFields.has(key)
-                          ? { border: "1.5px solid #E51300" }
-                          : {}
-                      }
-                      onChange={(e) => {
-                        handleFixedChange(key, e.target.value);
-                        setMissingFields((prev) => {
-                          const s = new Set(prev);
-                          s.delete(key);
-                          return s;
-                        });
-                      }}
+                      value={key==="discount"? (()=>{
+                        const factor = Math.pow(10, 2);
+                        return `${Math.trunc((((fixedValues["compared_price"]-fixedValues["price"])/fixedValues["compared_price"])*100)*factor)/factor}%`
+                        })() : fixedValues[key]}
+                      onChange={(e) => handleFixedChange(key, e.target.value)}
+                      disabled={key==="discount"?true:false}
                     />
                   </div>
                 ))}
@@ -247,20 +244,11 @@ export default function AddCatalog() {
               <div className={styles.listing}>
                 {Object.entries(fieldAttributes).map(([key, rule]) => {
                   if (key === "niche_id") return null;
-
                   const isRequired =
                     rule === "*" || (Array.isArray(rule) && rule.includes("*"));
                   const isDropdown = Array.isArray(rule);
-
-                  // Filter out "*" and convert booleans → Yes / No
                   const options = isDropdown
-                    ? rule
-                        .filter((v) => v !== "*")
-                        .map((v) => ({
-                          value: String(v),
-                          label:
-                            v === true ? "Yes" : v === false ? "No" : String(v),
-                        }))
+                    ? rule.filter((v) => v !== "*")
                     : [];
 
                   return (
@@ -274,25 +262,15 @@ export default function AddCatalog() {
                       {isDropdown ? (
                         <select
                           value={dynamicValues[key] || ""}
-                          style={
-                            missingFields.has(key)
-                              ? { border: "1.5px solid #E51300" }
-                              : {}
+                          onChange={(e) =>
+                            handleDynamicChange(key, e.target.value)
                           }
-                          onChange={(e) => {
-                            handleDynamicChange(key, e.target.value);
-                            setMissingFields((prev) => {
-                              const s = new Set(prev);
-                              s.delete(key);
-                              return s;
-                            });
-                          }}
                           className={styles.select_field}
                         >
                           <option value="">Select...</option>
                           {options.map((opt) => (
-                            <option key={opt.value} value={opt.value}>
-                              {opt.label}
+                            <option key={opt} value={opt}>
+                              {opt}
                             </option>
                           ))}
                         </select>
@@ -300,19 +278,10 @@ export default function AddCatalog() {
                         <input
                           placeholder="Type Here..."
                           value={dynamicValues[key] || ""}
-                          style={
-                            missingFields.has(key)
-                              ? { border: "1.5px solid #E51300" }
-                              : {}
+                          onChange={(e) =>
+                            handleDynamicChange(key, e.target.value)
                           }
-                          onChange={(e) => {
-                            handleDynamicChange(key, e.target.value);
-                            setMissingFields((prev) => {
-                              const s = new Set(prev);
-                              s.delete(key);
-                              return s;
-                            });
-                          }}
+                          required={rule === "*" || rule.includes("*")? true: false}
                         />
                       )}
                     </div>
@@ -324,11 +293,11 @@ export default function AddCatalog() {
                 <button className={styles.draft}>Save as draft</button>
                 <button
                   className={styles.submit}
-                  onClick={handleValidatedSubmit}
+                  onClick={handleSubmit}
                   disabled={submitting}
                   style={{ opacity: submitting ? 0.7 : 1 }}
                 >
-                  {submitting ? "Submitting..." : "Submit Catalog ✓"}
+                  {submitting ? "Submitting..." : "Submit"}
                 </button>
               </div>
             </div>
@@ -336,7 +305,7 @@ export default function AddCatalog() {
             {/* RIGHT — Images */}
             <div className={styles.right}>
               <div className={styles.card1}>
-                <h4>Add Images</h4>
+                <h2>Add Images</h2>
                 <p
                   style={{
                     fontSize: "0.85em",
@@ -346,48 +315,54 @@ export default function AddCatalog() {
                 >
                   Fields marked with * are required.
                 </p>
-                <div className={styles["image-grid"]}>
+                <div className={styles["image-grid"]} ref={imageContainerRef}>
                   {Object.entries(imageAttributes).map(([key, rule]) => {
-                    const isRequired = rule === "*";
+                    const isRequired = rule.includes("*");
                     return (
-                      <div
-                        key={key}
-                        className={styles["img-box"]}
-                        style={{ height: "auto", padding: "12px" }}
-                      >
-                        <p
+                      <div key={key} className={styles.imageCardContainer} style={{order: `${rule[0]}`}}>
+                        <input className={styles.imageTypeTag}
                           style={{
                             fontSize: "13px",
                             marginBottom: "8px",
                             fontWeight: 500,
                           }}
+                          placeholder = {`${formatLabel(key)}`+
+                                  `${isRequired ? " *" : ""}`}
+                          disabled={!rule.includes("custom")}
+
+                          onChange={(e) => {changeImageCustomKey(key, e.target.value)}}
+                          value={`${formatLabel(key)}`+`${isRequired ? " *" : ""}`}
+                          autoFocus={rule.includes("custom")}
+                        />
+                        <div
+                          key={key}
+                          className={styles["img-box"]}
+                          style={{padding: "12px" }}
                         >
-                          {formatLabel(key)}
-                          {isRequired ? " *" : ""}
-                        </p>
-                        <div className={styles.circle}>📷</div>
-                        <p
-                          style={{
-                            fontSize: "11px",
-                            color: "#888",
-                            marginTop: "6px",
-                          }}
-                        >
-                          {isRequired ? "Required" : "Optional"}
-                        </p>
+                          <div className={styles.circle} onClick={() => {uploadImage(key, rule[0])}}
+                            style={{backgroundImage: preview[key]?
+                            preview[key]["url"] && preview[key]["url"] != ""? `url(${preview[key]["url"]})`: `url(${camera})`
+                          : `url(${camera})`}}></div>
+                          <p
+                            style={{
+                              fontSize: "11px",
+                              color: "#888",
+                              marginTop: "6px",
+                            }}
+                          >
+                            {isRequired ? "Required" : "Optional"}
+                          </p>
+                        </div>
+
+                        <input type="text" placeholder="Image link" className={styles.imageLink} 
+                        onChange={(e)=>{handleImageLink(key, e.target.value)}}/>
                       </div>
                     );
                   })}
                 </div>
-                <input
-                  type="file"
-                  id="imageUpload"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                />
                 <button
                   className={styles["blue-btn"]}
-                  onClick={() => document.getElementById("imageUpload").click()}
+                  onClick={addCustomCimageContainer}
                 >
                   + Add more image
                 </button>

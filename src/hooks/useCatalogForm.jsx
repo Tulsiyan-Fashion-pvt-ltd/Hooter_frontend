@@ -10,13 +10,13 @@ export default function useCatalogForm() {
   // ── Form values ───────────────────────────────────────
   const [fixedValues, setFixedValues] = useState({
     "sku-id": "",
-    title: "",
-    price: "",
+    'title': "",
+    "price": "",
     "compared-price": "",
     "purchasing-cost": "",
-    vendor: "",
-    ean: "",
-    hsn: "",
+    "vendor": "",
+    "ean": "",
+    "hsn": "",
     "net-weight": "",
     "dead-weight": "",
     "volumetric-weight": "",
