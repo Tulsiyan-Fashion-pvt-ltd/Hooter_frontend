@@ -37,6 +37,7 @@ export default function useCatalogForm() {
     setFieldAttributes({});
     setImageAttributes({});
     setDynamicValues({});
+    setError(null);
 
     if (!typeId) return;
 
@@ -80,10 +81,28 @@ export default function useCatalogForm() {
     setError(null);
     setSubmitting(true);
 
+    // TEMP FIX: Backend validator accepts underscore keys but catalog dict uses hyphens
+    // Remove this keyMap once backend data.get() calls are fixed to use underscores
+    const keyMap = {
+      "sku-id": "sku_id",
+      "brand-name": "brand_name",
+      "compared-price": "compared_price",
+      "purchasing-cost": "purchasing_cost",
+      "net-weight": "net_weight",
+      "dead-weight": "dead_weight",
+      "volumetric-weight": "volumetric_weight",
+    };
+
+    const remappedFixed = {};
+    Object.entries(fixedValues).forEach(([key, value]) => {
+      const mappedKey = keyMap[key] || key;
+      remappedFixed[mappedKey] = value;
+    });
+
     const payload = {
       type: selectedType,
       data: {
-        ...fixedValues,
+        ...remappedFixed,
         ...dynamicValues,
       },
     };
@@ -104,7 +123,7 @@ export default function useCatalogForm() {
 
       setTimeout(() => {
         window.location.href = "/dashboard";
-      }, 2000);
+      }, 5000);
     } catch (err) {
       setError(err.message);
     } finally {
