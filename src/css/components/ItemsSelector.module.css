@@ -1,0 +1,146 @@
+.selectorContainer{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: column;
+    gap: 25px;
+    /* margin: 25px;
+    width: 90%; */
+}
+
+.tbInv{
+        width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    border: 0.5px solid black;
+}
+
+.theadInv{
+        height: 58px;
+    background: #0040D60D;
+}
+
+th, td{
+    border: 1px solid black;
+    padding: 15px;
+}
+
+.itemsTable{
+    /* width: 90%; */
+    height: 52vh;
+    /* border: 1px solid black; */
+    overflow-y: auto;
+}
+
+tr{
+    text-align: center;
+}
+
+.confirmButton{
+    margin-left: auto;
+    width: 246px;
+    height: 49px;
+    top: 1157px;
+    left: 1419px;
+    border-radius: 2px;
+    opacity: 1;
+    background-color: #0040D6;
+    color: white;
+    font-weight: bolder;
+    border: none;
+}
+
+input{
+    width: fit-content;
+}
+
+
+.checkBox{
+    width: 30px;
+    height: 30px;
+    border-radius: 2px;
+    background: #0040D61A;
+    margin: auto;
+}
+
+.checked{
+    background-image: url("../src/assets/icons/white-tick.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: #0040D6;
+}
+
+
+.disabledInput{
+    /* background-color: slategray; */
+    opacity: 50%;
+}
+
+.expStockInput{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 62%;
+}
+
+.expStockTd{
+    display: flex;
+    align-items: center;
+    justify-self: center;
+    /* border: 0.5px solid black; */
+    border-radius: 8px;
+    background-color: #0040d61a;
+    color: blue;
+    max-width: 88px;
+}
+
+.expStockInput input{
+    max-width: 100%;
+    border: none;
+    background-color: #0040d600;
+    color: blue;
+    /* font-weight: bolder; */
+    font-size: 1rem;
+}
+
+.expStockInput input:focus{
+    border: none;
+    outline: none;
+}
+
+.expStockInput input:checked{
+    background-color: red;
+}
+
+.expStockButtonsContainer{
+    width: 33px;
+    height: 46px;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.expStockButton{
+    width: 100%;
+    height: 23px;
+    color: white;
+    background-color: #0040D6;
+    /* border: 0.5px solid white; */
+    border: none;
+}
+
+.expStockInc{
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.expStockDec{
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+.uomSelect{
+    height: 2rem;
+}

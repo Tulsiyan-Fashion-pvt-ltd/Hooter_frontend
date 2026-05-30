@@ -48,6 +48,14 @@
   line-height: 100%;
   margin-left: 1rem;
 }
+
+.navigationLink{
+  height: 100%;
+  font-style: none;
+  color: #000000;
+  text-decoration: none;
+  display: block;
+}
 /* ================= OVERVIEW ================= */
 
 .overview {

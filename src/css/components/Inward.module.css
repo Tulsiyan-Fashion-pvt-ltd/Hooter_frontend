@@ -1,0 +1,19 @@
+.createNewBttn{
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: end;
+}
+
+.newInwardBttn{
+    width: 246px;
+height: 49px;
+top: 1157px;
+left: 1419px;
+border-radius: 2px;
+opacity: 1;
+border: none;
+background-color: #0040D6;
+color: white;
+font-weight: bolder;
+}
+

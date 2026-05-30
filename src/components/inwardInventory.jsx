@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import styles from "../css/pages/inventory.Inventory.module.css"
+import inwardStyle from "../css/components/Inward.module.css"
+import CreateInwardPopup from "./createInwardPopup"
+
 const url = import.meta.env.VITE_BASEAPI
 
 // table and overview section
@@ -12,6 +15,7 @@ export default function Inward() {
     "partial": ''
   })
   const [table, setTable] = useState("total");  // total, sellable, oos, lowStock
+  const [inwardPopup, setInwardPopup] = useState(false); 
 
   useEffect(() => {
     async function getStockCounts() {
@@ -187,6 +191,10 @@ export default function Inward() {
         </div>
       </div>
 
+      <div className={inwardStyle.createNewBttn}>
+        <button className={inwardStyle.newInwardBttn} onClick={()=>setInwardPopup(prev=>!prev)}>Create Inward</button>
+      </div>
+      
 
       {/* Inventory Table */}
       <div className={styles.inventoryTable}>
@@ -201,6 +209,10 @@ export default function Inward() {
         }
 
       </div>
+
+      {
+        inwardPopup == true? <CreateInwardPopup onclick={()=>setInwardPopup(prev=>!prev)}/>: null
+      }
     </>
   )
 }
@@ -224,7 +236,7 @@ function TotalInwardTable(){
     }, [])
 
     return(
-        <Table data={table}></Table>
+      <Table data={table}></Table>
     )
 }
 
@@ -311,7 +323,7 @@ function Table({ data }) {
 
         return d.toLocaleTimeString();
     }
-    console.log(data)
+    // console.log(data)
 
     return (
         <table className={styles.tbInv}>

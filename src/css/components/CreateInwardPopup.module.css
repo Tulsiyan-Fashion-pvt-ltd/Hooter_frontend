@@ -1,0 +1,34 @@
+.popupGlobalScreen{
+    width: 100%;
+    height: 100dvh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #00000096;
+    backdrop-filter: blur(2px);
+}
+
+.popupBody{
+    min-height: 600px;
+    min-width: 500px;
+    background-color: white;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    /* align-items: top; */
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.displayBox{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: column;
+    gap: 25px;
+    margin: 25px;
+    width: 90%;
+}

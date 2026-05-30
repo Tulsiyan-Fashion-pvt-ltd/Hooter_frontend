@@ -3,10 +3,11 @@ import styles from "../css/pages/inventory.Inventory.module.css";
 import Counter from "../components/Counter";
 import StockInventory from "../components/stockInventory";
 import Inward from "../components/inwardInventory";
+import { Link } from "react-router-dom";
 const url = import.meta.env.VITE_BASEAPI;
 
-export default function Inventory() {
-  const [activeTab, setActiveTab] = useState("inventory");
+export default function Inventory({tab}) {
+  const [activeTab, setActiveTab] = useState(tab);
 
   return (
     <div className={styles.InventoryGlobalContainer}>
@@ -38,19 +39,19 @@ export default function Inventory() {
                 className={`${styles.tab} ${activeTab === "inventory" ? styles.active : ""}`}
                 onClick={() => setActiveTab("inventory")}
               >
-                Inventory
+                <Link className={styles.navigationLink} to={"/inventory/stock"}>Inventory</Link>
               </li>
               <li
                 className={`${styles.tab} ${activeTab === "inward" ? styles.active : ""}`}
                 onClick={() => setActiveTab("inward")}
               >
-                Inward
+                <Link className={styles.navigationLink} to={"/inventory/inward"}>Inward</Link>
               </li>
               <li
                 className={`${styles.tab} ${activeTab === "grn" ? styles.active : ""}`}
                 onClick={() => setActiveTab("grn")}
               >
-                GRN
+                <Link className={styles.navigationLink} to={"/inventory/grn"}>GRN</Link>
               </li>
             </ul>
           </div>

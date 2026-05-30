@@ -26,7 +26,9 @@ function App() {
         <Route path="/catalog/add-catalog" element={<AddCatalog />} />
         <Route path="/catalog/add-bulk-catalog" element={<AddBulkCatalog />} />
         <Route path="/catalog/edit" element={<EditInventory/>}/>
-        <Route path="/inventory" element={<Inventory />} />
+        <Route path="/inventory/stock?" element={<Inventory tab={"inventory"}/>} />
+        <Route path="/inventory/inward" element={<Inventory tab={"inward"}/>}></Route>
+        <Route path="/inventory/grn" element={<Inventory tab={"grn"}/>}></Route>
         <Route path="/orders" element={<Orders />} />
       </Route>
 

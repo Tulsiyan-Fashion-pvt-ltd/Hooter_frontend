@@ -1,0 +1,156 @@
+.mainContainer{
+        display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-between;
+    height: 100%;
+    align-items: center;
+}
+
+.container{
+    width: 100%;
+    min-height: 40vh;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: start;
+    align-items: start;
+}
+
+.container input{
+    font-size: 1rem;
+}
+
+.shipmentInputCont{
+    display: flex;
+    flex-flow: row wrap;
+    gap: 1.5rem;
+    /* margin: 2rem 0rem; */
+}
+
+.submit {
+    margin-left: auto;
+    width: 246px;
+    height: 49px;
+    top: 1157px;
+    left: 1419px;
+    opacity: 1;
+    border-radius: 2px;
+    background: #0040D6;
+    color: white;
+    font-weight: bold;
+    border: none;
+}
+
+.back{
+    width: 246px;
+height: 49px;
+top: 1140px;
+left: 516px;
+opacity: 1;
+border-radius: 2px;
+background: #0040D60D;
+columns: gray;
+border: none;
+}
+
+.seciton h2{
+    /* margin-top: 2rem; */
+    margin-bottom: 1rem;
+}
+
+.seciton{
+    margin-bottom: 3rem;
+}
+
+.select{
+    width: 15rem;
+    line-height: 2.5rem;
+    height: 2rem;
+}
+
+.addMore{
+    height: 2rem;
+    width: 2rem;
+    border-radius: 50%;
+    border: none;
+}
+
+.selectContainer{
+    display: flex;
+    flex-flow: row nowrap;
+    gap: 5px;
+}
+
+.buttons{
+        width: 100%;
+    display: flex;
+}
+
+
+
+/**************************************** FORM STYLE ********************************/
+
+.globalFormScreen{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100svh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.addEntityContainer{
+    min-width: 500px;
+    /* width: 500px; */
+    max-width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    padding: 25px;
+    border: 1px solid black;
+    position: relative;
+    anchor-name: --window;
+}
+
+/* .form{
+    width: 90%;
+} */
+
+
+.inputForm{
+    margin: 2rem 0rem;
+    width: 642px;
+    max-width: 100%;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+    align-items: center;
+    column-gap: 2rem;   
+}
+
+.inputSection{
+    margin-bottom: 1rem;
+}
+
+.inputSection input{
+    width: 300px;
+}
+
+input{
+    font-size: 1rem;
+}
+
+.closeWindow{
+    position: absolute;
+    position-anchor: anchor(--window);
+    top: 0;
+    right: 0;
+    margin: 0.5rem;
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    font-weight: bolder;
+}
