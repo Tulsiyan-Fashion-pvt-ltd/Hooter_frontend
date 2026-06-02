@@ -13,22 +13,37 @@
 
 .popupBody{
     min-height: 600px;
+    max-height: 92vh;
     min-width: 500px;
     background-color: white;
     border-radius: 8px;
     display: flex;
     justify-content: center;
-    /* align-items: top; */
+    align-items: start;
     max-width: 100%;
     overflow-x: auto;
+    position: relative;
+    anchor-name: --window;
 }
 
 .displayBox{
     display: flex;
-    justify-content: center;
+    justify-content: start;
     align-items: center;
     flex-flow: column;
     gap: 25px;
     margin: 25px;
     width: 90%;
+}
+
+.close{
+    position: absolute;
+    position-anchor: anchor(--window);
+    top: 0;
+    right: 0;
+    margin: 0.5rem;
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    font-weight: bolder;
 }

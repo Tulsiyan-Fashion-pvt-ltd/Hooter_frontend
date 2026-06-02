@@ -15,7 +15,6 @@ export default function Inward() {
     "partial": ''
   })
   const [table, setTable] = useState("total");  // total, sellable, oos, lowStock
-  const [inwardPopup, setInwardPopup] = useState(false); 
 
   useEffect(() => {
     async function getStockCounts() {
@@ -190,10 +189,6 @@ export default function Inward() {
           </div>
         </div>
       </div>
-
-      <div className={inwardStyle.createNewBttn}>
-        <button className={inwardStyle.newInwardBttn} onClick={()=>setInwardPopup(prev=>!prev)}>Create Inward</button>
-      </div>
       
 
       {/* Inventory Table */}
@@ -209,16 +204,13 @@ export default function Inward() {
         }
 
       </div>
-
-      {
-        inwardPopup == true? <CreateInwardPopup onclick={()=>setInwardPopup(prev=>!prev)}/>: null
-      }
     </>
   )
 }
 
 function TotalInwardTable(){
     const [table, setTable] = useState([]);
+    const [inwardPopup, setInwardPopup] = useState(false);
 
     useEffect(()=>{
         async function populateTable(){
@@ -236,7 +228,16 @@ function TotalInwardTable(){
     }, [])
 
     return(
-      <Table data={table}></Table>
+      <>
+        <div className={inwardStyle.createNewBttn}>
+          <button className={inwardStyle.newInwardBttn} onClick={() => setInwardPopup(prev => !prev)}>Create Inward</button>
+        </div>
+        <Table data={table}></Table>
+
+        {
+          inwardPopup == true ? <CreateInwardPopup close={() => setInwardPopup(prev => !prev)} /> : null
+        }
+      </>
     )
 }
 

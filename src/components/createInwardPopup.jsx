@@ -3,44 +3,56 @@ import styles from '../css/components/CreateInwardPopup.module.css'
 
 import ItemsSelector from './inwardItemsSelector'
 import InwardInfoCollector from './inwardInfoCollector'
+import ConfirmInward from './confirmInward'
 
-export default function CreateInwardPopup({onclick}){
+export default function CreateInwardPopup({close}){
     const [inward, setInward] = useState({});
+
     const [showItemsSelector, setShowItemsSelector] = useState(true);
-    const [getInwardInfo, setInwardInfo] = useState(false);
+    const [showInwardInfo, setShowInwardInfo] = useState(false);
+    const [showReview, setShowReview] = useState(false);
     console.log(inward)
 
     function confProduct(inward){
         setInward({"usku_ids": inward});
-        setInwardInfo(true);
+        setShowInwardInfo(true);
         setShowItemsSelector(false);
     }
 
     async function mergeInwardInfo(info){
         // console.log(info)
-        await setInward((prev)=>({...prev, ...info}));
-        await setInwardInfo(false);
-        onclick();
+        await setInward((prev)=>({...prev, ...info})); // mergint he usku_ids and shipment, warehouse, shipment info
+        await setShowInwardInfo(false);
+        await setShowReview(true);
+        // onclick();
     }
 
     function stepBack(){
-        setInwardInfo(false);
+        setShowInwardInfo(false);
         setShowItemsSelector(true);
     }
+
+    function backFromReview(){
+        setShowReview(false);
+        setShowInwardInfo(true);
+    }
+
     return(
-        <div className={styles.popupGlobalScreen} onClick={e => {onclick()}}>
-            <div className={styles.popupBody} onClick={(e)=>{e.stopPropagation();}}>
+        <div className={styles.popupGlobalScreen}>
+            <div className={styles.popupBody}>
+                <button className={styles.close} onClick={close}>X</button>
                 <div className={styles.displayBox}>
-                {
-                    // Object.keys(inward).length === 0? <ItemsSelector onSubmit={confProduct}/>: null
-                    
-                }
+
                 <Activity mode={showItemsSelector === true? "visible": "hidden"}>
                     <ItemsSelector onSubmit={confProduct}/>
                 </Activity>
 
-                <Activity mode={getInwardInfo===true? "visible": "hidden"}>
+                <Activity mode={showInwardInfo===true? "visible": "hidden"}>
                     <InwardInfoCollector onSubmit={mergeInwardInfo} back={stepBack}/>
+                </Activity>
+
+                <Activity mode={showReview===true? "visible": "hidden"}>
+                    <ConfirmInward data={inward} back={backFromReview}/>
                 </Activity>
                 
                 </div>

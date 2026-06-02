@@ -11,7 +11,8 @@ export default function InwardInfoCollector({onSubmit, back}) {
 
     const [addSupplier, setAddSupplier] = useState(false);
     const [addWarehouse, setAddWarehouse] = useState(false);
-    // console.log(inwardInfo)
+    const [error, setError] = useState({});
+    // console.log(error)
 
     async function getSupplier() {
         try {
@@ -69,6 +70,32 @@ export default function InwardInfoCollector({onSubmit, back}) {
         setInwardInfo((prev)=>({...prev, ["warehouse_id"]: warehouse_id}));
     }
 
+    function uploadInward(){
+        if ([null, "", undefined].includes(inwardInfo["shipment"]? inwardInfo["shipment"]["transporter"]: null)){
+            setError({shipment: {transporter: "Value can not be emtpy"}});
+            return;
+        }
+
+        if ([null, "", undefined].includes(inwardInfo["shipment"]? inwardInfo["shipment"]["arrival-date"]: null)){
+            setError({shipment: {"arrival-date": "Value can not be emtpy"}});
+            return;
+        }
+
+        if ([null, "", undefined].includes(inwardInfo["supplier_id"])){
+            setError({supplier_id: "Select a supplier or add by clicking at the plus(+) icon"});
+            return;
+        }
+
+        if ([null, "", undefined].includes(inwardInfo["warehouse_id"])){
+            setError({warehouse_id: "Select a warehouse or add by clicking at the plus(+) icon"});
+            return;
+        }
+
+        onSubmit(inwardInfo) // sending the data to the parent component
+    }
+
+    const errorStyle = {outline: "2px solid red"};
+
     return (
         <div className={styles.mainContainer}>
             <div className={styles.container}>
@@ -90,9 +117,10 @@ export default function InwardInfoCollector({onSubmit, back}) {
                             onChange={(e)=>{addShipment("vehicle-no", e.target.value)}}/>
                         </div>
                         <div className={styles.shipmentInput}>
-                            <h3>Transporter</h3>
+                            <h3>Transporter <span style={{color: "red"}}>*</span></h3>
                             <input type="text" maxLength={128}
                             value={inwardInfo.shipment? inwardInfo.shipment["transporter"]?? "": ""}
+                            style={error.shipment? error.shipment.transporter? errorStyle: null: null}
                             onChange={(e)=>{addShipment("transporter", e.target.value)}}/>
                         </div>
                         <div className={styles.shipmentInput}>
@@ -105,13 +133,14 @@ export default function InwardInfoCollector({onSubmit, back}) {
                             <h3>Arrival Date</h3>
                             <input type="date"
                             value={inwardInfo.shipment? inwardInfo.shipment["arrival-date"]?? "": ""}
-                            onChange={(e)=>{addShipment("arrival-date", e.target.value)}}/>
+                            onChange={(e)=>{addShipment("arrival-date", e.target.value)}}
+                            style={error.shipment? error.shipment["arrival-date"]? errorStyle: null: null}/>
                         </div>
                     </div>
                 </div>
 
                 <div className={styles.seciton}>
-                    <h2>Supplier</h2>
+                    <h2>Supplier <span style={{color: "red"}}>*</span></h2>
 
                     <div className={styles.selectContainer}>
                         <div className={styles.supplierCon}>
@@ -119,6 +148,7 @@ export default function InwardInfoCollector({onSubmit, back}) {
                             className={styles.select} 
                             onChange={(e)=>{setInwardInfo((prev)=>({...prev,["supplier_id"]: e.target.value}))}}
                             value={inwardInfo["supplier_id"]?? "default"}
+                            style={error.supplier_id? errorStyle: null}
                             >
                                 <option value="default" disabled>Select Supplier</option>
                                 {
@@ -141,7 +171,7 @@ export default function InwardInfoCollector({onSubmit, back}) {
                 </div>
 
                 <div className={styles.seciton}>
-                    <h2>Warehouse</h2>
+                    <h2>Warehouse <span style={{color: "red"}}>*</span></h2>
 
                     <div className={styles.selectContainer}>
                         <div className={styles.warehouse}>
@@ -149,6 +179,7 @@ export default function InwardInfoCollector({onSubmit, back}) {
                             className={styles.select} 
                             onChange={(e)=>setInwardInfo((prev)=>({...prev, ["warehouse_id"]: e.target.value}))}
                             value={inwardInfo["warehouse_id"]?? "default"}
+                            style={error.warehouse_id? errorStyle: null}
                             >
                                 <option value="default" disabled>Select Warehouse</option>
                                 {
@@ -173,7 +204,7 @@ export default function InwardInfoCollector({onSubmit, back}) {
 
             <div className={styles.buttons}>
                 <button className={styles.back} onClick={back}>Back</button>
-                <button className={styles.submit} onClick={()=>onSubmit(inwardInfo)}>Upload Inward</button>
+                <button className={styles.submit} onClick={uploadInward}>Upload Inward</button>
             </div>
         </div>
     )

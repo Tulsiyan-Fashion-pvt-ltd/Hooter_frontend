@@ -140,7 +140,7 @@ export default function ItemsSelector({ onSubmit }) {
                                 <th>SKU ID</th>
                                 <th>Product Title</th>
                                 <th>Product Type</th>
-                                <th>Current stock</th>
+                                <th>Current Stock</th>
                                 <th>Expected Stock</th>
                                 <th>Unit of Measurement</th>
                                 <th>PO Number</th>
