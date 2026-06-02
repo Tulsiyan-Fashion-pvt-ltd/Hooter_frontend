@@ -5,7 +5,7 @@ import ItemsSelector from './inwardItemsSelector'
 import InwardInfoCollector from './inwardInfoCollector'
 import ConfirmInward from './confirmInward'
 
-export default function CreateInwardPopup({close}){
+export default function CreateInwardPopup({close, complete}){
     const [inward, setInward] = useState({});
 
     const [showItemsSelector, setShowItemsSelector] = useState(true);
@@ -37,6 +37,12 @@ export default function CreateInwardPopup({close}){
         setShowInwardInfo(true);
     }
 
+    function completeInwardCreation(inwardId){
+        // reload the tables
+        complete(inwardId);
+        close();
+    }
+
     return(
         <div className={styles.popupGlobalScreen}>
             <div className={styles.popupBody}>
@@ -52,7 +58,7 @@ export default function CreateInwardPopup({close}){
                 </Activity>
 
                 <Activity mode={showReview===true? "visible": "hidden"}>
-                    <ConfirmInward data={inward} back={backFromReview}/>
+                    <ConfirmInward payload={inward} back={backFromReview} complete={completeInwardCreation}/>
                 </Activity>
                 
                 </div>

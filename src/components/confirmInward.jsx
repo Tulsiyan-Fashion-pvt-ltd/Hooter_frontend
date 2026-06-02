@@ -1,18 +1,19 @@
 import { useState, useEffect } from "react";
+import {Spinner} from './spinner'
 import styles from "../css/components/ConfirmInward.module.css";
 
 const url = import.meta.env.VITE_BASEAPI;
 
-export default function ConfirmInward({ data , back}) {
+export default function ConfirmInward({ payload , back, complete}) {
     const [supplier, setSupplier] = useState({});
     const [warehouse, setWarehouse] = useState({});
     const [inwardStockTable, setInwardStockTable] = useState({});
     const [error, setError] = useState({});
-    console.log(warehouse)
+    const [showSpinner, setShowSpinner] = useState(false);
 
     useEffect(() => {
         async function getWarehouse() {
-            const warehouse_id = parseInt(data.warehouse_id);
+            const warehouse_id = parseInt(payload.warehouse_id);
 
             if (!warehouse_id) {
                 setError({ "warhouse": "warhouse is not selected" });
@@ -31,7 +32,7 @@ export default function ConfirmInward({ data , back}) {
                 return;
             }
 
-            console.log(json)
+            // console.log(json)
             setWarehouse(json);
         }
 
@@ -40,7 +41,7 @@ export default function ConfirmInward({ data , back}) {
 
     useEffect(() => {
         async function getSupplier() {
-            const supplier_id = data.supplier_id;
+            const supplier_id = payload.supplier_id;
 
             if (!supplier_id) {
                 setError({ "warhouse": "warhouse is not selected" });
@@ -72,26 +73,49 @@ export default function ConfirmInward({ data , back}) {
     }, []);
 
     async function fetchProductDetails() {
-        Object.keys(data.usku_ids ?? []).map(async (uskuId) => {
+        Object.keys(payload.usku_ids ?? []).map(async (uskuId) => {
             const response = await fetch(`${url}/inventory?usku-id=${uskuId}`, {
                 credentials: "include"
             })
 
-            const data = await response.json();
+            const payload = await response.json();
 
             if (!response.ok) {
                 setError({ "usku_id": "Could not fetch selected item details" });
                 return;
             }
 
-            setInwardStockTable((prev) => ({ ...prev, [uskuId]: data[0] }));
+            setInwardStockTable((prev) => ({ ...prev, [uskuId]: payload[0] }));
         })
-        // return data[0];
+        // return payload[0];
     }
 
 
+    async function sendCreateInwardRequest(){
+        setShowSpinner(true);
+        try{
+            const response = await fetch(`${url}/inventory/inward`, {
+                method: 'POST',
+                credentials: "include",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(payload)
+            })
+
+            const data = await response.json();
+            console.log(data)
+            if (!response.ok){
+                setError({"request": "Could not create the inward"});
+                return;
+            }
+
+            complete(data["inward-id"]);
+        } finally{
+            setShowSpinner(false);
+        }            
+    }
+
     return (
-        <div className={styles.mainContainer}>
+        <div className={styles.mainContainer} style={{anchorName: "--conf-window"}}>
             <h1 className={styles.heading}>Review Inward</h1>
 
             <div className={styles.block}>
@@ -100,27 +124,27 @@ export default function ConfirmInward({ data , back}) {
                 <div className={styles.sector}>
                     <div className={styles.section}>
                         <h3>Shipment Reference No. : </h3>
-                        <p>{data.shipment ? data.shipment["shipment-ref"] : ""}</p>
+                        <p>{payload.shipment ? payload.shipment["shipment-ref"] : ""}</p>
                     </div>
 
                     <div className={styles.section}>
                         <h3>Vehicle No. : </h3>
-                        <p>{data.shipment ? data.shipment["vehicle-no"] : ""}</p>
+                        <p>{payload.shipment ? payload.shipment["vehicle-no"] : ""}</p>
                     </div>
 
                     <div className={styles.section}>
                         <h3>Transporter : </h3>
-                        <p>{data.shipment ? data.shipment["transporter"] : ""}</p>
+                        <p>{payload.shipment ? payload.shipment["transporter"] : ""}</p>
                     </div>
 
                     <div className={styles.section}>
                         <h3>Challan No. : </h3>
-                        <p>{data.shipment ? data.shipment["challan"] : ""}</p>
+                        <p>{payload.shipment ? payload.shipment["challan"] : ""}</p>
                     </div>
 
                     <div className={styles.section}>
                         <h3>Arrival Date : </h3>
-                        <p>{data.shipment ? data.shipment["arrival-date"] : ""}</p>
+                        <p>{payload.shipment ? payload.shipment["arrival-date"] : ""}</p>
                     </div>
                 </div>
             </div>
@@ -205,7 +229,7 @@ export default function ConfirmInward({ data , back}) {
 
                 <tbody className={styles.tbodyInv}>
                     {
-                        data.usku_ids ? Object.keys(data.usku_ids).map((usku_id) => {
+                        payload.usku_ids ? Object.keys(payload.usku_ids).map((usku_id) => {
                             return (<tr key={usku_id}>
                                 <td>
                                     <div style={{ "display": "flex", "justifyContent": "center", "alignItems": "center" }}>
@@ -216,9 +240,9 @@ export default function ConfirmInward({ data , back}) {
                                 <td>{inwardStockTable[usku_id] ? inwardStockTable[usku_id].product_title : null}</td>
                                 <td>{inwardStockTable[usku_id] ? inwardStockTable[usku_id].product_type : null}</td>
                                 <td>{inwardStockTable[usku_id] ? inwardStockTable[usku_id].product_stock : null}</td>
-                                <td>{data.usku_ids[usku_id].exp_stock}</td>
-                                <td>{data.usku_ids[usku_id].uom}</td>
-                                <td>{data.usku_ids[usku_id].po}</td>
+                                <td>{payload.usku_ids[usku_id].exp_stock}</td>
+                                <td>{payload.usku_ids[usku_id].uom}</td>
+                                <td>{payload.usku_ids[usku_id].po}</td>
                             </tr>
                             )
                         }) : null
@@ -228,8 +252,10 @@ export default function ConfirmInward({ data , back}) {
 
             <div className={styles.buttons}>
                 <button className={styles.backBttn} onClick={back}>Back</button>
-                <button className={styles.confirmBttn}>Confirm</button>
+                <button className={styles.confirmBttn} onClick={sendCreateInwardRequest}>Confirm</button>
             </div>
+
+            {showSpinner && <Spinner style={{positionAnchor: "--conf-window", top: "anchor(0)", left: "anchor(0)"}}/>}
         </div>
     )
 }

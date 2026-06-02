@@ -15,6 +15,7 @@ export default function Inward() {
     "partial": ''
   })
   const [table, setTable] = useState("total");  // total, sellable, oos, lowStock
+  const [newInward, setNewInward] = useState(); // depenncy for total inward and inward counts
 
   useEffect(() => {
     async function getStockCounts() {
@@ -28,7 +29,7 @@ export default function Inward() {
     }
 
     getStockCounts();
-  }, []);
+  }, [newInward]);
 
   return (
     <>
@@ -196,7 +197,7 @@ export default function Inward() {
         {/* <p className={styles.previousLink}>Previous Inward</p> */}
 
         {/* <TotalInwardTable /> */}
-        {table === "total" ? <TotalInwardTable /> :
+        {table === "total" ? <TotalInwardTable newInward={newInward} setNewInward={setNewInward}/> :
           table === "pending" ? <PendingInwardTable /> :
             table === "partial" ? <PartialInwardTable /> :
               table === "completed" ? <CompletedInwardTable /> : 
@@ -208,7 +209,7 @@ export default function Inward() {
   )
 }
 
-function TotalInwardTable(){
+function TotalInwardTable({newInward, setNewInward}){
     const [table, setTable] = useState([]);
     const [inwardPopup, setInwardPopup] = useState(false);
 
@@ -225,7 +226,7 @@ function TotalInwardTable(){
         }
 
         populateTable();
-    }, [])
+    }, [newInward])
 
     return(
       <>
@@ -235,7 +236,7 @@ function TotalInwardTable(){
         <Table data={table}></Table>
 
         {
-          inwardPopup == true ? <CreateInwardPopup close={() => setInwardPopup(prev => !prev)} /> : null
+          inwardPopup == true ? <CreateInwardPopup close={() => setInwardPopup(prev => !prev)} complete={setNewInward}/> : null
         }
       </>
     )
