@@ -50,7 +50,7 @@ tr{
     border: none;
 }
 
-input{
+.selectorContainer input{
     width: fit-content;
 }
 

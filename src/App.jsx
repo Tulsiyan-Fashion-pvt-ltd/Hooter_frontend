@@ -11,6 +11,7 @@ import Orders from "./pages/orders";
 import AddCatalog from "./pages/add-catalog";
 import AddBulkCatalog from "./pages/add-bulk-catalog";
 import Inventory from "./pages/inventory";
+import InwardEntry from './pages/inward-entry'
 import EditInventory from './pages/edit-catalog';
 
 function App() {
@@ -31,6 +32,12 @@ function App() {
         <Route path="/inventory/grn" element={<Inventory tab={"grn"}/>}></Route>
         <Route path="/orders" element={<Orders />} />
       </Route>
+
+      <Route path="inventory/inward/entry" element={
+        <Protect>
+          <InwardEntry/>
+        </Protect>
+      }/>
 
       <Route path="/register-brand" element={
         <Protect>

@@ -13,12 +13,12 @@
   padding: 24px 28px;
   border: 1px solid #e0e0e0;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
-  border-left: 4px solid #000000;
+  border-left: 1px solid #000000;
   margin-bottom: 0;
 }
 
 .title {
-  font-size: 24px;
+  /* font-size: 24px; */
   font-weight: 600;
   margin-bottom: 8px;
   color: #333;
@@ -109,12 +109,12 @@
 
 /* MANDATORY ROW */
 .mandatory-row {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-bottom: 1px solid #eee;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+margin-top: 12px;
+    padding-top: 12px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .mandatory {
@@ -129,11 +129,11 @@
 }
 
 .guideline {
-  margin-bottom: 0;
+      margin-bottom: 1.5rem;
 }
 
 .guideline.small {
-  margin-bottom: 0;
+    margin-bottom: 1.5rem;
 }
 
 .guideline a {

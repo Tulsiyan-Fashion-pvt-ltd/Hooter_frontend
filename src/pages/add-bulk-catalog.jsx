@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import {useNavigate} from 'react-router-dom';
+import {useNavigate, Link} from 'react-router-dom';
 import styles from '../css/pages/add-bulk-catalog.module.css';
 import useCatalogForm from '../hooks/useCatalogForm';
 import CatalogSelector from '../components/CatalogSelector';
@@ -248,10 +248,6 @@ export default function AddBulkCatalog(){
                             Add the product details through an Excel file and we will process them for you
                         </p>
 
-                        <a href="/add-product" className={styles.link}>
-                            Add product details individually
-                        </a>
-
                         {/* Steps Section */}
                         <div className={styles.row}>
                             <div className={styles.steps}>
@@ -279,11 +275,11 @@ export default function AddBulkCatalog(){
                             </p>
 
                             <div className={`${styles.guideline} ${styles.small}`}>
-                                <a href="#">⚠ Follow guidelines to reduce quality check failures</a>
+                                <Link to="#">⚠ Follow guidelines to reduce quality check failures</Link>
                             </div>
                         </div>
 
-                        <hr className={styles.hr1} />
+                        {/* <hr className={styles.hr1} /> */}
                     </div>
                 </header>
 
