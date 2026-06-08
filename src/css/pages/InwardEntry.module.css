@@ -155,3 +155,109 @@ width: 33px;
         border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
 }
+
+.disabledButton{
+    opacity: 50%;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+.globalConfirmationScreen{
+    position: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100svh;
+    background: #000000CC;
+    backdrop-filter: blur(6px);
+}
+
+.confirmationBox{
+    background-color: white;
+    padding: 2rem 3rem;
+    max-width: 740px;
+}
+
+.confirmationDesc{
+    margin: 2rem auto;
+}
+
+.confirm{
+width: 246px;
+max-width: 100svw;
+height: 49px;
+top: 829px;
+left: 787px;
+opacity: 1;
+border-radius: 2px;
+background: #0040D6;
+border: none;
+margin-left: 6rem;
+color: white;
+font-weight: bolder;
+}
+
+.back{
+width: 196px;
+height: 49px;
+max-width: 100svw;
+top: 829px;
+left: 244px;
+opacity: 1;
+border-radius: 2px;
+background: #0040D60D;
+border: none;
+color: #0040D6;
+}
+
+.confBttns{
+    margin-top: 4rem;
+display: flex;
+    justify-content: space-between;
+}
+
+.finish{
+width: 246px;
+max-width: 100svw;
+height: 49px;
+top: 829px;
+left: 787px;
+opacity: 1;
+border-radius: 2px;
+background: #0040D6;
+border: none;
+margin-left: 6rem;
+color: white;
+font-weight: bolder;
+}
+
+.partial{
+width: 196px;
+height: 49px;
+max-width: 100svw;
+top: 829px;
+left: 244px;
+opacity: 1;
+border-radius: 2px;
+background: #0040D60D;
+border: none;
+color: #0040D6;
+}
+
+
+.confirmationDesc p{
+    text-wrap: wrap;
+    overflow: break-word;
+}

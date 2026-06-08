@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import styles from "../css/pages/inventory.Inventory.module.css"
 import inwardStyle from "../css/components/Inward.module.css"
 import CreateInwardPopup from "./createInwardPopup"
+import { Link, useFetcher } from "react-router-dom";
 
 const url = import.meta.env.VITE_BASEAPI
 
@@ -16,6 +17,7 @@ export default function Inward() {
   })
   const [table, setTable] = useState("total");  // total, sellable, oos, lowStock
   const [newInward, setNewInward] = useState(); // depenncy for total inward and inward counts
+  const [error, setError] = useState({});
 
   useEffect(() => {
     async function getStockCounts() {
@@ -314,6 +316,7 @@ function CompletedInwardTable(){
 
 
 function Table({ data }) {
+  const [inwardSidebar, setInwardSidebar] = useState();
     function date(timestamp){
         const d = new Date(timestamp);
 
@@ -328,6 +331,7 @@ function Table({ data }) {
     // console.log(data)
 
     return (
+        <>
         <table className={styles.tbInv}>
             <thead className={styles.theadInv}>
                 <tr>
@@ -344,7 +348,8 @@ function Table({ data }) {
                 {
                     data ? data.map(({ inward_id, created_at, updated_at, supplier }) => {
                         return (<tr key={inward_id}>
-                            <td>{inward_id}</td>
+                            <td><div style={{color: "blue", fontWeight: "bolder", textDecoration: "underline", "cursor": "pointer"}} 
+                            onClick={()=>{setInwardSidebar(inward_id)}}>{inward_id}</div></td>
                             <td>{supplier}</td>
                             <td>{date(created_at)}</td>
                             <td>{time(created_at)}</td>
@@ -358,14 +363,77 @@ function Table({ data }) {
                 }
             </tbody>
         </table>
+
+        {inwardSidebar && <InwardDetailsSidebar inwardId={inwardSidebar} close={()=>{setInwardSidebar(false)}}/>}
+        </>
     )
 }
 
 
 
 // draft table
-function DraftInwardTable(){
-    return (
-        <table data={[]}></table>
-    )
+function DraftInwardTable() {
+  return (
+    <table data={[]}></table>
+  )
+}
+
+
+
+// ************************** sidebar ***********************
+function InwardDetailsSidebar({inwardId, close}){
+  const sidebar = useRef();
+  const [error, setError] = useState({});
+  const [sidebarData, setSidebarData] = useState({});
+
+  useEffect(()=>{
+    sidebar.current.style.transform = "translateX(0%)";
+  },[]);
+
+
+  useEffect(()=>{
+    async function getInwardDetails(){
+      try{
+        const response = await fetch(`${url}/inventory/inward?id=${inwardId}`,{
+            credentials: "include"
+        });
+
+        const data = await response.json();
+
+        if (!response.ok){
+            setError({msg: "Could not fetch the inward details from the server"});
+            return;
+        }
+
+        setSidebarData(data);
+        console.log(data)
+
+      }catch(e){
+        console.error(e);
+        setError({msg: "Could not fetch the inward details"})
+      }
+    }
+
+    getInwardDetails();
+  }, [])
+
+  return(
+    <div className={styles.sidebarGlobalScreen}>
+      <div className={styles.sidebarBody} ref={sidebar}>
+        <button className={styles.closeSidebar} onClick={close}>X</button>
+        <div className={styles.headerSection}>
+          
+        </div>
+
+        <div className={styles.mainSection}>
+          
+        </div>
+
+        {!["completed", "cancelled"].includes(sidebarData.status) && 
+        <div className={styles.bottomSection}>
+          <Link className={styles.completeInwardBttn} to={`./entry?id=${inwardId}`} target="_blank">Complete Inwarding</Link>
+        </div>}
+      </div>
+    </div>
+  )
 }
