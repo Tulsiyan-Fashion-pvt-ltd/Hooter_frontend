@@ -30,7 +30,14 @@ export default function Inward() {
         "completed": inward.completed}))
     }
 
+    function countDraftInwardEntries(){
+      const storage = JSON.parse(window.localStorage.getItem("inwardEntry"));
+
+      setInward((prev)=> ({...prev, "draft": Object.keys(storage).length}));
+    }
+
     getStockCounts();
+    countDraftInwardEntries();
   }, [newInward]);
 
   return (
@@ -171,7 +178,7 @@ export default function Inward() {
                   className={styles.iconSm}
                   alt=""
                 />
-                <h3 className={styles.textCard}>Draf Inward</h3>
+                <h3 className={styles.textCard}>Draft Inward</h3>
                 <button className={styles.menuBtn}>⋮</button>
               </div>
 
@@ -301,17 +308,58 @@ function CompletedInwardTable(){
                 const data = await response.json();
                 
                 setTable(data);
+                // console.log(data)
             }catch(e){
                 console.log(e)
             }
         }
-
+  
         populateTable();
     }, [])
 
     return(
         <Table data={table}></Table>
     )
+}
+
+
+// draft table
+function DraftInwardTable() {
+  const [table, setTable] = useState([]);
+
+  useEffect(()=>{
+      async function populateTable(){
+          try{
+              const response = await fetch(`${url}/inventory/inward`, {credentials: "include"});
+              const data = await response.json();
+              console.log(data)
+
+              if (!response.ok){
+                return;
+              }
+
+              const storage = JSON.parse(window.localStorage.getItem("inwardEntry"));
+
+              data.map((row)=>{
+                // console.log(storage[row.inward_id]);
+                if (storage[row.inward_id]) {
+                  setTable((prev) => {
+                    return [...prev, row];
+                  });
+                }
+              })
+              
+          }catch(e){
+              console.log(e)
+          }
+      }
+
+      populateTable();
+  }, [])
+
+  return (
+    <Table data={table}></Table>
+  )
 }
 
 
@@ -336,6 +384,7 @@ function Table({ data }) {
             <thead className={styles.theadInv}>
                 <tr>
                     <th>Inward ID</th>
+                    <th>Status</th>
                     <th>Supplier</th>
                     <th>Creation Date</th>
                     <th>Creation Time</th>
@@ -346,10 +395,25 @@ function Table({ data }) {
 
             <tbody className={styles.tbodyInv}>
                 {
-                    data ? data.map(({ inward_id, created_at, updated_at, supplier }) => {
+                    data ? data.map(({ inward_id, inward_status, created_at, updated_at, supplier }) => {
+                       // checking up the draft saved from the inwards 
+                        const storage = JSON.parse(window.localStorage.getItem("inwardEntry"));
+                        
                         return (<tr key={inward_id}>
                             <td><div style={{color: "blue", fontWeight: "bolder", textDecoration: "underline", "cursor": "pointer"}} 
                             onClick={()=>{setInwardSidebar(inward_id)}}>{inward_id}</div></td>
+                            <td>
+                              <div className={styles.statusbox}>
+                                <p style={{backgroundColor: inward_status === "completed"? "rgb(179 224 179)":
+                                              inward_status === "partial"? "rgb(245 193 0 / 32%)": 
+                                                inward_status === "pending"? "rgb(255 166 97)" : "orange",
+                                          color: inward_status === "completed"? "#093609":
+                                              inward_status === "partial"? "#ff000054": 
+                                                inward_status === "pending"? "red" : "orange"
+                                }}>{inward_status}</p> 
+                                {storage[inward_id]&& <p style={{backgroundColor: "#FF90000D", color: "#FF9000"}}>{"saved draft"}</p>}
+                              </div>
+                            </td>
                             <td>{supplier}</td>
                             <td>{date(created_at)}</td>
                             <td>{time(created_at)}</td>
@@ -367,15 +431,6 @@ function Table({ data }) {
         {inwardSidebar && <InwardDetailsSidebar inwardId={inwardSidebar} close={()=>{setInwardSidebar(false)}}/>}
         </>
     )
-}
-
-
-
-// draft table
-function DraftInwardTable() {
-  return (
-    <table data={[]}></table>
-  )
 }
 
 
@@ -415,7 +470,7 @@ function InwardDetailsSidebar({inwardId, close}){
     }
 
     getInwardDetails();
-  }, [])
+  }, [inwardId])
 
   return(
     <div className={styles.sidebarGlobalScreen}>
@@ -431,7 +486,7 @@ function InwardDetailsSidebar({inwardId, close}){
 
         {!["completed", "cancelled"].includes(sidebarData.status) && 
         <div className={styles.bottomSection}>
-          <Link className={styles.completeInwardBttn} to={`./entry?id=${inwardId}`} target="_blank">Complete Inwarding</Link>
+          <Link className={styles.completeInwardBttn} to={`./entry?id=${inwardId}`}>Complete Inwarding</Link>
         </div>}
       </div>
     </div>

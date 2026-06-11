@@ -1,5 +1,6 @@
 import { useState, Activity } from "react";
 import styles from '../css/components/CreateInwardPopup.module.css'
+import { useNavigate } from "react-router-dom";
 
 import ItemsSelector from './inwardItemsSelector'
 import InwardInfoCollector from './inwardInfoCollector'
@@ -11,7 +12,8 @@ export default function CreateInwardPopup({close, complete}){
     const [showItemsSelector, setShowItemsSelector] = useState(true);
     const [showInwardInfo, setShowInwardInfo] = useState(false);
     const [showReview, setShowReview] = useState(false);
-    console.log(inward)
+    const navigate = useNavigate();
+    // console.log(inward)
 
     function confProduct(inward){
         setInward({"usku_ids": inward});
@@ -39,6 +41,7 @@ export default function CreateInwardPopup({close, complete}){
 
     function completeInwardCreation(inwardId){
         // reload the tables
+        navigate(`/inventory/inward/entry?id=${inwardId}`);
         complete(inwardId);
         close();
     }

@@ -714,3 +714,16 @@ top: anchor(
   background-color: #0040D6;
   margin-right: 2em;
 }
+
+
+.statusbox{
+  display: flex;
+  gap: 15px;
+}
+
+.statusbox p{
+  /* border: 1px solid black; */
+  padding: 12px ;
+  border-radius: 8px;
+  font-weight: bolder;
+}

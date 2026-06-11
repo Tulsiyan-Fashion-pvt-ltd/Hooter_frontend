@@ -12,14 +12,11 @@ export default function InwardEntry(){
     const [success, setSuccess] = useState({});
     const [creationDate, setCreationDate] = useState();
     const [table, setTable] = useState([]);
+    const [inwardStatus, setInwardStatus] = useState();
     const [showConfWarning, setShowConfWarning] = useState(false);
     const [showSelectUploadType, setShowSelectUploadType] = useState(false);
     const [showSpinner, setShowSpinner] = useState(false);
-    const [entry, setEntry] = useState({
-        accepted: 0,
-        rejected: 0,
-        total: 0
-    })
+    const [entry, setEntry] = useState({})
 
     const dateObj = new Date(creationDate);
     const date = dateObj.toDateString();
@@ -29,8 +26,9 @@ export default function InwardEntry(){
     let payload = {
         "usku_ids": {}
     };
+    let draft = {}
 
-    console.log(payload)
+    // console.log(inwardStatus)
     // inward entry state
     
 
@@ -46,8 +44,9 @@ export default function InwardEntry(){
                 if (!response.ok){
                     setError({"reqeust": "Could not fetch the inward details from the server"})
                 }
-
+                
                 setCreationDate(data["created_at"]);
+                setInwardStatus(data["status"]);
                 setTable(data.uskus);
             } catch(e){
                 console.log(e);
@@ -57,6 +56,25 @@ export default function InwardEntry(){
 
         getInwardDetails();
     }, []);
+
+    useEffect(()=>{
+        function checkDraftInwardEntry(){
+            const draftEntry = JSON.parse(window.localStorage.getItem("inwardEntry"));
+            const draft = draftEntry[`${inward_id}`]&& draftEntry[`${inward_id}`]["uskus"];
+            // console.log(draft)
+
+            if (!draft){
+               return; 
+            }
+
+            table.map(({usku_id, expected_qtt})=>{
+                setEntry((prev)=>({...prev, [usku_id]: {"accepted": draft[usku_id].recieved - draft[usku_id].rejected, "rejected": draft[usku_id].rejected}}))
+            })
+        }
+
+        checkDraftInwardEntry();
+
+    }, [table])
 
 
     async function sendInwardEntry(type){
@@ -75,9 +93,15 @@ export default function InwardEntry(){
                 setError({"uploadError": "Could not upload the inward entry"});
                 return;
             }
-
+            
+            // removing the draft if any from the draft object in localstorage
             setSuccess({"uploadEntry": "Successfully uploaded the Inward"}); 
             setShowSelectUploadType(false);
+            
+            const storage = JSON.parse(localStorage.getItem("inwardEntry")) || {};
+            delete storage[inward_id];
+            localStorage.setItem("inwardEntry", JSON.stringify(storage));
+            
             window.alert("successfully uploaded")
             navigate("../inventory/inward")
             return;
@@ -89,41 +113,63 @@ export default function InwardEntry(){
     }
 
 
-    function incAcceptedStock(){
-        setEntry((prev)=>({...prev, ["accepted"]: prev.accepted+=1,
-            ["total"]: prev.total+=1
+    function saveDraftInward(uskuId){
+        const date = new Date()
+        date.getDate()
+        // console.log(payload)
+
+        const storage = JSON.parse(localStorage.getItem("inwardEntry")) || {};
+
+        storage[inward_id] = {
+            "created_at": Date.now(), 
+            "inward_status": inwardStatus,
+            uskus: payload.usku_ids
+        }
+
+        localStorage.setItem("inwardEntry", JSON.stringify(storage))
+
+        window.alert("Draft saved");
+    }
+
+
+    function incAcceptedStock(uskuId){
+        setEntry((prev)=>({...prev, [uskuId]: prev[uskuId] ? {...prev[uskuId], ["accepted"]: prev[uskuId].accepted+=1}
+        : {"accepted": 1, "rejected": 0}
         }));
     }
 
-    function decAcceptedStock() {
+    function decAcceptedStock(uskuId) {
         setEntry((prev) => {
-            const shouldDecrement = prev.accepted > 0;
+            const shouldDecrement = prev[uskuId]? prev[uskuId].accepted > 0: false;
 
             return {
                 ...prev,
-                accepted: shouldDecrement ? prev.accepted - 1 : prev.accepted,
-                total: shouldDecrement ? prev.total - 1 : prev.total,
+                [uskuId]: prev[uskuId]? 
+                shouldDecrement ? {...prev[uskuId], ["accepted"]: prev[uskuId].accepted - 1}: {...prev[uskuId]}
+                : {"accepted": 0, "rejected": 0}
             };
         });
     }
 
 
-    function incRejectedStock(){
-        setEntry((prev)=>({...prev, ["rejected"]: prev.rejected+=1,
-            ["total"]: prev.total+=1
-        }));
+    function incRejectedStock(uskuId){
+        setEntry((prev)=>(
+            {...prev, [uskuId]: prev[uskuId]? 
+                {...prev[uskuId], ["rejected"]: prev[uskuId].rejected += 1}: {"accepted": 0, "rejected": 1}
+            }
+        ));
     }
 
-    function decRejectedStock() {
+    function decRejectedStock(uskuId) {
         setEntry((prev) => {
-            const newRejected = prev.rejected > 0 ? prev.rejected - 1 : prev.rejected;
-            const newTotal = prev.rejected > 0 ? prev.total - 1 : prev.total;
+                const shouldDecrement = prev[uskuId]? prev[uskuId].rejected > 0: false;
 
-            return {
-                ...prev,
-                rejected: newRejected,
-                total: newTotal
-            };
+                return {
+                    ...prev,
+                    [uskuId]: prev[uskuId]? 
+                        shouldDecrement ? {...prev[uskuId], ["rejected"]: prev[uskuId].rejected -=1 }: {...prev[uskuId]}
+                        : {"accepted": 0, "rejected": 0}
+                }
         });
     }
 
@@ -168,11 +214,25 @@ export default function InwardEntry(){
                             <tbody>
                                 {   table && 
                                     table.map(({usku_id, sku_id, image_url, product_title, product_type,  uom, expected_qtt})=>{
-                                        image_url = image_url && JSON.parse(image_url).webp_card;
-                                        const shortage = entry.total < parseInt(expected_qtt)? parseInt(expected_qtt) - entry.total : 0;
-                                        const overage = entry.total > parseInt(expected_qtt)? entry.total - parseInt(expected_qtt) : 0;
-                                        payload.usku_ids[usku_id] = {"recieved": entry.total, "shortage": shortage, "rejected": entry.rejected}
+                                        // draft inward entry
+                                        // const draftEntry = JSON.parse(localStorage.getItem("inwardEntry"));
+                                        // const draft = draftEntry[inward_id];
 
+                                        // const draftAccepted = draft && draft.uskus[usku_id].recieved - draft.uskus[usku_id].rejected;
+                                        // const draftRejected = draft && draft.uskus[usku_id].rejected;
+                                        // const draftTotal = draft && draft.uskus[usku_id].recieved;
+                                        // const draftShortage = draft && expected_qtt > draft.uskus[usku_id].recieved? expected_qtt - draft.uskus[usku_id].recieved: null;
+                                        // const draftOverage = draft && draft.uskus[usku_id].recieved > expected_qtt? draft.uskus[usku_id].recieved - expected_qtt: null;
+
+                                        image_url = image_url && JSON.parse(image_url).webp_card;
+
+                                        const total = entry[usku_id] ? entry[usku_id].accepted + entry[usku_id].rejected : 0;
+                                        const shortage = entry[usku_id] ? total < parseInt(expected_qtt)? parseInt(expected_qtt) - total : 0 : 0;
+                                        const overage = entry[usku_id] ? total > parseInt(expected_qtt)? total - parseInt(expected_qtt) : 0 : 0;
+                                        // populating payload
+                                        payload.usku_ids[usku_id] = {"recieved": total, "rejected": entry[usku_id]? entry[usku_id].rejected: null}
+                                        
+                                        
                                         return(
                                             <tr key={sku_id}>
                                                 <td><img src={`${url}${image_url}`} alt="product image" /></td>
@@ -183,27 +243,28 @@ export default function InwardEntry(){
                                                 <td>{expected_qtt}</td>
                                                 <td>
                                                     <div className={styles.inputContainer}>
-                                                        <div className={styles.display}>{entry.accepted}</div>
+                                                        <div className={styles.display}>{entry[usku_id] ? entry[usku_id].accepted: 0}
+                                                        </div>
 
                                                         <div className={styles.buttonsCotnainer}>
-                                                            <button className={styles.increase} onClick={incAcceptedStock}>+</button>
+                                                            <button className={styles.increase} onClick={()=>{incAcceptedStock(usku_id)}}>+</button>
                                                             <hr />
-                                                            <button className={styles.decrease} onClick={decAcceptedStock}>-</button>
+                                                            <button className={styles.decrease} onClick={()=>{decAcceptedStock(usku_id)}}>-</button>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td>
                                                     <div className={styles.inputContainer}>
-                                                        <div className={styles.display}>{entry.rejected}</div>
+                                                        <div className={styles.display}>{entry[usku_id]? entry[usku_id].rejected: 0}</div>
 
                                                         <div className={styles.buttonsCotnainer}>
-                                                            <button className={styles.increase} onClick={incRejectedStock}>+</button>
+                                                            <button className={styles.increase} onClick={()=>{incRejectedStock(usku_id)}}>+</button>
                                                             <hr />
-                                                            <button className={styles.decrease} onClick={decRejectedStock}>-</button>
+                                                            <button className={styles.decrease} onClick={()=>{decRejectedStock(usku_id)}}>-</button>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td>{entry.total?? 0}</td>
+                                                <td>{total}</td>
                                                 <td>{shortage}</td>
                                                 <td>{overage}</td>
                                             </tr>
@@ -215,12 +276,12 @@ export default function InwardEntry(){
                     </div>
 
                     <div className={styles.buttons}>
-                        <button className={clsx(styles.draftBttn, entry.total===0 && styles.disabledButton)}
-                        disabled={entry.total===0}
+                        <button className={clsx(styles.draftBttn, Object.keys(entry).length===0 && styles.disabledButton)}
+                        disabled={Object.keys(entry).length===0} onClick={saveDraftInward}
                         >Draft</button>
 
-                        <button className={clsx(styles.submitBttn, entry.total===0 && styles.disabledButton)}
-                        disabled={entry.total===0} onClick={()=>{setShowConfWarning(true)}}
+                        <button className={clsx(styles.submitBttn, Object.keys(entry).length===0 && styles.disabledButton)}
+                        disabled={Object.keys(entry).length===0} onClick={()=>{setShowConfWarning(true)}}
                         >Submit</button>
                     </div>
                 </main>
