@@ -33,7 +33,7 @@ export default function Inward() {
     function countDraftInwardEntries(){
       const storage = JSON.parse(window.localStorage.getItem("inwardEntry"));
 
-      setInward((prev)=> ({...prev, "draft": Object.keys(storage).length}));
+      storage && setInward((prev)=> ({...prev, "draft": Object.keys(storage).length}));
     }
 
     getStockCounts();
@@ -411,7 +411,7 @@ function Table({ data }) {
                                               inward_status === "partial"? "#ff000054": 
                                                 inward_status === "pending"? "red" : "orange"
                                 }}>{inward_status}</p> 
-                                {storage[inward_id]&& <p style={{backgroundColor: "#FF90000D", color: "#FF9000"}}>{"saved draft"}</p>}
+                                {storage && storage[inward_id]&& <p style={{backgroundColor: "#FF90000D", color: "#FF9000"}}>{"saved draft"}</p>}
                               </div>
                             </td>
                             <td>{supplier}</td>

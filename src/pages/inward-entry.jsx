@@ -60,7 +60,7 @@ export default function InwardEntry(){
     useEffect(()=>{
         function checkDraftInwardEntry(){
             const draftEntry = JSON.parse(window.localStorage.getItem("inwardEntry"));
-            const draft = draftEntry[`${inward_id}`]&& draftEntry[`${inward_id}`]["uskus"];
+            const draft = draftEntry && draftEntry[`${inward_id}`]&& draftEntry[`${inward_id}`]["uskus"];
             // console.log(draft)
 
             if (!draft){
@@ -68,7 +68,7 @@ export default function InwardEntry(){
             }
 
             table.map(({usku_id, expected_qtt})=>{
-                setEntry((prev)=>({...prev, [usku_id]: {"accepted": draft[usku_id].recieved - draft[usku_id].rejected, "rejected": draft[usku_id].rejected}}))
+                setEntry((prev)=>({...prev, [usku_id]: {"accepted": draft[usku_id].received - draft[usku_id].rejected, "rejected": draft[usku_id].rejected}}))
             })
         }
 
@@ -181,8 +181,8 @@ export default function InwardEntry(){
                     <p className={styles.pageDesc}>Enter the inward stock details</p>
                     <div className={styles.inwardDetails}>
                         <div className={styles.inwardInfoLeftSection}>
-                            <h2>Inward ID:</h2>
-                            <p className={styles.inwardId}>{inward_id}</p>
+                            <h2>Inward ID: <span style={{fontSize:"20px", fontWeight: "normal"}}>{inward_id}</span></h2>
+                            {/* <p className={styles.inwardId}>{inward_id}</p> */}
                         </div>
 
                         <div className={styles.inwardInfoRightSection}>
@@ -205,7 +205,7 @@ export default function InwardEntry(){
                                     <th>Expected Stock</th>
                                     <th>Accepted Stock</th>
                                     <th>Rejected Stock</th>
-                                    <th>Total Recieved Stock</th>
+                                    <th>Total Received Stock</th>
                                     <th>Shortage</th>
                                     <th>Overage</th>
                                 </tr>
@@ -218,11 +218,11 @@ export default function InwardEntry(){
                                         // const draftEntry = JSON.parse(localStorage.getItem("inwardEntry"));
                                         // const draft = draftEntry[inward_id];
 
-                                        // const draftAccepted = draft && draft.uskus[usku_id].recieved - draft.uskus[usku_id].rejected;
+                                        // const draftAccepted = draft && draft.uskus[usku_id].received - draft.uskus[usku_id].rejected;
                                         // const draftRejected = draft && draft.uskus[usku_id].rejected;
-                                        // const draftTotal = draft && draft.uskus[usku_id].recieved;
-                                        // const draftShortage = draft && expected_qtt > draft.uskus[usku_id].recieved? expected_qtt - draft.uskus[usku_id].recieved: null;
-                                        // const draftOverage = draft && draft.uskus[usku_id].recieved > expected_qtt? draft.uskus[usku_id].recieved - expected_qtt: null;
+                                        // const draftTotal = draft && draft.uskus[usku_id].received;
+                                        // const draftShortage = draft && expected_qtt > draft.uskus[usku_id].received? expected_qtt - draft.uskus[usku_id].received: null;
+                                        // const draftOverage = draft && draft.uskus[usku_id].received > expected_qtt? draft.uskus[usku_id].received - expected_qtt: null;
 
                                         image_url = image_url && JSON.parse(image_url).webp_card;
 
@@ -230,12 +230,12 @@ export default function InwardEntry(){
                                         const shortage = entry[usku_id] ? total < parseInt(expected_qtt)? parseInt(expected_qtt) - total : 0 : 0;
                                         const overage = entry[usku_id] ? total > parseInt(expected_qtt)? total - parseInt(expected_qtt) : 0 : 0;
                                         // populating payload
-                                        payload.usku_ids[usku_id] = {"recieved": total, "rejected": entry[usku_id]? entry[usku_id].rejected: null}
+                                        payload.usku_ids[usku_id] = {"received": total, "rejected": entry[usku_id]? entry[usku_id].rejected: null}
                                         
                                         
                                         return(
                                             <tr key={sku_id}>
-                                                <td><img src={`${url}${image_url}`} alt="product image" /></td>
+                                                <td><img src={`${url}${image_url}`} alt="product image" height={"105px"}/></td>
                                                 <td>{sku_id}</td>
                                                 <td>{product_title}</td>
                                                 <td>{product_type}</td>
@@ -248,7 +248,7 @@ export default function InwardEntry(){
 
                                                         <div className={styles.buttonsCotnainer}>
                                                             <button className={styles.increase} onClick={()=>{incAcceptedStock(usku_id)}}>+</button>
-                                                            <hr />
+                                                            <hr style={{width: "100%", color: "white"}}/>
                                                             <button className={styles.decrease} onClick={()=>{decAcceptedStock(usku_id)}}>-</button>
                                                         </div>
                                                     </div>
@@ -259,7 +259,7 @@ export default function InwardEntry(){
 
                                                         <div className={styles.buttonsCotnainer}>
                                                             <button className={styles.increase} onClick={()=>{incRejectedStock(usku_id)}}>+</button>
-                                                            <hr />
+                                                            <hr style={{width: "100%", color: "white"}}/>
                                                             <button className={styles.decrease} onClick={()=>{decRejectedStock(usku_id)}}>-</button>
                                                         </div>
                                                     </div>

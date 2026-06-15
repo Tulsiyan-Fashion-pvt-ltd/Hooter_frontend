@@ -646,14 +646,15 @@ border: 0.5px solid black;
   right: 0px;
   top: 0px;
   anchor-name: --inward-sidebar;
-    padding: 2rem 2rem 6rem 2rem;
+    padding: 2rem 2rem 0rem 2rem;
     overflow-y: auto;
     transform: translateX(100%);
     transition: transform 0.3s ease-out;
 }
 
 .closeSidebar{
-    position: absolute;
+    position: sticky;
+    float: right;
     position-anchor: --inward-sidebar;
     top: anchor(top);
     right: anchor(right);
@@ -662,7 +663,7 @@ border: 0.5px solid black;
     height: 25px;
     bottom: anchor(bottom);
     left: anchor(right);
-    margin: 1rem;
+    /* margin: 1rem; */
     font-weight: bolder;
     border: none;
 }
@@ -684,7 +685,7 @@ border: 0.5px solid black;
 }
 
 .bottomSection {
-  position: absolute;
+  position: sticky;
   position-anchor: --inward-sidebar;
   /* right: anchor(right); */
   inset: 0;
