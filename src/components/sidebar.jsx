@@ -9,12 +9,24 @@ const Sidebar = () => {
   const [openMenu, setOpenMenu] = useState(null);
   const sidebarRef = useRef(null);
   const [hoveredItem, setHoveredItem] = useState(null);
+  const closeTimer = useRef(null);
 
   // setting up the indicator as per the current location
   const path = useLocation();
   const [indicator, setIndicator] = useState(`/${path.pathname.split("/")[1]}`); // indicator stores the values of the items' keys.
   //  and we can match currently on which item in the sidebar menu we are in
   const [flyoutPos, setFlyoutPos] = useState({ top: 0, left: 0 });
+
+  const openFlyout = (item, e) => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    const rect = e.currentTarget.getBoundingClientRect();
+    setFlyoutPos({ top: rect.top, left: rect.right + 12 });
+    setHoveredItem(item);
+  };
+
+  const scheduleCloseFlyout = () => {
+    closeTimer.current = setTimeout(() => setHoveredItem(null), 150);
+  };
 
   useEffect(() => {
     if (!openMenu) return; // don't bother attaching a listener if nothing's open
@@ -125,13 +137,8 @@ const Sidebar = () => {
               <div
                 key={item}
                 className={styles.parentWrapper}
-                onMouseEnter={(e) => {
-                  if (!collapsed) return;
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  setFlyoutPos({ top: rect.top, left: rect.right + 12 });
-                  setHoveredItem(item);
-                }}
-                onMouseLeave={() => collapsed && setHoveredItem(null)}
+                onMouseEnter={(e) => collapsed && openFlyout(item, e)}
+                onMouseLeave={() => collapsed && scheduleCloseFlyout()}
               >
                 <div
                   className={styles.sidebarItem}
@@ -223,6 +230,10 @@ const Sidebar = () => {
                     <div
                       className={styles.flyoutMenu}
                       style={{ top: flyoutPos.top, left: flyoutPos.left }}
+                      onMouseEnter={() =>
+                        closeTimer.current && clearTimeout(closeTimer.current)
+                      }
+                      onMouseLeave={scheduleCloseFlyout}
                     >
                       <div className={styles.flyoutTitle}>{item}</div>
                       {Object.keys(items[item].children).map((childKey) => {
@@ -254,6 +265,7 @@ const Sidebar = () => {
                         );
                       })}
                     </div>,
+                    document.body,
                   )}
               </div>
             );
