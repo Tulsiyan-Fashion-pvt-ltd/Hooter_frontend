@@ -17,7 +17,7 @@
 }
 
 .box {
-    max-width: 1149px;
+    /* max-width: 1149px; */
     padding: 24px;
     border-left: 1px solid rgba(0, 0, 0, 1);
     display: flex;

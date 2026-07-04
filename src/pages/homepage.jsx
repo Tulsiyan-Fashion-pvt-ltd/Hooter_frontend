@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import styles from "../css/pages/Homepage.module.css";
 import clsx from "clsx";
 import {
@@ -27,6 +28,9 @@ import NoteIcon from "../assets/icons/note.svg";
 import StatsIcon from "../assets/icons/sidebar/stats-active.svg";
 
 const Homepage = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+
   const platforms = [
     "Lets Check All",
     "Lets Check Flipkart",
@@ -37,6 +41,13 @@ const Homepage = () => {
     "Lets Check Myntra",
     "Lets Check Ajio",
   ];
+
+  // sending search params to the server if the shopify sends the redirect
+  useEffect(()=>{
+    async function sendShopifyRedirect(){
+      
+    }
+  }, [searchParams])
 
   const [activePlatform, setActivePlatform] = useState(0);
   const [activeTab, setActiveTab] = useState(0);

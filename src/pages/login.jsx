@@ -3,12 +3,14 @@ import styles from "../css/pages/login.module.css";
 import "../css/layout/universal-layout.css";
 import { ArrowProceedBttn } from '../components/proceed-bttn'
 import { Spinner } from '../components/spinner';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { validateEmail } from "../modules/validate";
 
 const route = import.meta.env.VITE_BASEAPI;
 
 const Login = () => {
+  const [query, setQuery] = useSearchParams();
+
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState('');
   const [email, setEmail] = useState('');
@@ -53,7 +55,7 @@ const Login = () => {
       } else {
         // console.log(data.brand_connection.Status.redirect)
         // server will decide whether the page should be redirected to the home page, register brand page or pick a brand as super admin
-        navigate(data.brand_connection.Status.redirect);
+        navigate(`${data.brand_connection.Status.redirect}?${query}`);
       }
 
     } catch (err) {

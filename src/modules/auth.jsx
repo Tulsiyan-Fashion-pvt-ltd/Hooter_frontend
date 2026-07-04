@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const route = import.meta.env.VITE_BASEAPI;
 
 export function Protect({ children }) {
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    console.log(searchParams)
     const [loading, setLoading] = useState(true);
     const [auth, setAuth] = useState(false);
 
@@ -30,7 +33,7 @@ export function Protect({ children }) {
             return (children)
         }
         else {
-            return navigate('/login')
+            return navigate(`/login?${searchParams}`)
         }
     }
 }
