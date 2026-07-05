@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import styles from "../css/pages/Homepage.module.css";
 import clsx from "clsx";
+const url = import.meta.env.VITE_BASEAPI;
 import {
   LineChart,
   Line,
@@ -29,8 +30,11 @@ import StatsIcon from "../assets/icons/sidebar/stats-active.svg";
 
 const Homepage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [activePlatform, setActivePlatform] = useState(0);
+  const [activeTab, setActiveTab] = useState(0);
+  const navigate = useNavigate();
 
-
+  // console.log(Object.fromEntries(searchParams))
   const platforms = [
     "Lets Check All",
     "Lets Check Flipkart",
@@ -45,12 +49,33 @@ const Homepage = () => {
   // sending search params to the server if the shopify sends the redirect
   useEffect(()=>{
     async function sendShopifyRedirect(){
-      
-    }
-  }, [searchParams])
+      try{
+        const response = await fetch(`${url}/shopify/install-store`, {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          credentials: "include",
+          body: JSON.stringify(Object.fromEntries(searchParams))
+        })
 
-  const [activePlatform, setActivePlatform] = useState(0);
-  const [activeTab, setActiveTab] = useState(0);
+        const data = await response.json();
+
+        if (!response.ok){
+          window.alert("Couldn't fetch the shopify shop name");
+          return;
+        }
+
+        // proceed for oauth
+        const redirect = data.redirect;
+        window.location.href = redirect;
+      } 
+      catch(e){
+        console.error(e);
+        return;
+      }
+    }
+
+    sendShopifyRedirect();
+  }, [searchParams])
 
   const insightsTabs = [
     "All ( 26 )",
