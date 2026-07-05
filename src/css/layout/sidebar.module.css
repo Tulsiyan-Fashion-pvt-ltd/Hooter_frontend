@@ -41,7 +41,8 @@ position: absolute;
   width: 102px;
 }
 
-.isolatedSidebar p, .isolatedSidebar a
+.isolatedSidebar p, .isolatedSidebar a,
+.isolatedSidebar .sidebarItem
 {
   color: var(--main-color--);
 }
@@ -106,9 +107,15 @@ h2
   flex-flow: column nowrap;
   height: 100%;
   padding: 45px 0px 0px 5px;
+  overflow-y: auto;
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* old Edge/IE */
 }
-
-.navigation a span
+.navigation::-webkit-scrollbar {
+  display: none;               /* Chrome, Safari, newer Edge */
+}
+.navigation a span,
+.navigation .sidebarItem span
 {
   font-family: 'inter';
 font-weight: 400;
@@ -119,7 +126,8 @@ letter-spacing: 0%;
 }
 
 
-.navigation a
+.navigation a,
+.navigation .sidebarItem
 {
   margin-bottom: 30px;
   height: fit-content;
@@ -133,6 +141,64 @@ letter-spacing: 0%;
   gap: 30px;
   /* position: relative; */
   anchor-name: --navigations;
+  cursor: pointer;
+}
+
+.subMenu {
+  display: flex;
+  flex-flow: column nowrap;
+  padding-left: 40px;
+}
+
+.subMenuItem {
+  position: relative;
+  opacity: 0.6;
+  margin-bottom: 20px;
+  padding-left: 20px;
+  transition: opacity 0.2s ease, color 0.2s ease;
+  cursor: pointer;
+}
+
+.subIndicator {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 0px;
+  background-color: white;
+  opacity: 0;
+  border-radius: 0 2px 2px 0;
+  transition: opacity 0.3s ease, height 0.3s ease;
+}
+
+.subIndicatorActive {
+  opacity: 1;
+  height: 16px;
+}
+
+
+.flyoutMenu {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  margin-left: 12px;
+  background-color: var(--second-color--);
+  border-radius: 8px;
+  padding: 16px 20px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  z-index: 10;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.flyoutTitle {
+  color: white;
+  opacity: 0.5;
+  font-size: 14px;
+  margin-bottom: 10px;
 }
 
 .indicator
@@ -164,25 +230,24 @@ letter-spacing: 0%;
 }
 
 /* icon mapping */
-.sidebarMenu .sidebarItem:nth-child(1) .itemIcons { background-image: url("../../assets/icons/sidebar/home.svg"); }
-.sidebarMenu .sidebarItem:nth-child(2) .itemIcons { background-image: url("../../assets/icons/sidebar/catalog.svg"); }
-.sidebarMenu .sidebarItem:nth-child(3) .itemIcons { background-image: url("../../assets/icons/sidebar/inventory.svg"); }
-.sidebarMenu .sidebarItem:nth-child(4) .itemIcons { background-image: url("../../assets/icons/sidebar/orders.svg"); }
-.sidebarMenu .sidebarItem:nth-child(5) .itemIcons { background-image: url("../../assets/icons/sidebar/shipping.svg"); }
-.sidebarMenu .sidebarItem:nth-child(6) .itemIcons { background-image: url("../../assets/icons/sidebar/cl_payment.svg"); }
-.sidebarMenu .sidebarItem:nth-child(7) .itemIcons { background-image: url("../../assets/icons/sidebar/stats.svg"); }
-.sidebarMenu .sidebarItem:nth-child(8) .itemIcons { background-image: url("../../assets/icons/sidebar/settings.svg"); }
+[data-item="Home"] .itemIcons { background-image: url("../../assets/icons/sidebar/home.svg"); }
+[data-item="Catalog"] .itemIcons { background-image: url("../../assets/icons/sidebar/catalog.svg"); }
+[data-item="Inventory"] .itemIcons { background-image: url("../../assets/icons/sidebar/inventory.svg"); }
+[data-item="Order"] .itemIcons { background-image: url("../../assets/icons/sidebar/orders.svg"); }
+[data-item="Shipping"] .itemIcons { background-image: url("../../assets/icons/sidebar/shipping.svg"); }
+[data-item="Payments"] .itemIcons { background-image: url("../../assets/icons/sidebar/cl_payment.svg"); }
+[data-item="Stats"] .itemIcons { background-image: url("../../assets/icons/sidebar/stats.svg"); }
+[data-item="Settings"] .itemIcons { background-image: url("../../assets/icons/sidebar/settings.svg"); }
 
-
-/* icon mapping */
-.sidebarMenu .sidebarItem:nth-child(1) .acitveItemIcons { background-image: url("../../assets/icons/sidebar/home-active.svg"); }
-.sidebarMenu .sidebarItem:nth-child(2) .acitveItemIcons { background-image: url("../../assets/icons/sidebar/catalog-active.svg"); }
-.sidebarMenu .sidebarItem:nth-child(3) .acitveItemIcons { background-image: url("../../assets/icons/sidebar/inventory-active.svg"); }
-.sidebarMenu .sidebarItem:nth-child(4) .acitveItemIcons { background-image: url("../../assets/icons/sidebar/orders-active.svg"); }
-.sidebarMenu .sidebarItem:nth-child(5) .acitveItemIcons { background-image: url("../../assets/icons/sidebar/shipping-active.svg"); }
-.sidebarMenu .sidebarItem:nth-child(6) .acitveItemIcons { background-image: url("../../assets/icons/sidebar/payment-active.svg"); }
-.sidebarMenu .sidebarItem:nth-child(7) .acitveItemIcons { background-image: url("../../assets/icons/sidebar/stats-active.svg"); }
-.sidebarMenu .sidebarItem:nth-child(8) .acitveItemIcons { background-image: url("../../assets/icons/sidebar/settings-active.svg"); }
+/* active icon mapping */
+[data-item="Home"] .acitveItemIcons { background-image: url("../../assets/icons/sidebar/home-active.svg"); }
+[data-item="Catalog"] .acitveItemIcons { background-image: url("../../assets/icons/sidebar/catalog-active.svg"); }
+[data-item="Inventory"] .acitveItemIcons { background-image: url("../../assets/icons/sidebar/inventory-active.svg"); }
+[data-item="Order"] .acitveItemIcons { background-image: url("../../assets/icons/sidebar/orders-active.svg"); }
+[data-item="Shipping"] .acitveItemIcons { background-image: url("../../assets/icons/sidebar/shipping-active.svg"); }
+[data-item="Payments"] .acitveItemIcons { background-image: url("../../assets/icons/sidebar/payment-active.svg"); }
+[data-item="Stats"] .acitveItemIcons { background-image: url("../../assets/icons/sidebar/stats-active.svg"); }
+[data-item="Settings"] .acitveItemIcons { background-image: url("../../assets/icons/sidebar/settings-active.svg"); }
 
 
 
