@@ -1,5 +1,9 @@
 /* CatalogUpload.module.css */
 
+:root {
+  --list-grid: minmax(56px, 64px) minmax(160px, 2fr) minmax(90px, 1fr) minmax(180px, 1.5fr) minmax(90px, 0.7fr) minmax(110px, 0.8fr);
+}
+
 .header{
     background:linear-gradient(90deg,#0f2027,#203a43,#2c5364);
     color:#fff;
@@ -106,72 +110,200 @@ border-width: 0.5px;
     border-radius:5px;
 }
 
-.table{
-    width:100%;
-    border-collapse:collapse;
-    background:#fff;
-    border-radius:8px;
-    overflow:hidden;
-}
-
-.th,
-.td{
-    padding:12px;
-    border-bottom:1px solid #eee;
-    text-align:left;
-    font-size:14px;
-}
-
-.th{
-    background:#f1f5f9;
-}
-
-.image{
-    width:40px;
-    border-radius:5px;
-}
-
-.status{
-    padding:5px 10px;
-    border-radius:12px;
-    font-size:12px;
-}
-
-.statusActive{
-    background:#dcfce7;
-    color:#15803d;
-}
-
-.statusPause{
-    background:#fef3c7;
-    color:#92400e;
-}
-
-.actionButtons{
+/*For the table */
+/* List container */
+.list {
     display: flex;
-    flex-flow: row nowrap;
-    gap: 1rem;
+    flex-direction: column;
 }
 
-.actions div{
-    margin-right:10px;
-    text-decoration:none;
-    font-size:13px;
+.listItem {
+    display: grid;
+    grid-template-columns: var(--list-grid);
+    align-items: center;
+    justify-items: center; 
+    background: #fff;
+    padding: 8px 20px;
+    border-bottom: 1px solid #eef0f2;
+    transition: background 0.15s ease;
+    column-gap: 24px;
 }
 
-.edit{
+.listItem:last-child {
+    border-bottom: none;
+}
+
+.listItem:hover {
+    background: #f9fafb;
+}
+
+.listImageWrap {
+    height: 44px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+}
+
+.listImage {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Main info block (SKU + title) */
+.listMain {
+    min-width: 0;
+    justify-self: start;
+}
+
+.listTitle {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.listSku {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+.listType {
+    font-size: 13px;
+    color: #374151;
+    text-align: center;
+}
+
+/* Price group */
+.listPrices {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.priceBlock {
+    display: flex;
+    flex-direction: column;
+}
+
+.priceLabel {
+    font-size: 11px;
+    color:  #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.priceValue {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111827;
+    margin-top: 2px;
+}
+
+/* Status badge */
+.statusBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.statusCompleted {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.statusPending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.statusDefault {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+/* Actions */
+.listActions {
+    display: flex;
+    gap: 10px;
+}
+
+.edit,
+.delete {
     border: none;
     background-color: transparent;
-    color:#2563eb;
     display: inline-block;
     text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
 }
 
-.delete{
-    border: none;
-    background-color: transparent;
-    color:#dc2626;
-    display: inline-block;
+.edit {
+    color: #2563eb;
+}
+
+.edit:hover {
+    background: #eff6ff;
+}
+
+.delete {
+    color: #dc2626;
+}
+
+.delete:hover {
+    background: #fef2f2;
+}
+
+.tableWrapper {
+    border: 1px solid #1f2937;
+    border-radius: 10px;
+    overflow: hidden;
+}
+/* Optional column headers above the list */
+.listHeader {
+    display: grid;
+    grid-template-columns: var(--list-grid);
+    align-items: center;
+    justify-items: center; 
+    padding:2px 20px;
+    font-size: 11px;
+    font-weight: 600;
+    color:  #000;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: #cbd5e1;
+    column-gap: 24px;
+}
+
+.listHeader .listImageWrap { visibility: hidden;height: 0; }
+.listHeader .listType,
+.listHeader .listPrices,
+.listHeader .listActions {
+    justify-content: center;
+    text-align: center;
+}
+
+.listFooter {
+    display: flex;
+    justify-content: center;
+    padding: 16px 0;
+    font-size: 13px;
+    color: #6b7280;
 }
 
 button:hover{
@@ -184,4 +316,30 @@ button:hover{
         width: 70px;
     height: 100px;
     object-fit: contain;
+}
+
+.list *, .listHeader * {
+    box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .listHeader {
+    display: none;
+  }
+
+  .listItem {
+    grid-template-columns: 64px 1fr;
+    grid-template-areas:
+      "image title"
+      "image type"
+      "prices prices"
+      "status actions";
+  }
+
+  .listImageWrap { grid-area: image; }
+  .listMain { grid-area: title; }
+  .listType { grid-area: type; }
+  .listPrices { grid-area: prices; }
+  .statusBadge { grid-area: status; }
+  .listActions { grid-area: actions; }
 }

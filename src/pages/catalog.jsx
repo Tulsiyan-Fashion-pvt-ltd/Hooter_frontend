@@ -1,20 +1,19 @@
-import { useState, useEffect } from 'react';
-import styles from '../css/pages/Catalog.module.css'
-import { NavLink, Link} from 'react-router-dom';
-import imageNA from '../assets/icons/imagena.png';
+import { useState, useEffect } from "react";
+import styles from "../css/pages/Catalog.module.css";
+import { NavLink, Link } from "react-router-dom";
+import imageNA from "../assets/icons/imagena.png";
 
 const route = import.meta.env.VITE_BASEAPI;
 
 export default function Catalog() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [stats, setStats] = useState({
     pending: 0,
     completed: 0,
-    total: 0
+    total: 0,
   });
-
 
   useEffect(() => {
     fetchCatalogs();
@@ -23,14 +22,14 @@ export default function Catalog() {
   const fetchCatalogs = async () => {
     try {
       setLoading(true);
-      setError('');
-      
+      setError("");
+
       const response = await fetch(`${route}/catalog`, {
-        method: 'GET',
-        credentials: 'include',
+        method: "GET",
+        credentials: "include",
         headers: {
-          'Content-Type': 'application/json'
-        }
+          "Content-Type": "application/json",
+        },
       });
 
       if (!response.ok) {
@@ -38,23 +37,23 @@ export default function Catalog() {
       }
 
       const data = await response.json();
-      console.log(data)
-      
+      console.log(data);
+
       if (response.status === 200) {
-        setProducts(data["catalog-list"]|| []);
+        setProducts(data["catalog-list"] || []);
         const count = data.count;
         setStats({
           total: count.total,
           pending: count.pending,
-          completed: count.completed
+          completed: count.completed,
         });
       } else {
-        setError(data.message || 'Failed to load catalogs');
+        setError(data.message || "Failed to load catalogs");
         setProducts([]);
       }
     } catch (err) {
-      console.error('Fetch error:', err);
-      setError(err.message || 'An error occurred while fetching catalogs');
+      console.error("Fetch error:", err);
+      setError(err.message || "An error occurred while fetching catalogs");
       setProducts([]);
     } finally {
       setLoading(false);
@@ -62,48 +61,43 @@ export default function Catalog() {
   };
 
   const handleDelete = async (uskuId) => {
-    if (window.confirm('Are you sure you want to delete this catalog?')) {
+    if (window.confirm("Are you sure you want to delete this catalog?")) {
       // TODO: Implement delete endpoint
-      const response = await fetch(`${route}/catalog?usku-id=${uskuId}`,
-        {
-          method: "DELETE",
-          credentials: "include"
-        }
-      );
-      
+      const response = await fetch(`${route}/catalog?usku-id=${uskuId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
       const data = await response.json();
-      console.log('Delete:', uskuId);
+      console.log("Delete:", uskuId);
       await fetchCatalogs();
     }
   };
 
-  function snakeToPlainText(snake){
-    return snake.charAt(0).toUpperCase() + snake.slice(1).replace("_", " ")
+  function snakeToPlainText(snake) {
+    return snake.charAt(0).toUpperCase() + snake.slice(1).replace("_", " ");
   }
 
   return (
     <div className={styles.mainContainer}>
       <div className={styles.header}>
         <h1>Upload Catalog</h1>
-        <p>
-          Welcome back! Here's a snapshot of your catalog's performance.
-        </p>
+        <p>Welcome back! Here's a snapshot of your catalog's performance.</p>
       </div>
 
       <div className={styles.container}>
         <div className={styles.topActions}>
-          <NavLink to='./add-bulk-catalog'>
+          <NavLink to="./add-bulk-catalog">
             <button className={`${styles.btn} ${styles.btnPrimary}`}>
               Add Catalog in Bulk
             </button>
           </NavLink>
 
-          <NavLink to='./add-catalog'>
+          <NavLink to="./add-catalog">
             <button className={`${styles.btn} ${styles.btnLight}`}>
               Add Single Catalog
             </button>
           </NavLink>
-
         </div>
 
         <div className={styles.cards}>
@@ -124,7 +118,9 @@ export default function Catalog() {
         </div>
 
         <div className={styles.tabs}>
-          <a href="#" className={styles.activeTab}>All ({stats.total})</a>
+          <a href="#" className={styles.activeTab}>
+            All ({stats.total})
+          </a>
           <a href="#">Completed ({stats.completed})</a>
           <a href="#">Pending ({stats.pending})</a>
           {/* <a href="#">QC Error (0)</a> */}
@@ -147,80 +143,139 @@ export default function Catalog() {
         </div>
 
         {error && (
-          <div style={{
-            padding: '12px',
-            backgroundColor: '#ffebee',
-            borderRadius: '4px',
-            color: '#c62828',
-            marginBottom: '16px',
-            borderLeft: '4px solid #f44336'
-          }}>
+          <div
+            style={{
+              padding: "12px",
+              backgroundColor: "#ffebee",
+              borderRadius: "4px",
+              color: "#c62828",
+              marginBottom: "16px",
+              borderLeft: "4px solid #f44336",
+            }}
+          >
             {error}
           </div>
         )}
 
         {loading ? (
-          <div style={{
-            textAlign: 'center',
-            padding: '40px',
-            color: '#666'
-          }}>
+          <div
+            style={{
+              textAlign: "center",
+              padding: "40px",
+              color: "#666",
+            }}
+          >
             Loading catalogs...
           </div>
         ) : products.length === 0 ? (
-          <div style={{
-            textAlign: 'center',
-            padding: '40px',
-            color: '#999'
-          }}>
+          <div
+            style={{
+              textAlign: "center",
+              padding: "40px",
+              color: "#999",
+            }}
+          >
             No catalogs found. Start by adding your first catalog!
           </div>
         ) : (
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th className={styles.th}>Product Image</th>
-                <th className={styles.th}>SKU ID</th>
-                <th className={styles.th}>Title</th>
-                <th className={styles.th}>Status</th>
-                <th className={styles.th}>Product Type</th>
-                <th className={styles.th}>MRP</th>
-                <th className={styles.th}>Compared Price</th>
-                <th className={styles.th}>Purchasing Price</th>
-                <th className={styles.th}>Options</th>
-              </tr>
-            </thead>
+          <>
+            <div className={styles.tableWrapper}>
+              <div className={styles.listHeader}>
+                <div className={styles.listImageWrap}></div>
+                <div className={styles.listMain}>Product</div>
+                <div className={styles.listType}>Type</div>
+                <div className={styles.listPrices}>Pricing</div>
+                <div
+                  className={styles.statusBadge}
+                  style={{ background: "transparent" }}
+                >
+                  Status
+                </div>
+                <div className={styles.listActions}>Options</div>
+              </div>
 
-            <tbody>
-              {products.map((p, index) => (
-                <tr key={p.usku_id || index}>
-                  <td className={styles.td}><img className={styles.productImage} src={p.image_url? `${route}${p.image_url}`: imageNA} alt="image" /></td>
-                  <td className={styles.td}>{p.sku_id || p.usku_id}</td>
-                  <td className={styles.td}>{p.product_title}</td>
-                  <td className={styles.td} style={{color: p.status==="completed"? "green":"red"}}>{p.status}</td>
-                  <td className={styles.td}>{snakeToPlainText(p.product_type) || 'N/A'}</td>
-                  <td className={styles.td}>Rs {p.price || 0}</td>
-                  <td className={styles.td}>Rs {p.compared_price || 0}</td>
-                  <td className={styles.td}>Rs {p.purchasing_cost || 0}</td>
-
-                  <td className={`${styles.td} ${styles.actions}`}>
-                    <div className={styles.actionButtons}>
-                    <Link to={`/catalog/edit?id=${p.usku_id}&type=${p.type_id}`} className={styles.edit}>Edit</Link>
-                    <button  
-                      className={styles.delete}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleDelete(p.usku_id);
-                      }}
-                    >
-                      Delete
-                    </button>
+              <div className={styles.list}>
+                {products.map((p, index) => (
+                  <div className={styles.listItem} key={p.usku_id || index}>
+                    <div className={styles.listImageWrap}>
+                      <img
+                        className={styles.listImage}
+                        src={p.image_url ? `${route}${p.image_url}` : imageNA}
+                        alt={p.product_title || "product"}
+                      />
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+
+                    <div className={styles.listMain}>
+                      <div className={styles.listTitle}>
+                        {p.product_title || "Untitled"}
+                      </div>
+                      <div className={styles.listSku}>
+                        {p.sku_id || p.usku_id}
+                      </div>
+                    </div>
+
+                    <div className={styles.listType}>
+                      {snakeToPlainText(p.product_type) || "N/A"}
+                    </div>
+
+                    <div className={styles.listPrices}>
+                      <div className={styles.priceBlock}>
+                        <span className={styles.priceLabel}>MRP</span>
+                        <span className={styles.priceValue}>
+                          Rs {p.price || 0}
+                        </span>
+                      </div>
+                      <div className={styles.priceBlock}>
+                        <span className={styles.priceLabel}>Compare</span>
+                        <span className={styles.priceValue}>
+                          Rs {p.compared_price || 0}
+                        </span>
+                      </div>
+                      <div className={styles.priceBlock}>
+                        <span className={styles.priceLabel}>Cost</span>
+                        <span className={styles.priceValue}>
+                          Rs {p.purchasing_cost || 0}
+                        </span>
+                      </div>
+                    </div>
+
+                    <span
+                      className={`${styles.statusBadge} ${
+                        p.status === "completed"
+                          ? styles.statusCompleted
+                          : p.status === "pending"
+                            ? styles.statusPending
+                            : styles.statusDefault
+                      }`}
+                    >
+                      {p.status}
+                    </span>
+
+                    <div className={styles.listActions}>
+                      <Link
+                        to={`/catalog/edit?id=${p.usku_id}&type=${p.type_id}`}
+                        className={styles.edit}
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        className={styles.delete}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleDelete(p.usku_id);
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className={styles.listFooter}>
+              Showing {products.length} out of {stats.total} entries
+            </div>
+          </>
         )}
       </div>
     </div>
