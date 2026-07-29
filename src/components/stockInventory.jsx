@@ -270,49 +270,45 @@ function CustomerProfilePanel({ item, onClose }) {
       >
         {item && (
           <>
-            <button className={styles.closeSidebar} onClick={onClose}>
-              ✕
-            </button>
+            <div className={styles.profileHeader}>Customer Profile</div>
 
-            <h2>Customer Profile</h2>
-
-            <div
-              className={styles.listImageWrap}
-              style={{ margin: "1rem auto" }}
-            >
+            <div className={styles.profileImageWrap}>
               <img
-                className={styles.listImage}
+                className={styles.profileImage}
                 src={`${url}${JSON.parse(item.image_url).webp_card}`}
                 alt={item.product_title}
               />
             </div>
 
-            <h3 style={{ textAlign: "center" }}>{item.product_title}</h3>
+            <h3 className={styles.profileTitle}>{item.product_title}</h3>
             <p style={{ textAlign: "center", color: "#0040D6" }}>
               Sku ID: {item.sku_id}
             </p>
 
-            <div className={styles.mainSection} style={{ padding: "1rem" }}>
-              <p>
-                creation date : <br />
-                <strong>{item.created_at || "—"}</strong>
-              </p>
-              <p>
-                Updation date : <br />
-                <strong>{item.updated_at || "—"}</strong>
-              </p>
-              <p>
-                Listing Information : <br />
-                <strong>Manual</strong>
-              </p>
-              <p>
-                Product Title : <br />
-                <strong>{item.product_title}</strong>
-              </p>
-              <p>
-                Product Price : <br />
-                <strong>Rs {item.product_price}</strong>
-              </p>
+            <div
+              className={styles.mainSection}
+              style={{ padding: "1rem", backgroundColor: "transparent" }}
+            >
+              <div className={styles.profileField}>
+                <p className={styles.profileLabel}>creation date :</p>
+                <p className={styles.profileValue}>{item.created_at || "—"}</p>
+              </div>
+              <div className={styles.profileField}>
+                <p className={styles.profileLabel}>Updation date :</p>
+                <p className={styles.profileValue}>{item.updated_at || "—"}</p>
+              </div>
+              <div className={styles.profileField}>
+                <p className={styles.profileLabel}>Listing Information :</p>
+                <p className={styles.profileValue}>Manual</p>
+              </div>
+              <div className={styles.profileField}>
+                <p className={styles.profileLabel}>Product Title :</p>
+                <p className={styles.profileValue}>{item.product_title}</p>
+              </div>
+              <div className={styles.profileField}>
+                <p className={styles.profileLabel}>Product Price :</p>
+                <p className={styles.profileValue}>Rs {item.product_price}</p>
+              </div>
             </div>
           </>
         )}
@@ -320,6 +316,7 @@ function CustomerProfilePanel({ item, onClose }) {
     </>
   );
 }
+
 function AllInventoryTable() {
   const [all, setAll] = useState([]);
 
@@ -329,15 +326,12 @@ function AllInventoryTable() {
         const response = await fetch(`${url}/inventory`, {
           credentials: "include",
         });
-
         const data = await response.json();
-
         setAll(data);
       } catch (e) {
         console.log(e);
       }
     }
-
     getInventory();
   }, []);
 
@@ -353,15 +347,12 @@ function SellableInventoryTable() {
         const response = await fetch(`${url}/inventory?filter=sellable`, {
           credentials: "include",
         });
-
         const data = await response.json();
-
         setAll(data);
       } catch (e) {
         console.log(e);
       }
     }
-
     getInventory();
   }, []);
 
@@ -377,15 +368,12 @@ function OOSInventoryTable() {
         const response = await fetch(`${url}/inventory?filter=oos`, {
           credentials: "include",
         });
-
         const data = await response.json();
-
         setAll(data);
       } catch (e) {
         console.log(e);
       }
     }
-
     getInventory();
   }, []);
 
@@ -401,15 +389,12 @@ function LowStockInventoryTable() {
         const response = await fetch(`${url}/inventory?filter=low-stock`, {
           credentials: "include",
         });
-
         const data = await response.json();
-
         setAll(data);
       } catch (e) {
         console.log(e);
       }
     }
-
     getInventory();
   }, []);
 
