@@ -5,7 +5,9 @@ import { NavLink, useLocation } from "react-router-dom";
 import { createPortal } from "react-dom";
 
 const Sidebar = () => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => {
+    return localStorage.getItem("sidebarCollapsed") === "true";
+  });
   const [openMenu, setOpenMenu] = useState(null);
   const sidebarRef = useRef(null);
   const [hoveredItem, setHoveredItem] = useState(null);
@@ -42,6 +44,10 @@ const Sidebar = () => {
       document.removeEventListener("mousedown", handleClickOutside, true);
   }, [openMenu]);
 
+  useEffect(() => {
+    localStorage.setItem("sidebarCollapsed", collapsed);
+  }, [collapsed]);
+
   const items = {
     Home: { path: "/" },
     Catalog: { path: "/catalog" },
@@ -73,9 +79,7 @@ const Sidebar = () => {
           setCollapsed((prev) => !prev);
           setOpenMenu(null);
         }}
-      >
-        {collapsed ? ">" : "<"}
-      </button>
+      ></button>
 
       {/* Header */}
       <div className={styles.sidebarHeader}>

@@ -27,6 +27,13 @@ position: absolute;
   padding: 6px;
   opacity: 1;
   box-shadow: 0px 0px 4px 0px #0000004D;
+
+  background-image: url(../../assets/icons/sidebar/chevron-left.svg);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 20px;
+  width: 28px;
+  height: 28px;
 }
 
 .collapseToggle:hover
@@ -39,6 +46,10 @@ position: absolute;
 .collapsed
 {
   width: 102px;
+}
+.collapsed .collapseToggle
+{
+  background-image: url(../../assets/icons/sidebar/chevron-right.svg);
 }
 
 .isolatedSidebar p, .isolatedSidebar a,
