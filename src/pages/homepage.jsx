@@ -47,35 +47,63 @@ const Homepage = () => {
   ];
 
   // sending search params to the server if the shopify sends the redirect
-  useEffect(()=>{
-    async function sendShopifyRedirect(){
-      try{
+  useEffect(() => {
+    const params = Object.fromEntries(searchParams);
+
+    // Only run the Shopify OAuth flow when Shopify
+    // has actually redirected back with the required params.
+    if (!params.code || !params.shop || !params.state) {
+      return;
+    }
+
+    async function sendShopifyRedirect() {
+      try {
         const response = await fetch(`${url}/shopify/install-store`, {
           method: "POST",
-          headers: {"Content-Type": "application/json"},
+          headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify(Object.fromEntries(searchParams))
-        })
+          body: JSON.stringify(params),
+        });
 
         const data = await response.json();
 
-        if (!response.ok){
-          window.alert("Couldn't fetch the shopify shop name");
+        if (!response.ok) {
+          window.alert("Couldn't fetch the Shopify shop name");
+
+          // Remove OAuth parameters from the URL.
+          setSearchParams({}, { replace: true });
+
+          // Return to the homepage.
+          navigate("/", { replace: true });
+
           return;
         }
 
-        // proceed for oauth
-        const redirect = data.redirect;
-        window.location.href = redirect;
-      } 
-      catch(e){
-        console.error(e);
-        return;
+        // Remove OAuth parameters before continuing the OAuth flow.
+        setSearchParams({}, { replace: true });
+
+        if (data.redirect) {
+          window.location.href = data.redirect;
+          return;
+        }
+
+        // If the backend doesn't provide a redirect,
+        // return to the homepage instead of leaving the
+        // user stuck on the OAuth callback URL.
+        navigate("/", { replace: true });
+      } catch (error) {
+        console.error("Shopify OAuth request failed:", error);
+
+        // Clean up the OAuth parameters.
+        setSearchParams({}, { replace: true });
+
+        // Return to the homepage.
+        navigate("/", { replace: true });
       }
     }
 
     sendShopifyRedirect();
-  }, [searchParams])
+  }, [searchParams, setSearchParams, navigate]);
 
   const insightsTabs = [
     "All ( 26 )",

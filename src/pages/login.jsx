@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import styles from "../css/pages/login.module.css";
 import "../css/layout/universal-layout.css";
-import { ArrowProceedBttn } from '../components/proceed-bttn'
-import { Spinner } from '../components/spinner';
+import { ArrowProceedBttn } from "../components/proceed-bttn";
+import { Spinner } from "../components/spinner";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { validateEmail } from "../modules/validate";
 
@@ -12,13 +12,13 @@ const Login = () => {
   const [query, setQuery] = useSearchParams();
 
   const navigate = useNavigate();
-  const [errorMessage, setErrorMessage] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const login = async () => {
-    setErrorMessage('');
+    setErrorMessage("");
 
     // 🔹 Validation
     if (!email.trim() || !password.trim()) {
@@ -34,11 +34,11 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${route}/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch(`${route}/users/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
       });
 
       let data = {};
@@ -57,7 +57,6 @@ const Login = () => {
         // server will decide whether the page should be redirected to the home page, register brand page or pick a brand as super admin
         navigate(`${data.brand_connection.Status.redirect}?${query}`);
       }
-
     } catch (err) {
       console.error(err);
       setErrorMessage("Unable to reach the server");
@@ -69,7 +68,6 @@ const Login = () => {
   return (
     <div className={styles.loginPage}>
       <div className={styles.loginWrapper}>
-
         <div className={`${styles.loginContent} ${styles.loginWrapperItem}`}>
           <h1 className={styles.heading}>Hooter</h1>
           <p className={styles.subtitle}>Work Space Login</p>
