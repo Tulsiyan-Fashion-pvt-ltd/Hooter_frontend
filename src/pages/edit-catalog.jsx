@@ -9,7 +9,7 @@ import {
   uploadImages,
   getImage,
   markComplete,
-} from "../services/CatalogService";
+} from "../services/catalogService";
 
 export default function EditInventory() {
   const fixedFields = [

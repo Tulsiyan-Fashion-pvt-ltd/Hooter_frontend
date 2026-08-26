@@ -3,7 +3,7 @@ import styles from "../css/pages/add-catalog.module.css";
 import {
   getTopCategories,
   getNextCategories,
-} from "../services/CatalogService";
+} from "../services/catalogService";
 
 const fmt = (str) =>
   str?.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());

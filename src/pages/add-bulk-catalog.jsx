@@ -6,7 +6,7 @@ import CatalogSelector from "../components/CatalogSelector";
 import {
   getBulkExcelSheet,
   uploadBulkCatalog,
-} from "../services/CatalogService";
+} from "../services/catalogService";
 
 export default function AddBulkCatalog() {
   const [selectedFile, setSelectedFile] = useState(null);
