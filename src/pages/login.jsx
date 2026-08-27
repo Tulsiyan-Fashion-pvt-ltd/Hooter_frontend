@@ -54,8 +54,20 @@ const Login = () => {
         setErrorMessage(data.login.message);
       } else {
         // console.log(data.brand_connection.Status.redirect)
-        // server will decide whether the page should be redirected to the home page, register brand page or pick a brand as super admin
-        navigate(`${data.brand_connection.Status.redirect}?${query}`);
+        // if the brand connection is connected and the login is single brand then
+          // show home screen
+        // else show multiple brands page
+          const brand = data.brand_connection;
+          if (brand.connection === "connected"){
+            navigate('/')
+          }
+          else if(brand.brands === null) {
+            navigate('/register-brand')
+          }
+          else{
+            console.log('multiple brand selection page is not ready yet');
+            console.log(brand.brands);
+          }
       }
     } catch (err) {
       console.error(err);

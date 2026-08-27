@@ -5,7 +5,7 @@ import {
   createCatalog,
   uploadImages,
   markComplete,
-} from '../services/CatalogService';
+} from '../services/catalogService';
 
 export default function useCatalogForm() {
   const [selectedType, setSelectedType] = useState(null); // { id, vertical }

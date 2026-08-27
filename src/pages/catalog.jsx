@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import styles from "../css/pages/Catalog.module.css";
 import { NavLink, Link } from "react-router-dom";
 import imageNA from "../assets/icons/imagena.png";
-import { getProducts, deleteProduct } from "../services/CatalogService";
+import { getProducts, deleteProduct } from "../services/catalogService";
 
 const route = import.meta.env.VITE_BASEAPI;
 
