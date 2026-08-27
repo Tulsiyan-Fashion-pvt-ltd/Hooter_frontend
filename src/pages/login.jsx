@@ -50,24 +50,21 @@ const Login = () => {
 
       setLoading(false);
 
-      if (response.status != 200) {
-        setErrorMessage(data.login.message);
+      if (response.status !== 200) {
+        setErrorMessage(data?.login?.message || "Login failed");
       } else {
-        // console.log(data.brand_connection.Status.redirect)
-        // if the brand connection is connected and the login is single brand then
-          // show home screen
-        // else show multiple brands page
-          const brand = data.brand_connection;
-          if (brand.connection === "connected"){
-            navigate('/')
-          }
-          else if(brand.brands === null) {
-            navigate('/register-brand')
-          }
-          else{
-            console.log('multiple brand selection page is not ready yet');
-            console.log(brand.brands);
-          }
+        const brand = data?.brand_connection;
+        
+        if (!brand || brand.connection === "connected") {
+          navigate("/");
+        } else if (brand.brands === null) {
+          navigate("/register-brand");
+        } else {
+          console.log("multiple brand selection page is not ready yet");
+          console.log(brand.brands);
+          // Temporarily redirecting to home until multiple brands page is ready
+          navigate("/");
+        }
       }
     } catch (err) {
       console.error(err);
