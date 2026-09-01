@@ -3,6 +3,7 @@ import Login from "./pages/login";
 import Homepage from "./pages/homepage";
 import Register from "./pages/register";
 import Signup from "./pages/signup";
+import SelectBrand from "./pages/select-brand";
 import { Protect, PreventAuth } from "./modules/auth";
 import Layout from "./layout";
 import "./css/layout/animations.css";
@@ -62,6 +63,16 @@ function App() {
           </Protect>
         }
       />
+
+      <Route
+        path="/select-brand"
+        element={
+          <Protect>
+            <SelectBrand />
+          </Protect>
+        }
+      />
+
 
       <Route
         path="/login"

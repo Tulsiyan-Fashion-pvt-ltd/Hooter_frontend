@@ -1,0 +1,139 @@
+.superContainer {
+  display: flex;
+  width: 100%;
+  min-height: 100svh;
+  background-color: #f8fafc;
+}
+
+.container {
+  border: 1px solid #e2e8f0;
+  min-width: 420px;
+  max-width: 540px;
+  width: 90%;
+  padding: 32px 28px;
+  border-radius: 12px;
+  margin: auto;
+  background-color: #ffffff;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+}
+
+.heading {
+  font-family: 'inter-semi-bold', sans-serif;
+  font-size: 2rem;
+  margin-bottom: 6px;
+  color: #0f172a;
+}
+
+.desc {
+  font-size: 1rem;
+  font-family: 'nunito-sans', sans-serif;
+  color: #64748b;
+  margin-bottom: 24px;
+}
+
+.brandList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.brandCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  text-align: left;
+}
+
+.brandCard:hover {
+  border-color: #3b82f6;
+  background-color: #f0f7ff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+.brandCard:active {
+  transform: translateY(0);
+}
+
+.brandInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.brandName {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.brandId {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.actionIcon {
+  font-size: 1.2rem;
+  color: #3b82f6;
+  transition: transform 0.2s ease;
+}
+
+.brandCard:hover .actionIcon {
+  transform: translateX(4px);
+}
+
+.errorMsg {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  background-color: #fef2f2;
+  border-radius: 6px;
+  border: 1px solid #fecaca;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 30px 10px;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 18px;
+}
+
+.registerLink {
+  color: #2563eb;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.registerLink:hover {
+  text-decoration: underline;
+}
+
+@media screen and (max-width: 540px) {
+  .container {
+    min-width: 100%;
+    height: 100svh;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    padding: 24px 16px;
+  }
+}

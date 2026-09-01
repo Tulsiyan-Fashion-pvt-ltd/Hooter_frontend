@@ -4,6 +4,9 @@ import "../css/layout/universal-layout.css";
 import { ArrowProceedBttn } from "../components/proceed-bttn";
 import { Spinner } from "../components/spinner";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setSession } from "../store/slices/authSlice";
+import { setBrandConnection } from "../store/slices/brandSlice";
 import { validateEmail } from "../modules/validate";
 
 const route = import.meta.env.VITE_BASEAPI;
@@ -12,6 +15,7 @@ const Login = () => {
   const [query, setQuery] = useSearchParams();
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [errorMessage, setErrorMessage] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -50,24 +54,27 @@ const Login = () => {
 
       setLoading(false);
 
-      if (response.status != 200) {
-        setErrorMessage(data.login.message);
+      if (response.status !== 200) {
+        setErrorMessage(data.login?.message || "Login failed");
       } else {
-        // console.log(data.brand_connection.Status.redirect)
-        // if the brand connection is connected and the login is single brand then
-          // show home screen
-        // else show multiple brands page
-          const brand = data.brand_connection;
-          if (brand.connection === "connected"){
-            navigate('/')
+        dispatch(setSession(data));
+        const brand = data.brand_connection;
+
+        if (brand) {
+          dispatch(setBrandConnection(brand));
+
+          if (brand.connection === "connected") {
+            navigate("/");
+          } else if (brand.brands === null) {
+            navigate("/register-brand");
+          } else if (Array.isArray(brand.brands) || brand.brands) {
+            navigate("/select-brand");
+          } else {
+            navigate("/");
           }
-          else if(brand.brands === null) {
-            navigate('/register-brand')
-          }
-          else{
-            console.log('multiple brand selection page is not ready yet');
-            console.log(brand.brands);
-          }
+        } else {
+          navigate("/");
+        }
       }
     } catch (err) {
       console.error(err);
@@ -76,6 +83,7 @@ const Login = () => {
       setLoading(false);
     }
   };
+
 
   return (
     <div className={styles.loginPage}>

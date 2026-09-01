@@ -1,14 +1,22 @@
 import { ArrowProceedBttn } from "../components/proceed-bttn";
 import styles from "../css/pages/Register.module.css";
-import { Link, Route, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { validatePincode } from "../modules/validate";
 import { Spinner } from "../components/spinner";
 import ConfirmAnnimation from "../components/confirmAnnimation";
-
-const route = import.meta.env.VITE_BASEAPI;
+import {
+  registerBrand,
+  getNiches,
+  getUserProfile,
+} from "../services/brandService";
+import { setBrandConnection } from "../store/slices/brandSlice";
 
 const Register = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const [niches, setNiches] = useState([]);
   const [pincode, setPincode] = useState("");
   const [entityName, setEntityName] = useState("");
@@ -18,9 +26,10 @@ const Register = () => {
   const [plan, setPlan] = useState("");
   const [address, setAddress] = useState("");
   const [estYear, setEstYear] = useState("");
-  const [formError, setFormError] = useState();
+  const [formError, setFormError] = useState("");
+  const [invalidFields, setInvalidFields] = useState({});
   const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false); // flag to show or hide the form successfully submitted animation
+  const [submitted, setSubmitted] = useState(false);
 
   const [checkPOC, setCheckPOC] = useState(false);
   const [POC, setPOC] = useState({
@@ -34,126 +43,171 @@ const Register = () => {
     confPassword: "",
   });
 
-  // console.log(POC)
-  //     console.log(pincode,
-  // entityName,
-  // brandName,
-  // niche,
-  // gstin,
-  // plan,
-  // address,
-  // estYear,)
-
   const [pincodeValueError, setPincodeValueError] = useState(false);
 
   useEffect(() => {
     async function fetchNiches() {
-      const response = await fetch(`${route}/request-niches`, {
-        credentials: "include",
-      });
-
-      const data = await response.json();
-
-      if (response.status == 200) {
-        setNiches(data.niches);
+      try {
+        const data = await getNiches();
+        setNiches(data.niches || []);
+      } catch (err) {
+        console.error("Failed to fetch niches:", err);
       }
     }
     fetchNiches();
   }, []);
 
+
   async function submit() {
-    // creating effect that if the pincode value is invalid then set the pincode error flag to true and if nothing is thre set it to null
-    if (pincode == null || pincode == "") {
+    setFormError("");
+    const errors = {};
+
+    if (!entityName.trim()) errors.entityName = true;
+    if (!brandName.trim()) errors.brandName = true;
+    if (!niche || niche === "default") errors.niche = true;
+    if (!plan || plan === "default") errors.plan = true;
+    if (!address.trim()) errors.address = true;
+    if (!pincode.trim()) {
+      errors.pincode = true;
       setPincodeValueError(false);
+    } else if (!validatePincode(pincode.trim())) {
+      errors.pincode = true;
+      setPincodeValueError(true);
     } else {
-      setPincodeValueError(validatePincode(pincode));
-      // setFormError('')
+      setPincodeValueError(false);
+    }
+    if (!estYear.trim()) errors.estYear = true;
+
+    if (!POC.self) {
+      if (!POC.name.trim()) errors.pocName = true;
+      if (!POC.designation.trim()) errors.pocDesignation = true;
+      if (!POC.number.trim()) errors.pocNumber = true;
+      if (!POC.email.trim()) errors.pocEmail = true;
+      if (!POC.access || POC.access === "default") errors.pocAccess = true;
+
+      if (!POC.password || POC.password.length < 6) {
+        errors.pocPassword = true;
+        setInvalidFields(errors);
+        setFormError(
+          "password must at least contain 6 characters. Password should match the confirm password"
+        );
+        return;
+      }
+
+      if (POC.password !== POC.confPassword) {
+        errors.pocConfPassword = true;
+        setInvalidFields(errors);
+        setFormError(
+          "password must at least contain 6 characters. Password should match the confirm password"
+        );
+        return;
+      }
     }
 
-    const inputs = Array.from(document.querySelectorAll("input"));
-    const select = Array.from(document.querySelectorAll("select"));
+    setInvalidFields(errors);
 
-    let error = false;
-
-    inputs.forEach((element) => {
-      if (
-        element.getAttribute("name") != "gstin" &&
-        (element.value == "" || element.value == null)
-      ) {
-        element.classList.add("incorrect-input");
-        setFormError("empty input field *");
-        error = true;
-        return;
-      } else {
-        element.classList.remove("incorrect-input");
-        setFormError("");
-      }
-    });
-
-    select.forEach((element) => {
-      if (element.selectedOptions[0].getAttribute("value") == "default") {
-        element.style.outline = "1px solid red";
-        setFormError("empty input field *");
-        error = true;
-        return;
-      } else {
-        element.style.outline = "none";
-        setFormError("");
-      }
-    });
-
-    // validating password
-    if (
-      !POC.self &&
-      (POC.password.length < 6 || POC.password != POC.confPassword)
-    ) {
-      setFormError(
-        "password must at least contain 6 characters. Password should match the confirm password",
-      );
-      return;
-    }
-
-    if (error == true) {
+    if (Object.keys(errors).length > 0) {
+      setFormError("empty input field *");
       return;
     }
 
     setLoading(true);
     try {
-      const response = await fetch(`${route}/brand/register`, {
-        method: "post",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          brand: {
-            "entity-name": entityName,
-            "brand-name": brandName,
-            niche: niche,
-            gstin: gstin,
-            plan: plan,
-            address: address,
-            pincode: pincode,
-            estyear: estYear,
-          },
-          poc: POC,
-        }),
-      });
+      const res = await registerBrand(
+        {
+          "entity-name": entityName,
+          "brand-name": brandName,
+          niche: niche,
+          gstin: gstin,
+          plan: plan,
+          address: address,
+          pincode: pincode,
+          estyear: estYear,
+        },
+        POC
+      );
 
-      const data = await response.json();
-
-      // if response is not 200 then stop loading spinner and show error message
-      if (response.status != 200) {
-        setFormError(data.message);
+      if (res.status !== 200) {
+        setFormError(res.data?.message || "Failed to register brand");
       } else {
         showSubmittedAnimation();
+        dispatch(
+          setBrandConnection({
+            connection: "connected",
+            brands: "single brand",
+            currentBrand: {
+              brand_name: brandName,
+            },
+          })
+        );
+        // resetting the form
+        setPOC({
+          self: false,
+          name: "",
+          number: "",
+          email: "",
+          designation: "",
+          access: "",
+          password: "",
+          confPassword: "",
+        });
+
+        setPincode("");
+        setEntityName("");
+        setBrandName("");
+        setNiche("");
+        setGstin("");
+        setPlan("");
+        setAddress("");
+        setEstYear("");
+        setCheckPOC(false);
+        setInvalidFields({});
+
+        setTimeout(() => {
+          navigate("/");
+        }, 2500);
       }
 
       setLoading(false);
     } catch {
       setLoading(false);
       setFormError("unable to register the business");
-    } finally {
-      // resetting the form
-      setPOC({
+    }
+  }
+
+  function showSubmittedAnimation() {
+    setSubmitted(true);
+    setTimeout(() => {
+      setSubmitted(false);
+    }, 3000);
+  }
+
+  const [fetchedPOC, setFetchedPOC] = useState(null);
+  async function handlePOC(value) {
+    if (value === true) {
+      setPOC((prev) => ({ ...prev, self: true }));
+    }
+
+    if (value === true && fetchedPOC === null) {
+      try {
+        const user_data = await getUserProfile();
+        const nextPOC = {
+          ...user_data.user_data,
+          self: true,
+          password: "",
+          confPassword: "",
+        };
+        setFetchedPOC(nextPOC);
+        setPOC(nextPOC);
+      } catch (err) {
+        console.error("Failed to fetch user profile for POC:", err);
+      }
+    }
+
+
+    if (value === false) {
+      setPOC((prev) => ({
+        ...prev,
         self: false,
         name: "",
         number: "",
@@ -162,86 +216,18 @@ const Register = () => {
         access: "",
         password: "",
         confPassword: "",
-      });
-
-      setPincode("");
-      setEntityName("");
-      setBrandName("");
-      setNiche("");
-      setGstin("");
-      setPlan("");
-      setAddress("");
-      setEstYear("");
-
-      setCheckPOC(false);
-    }
-  }
-
-  // show the animation and hide automatically after a certain timeout
-  function showSubmittedAnimation() {
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-    }, 3000);
-  }
-
-  // handling the poc checkbox
-  const [fetchedPOC, setFetchedPOC] = useState(null);
-  async function handlePOC(value) {
-    // if the checkbox is checked the data is not available then fetch the data from the server
-    // else show the already fetched data from the state to avoid fetching same details
-    if (value == true) {
-      setPOC((prev) => ({ ...prev, ["self"]: true }));
-    }
-
-    if (value == true && fetchedPOC == null) {
-      const response = await fetch(`${route}/user/profile`, {
-        credentials: "include",
-      });
-
-      const user_data = await response.json();
-      setFetchedPOC({
-        ...user_data.user_data,
-        ["self"]: true,
-        ["password"]: "",
-        ["confPassword"]: "",
-      });
-
-      // console.log(data.access)
-      setPOC({
-        ...user_data.user_data,
-        ["self"]: true,
-        ["password"]: "",
-        ["confPassword"]: "",
-      });
-      // console.log(fetchedPOC)
-    }
-
-    if (value == false) {
-      setPOC((prev) => ({
-        ...prev,
-        ["self"]: false,
-        ["name"]: "",
-        ["number"]: "",
-        ["email"]: "",
-        ["designation"]: "",
-        ["access"]: "",
-        ["password"]: "",
-        ["confPassword"]: "",
       }));
-    } else if (value == true && fetchedPOC != null) {
+    } else if (value === true && fetchedPOC !== null) {
       setPOC(fetchedPOC);
     }
   }
 
-  const navigate = useNavigate();
   function handleBackButton() {
     navigate(-1);
   }
 
-  // styling for incorrect value
+
   const incorrect = { outline: "1px solid red" };
-  // const correct = {outline: '1px solid green'};
 
   return (
     <div id="register-container" className={styles.registerContainer}>
@@ -255,6 +241,9 @@ const Register = () => {
               <input
                 onChange={(e) => {
                   setEntityName(e.target.value);
+                  if (invalidFields.entityName) {
+                    setInvalidFields((prev) => ({ ...prev, entityName: false }));
+                  }
                 }}
                 value={entityName}
                 type="text"
@@ -262,12 +251,16 @@ const Register = () => {
                 placeholder="Legal Name *"
                 maxLength={255}
                 required
+                className={invalidFields.entityName ? "incorrect-input" : ""}
               />
             </div>
             <div className={styles.formGroup}>
               <input
                 onChange={(e) => {
                   setBrandName(e.target.value);
+                  if (invalidFields.brandName) {
+                    setInvalidFields((prev) => ({ ...prev, brandName: false }));
+                  }
                 }}
                 value={brandName}
                 type="text"
@@ -275,6 +268,7 @@ const Register = () => {
                 placeholder="Brand Name *"
                 maxLength={128}
                 required
+                className={invalidFields.brandName ? "incorrect-input" : ""}
               />
             </div>
           </div>
@@ -284,22 +278,25 @@ const Register = () => {
               <select
                 onChange={(e) => {
                   setNiche(e.target.value);
+                  if (invalidFields.niche) {
+                    setInvalidFields((prev) => ({ ...prev, niche: false }));
+                  }
                 }}
-                value={niche == "" ? "default" : niche}
+                value={niche === "" ? "default" : niche}
                 name="niche"
                 id="niche"
-                className={styles.item}
+                className={`${styles.item} ${invalidFields.niche ? "incorrect-input" : ""}`}
+                style={invalidFields.niche ? incorrect : {}}
                 placeholder="Brand Niche *"
                 required
               >
                 <option value="default" disabled hidden>
                   Brand Niche *
                 </option>
-                {/* <option value="select" default disabled>SELECT</option> */}
-                {niches.map((niche, key) => {
+                {niches.map((nicheItem, key) => {
                   return (
-                    <option key={key} value={niche}>
-                      {niche.charAt(0).toUpperCase() + niche.slice(1)}
+                    <option key={key} value={nicheItem}>
+                      {nicheItem.charAt(0).toUpperCase() + nicheItem.slice(1)}
                     </option>
                   );
                 })}
@@ -324,11 +321,15 @@ const Register = () => {
               <select
                 onChange={(e) => {
                   setPlan(e.target.value);
+                  if (invalidFields.plan) {
+                    setInvalidFields((prev) => ({ ...prev, plan: false }));
+                  }
                 }}
-                value={plan == "" ? "default" : plan}
+                value={plan === "" ? "default" : plan}
                 name="plan"
                 id="select-plan"
-                className={styles.item}
+                className={`${styles.item} ${invalidFields.plan ? "incorrect-input" : ""}`}
+                style={invalidFields.plan ? incorrect : {}}
               >
                 <option value="default" hidden disabled>
                   Select Plan *
@@ -342,12 +343,16 @@ const Register = () => {
               <input
                 onChange={(e) => {
                   setAddress(e.target.value);
+                  if (invalidFields.address) {
+                    setInvalidFields((prev) => ({ ...prev, address: false }));
+                  }
                 }}
                 value={address}
                 type="text"
                 name="address"
                 placeholder="Registered Address *"
                 maxLength={500}
+                className={invalidFields.address ? "incorrect-input" : ""}
               />
             </div>
           </div>
@@ -357,13 +362,17 @@ const Register = () => {
               <input
                 onChange={(e) => {
                   setPincode(e.target.value);
+                  if (invalidFields.pincode) {
+                    setInvalidFields((prev) => ({ ...prev, pincode: false }));
+                  }
                 }}
                 value={pincode}
                 type="text"
                 name="pincode"
                 placeholder="Area Pincode *"
                 maxLength={6}
-                style={pincodeValueError == true ? incorrect : {}}
+                className={invalidFields.pincode ? "incorrect-input" : ""}
+                style={pincodeValueError === true ? incorrect : {}}
               />
             </div>
 
@@ -371,12 +380,16 @@ const Register = () => {
               <input
                 onChange={(e) => {
                   setEstYear(e.target.value);
+                  if (invalidFields.estYear) {
+                    setInvalidFields((prev) => ({ ...prev, estYear: false }));
+                  }
                 }}
                 value={estYear}
                 type="text"
                 name="est-yr"
                 placeholder="Establishment Year *"
                 maxLength={4}
+                className={invalidFields.estYear ? "incorrect-input" : ""}
               />
             </div>
           </div>
@@ -404,26 +417,33 @@ const Register = () => {
             <div className={styles.formGroup}>
               <input
                 onChange={(e) => {
-                  setPOC((prev) => ({ ...prev, ["name"]: e.target.value }));
+                  const val = e.target.value;
+                  setPOC((prev) => ({ ...prev, name: val }));
+                  if (invalidFields.pocName) {
+                    setInvalidFields((prev) => ({ ...prev, pocName: false }));
+                  }
                 }}
                 type="text"
                 placeholder="Full name *"
                 value={POC.name}
                 maxLength={36}
+                className={invalidFields.pocName ? "incorrect-input" : ""}
               />
             </div>
             <div className={styles.formGroup}>
               <input
                 onChange={(e) => {
-                  setPOC((prev) => ({
-                    ...prev,
-                    ["designation"]: e.target.value,
-                  }));
+                  const val = e.target.value;
+                  setPOC((prev) => ({ ...prev, designation: val }));
+                  if (invalidFields.pocDesignation) {
+                    setInvalidFields((prev) => ({ ...prev, pocDesignation: false }));
+                  }
                 }}
                 type="text"
                 placeholder="User Designation *"
                 value={POC.designation}
                 maxLength={64}
+                className={invalidFields.pocDesignation ? "incorrect-input" : ""}
               />
             </div>
           </div>
@@ -432,23 +452,33 @@ const Register = () => {
             <div className={styles.formGroup}>
               <input
                 onChange={(e) => {
-                  setPOC((prev) => ({ ...prev, ["number"]: e.target.value }));
+                  const val = e.target.value;
+                  setPOC((prev) => ({ ...prev, number: val }));
+                  if (invalidFields.pocNumber) {
+                    setInvalidFields((prev) => ({ ...prev, pocNumber: false }));
+                  }
                 }}
                 type="text"
                 placeholder="Contact Number *"
                 value={POC.number}
                 maxLength={10}
+                className={invalidFields.pocNumber ? "incorrect-input" : ""}
               />
             </div>
             <div className={styles.formGroup}>
               <input
                 onChange={(e) => {
-                  setPOC((prev) => ({ ...prev, ["email"]: e.target.value }));
+                  const val = e.target.value;
+                  setPOC((prev) => ({ ...prev, email: val }));
+                  if (invalidFields.pocEmail) {
+                    setInvalidFields((prev) => ({ ...prev, pocEmail: false }));
+                  }
                 }}
                 type="email"
                 placeholder="Email Address *"
                 value={POC.email}
                 maxLength={128}
+                className={invalidFields.pocEmail ? "incorrect-input" : ""}
               />
             </div>
           </div>
@@ -457,12 +487,17 @@ const Register = () => {
             <div className={`${styles.formGroup} ${styles.halfWidth}`}>
               <select
                 onChange={(e) => {
-                  setPOC((prev) => ({ ...prev, ["access"]: e.target.value }));
+                  const val = e.target.value;
+                  setPOC((prev) => ({ ...prev, access: val }));
+                  if (invalidFields.pocAccess) {
+                    setInvalidFields((prev) => ({ ...prev, pocAccess: false }));
+                  }
                 }}
                 name="acess"
                 id="access"
-                className={styles.item}
-                value={POC.access == "" ? "default" : POC.access}
+                className={`${styles.item} ${invalidFields.pocAccess ? "incorrect-input" : ""}`}
+                style={invalidFields.pocAccess ? incorrect : {}}
+                value={POC.access === "" ? "default" : POC.access}
                 maxLength={12}
               >
                 <option value="default" disabled hidden>
@@ -481,27 +516,31 @@ const Register = () => {
               <div className={styles.formGroup}>
                 <input
                   onChange={(e) => {
-                    setPOC((prev) => ({
-                      ...prev,
-                      ["password"]: e.target.value,
-                    }));
+                    const val = e.target.value;
+                    setPOC((prev) => ({ ...prev, password: val }));
+                    if (invalidFields.pocPassword) {
+                      setInvalidFields((prev) => ({ ...prev, pocPassword: false }));
+                    }
                   }}
-                  type="text"
+                  type="password"
                   placeholder="Password *"
                   value={POC.password}
+                  className={invalidFields.pocPassword ? "incorrect-input" : ""}
                 />
               </div>
               <div className={styles.formGroup}>
                 <input
                   onChange={(e) => {
-                    setPOC((prev) => ({
-                      ...prev,
-                      ["confPassword"]: e.target.value,
-                    }));
+                    const val = e.target.value;
+                    setPOC((prev) => ({ ...prev, confPassword: val }));
+                    if (invalidFields.pocConfPassword) {
+                      setInvalidFields((prev) => ({ ...prev, pocConfPassword: false }));
+                    }
                   }}
-                  type="text"
+                  type="password"
                   placeholder="Confirm Password password *"
                   value={POC.confPassword}
+                  className={invalidFields.pocConfPassword ? "incorrect-input" : ""}
                 />
               </div>
             </div>
@@ -522,7 +561,6 @@ const Register = () => {
       </div>
       {loading ? <Spinner /> : ""}
       {submitted ? <ConfirmAnnimation /> : ""}
-      {/* <ConfirmAnnimation/> */}
     </div>
   );
 };

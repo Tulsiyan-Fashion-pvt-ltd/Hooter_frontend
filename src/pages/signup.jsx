@@ -1,94 +1,84 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowProceedBttn } from "../components/proceed-bttn";
 import styles from "../css/pages/Signup.module.css";
 import { validateEmail, validateInNumber } from "../modules/validate";
 import { Spinner } from "../components/spinner";
-import { useState } from "react";
-// import { useEffect } from 'react';
+
 const route = import.meta.env.VITE_BASEAPI;
 
 const Signup = () => {
+  const [name, setName] = useState("");
+  const [mail, setMail] = useState("");
+  const [number, setNumber] = useState("");
+  const [designation, setDesignation] = useState("");
+  const [password, setPassword] = useState("");
+  const [confPassword, setConfPassword] = useState("");
+
+  const [invalidFields, setInvalidFields] = useState({});
+  const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const submit = async () => {
-    // verify all the input parameters
-    const name = document.querySelector("#name");
-    const mail = document.querySelector("#mail");
-    const number = document.querySelector("#num");
-    const designation = document.querySelector("#designation");
-    const password = document.querySelector("#password");
-    const confPassword = document.querySelector("#conf-pass");
-    // flag to check whether encountered any issue or not
-    let errorFlag;
+    setErrorMsg("");
+    const errors = {};
 
-    const parameters = [
-      name,
-      mail,
-      number,
-      designation,
-      password,
-      confPassword,
-    ];
-
-    parameters.forEach((element) => {
-      // resetting the style
-      element.classList.remove("incorrect-input");
-
-      // if the parameter is empty except designation then change the style
-      if (
-        (element != designation && element.value == "") ||
-        (element == mail && !validateEmail(mail.value)) ||
-        (element == number && !validateInNumber(number.value))
-      ) {
-        element.classList.add("incorrect-input");
-        errorFlag = true;
-        return;
-      }
-    });
-
-    // validate password
-
-    let error = document.querySelector("#error-container");
-    //clearing the prev error messages created earlier
-    error.innerHTML = "";
-
-    if (password.value.length < 6) {
-      password.classList.add("incorrect-input");
-      error.innerHTML = `<p class=${styles.inputError}>Password must be atleast 6 characters long</p>`;
-      errorFlag = true;
-    } else if (password.value != confPassword.value) {
-      confPassword.classList.add("incorrect-input");
-      error.innerHTML = `<p class=${styles.inputError}>Password is not matching</p>`;
-      errorFlag = true;
+    if (!name.trim()) {
+      errors.name = true;
     }
 
-    // exit function if there is any error found
-    if (errorFlag == true) {
+    if (!mail.trim() || !validateEmail(mail.trim())) {
+      errors.mail = true;
+    }
+
+    if (!number.trim() || !validateInNumber(number.trim())) {
+      errors.number = true;
+    }
+
+    if (password.length < 6) {
+      errors.password = true;
+      setErrorMsg("Password must be atleast 6 characters long");
+    } else if (password !== confPassword) {
+      errors.confPassword = true;
+      setErrorMsg("Password is not matching");
+    }
+
+    setInvalidFields(errors);
+
+    if (Object.keys(errors).length > 0) {
       return;
     }
 
     setLoading(true);
-    const response = await fetch(`${route}/users/signup`, {
-      method: "post",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        name: name.value,
-        email: mail.value,
-        number: number.value,
-        designation: designation.value,
-        password: password.value,
-      }),
-    });
+    try {
+      const response = await fetch(`${route}/users/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          name: name.trim(),
+          email: mail.trim(),
+          number: number.trim(),
+          designation: designation.trim(),
+          password,
+        }),
+      });
 
-    const data = await response.json();
-    setLoading(false);
-    if (data.status == "ok" && response.status == 200) {
-      navigate("/");
-    } else if (response.status == 409) {
-      error.innerHTML = `<p class=${styles.inputError}>User already registered</p>`;
-      return;
+      const data = await response.json().catch(() => ({}));
+      setLoading(false);
+
+      if (data.status === "ok" && response.status === 200) {
+        navigate("/");
+      } else if (response.status === 409) {
+        setErrorMsg("User already registered");
+      } else {
+        setErrorMsg(data.message || "Unable to sign up");
+      }
+    } catch (err) {
+      console.error("Signup error:", err);
+      setLoading(false);
+      setErrorMsg("Unable to reach the server");
     }
   };
 
@@ -109,6 +99,14 @@ const Signup = () => {
               name="name"
               placeholder="Name"
               maxLength="36"
+              value={name}
+              className={invalidFields.name ? "incorrect-input" : ""}
+              onChange={(e) => {
+                setName(e.target.value);
+                if (invalidFields.name) {
+                  setInvalidFields((prev) => ({ ...prev, name: false }));
+                }
+              }}
             />
             <input
               type="text"
@@ -117,15 +115,30 @@ const Signup = () => {
               placeholder="E-mail"
               required
               maxLength="36"
+              value={mail}
+              className={invalidFields.mail ? "incorrect-input" : ""}
+              onChange={(e) => {
+                setMail(e.target.value);
+                if (invalidFields.mail) {
+                  setInvalidFields((prev) => ({ ...prev, mail: false }));
+                }
+              }}
             />
             <input
               type="text"
-              className={styles.phoneNum}
+              className={`${styles.phoneNum} ${invalidFields.number ? "incorrect-input" : ""}`}
               id="num"
               name="num"
               placeholder="Phone number"
               required
               maxLength="10"
+              value={number}
+              onChange={(e) => {
+                setNumber(e.target.value);
+                if (invalidFields.number) {
+                  setInvalidFields((prev) => ({ ...prev, number: false }));
+                }
+              }}
             />
             <span className={styles.countryCode}>+91 </span>
             <input
@@ -134,22 +147,42 @@ const Signup = () => {
               name="designation"
               placeholder="Designation (optional)"
               maxLength="64"
+              value={designation}
+              onChange={(e) => setDesignation(e.target.value)}
             />
             <input
-              type="text"
+              type="password"
               id="password"
               name="password"
               placeholder="Create password"
               required
+              value={password}
+              className={invalidFields.password ? "incorrect-input" : ""}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (invalidFields.password) {
+                  setInvalidFields((prev) => ({ ...prev, password: false }));
+                }
+              }}
             />
             <input
-              type="text"
+              type="password"
               id="conf-pass"
               name="conf-password"
               placeholder="Confirm password"
               required
+              value={confPassword}
+              className={invalidFields.confPassword ? "incorrect-input" : ""}
+              onChange={(e) => {
+                setConfPassword(e.target.value);
+                if (invalidFields.confPassword) {
+                  setInvalidFields((prev) => ({ ...prev, confPassword: false }));
+                }
+              }}
             />
-            <div id="error-container"></div>
+            <div id="error-container">
+              {errorMsg && <p className={styles.inputError}>{errorMsg}</p>}
+            </div>
           </div>
           <div className={styles.buttonContainer}>
             <ArrowProceedBttn
