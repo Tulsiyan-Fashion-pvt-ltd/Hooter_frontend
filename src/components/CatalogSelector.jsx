@@ -10,6 +10,7 @@ const fmt = (str) =>
 
 export default function CatalogSelector({ onTypeSelect }) {
   const [levels, setLevels] = useState([]); // [{ options: [{id, name, full_name, vertical}], selectedId: "" }]
+  const [activeVertical, setActiveVertical] = useState(null);
 
   useEffect(() => {
     const fetchTop = async () => {
@@ -37,18 +38,17 @@ export default function CatalogSelector({ onTypeSelect }) {
     );
     if (!selectedOption) return;
 
+    const vertical = selectedOption.vertical || activeVertical;
+    if (selectedOption.vertical) {
+      setActiveVertical(selectedOption.vertical);
+    }
+
     try {
-      const json = await getNextCategories(
-        selectedOption.id,
-        selectedOption.vertical,
-      );
+      const json = await getNextCategories(selectedOption.id, vertical);
       const next = json.next || [];
 
       if (next.length === 0) {
-        onTypeSelect({
-          id: selectedOption.id,
-          vertical: selectedOption.vertical,
-        });
+        onTypeSelect({ id: selectedOption.id, vertical });
         return;
       }
 

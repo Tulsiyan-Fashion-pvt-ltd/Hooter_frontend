@@ -31,7 +31,7 @@ function App() {
         <Route path="/catalog/add-bulk-catalog" element={<AddBulkCatalog />} />
         <Route path="/catalog/edit" element={<EditInventory />} />
         <Route
-          path="/inventory/stock?"
+          path="/inventory/stock"
           element={<Inventory tab={"inventory"} />}
         />
         <Route
@@ -47,7 +47,7 @@ function App() {
       </Route>
 
       <Route
-        path="inventory/inward/entry"
+        path="/inventory/inward/entry"
         element={
           <Protect>
             <InwardEntry />

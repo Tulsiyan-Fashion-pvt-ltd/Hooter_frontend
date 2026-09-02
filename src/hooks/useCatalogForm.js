@@ -20,7 +20,7 @@ export default function useCatalogForm() {
   const [images, setImages] = useState({});
   const [preview, setPreview] = useState({});
 
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -38,6 +38,7 @@ export default function useCatalogForm() {
 
     const fetchAttributeFields = async () => {
       try {
+        setLoading(true);
         const data = await getAttributeFields(selectedType.id, selectedType.vertical);
 
         setFixedValues({});
@@ -51,6 +52,8 @@ export default function useCatalogForm() {
       } catch (err) {
         console.error('Error fetching attribute fields:', err);
         setError('Failed to load product attributes.');
+      } finally {
+        setLoading(false);
       }
     };
 
