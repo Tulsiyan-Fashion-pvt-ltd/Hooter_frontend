@@ -342,25 +342,39 @@ body {
 }
 .dropdown_row {
     display: flex;
-    gap: 16px;
+    flex-direction: column;
+    gap: 12px;
     margin: 16px 0;
+    max-width: 800px;
+}
+
+.dropdowns_container {
+    display: flex;
+    gap: 16px;
     flex-wrap: wrap;
     align-items: flex-end;
-    max-width: 800px;
 }
 
 .dropdown_wrap {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    flex: 1;
-    min-width: 140px;
+    flex: 1 1 auto;
+    min-width: 160px;
+    max-width: 220px;
 }
 
 .dropdown_label {
     font-size: 0.85em;
     color: #555;
     font-weight: 500;
+}
+
+.category_heading {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin: 0;
+    color: #222;
 }
 
 .dropdown_select {
@@ -372,6 +386,15 @@ body {
     background: white;
     cursor: pointer;
     width: 100%;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: max-width 0.3s ease;
+}
+
+.dropdown_select:hover {
+    max-width: 400px;
 }
 .select_field {
     flex: 1;

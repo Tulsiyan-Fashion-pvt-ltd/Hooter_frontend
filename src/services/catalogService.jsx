@@ -9,9 +9,12 @@ export const checkCatalogExists = async () => {
   return response.json(); // { catalog: "available" | "unavailable" }
 };
 
-// ── Category drill-down (replaces getNicheData) ─────────
-
-// Step 1: fetch top-level categories (call this when the page/selector loads)
+/**
+ * Fetches the top-level taxonomy categories used to start category selection.
+ * Each category includes an ID and vertical index for subsequent requests.
+ *
+ * @returns {Promise<{level0: Array}>} Top-level category options.
+ */
 export const getTopCategories = async () => {
   const response = await fetch(`${BASE_URL}/catalog/categories/top`, {
     credentials: "include",
@@ -20,21 +23,33 @@ export const getTopCategories = async () => {
   return response.json(); // { level0: [ { id, name, full_name, vertical }, ... ] }
 };
 
-// Step 2: fetch the next level, once the user picks a category
-// pass in the whole category object the user clicked (needs id + vertical)
+/**
+ * Fetches the child categories for the selected taxonomy category.
+ * The root category's vertical index is reused at every level.
+ *
+ * @param {string} categoryId - Shopify taxonomy category ID.
+ * @param {number} vertical - Vertical index returned by getTopCategories.
+ * @returns {Promise<{next: Array}>} Child category options.
+ */
 export const getNextCategories = async (categoryId, vertical) => {
   const response = await fetch(
-    `${BASE_URL}/catalog/categories/next?id=${categoryId}&vertical=${vertical}`,
+    `${BASE_URL}/catalog/categories/next/${encodeURIComponent(categoryId)}?vertical=${vertical}`,
     { credentials: "include" },
   );
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response.json(); // { next: [ { id, name, full_name, level }, ... ] }
 };
 
-// ── Attribute fields (replaces getAttributeFields) ───────
+/**
+ * Fetches the fields required to create a product for the final category.
+ *
+ * @param {string} typeId - Final selected taxonomy category ID.
+ * @param {number} vertical - Root vertical index for the selected category.
+ * @returns {Promise<Object>} Listing, category, and image attributes.
+ */
 export const getAttributeFields = async (typeId, vertical) => {
   const response = await fetch(
-    `${BASE_URL}/catalog/categories/attributes?type-id=${typeId}&vertical=${vertical}`,
+    `${BASE_URL}/catalog/categories/attributes/${encodeURIComponent(typeId)}?vertical=${vertical}`,
     { credentials: "include" },
   );
   if (!response.ok) throw new Error(`HTTP ${response.status}`);

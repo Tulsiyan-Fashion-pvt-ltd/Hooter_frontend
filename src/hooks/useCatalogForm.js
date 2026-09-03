@@ -27,6 +27,10 @@ export default function useCatalogForm() {
 
   const navigate = useNavigate();
 
+  /**
+   * Loads product fields after the selector returns the final category ID
+   * and its root vertical index for the attributes endpoint.
+   */
   useEffect(() => {
     if (!selectedType) {
       setListingAttributes([]);
