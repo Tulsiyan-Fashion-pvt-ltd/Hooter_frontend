@@ -26,7 +26,7 @@ REACT_APP_API_URL=https://api.yourproduction.com
 ### Step 3: Enable Backend API Calls
 Open `Homepage.jsx` and look for these two functions:
 
-#### Function 1: `fetchDashboardData()` (around line 60)
+#### Function 1: `fetchDashboardData()`
 **Find this:**
 ```javascript
 // TODO: Replace with actual API endpoint

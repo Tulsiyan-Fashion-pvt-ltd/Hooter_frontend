@@ -15,7 +15,7 @@ export default function AddCatalog() {
     handleTypeChange,
     fixedValues,
     handleFixedChange,
-    fieldAttributes,
+    categoryAttributes,
     imageAttributes,
     addImageAttribute,
     changeImageCustomKey,
@@ -52,7 +52,8 @@ export default function AddCatalog() {
 
   const formatLabel = (str) =>
     str.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-  const hasAttributes = Object.keys(fieldAttributes).length > 0;
+  const hasAttributes =
+    categoryAttributes.length > 0 || imageAttributes.length > 0;
   const noAttributes = selectedType && !hasAttributes && !error;
 
   if (success) {
@@ -291,34 +292,30 @@ export default function AddCatalog() {
 
               <h4 style={{ marginTop: "24px" }}>Product Attributes</h4>
               <div className={styles.listing}>
-                {Object.entries(fieldAttributes).map(([key, rule]) => {
-                  if (key === "niche_id") return null;
+                {categoryAttributes.map((attr) => {
+                  if (attr.field === "niche_id") return null;
 
-                  const isRequired =
-                    rule === "*" || (Array.isArray(rule) && rule.includes("*"));
+                  const isDropdown =
+                    attr.type === "dropdown" || Array.isArray(attr.options);
 
-                  const isDropdown = Array.isArray(rule);
-
-                  const options = isDropdown
-                    ? rule.filter((v) => v !== "*")
-                    : [];
+                  const options = isDropdown ? attr.options || [] : [];
 
                   return (
-                    <div className={styles.line} key={key}>
+                    <div className={styles.line} key={attr.field}>
                       <span
                         className={`${styles.pill} ${
-                          isRequired ? styles.required : ""
+                          attr.required ? styles.required : ""
                         }`}
                       >
-                        {formatLabel(key)}
-                        {isRequired ? " *" : ""}
+                        {attr.name || formatLabel(attr.field || "")}
+                        {attr.required ? " *" : ""}
                       </span>
 
                       {isDropdown ? (
                         <select
-                          value={dynamicValues[key] || ""}
+                          value={dynamicValues[attr.field] || ""}
                           onChange={(e) =>
-                            handleDynamicChange(key, e.target.value)
+                            handleDynamicChange(attr.field, e.target.value)
                           }
                           className={styles.select_field}
                         >
@@ -333,13 +330,11 @@ export default function AddCatalog() {
                       ) : (
                         <input
                           placeholder="Type Here..."
-                          value={dynamicValues[key] || ""}
+                          value={dynamicValues[attr.field] || ""}
                           onChange={(e) =>
-                            handleDynamicChange(key, e.target.value)
+                            handleDynamicChange(attr.field, e.target.value)
                           }
-                          required={
-                            rule === "*" || rule.includes("*") ? true : false
-                          }
+                          required={attr.required ? true : false}
                         />
                       )}
                     </div>

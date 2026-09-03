@@ -4,6 +4,9 @@ import "../css/layout/universal-layout.css";
 import { ArrowProceedBttn } from "../components/proceed-bttn";
 import { Spinner } from "../components/spinner";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setSession } from "../store/slices/authSlice";
+import { setBrandConnection } from "../store/slices/brandSlice";
 import { validateEmail } from "../modules/validate";
 
 const route = import.meta.env.VITE_BASEAPI;
@@ -12,6 +15,7 @@ const Login = () => {
   const [query, setQuery] = useSearchParams();
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [errorMessage, setErrorMessage] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -53,16 +57,22 @@ const Login = () => {
       if (response.status !== 200) {
         setErrorMessage(data?.login?.message || "Login failed");
       } else {
+        dispatch(setSession(data));
         const brand = data?.brand_connection;
-        
-        if (!brand || brand.connection === "connected") {
-          navigate("/");
-        } else if (brand.brands === null) {
-          navigate("/register-brand");
+
+        if (brand) {
+          dispatch(setBrandConnection(brand));
+
+          if (brand.connection === "connected") {
+            navigate("/");
+          } else if (brand.brands === null) {
+            navigate("/register-brand");
+          } else if (Array.isArray(brand.brands) || brand.brands) {
+            navigate("/select-brand");
+          } else {
+            navigate("/");
+          }
         } else {
-          console.log("multiple brand selection page is not ready yet");
-          console.log(brand.brands);
-          // Temporarily redirecting to home until multiple brands page is ready
           navigate("/");
         }
       }
@@ -73,6 +83,7 @@ const Login = () => {
       setLoading(false);
     }
   };
+
 
   return (
     <div className={styles.loginPage}>

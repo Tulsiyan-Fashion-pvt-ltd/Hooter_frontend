@@ -1,37 +1,62 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Navigate, useSearchParams } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { setSession, clearSession } from "../store/slices/authSlice";
 
 const route = import.meta.env.VITE_BASEAPI;
 
-export function Protect({ children }) {
-  const [searchParams] = useSearchParams();
-  const [loading, setLoading] = useState(true);
-  const [auth, setAuth] = useState(false);
+function useAuthSession() {
+  const dispatch = useDispatch();
+  const { isAuthenticated, loading, user } = useSelector((state) => state.auth);
+
 
   useEffect(() => {
+    let isMounted = true;
     async function checkSession() {
       try {
         const response = await fetch(`${route}/users/session`, {
           credentials: "include",
         });
 
-        setAuth(response.status === 200);
+        if (response.status === 200) {
+          const data = await response.json().catch(() => ({}));
+          if (isMounted) {
+            dispatch(setSession(data));
+          }
+        } else {
+          if (isMounted) {
+            dispatch(clearSession());
+          }
+        }
       } catch (error) {
         console.error("Session check failed:", error);
-        setAuth(false);
-      } finally {
-        setLoading(false);
+        if (isMounted) {
+          dispatch(clearSession());
+        }
       }
     }
 
-    checkSession();
-  }, []);
+    if (loading) {
+      checkSession();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [dispatch, loading]);
+
+  return { isAuthenticated, loading, user };
+}
+
+export function Protect({ children }) {
+  const [searchParams] = useSearchParams();
+  const { isAuthenticated, loading } = useAuthSession();
 
   if (loading) {
     return null;
   }
 
-  if (auth) {
+  if (isAuthenticated) {
     return children;
   }
 
@@ -41,33 +66,13 @@ export function Protect({ children }) {
 // Prevent authentication pages like login, signup, and register
 // from displaying if the user is already authenticated.
 export function PreventAuth({ children }) {
-  const [loading, setLoading] = useState(true);
-  const [auth, setAuth] = useState(false);
-
-  useEffect(() => {
-    async function checkSession() {
-      try {
-        const response = await fetch(`${route}/users/session`, {
-          credentials: "include",
-        });
-
-        setAuth(response.status === 200);
-      } catch (error) {
-        console.error("Session check failed:", error);
-        setAuth(false);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    checkSession();
-  }, []);
+  const { isAuthenticated, loading } = useAuthSession();
 
   if (loading) {
     return null;
   }
 
-  if (auth) {
+  if (isAuthenticated) {
     return <Navigate to="/" replace />;
   }
 
