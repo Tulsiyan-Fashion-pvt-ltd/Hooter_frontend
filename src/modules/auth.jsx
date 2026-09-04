@@ -1,72 +1,80 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect } from "react";
+import { Navigate, useSearchParams } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { setSession, clearSession } from "../store/slices/authSlice";
 
 const route = import.meta.env.VITE_BASEAPI;
 
-export function Protect({ children }) {
-    const navigate = useNavigate();
-    const [searchParams, setSearchParams] = useSearchParams();
+function useAuthSession() {
+  const dispatch = useDispatch();
+  const { isAuthenticated, loading, user } = useSelector((state) => state.auth);
 
-    console.log(searchParams)
-    const [loading, setLoading] = useState(true);
-    const [auth, setAuth] = useState(false);
 
-    useEffect(() => {
-        async function checkSession() {
-            const response = await fetch(`${route}/session`, {credentials: 'include'});
-            setLoading(false);
-            if (response.status == 200) {
-                setAuth(true);
-            }
-            else {
-                setAuth(false);
-            }
+  useEffect(() => {
+    let isMounted = true;
+    async function checkSession() {
+      try {
+        const response = await fetch(`${route}/users/session`, {
+          credentials: "include",
+        });
+
+        if (response.status === 200) {
+          const data = await response.json().catch(() => ({}));
+          if (isMounted) {
+            dispatch(setSession(data));
+          }
+        } else {
+          if (isMounted) {
+            dispatch(clearSession());
+          }
         }
-
-        checkSession();
-    }, [])
-
-    if (loading == true) {
-        return null;
-    } else {
-        if (auth == true) {
-            return (children)
+      } catch (error) {
+        console.error("Session check failed:", error);
+        if (isMounted) {
+          dispatch(clearSession());
         }
-        else {
-            return navigate(`/login?${searchParams}`)
-        }
+      }
     }
+
+    if (loading) {
+      checkSession();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [dispatch, loading]);
+
+  return { isAuthenticated, loading, user };
 }
 
-// preventing the authencation pages like login, signup, register pages to display if it's alraedy authenticated
-export function PreventAuth({children}){
-    const navigate = useNavigate();
-    const [loading, setLoading] = useState(true);
-    const [auth, setAuth] = useState(false);
+export function Protect({ children }) {
+  const [searchParams] = useSearchParams();
+  const { isAuthenticated, loading } = useAuthSession();
 
-    useEffect(() => {
-        async function checkSession() {
-            const response = await fetch(`${route}/session`, {credentials: 'include'});
-            setLoading(false);
-            if (response.status == 200) {
-                setAuth(true);
-            }
-            else {
-                setAuth(false);
-            }
-        }
+  if (loading) {
+    return null;
+  }
 
-        checkSession();
-    }, [])
+  if (isAuthenticated) {
+    return children;
+  }
 
-    if (loading == true) {
-        return null;
-    } else {
-        if (auth == true) {
-            return navigate('/');
-        }
-        else {
-            return (children);
-        }
-    }
+  return <Navigate to={`/login?${searchParams}`} replace />;
+}
+
+// Prevent authentication pages like login, signup, and register
+// from displaying if the user is already authenticated.
+export function PreventAuth({ children }) {
+  const { isAuthenticated, loading } = useAuthSession();
+
+  if (loading) {
+    return null;
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
 }

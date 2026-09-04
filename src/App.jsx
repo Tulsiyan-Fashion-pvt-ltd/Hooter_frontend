@@ -3,6 +3,7 @@ import Login from "./pages/login";
 import Homepage from "./pages/homepage";
 import Register from "./pages/register";
 import Signup from "./pages/signup";
+import SelectBrand from "./pages/select-brand";
 import { Protect, PreventAuth } from "./modules/auth";
 import Layout from "./layout";
 import "./css/layout/animations.css";
@@ -30,7 +31,7 @@ function App() {
         <Route path="/catalog/add-bulk-catalog" element={<AddBulkCatalog />} />
         <Route path="/catalog/edit" element={<EditInventory />} />
         <Route
-          path="/inventory/stock?"
+          path="/inventory/stock"
           element={<Inventory tab={"inventory"} />}
         />
         <Route
@@ -46,7 +47,7 @@ function App() {
       </Route>
 
       <Route
-        path="inventory/inward/entry"
+        path="/inventory/inward/entry"
         element={
           <Protect>
             <InwardEntry />
@@ -62,6 +63,16 @@ function App() {
           </Protect>
         }
       />
+
+      <Route
+        path="/select-brand"
+        element={
+          <Protect>
+            <SelectBrand />
+          </Protect>
+        }
+      />
+
 
       <Route
         path="/login"

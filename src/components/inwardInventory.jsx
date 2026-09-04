@@ -6,6 +6,7 @@ import GridTable from "../components/GridTable";
 import { Link, useFetcher } from "react-router-dom";
 
 const url = import.meta.env.VITE_BASEAPI;
+
 const inwardGridTemplate =
   "minmax(120px, 1fr) minmax(110px, 0.8fr) minmax(140px, 1fr) minmax(110px, 0.8fr) minmax(100px, 0.8fr) minmax(110px, 0.8fr) minmax(100px, 0.8fr)";
 
@@ -28,31 +29,53 @@ export default function Inward() {
     completed: "",
     partial: "",
   });
+
   const [table, setTable] = useState("total"); // total, sellable, oos, lowStock
   const [newInward, setNewInward] = useState(); // depenncy for total inward and inward counts
-  const [error, setError] = useState({});
+  const [error, setError] = useState(null);
+
+  // Keep useFetcher and use its state for the current page's loading status.
+  const fetcher = useFetcher();
+  const isFetcherLoading = fetcher.state !== "idle";
 
   useEffect(() => {
     async function getStockCounts() {
-      const response = await fetch(`${url}/inventory/inward-count`, {
-        credentials: "include",
-      });
+      try {
+        const response = await fetch(`${url}/inventory/inward-count`, {
+          credentials: "include",
+        });
 
-      const inward = await response.json();
-      setInward((prev) => ({
-        ...prev,
-        total: inward.total,
-        pending: inward.pending,
-        partial: inward.partial,
-        completed: inward.completed,
-      }));
+        if (!response.ok) {
+          throw new Error("Could not fetch inward counts");
+        }
+
+        const inward = await response.json();
+
+        setInward((prev) => ({
+          ...prev,
+          total: inward.total,
+          pending: inward.pending,
+          partial: inward.partial,
+          completed: inward.completed,
+        }));
+
+        setError(null);
+      } catch (e) {
+        console.error("Error fetching inward counts:", e);
+        setError({
+          msg: "Could not fetch inward counts from the server",
+        });
+      }
     }
 
     function countDraftInwardEntries() {
       const storage = JSON.parse(window.localStorage.getItem("inwardEntry"));
 
       storage &&
-        setInward((prev) => ({ ...prev, draft: Object.keys(storage).length }));
+        setInward((prev) => ({
+          ...prev,
+          draft: Object.keys(storage).length,
+        }));
     }
 
     getStockCounts();
@@ -70,6 +93,7 @@ export default function Inward() {
               className={styles.iconSm}
               alt=""
             />
+
             <p className={styles.textSm}>
               Have unique products to sell? Choose from the options below
             </p>
@@ -78,6 +102,21 @@ export default function Inward() {
 
         <div className={styles.secondRow}>
           <h2 className={styles.textOverview}>Overview</h2>
+
+          {/* Main error message */}
+          {error && (
+            <div
+              style={{
+                color: "red",
+                padding: "10px",
+                marginBottom: "10px",
+                backgroundColor: "#ffeaea",
+                borderRadius: "6px",
+              }}
+            >
+              {error.msg || "Something went wrong"}
+            </div>
+          )}
 
           <div className={styles.ovrBx}>
             {/* Box 0 */}
@@ -88,7 +127,9 @@ export default function Inward() {
                   className={styles.iconSm}
                   alt=""
                 />
+
                 <h3 className={styles.textCard}>Total Inward</h3>
+
                 <button className={styles.menuBtn}>⋮</button>
               </div>
 
@@ -96,11 +137,12 @@ export default function Inward() {
 
               <div className={styles.inBox2}>
                 <h3 className={styles.textNum}>{inward.total}</h3>
+
                 <button
                   onClick={() => {
                     setTable("total");
                   }}
-                  disabled={table === "total" ? true : false}
+                  disabled={table === "total" || isFetcherLoading}
                 >
                   View details
                   <img
@@ -120,7 +162,9 @@ export default function Inward() {
                   className={styles.iconSm}
                   alt=""
                 />
+
                 <h3 className={styles.textCard}>Pending Inward</h3>
+
                 <button className={styles.menuBtn}>⋮</button>
               </div>
 
@@ -128,11 +172,12 @@ export default function Inward() {
 
               <div className={styles.inBox2}>
                 <h3 className={styles.textNum}>{inward.pending}</h3>
+
                 <button
                   onClick={() => {
                     setTable("pending");
                   }}
-                  disabled={table === "pending" ? true : false}
+                  disabled={table === "pending" || isFetcherLoading}
                 >
                   View details
                   <img
@@ -152,7 +197,9 @@ export default function Inward() {
                   className={styles.iconSm}
                   alt=""
                 />
+
                 <h3 className={styles.textCard}>Partial Upload Inward</h3>
+
                 <button className={styles.menuBtn}>⋮</button>
               </div>
 
@@ -160,11 +207,12 @@ export default function Inward() {
 
               <div className={styles.inBox2}>
                 <h3 className={styles.textNum}>{inward.partial}</h3>
+
                 <button
                   onClick={() => {
                     setTable("partial");
                   }}
-                  disabled={table === "partial" ? true : false}
+                  disabled={table === "partial" || isFetcherLoading}
                 >
                   View details
                   <img
@@ -184,7 +232,9 @@ export default function Inward() {
                   className={styles.iconSm}
                   alt=""
                 />
+
                 <h3 className={styles.textCard}>Completed Inward</h3>
+
                 <button className={styles.menuBtn}>⋮</button>
               </div>
 
@@ -192,11 +242,12 @@ export default function Inward() {
 
               <div className={styles.inBox2}>
                 <h3 className={styles.textNum}>{inward.completed}</h3>
+
                 <button
                   onClick={() => {
                     setTable("completed");
                   }}
-                  disabled={table === "completed" ? true : false}
+                  disabled={table === "completed" || isFetcherLoading}
                 >
                   View details
                   <img
@@ -216,7 +267,9 @@ export default function Inward() {
                   className={styles.iconSm}
                   alt=""
                 />
+
                 <h3 className={styles.textCard}>Draft Inward</h3>
+
                 <button className={styles.menuBtn}>⋮</button>
               </div>
 
@@ -224,11 +277,12 @@ export default function Inward() {
 
               <div className={styles.inBox2}>
                 <h3 className={styles.textNum}>{inward.draft}</h3>
+
                 <button
                   onClick={() => {
                     setTable("draft");
                   }}
-                  disabled={table === "draft" ? true : false}
+                  disabled={table === "draft" || isFetcherLoading}
                 >
                   View details
                   <img
@@ -248,6 +302,7 @@ export default function Inward() {
         {/* <p className={styles.previousLink}>Previous Inward</p> */}
 
         {/* <TotalInwardTable /> */}
+
         {table === "total" ? (
           <TotalInwardTable newInward={newInward} setNewInward={setNewInward} />
         ) : table === "pending" ? (
@@ -274,6 +329,7 @@ function TotalInwardTable({ newInward, setNewInward }) {
         const response = await fetch(`${url}/inventory/inward`, {
           credentials: "include",
         });
+
         const data = await response.json();
 
         setTable(data);
@@ -295,6 +351,7 @@ function TotalInwardTable({ newInward, setNewInward }) {
           Create Inward
         </button>
       </div>
+
       <Table data={table}></Table>
 
       {inwardPopup == true ? (
@@ -316,6 +373,7 @@ function PendingInwardTable() {
         const response = await fetch(`${url}/inventory/inward?type=pending`, {
           credentials: "include",
         });
+
         const data = await response.json();
 
         setTable(data);
@@ -339,6 +397,7 @@ function PartialInwardTable() {
         const response = await fetch(`${url}/inventory/inward?type=partial`, {
           credentials: "include",
         });
+
         const data = await response.json();
 
         setTable(data);
@@ -362,9 +421,11 @@ function CompletedInwardTable() {
         const response = await fetch(`${url}/inventory/inward?type=completed`, {
           credentials: "include",
         });
+
         const data = await response.json();
 
         setTable(data);
+
         // console.log(data)
       } catch (e) {
         console.log(e);
@@ -387,7 +448,9 @@ function DraftInwardTable() {
         const response = await fetch(`${url}/inventory/inward`, {
           credentials: "include",
         });
+
         const data = await response.json();
+
         console.log(data);
 
         if (!response.ok) {
@@ -398,6 +461,7 @@ function DraftInwardTable() {
 
         data.map((row) => {
           // console.log(storage[row.inward_id]);
+
           if (storage[row.inward_id]) {
             setTable((prev) => {
               return [...prev, row];
@@ -421,6 +485,7 @@ function Table({ data }) {
   function date(timestamp) {
     return new Date(timestamp).toDateString();
   }
+
   function time(timestamp) {
     return new Date(timestamp).toLocaleTimeString();
   }
@@ -468,6 +533,7 @@ function Table({ data }) {
                           : inward_status === "pending"
                             ? "rgb(255 166 97)"
                             : "orange",
+
                     color:
                       inward_status === "completed"
                         ? "#093609"
@@ -480,17 +546,27 @@ function Table({ data }) {
                 >
                   {inward_status}
                 </p>
+
                 {storage && storage[inward_id] && (
-                  <p style={{ backgroundColor: "#FF90000D", color: "#FF9000" }}>
+                  <p
+                    style={{
+                      backgroundColor: "#FF90000D",
+                      color: "#FF9000",
+                    }}
+                  >
                     saved draft
                   </p>
                 )}
               </div>
 
               <div className={styles.listType}>{supplier}</div>
+
               <div className={styles.listType}>{date(created_at)}</div>
+
               <div className={styles.listType}>{time(created_at)}</div>
+
               <div className={styles.listType}>{date(updated_at)}</div>
+
               <div className={styles.listType}>{time(updated_at)}</div>
             </div>
           );
@@ -510,7 +586,8 @@ function Table({ data }) {
 // ************************** sidebar ***********************
 function InwardDetailsSidebar({ inwardId, close }) {
   const sidebar = useRef();
-  const [error, setError] = useState({});
+
+  const [error, setError] = useState(null);
   const [sidebarData, setSidebarData] = useState({});
 
   useEffect(() => {
@@ -530,14 +607,23 @@ function InwardDetailsSidebar({ inwardId, close }) {
           setError({
             msg: "Could not fetch the inward details from the server",
           });
+
           return;
         }
 
         setSidebarData(data);
+
+        // Clear any previous sidebar error after
+        // successfully fetching the data.
+        setError(null);
+
         console.log(data);
       } catch (e) {
         console.error(e);
-        setError({ msg: "Could not fetch the inward details" });
+
+        setError({
+          msg: "Could not fetch the inward details",
+        });
       }
     }
 
@@ -550,7 +636,22 @@ function InwardDetailsSidebar({ inwardId, close }) {
         <button className={styles.closeSidebar} onClick={close}>
           X
         </button>
-        <div className={styles.headerSection}></div>
+
+        <div className={styles.headerSection}>
+          {error && (
+            <div
+              style={{
+                color: "red",
+                padding: "10px",
+                backgroundColor: "#ffeaea",
+                borderRadius: "6px",
+                marginBottom: "10px",
+              }}
+            >
+              {error.msg || "Could not load inward details"}
+            </div>
+          )}
+        </div>
 
         <div className={styles.mainSection}></div>
 

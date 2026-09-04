@@ -1,225 +1,98 @@
-/**
- * CatalogSelector Component
- *
- * A self-contained reusable cascade dropdown selector for niche, sub-niche, category and product type.
- * Fetches its own niche data internally — no need to pass dropdown state or options from outside.
- *
- * USAGE:
- * 1. Import the component:
- *    import CatalogSelector from '../modules/CatalogSelector';
- *
- * 2. Use it with a single prop:
- *    <CatalogSelector onTypeSelect={(typeId) => doSomethingWithTypeId(typeId)} />
- *
- * PROPS:
- * - onTypeSelect (function, required) — called with the selected product type ID
- *   whenever the user picks a product type from the last dropdown.
- *
- * INTERNALS:
- * - Fetches niche data from GET /catalog/niche-data on mount
- * - Manages all 4 dropdown states and cascade logic internally
- * - Requires login session cookie (credentials: 'include')
- * - Uses VITE_BASEAPI env variable for the API base URL
- */
-
 import { useState, useEffect } from "react";
 import styles from "../css/pages/add-catalog.module.css";
-
-const BASE_URL = import.meta.env.VITE_BASEAPI;
+import {
+  getTopCategories,
+  getNextCategories,
+} from "../services/catalogService";
 
 const fmt = (str) =>
   str?.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
+/**
+ * Displays taxonomy categories as progressive dropdowns. Once a category
+ * has no children, the final category ID and root vertical are returned.
+ */
 export default function CatalogSelector({ onTypeSelect }) {
-  // ── Niche data from API ───────────────────────────────
-  const [nicheData, setNicheData] = useState({});
+  const [levels, setLevels] = useState([]); // [{ options: [{id, name, full_name, vertical}], selectedId: "" }]
+  const [activeVertical, setActiveVertical] = useState(null);
 
-  // ── Dropdown selections ───────────────────────────────
-  const [selectedNiche, setSelectedNiche] = useState("");
-  const [selectedSubNiche, setSelectedSubNiche] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedType, setSelectedType] = useState("");
-
-  // ── Dropdown options ──────────────────────────────────
-  const [nicheOptions, setNicheOptions] = useState([]);
-  const [subNicheOptions, setSubNicheOptions] = useState([]);
-  const [categoryOptions, setCategoryOptions] = useState([]);
-  const [productTypeOptions, setProductTypeOptions] = useState([]);
-
-  // ── Fetch niche data on mount ─────────────────────────
   useEffect(() => {
-    setSelectedNiche("");
-    setSelectedSubNiche("");
-    setSelectedCategory("");
-    setSelectedType("");
-    setNicheOptions([]);
-    setSubNicheOptions([])
-    setCategoryOptions([])
-    setProductTypeOptions([]);
-    
-    const fetchNicheData = async () => {
+    const fetchTop = async () => {
       try {
-        const res = await fetch(`${BASE_URL}/catalog/niche-data`, {
-          credentials: "include",
-        });
-        const json = await res.json();
-        if (!res.ok) throw new Error(json.msg || "Failed to load categories");
-
-        const data = json.niche_data;
-        setNicheData(data);
-        setNicheOptions(
-          Object.entries(data).map(([id, val]) => ({
-            id,
-            label: fmt(val.niche),
-          })),
-        );
+        const json = await getTopCategories();
+        setLevels([{ options: json.level0 || [], selectedId: "" }]);
       } catch (err) {
         console.error("CatalogSelector fetch error:", err.message);
       }
     };
-
-    fetchNicheData();
+    fetchTop();
   }, []);
 
-  // ── Cascade: niche → sub-niches ───────────────────────
-  const handleNicheChange = (nicheId) => {
-    setSelectedNiche(nicheId);
-    setSelectedSubNiche("");
-    setSelectedCategory("");
-    setSelectedType("");
-    setSubNicheOptions([]);
-    setCategoryOptions([]);
-    setProductTypeOptions([]);
-
-    if (!nicheId) return;
-    const subniches = nicheData[nicheId]?.subniches || {};
-    setSubNicheOptions(
-      Object.entries(subniches).map(([id, val]) => ({
-        id,
-        label: fmt(val.subniche) ?? `Sub-niche ${id}`,
-      })),
+  /**
+   * Loads the next category level and reports the final selection to the
+   * parent so it can fetch the attributes for that taxonomy category.
+   */
+  const handleLevelChange = async (levelIndex, selectedId) => {
+    const selectedOption = levels[levelIndex]?.options.find(
+      (option) => String(option.id) === String(selectedId),
     );
-  };
 
-  // ── Cascade: sub-niche → categories ──────────────────
-  const handleSubNicheChange = (subNicheId) => {
-    setSelectedSubNiche(subNicheId);
-    setSelectedCategory("");
-    setSelectedType("");
-    setCategoryOptions([]);
-    setProductTypeOptions([]);
+    setLevels((prev) => {
+      const updated = prev.slice(0, levelIndex + 1);
+      updated[levelIndex] = { ...updated[levelIndex], selectedId };
+      return updated;
+    });
 
-    if (!subNicheId) return;
-    const categories =
-      nicheData[selectedNiche]?.subniches?.[subNicheId]?.categories || {};
-    setCategoryOptions(
-      Object.entries(categories).map(([id, val]) => ({
-        id,
-        label: fmt(val.category),
-      })),
-    );
-  };
+    if (!selectedId || !selectedOption) return;
 
-  // ── Cascade: category → product types ────────────────
-  const handleCategoryChange = (categoryId) => {
-    setSelectedCategory(categoryId);
-    setSelectedType("");
-    setProductTypeOptions([]);
+    const vertical = selectedOption.vertical ?? activeVertical;
+    if (selectedOption.vertical != null) {
+      setActiveVertical(selectedOption.vertical);
+    }
 
-    if (!categoryId) return;
-    const products =
-      nicheData[selectedNiche]?.subniches?.[selectedSubNiche]?.categories?.[
-        categoryId
-      ]?.products || {};
-    setProductTypeOptions(
-      Object.entries(products).map(([id, val]) => ({
-        id,
-        label: fmt(val.product),
-      })),
-    );
-  };
+    try {
+      const json = await getNextCategories(selectedOption.id, vertical);
+      const next = json.next || [];
 
-  // ── Product type selected → notify parent ─────────────
-  const handleTypeChange = (typeId) => {
-    setSelectedType(typeId);
-    if (typeId) onTypeSelect(typeId);
+      if (next.length === 0) {
+        onTypeSelect({ id: selectedOption.id, vertical });
+        return;
+      }
+
+      setLevels((prev) => {
+        const updated = prev.slice(0, levelIndex + 1);
+        updated.push({ options: next, selectedId: "" });
+        return updated;
+      });
+    } catch (err) {
+      console.error("CatalogSelector next-level fetch error:", err.message);
+    }
   };
 
   return (
     <div className={styles.dropdown_row}>
-      {/* Niche */}
-      <div className={styles.dropdown_wrap}>
-        <label className={styles.dropdown_label}>Niche *</label>
-        <select
-          value={selectedNiche}
-          onChange={(e) => handleNicheChange(e.target.value)}
-          className={styles.dropdown_select}
-          disabled={Object.keys(nicheData).length === 0}
-        >
-          <option value="">Select Niche</option>
-          {nicheOptions.map((o) => (
-            <option key={o.id} value={o.id}>
-              {o.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Sub-niche */}
-      <div className={styles.dropdown_wrap}>
-        <label className={styles.dropdown_label}>Sub-niche *</label>
-        <select
-          value={selectedSubNiche}
-          onChange={(e) => handleSubNicheChange(e.target.value)}
-          disabled={!selectedNiche}
-          className={styles.dropdown_select}
-          style={{ opacity: !selectedNiche ? 0.5 : 1 }}
-        >
-          <option value="">Select Sub-niche</option>
-          {subNicheOptions.map((o) => (
-            <option key={o.id} value={o.id}>
-              {o.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Category */}
-      <div className={styles.dropdown_wrap}>
-        <label className={styles.dropdown_label}>Category *</label>
-        <select
-          value={selectedCategory}
-          onChange={(e) => handleCategoryChange(e.target.value)}
-          disabled={!selectedSubNiche}
-          className={styles.dropdown_select}
-          style={{ opacity: !selectedSubNiche ? 0.5 : 1 }}
-        >
-          <option value="">Select Category</option>
-          {categoryOptions.map((o) => (
-            <option key={o.id} value={o.id}>
-              {o.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Product Type */}
-      <div className={styles.dropdown_wrap}>
-        <label className={styles.dropdown_label}>Product *</label>
-        <select
-          value={selectedType}
-          onChange={(e) => handleTypeChange(e.target.value)}
-          disabled={!selectedCategory}
-          className={styles.dropdown_select}
-          style={{ opacity: !selectedCategory ? 0.5 : 1 }}
-        >
-          <option value="">Select Product</option>
-          {productTypeOptions.map((o) => (
-            <option key={o.id} value={o.id}>
-              {o.label}
-            </option>
-          ))}
-        </select>
+      <h3 className={styles.category_heading}>Category</h3>
+      <div className={styles.dropdowns_container}>
+        {levels.map((level, idx) => (
+          <div className={styles.dropdown_wrap} key={idx}>
+            <label className={styles.dropdown_label}>
+              {idx === 0 ? "Niche *" : `Level ${idx + 1} *`}
+            </label>
+            <select
+              value={level.selectedId}
+              onChange={(e) => handleLevelChange(idx, e.target.value)}
+              className={styles.dropdown_select}
+              disabled={level.options.length === 0}
+            >
+              <option value="">Select</option>
+              {level.options.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {fmt(o.name || o.full_name)}
+                </option>
+              ))}
+            </select>
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import styles from "../css/pages/Catalog.module.css";
 import { NavLink, Link } from "react-router-dom";
 import imageNA from "../assets/icons/imagena.png";
+import { getProducts, deleteProduct } from "../services/catalogService";
 
 const route = import.meta.env.VITE_BASEAPI;
 
@@ -24,33 +25,15 @@ export default function Catalog() {
       setLoading(true);
       setError("");
 
-      const response = await fetch(`${route}/catalog`, {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const data = await getProducts();
+
+      setProducts(data["catalog-list"] || []);
+      const count = data.count;
+      setStats({
+        total: count.total,
+        pending: count.pending,
+        completed: count.completed,
       });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch catalogs: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      console.log(data);
-
-      if (response.status === 200) {
-        setProducts(data["catalog-list"] || []);
-        const count = data.count;
-        setStats({
-          total: count.total,
-          pending: count.pending,
-          completed: count.completed,
-        });
-      } else {
-        setError(data.message || "Failed to load catalogs");
-        setProducts([]);
-      }
     } catch (err) {
       console.error("Fetch error:", err);
       setError(err.message || "An error occurred while fetching catalogs");
@@ -62,14 +45,11 @@ export default function Catalog() {
 
   const handleDelete = async (uskuId) => {
     if (window.confirm("Are you sure you want to delete this catalog?")) {
-      // TODO: Implement delete endpoint
-      const response = await fetch(`${route}/catalog?usku-id=${uskuId}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-
-      const data = await response.json();
-      console.log("Delete:", uskuId);
+      try {
+        await deleteProduct(uskuId);
+      } catch (err) {
+        console.error("Delete error:", err);
+      }
       await fetchCatalogs();
     }
   };
@@ -253,7 +233,7 @@ export default function Catalog() {
 
                     <div className={styles.listActions}>
                       <Link
-                        to={`/catalog/edit?id=${p.usku_id}&type=${p.type_id}`}
+                        to={`/catalog/edit?id=${p.usku_id}&type=${p.type_id}&vertical=${p.vertical}`}
                         className={styles.edit}
                       >
                         Edit
