@@ -8,6 +8,10 @@ import {
 const fmt = (str) =>
   str?.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
+/**
+ * Displays taxonomy categories as progressive dropdowns. Once a category
+ * has no children, the final category ID and root vertical are returned.
+ */
 export default function CatalogSelector({ onTypeSelect }) {
   const [levels, setLevels] = useState([]); // [{ options: [{id, name, full_name, vertical}], selectedId: "" }]
   const [activeVertical, setActiveVertical] = useState(null);
@@ -24,22 +28,25 @@ export default function CatalogSelector({ onTypeSelect }) {
     fetchTop();
   }, []);
 
+  /**
+   * Loads the next category level and reports the final selection to the
+   * parent so it can fetch the attributes for that taxonomy category.
+   */
   const handleLevelChange = async (levelIndex, selectedId) => {
+    const selectedOption = levels[levelIndex]?.options.find(
+      (option) => String(option.id) === String(selectedId),
+    );
+
     setLevels((prev) => {
       const updated = prev.slice(0, levelIndex + 1);
       updated[levelIndex] = { ...updated[levelIndex], selectedId };
       return updated;
     });
 
-    if (!selectedId) return;
+    if (!selectedId || !selectedOption) return;
 
-    const selectedOption = levels[levelIndex].options.find(
-      (o) => String(o.id) === String(selectedId),
-    );
-    if (!selectedOption) return;
-
-    const vertical = selectedOption.vertical || activeVertical;
-    if (selectedOption.vertical) {
+    const vertical = selectedOption.vertical ?? activeVertical;
+    if (selectedOption.vertical != null) {
       setActiveVertical(selectedOption.vertical);
     }
 
@@ -64,26 +71,29 @@ export default function CatalogSelector({ onTypeSelect }) {
 
   return (
     <div className={styles.dropdown_row}>
-      {levels.map((level, idx) => (
-        <div className={styles.dropdown_wrap} key={idx}>
-          <label className={styles.dropdown_label}>
-            {idx === 0 ? "Niche *" : `Level ${idx + 1} *`}
-          </label>
-          <select
-            value={level.selectedId}
-            onChange={(e) => handleLevelChange(idx, e.target.value)}
-            className={styles.dropdown_select}
-            disabled={level.options.length === 0}
-          >
-            <option value="">Select</option>
-            {level.options.map((o) => (
-              <option key={o.id} value={o.id}>
-                {fmt(o.name || o.full_name)}
-              </option>
-            ))}
-          </select>
-        </div>
-      ))}
+      <h3 className={styles.category_heading}>Category</h3>
+      <div className={styles.dropdowns_container}>
+        {levels.map((level, idx) => (
+          <div className={styles.dropdown_wrap} key={idx}>
+            <label className={styles.dropdown_label}>
+              {idx === 0 ? "Niche *" : `Level ${idx + 1} *`}
+            </label>
+            <select
+              value={level.selectedId}
+              onChange={(e) => handleLevelChange(idx, e.target.value)}
+              className={styles.dropdown_select}
+              disabled={level.options.length === 0}
+            >
+              <option value="">Select</option>
+              {level.options.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {fmt(o.name || o.full_name)}
+                </option>
+              ))}
+            </select>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
