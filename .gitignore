@@ -23,3 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 *.env
+app.py
+__pycache__/*
+__pycache__/
