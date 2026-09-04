@@ -6,6 +6,7 @@ import CatalogSelector from "../components/CatalogSelector";
 import {
   getBulkExcelSheet,
   uploadBulkCatalog,
+  getErrorSheet,
 } from "../services/catalogService";
 
 export default function AddBulkCatalog() {
@@ -15,6 +16,7 @@ export default function AddBulkCatalog() {
   const [uploadStatus, setUploadStatus] = useState(null); // 'success', 'error', null
   const [errorMessage, setErrorMessage] = useState("");
   const [errorFile, setErrorFile] = useState(null);
+  const [errorJobId, setErrorJobId] = useState(null);
   const navigate = useNavigate();
 
   // Use the catalog form hook for product type selection
@@ -72,6 +74,39 @@ export default function AddBulkCatalog() {
     }
   };
 
+  const handleDownloadExcelFile = async () => {
+    try {
+      setUploadLoading(true);
+      const staticTypeId = "gid://shopify/TaxonomyCategory/aa-1-23-2-1";
+      const vertical = 1;
+      const blob = await getBulkExcelSheet(
+        staticTypeId,
+        vertical,
+      );
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        `bulk_upload_template_static.xlsx`,
+      );
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      setErrorMessage("");
+      setUploadStatus(null);
+    } catch (error) {
+      console.error("Download error:", error);
+      setErrorMessage(error.message || "Failed to download template");
+      setUploadStatus("error");
+    } finally {
+      setUploadLoading(false);
+    }
+  };
+
   // Handle file selection
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
@@ -99,28 +134,38 @@ export default function AddBulkCatalog() {
       return;
     }
 
-    if (!selectedType) {
-      setErrorMessage("Please select a product type first");
-      setUploadStatus("error");
-      return;
-    }
+    // if (!selectedType) {
+    //   setErrorMessage("Please select a product type first");
+    //   setUploadStatus("error");
+    //   return;
+    // }
 
     try {
       setUploadLoading(true);
-      const data = await uploadBulkCatalog(selectedType.id, selectedFile);
+      const staticTypeId = "gid://shopify/TaxonomyCategory/aa-1-23-2-1";
+      const data = await uploadBulkCatalog(staticTypeId, selectedFile);
 
-      if (data.status === "ok") {
+      if (data.status === "ok" || data.status === "successful") {
         setUploadStatus("success");
         setErrorMessage("Bulk catalog uploaded successfully!");
         setSelectedFile(null);
         setErrorFile(null);
+        setErrorJobId(null);
         setFileInputKey((prev) => prev + 1);
 
         setTimeout(() => {
           navigate("/catalog");
         }, 2000);
+      } else if (data.status === "error-sheet") {
+        setErrorFile(null);
+        setErrorJobId(data.data?.job_id || null);
+        setErrorMessage(
+          data.data?.message || "Invalid request. Please download the error sheet to see details.",
+        );
+        setUploadStatus("error");
       } else if (data.status === "partial-failure") {
         setErrorFile(data.failedRowsBlob);
+        setErrorJobId(null);
         setErrorMessage(
           "Some rows have errors. Download the error file to see which rows failed.",
         );
@@ -137,15 +182,26 @@ export default function AddBulkCatalog() {
 
   // Download error file
   const handleDownloadErrorFile = async () => {
-    if (!errorFile) return;
+    if (!errorFile && !errorJobId) return;
 
     try {
-      const url = window.URL.createObjectURL(errorFile);
+      let blob;
+      let filename;
+      
+      if (errorJobId) {
+        blob = await getErrorSheet(errorJobId);
+        filename = `bulk_upload_errors_${errorJobId}.xlsx`;
+      } else {
+        blob = errorFile;
+        filename = `bulk_upload_errors_${selectedType.id}.xlsx`;
+      }
+
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
       link.setAttribute(
         "download",
-        `bulk_upload_errors_${selectedType.id}.xlsx`,
+        filename,
       );
       document.body.appendChild(link);
       link.click();
@@ -242,7 +298,7 @@ export default function AddBulkCatalog() {
         )}
 
         {/* STEP 2: Upload & Process - Show when product type is selected */}
-        {selectedType && !catalogLoading && (
+        { (
           <>
             <div className={styles.uploadSection}>
               <label htmlFor="file-upload" className={styles.uploadBtn}>
@@ -265,21 +321,38 @@ export default function AddBulkCatalog() {
                   <span className={styles.required}>*</span> fields
                 </p>
 
-                <button
-                  onClick={handleDownloadTemplate}
-                  disabled={uploadLoading}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    color: "#007bff",
-                    cursor: uploadLoading ? "not-allowed" : "pointer",
-                    textDecoration: "underline",
-                  }}
-                >
-                  {uploadLoading
-                    ? "Downloading..."
-                    : "Download Sample Excel File"}
-                </button>
+                <div style={{ display: "flex", gap: "16px" }}>
+                  <button
+                    onClick={handleDownloadTemplate}
+                    disabled={uploadLoading}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "#007bff",
+                      cursor: uploadLoading ? "not-allowed" : "pointer",
+                      textDecoration: "underline",
+                    }}
+                  >
+                    {uploadLoading
+                      ? "Downloading..."
+                      : "Download Sample Excel File"}
+                  </button>
+
+                  <button
+                    onClick={handleDownloadExcelFile}
+                    disabled={uploadLoading}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "#007bff",
+                      cursor: uploadLoading ? "not-allowed" : "pointer",
+                      textDecoration: "underline",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Download Excel File
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -331,7 +404,7 @@ export default function AddBulkCatalog() {
                       ⚠ {errorMessage}
                     </p>
 
-                    {errorFile && (
+                    {(errorFile || errorJobId) && (
                       <button
                         onClick={handleDownloadErrorFile}
                         style={{

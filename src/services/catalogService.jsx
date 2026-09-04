@@ -9,6 +9,14 @@ export const checkCatalogExists = async () => {
   return response.json(); // { catalog: "available" | "unavailable" }
 };
 
+export const getErrorSheet = async (jobId) => {
+  const response = await fetch(`${BASE_URL}/catalog/products/error_sheet/${jobId}`, {
+    credentials: "include",
+  });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.blob();
+};
+
 /**
  * Fetches the top-level taxonomy categories used to start category selection.
  * Each category includes an ID and vertical index for subsequent requests.
@@ -84,7 +92,7 @@ export const createCatalog = async (
 // download (e.g. via URL.createObjectURL) since there's no JSON body here.
 export const getBulkExcelSheet = async (typeId, vertical) => {
   const response = await fetch(
-    `${BASE_URL}/catalog/categories/bulk-excel-sheet?type-id=${typeId}&vertical=${vertical}`,
+    `${BASE_URL}/catalog/categories/bulk-excel-sheet/${encodeURIComponent(typeId)}?vertical=${vertical}`,
     { credentials: "include" },
   );
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -112,6 +120,11 @@ export const uploadBulkCatalog = async (typeId, file) => {
 
   const contentType = response.headers.get("content-type") || "";
 
+  if (response.status === 400) {
+    const data = await response.json();
+    return { status: "error-sheet", data };
+  }
+
   if (response.status === 422 && !contentType.includes("application/json")) {
     // Partial failure: server sent back an .xlsx of the bad rows.
     const blob = await response.blob();
@@ -122,10 +135,10 @@ export const uploadBulkCatalog = async (typeId, file) => {
 
   if (!response.ok) {
     // Total failure case: { status: "failed", msg: "..." }
-    throw new Error(data.msg || `HTTP ${response.status}`);
+    throw new Error(data.msg || data.message || `HTTP ${response.status}`);
   }
 
-  return data; // { status: "ok" }
+  return data; // { status: "ok" } or { status: "successful" }
 };
 
 // ── Products list / detail / lifecycle ─────────────────────
