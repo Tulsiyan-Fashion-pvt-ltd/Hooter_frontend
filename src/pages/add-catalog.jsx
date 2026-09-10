@@ -6,10 +6,21 @@ import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import camera from "../assets/icons/upload_photo.svg";
 
+/**
+ * AddCatalog — Single catalog creation form.
+ *
+ * Step 1: User selects a product category via CatalogSelector.
+ * Step 2: API-driven listing and category attribute fields are revealed.
+ *         Users fill in fixed listing information, category attributes,
+ *         optional custom attributes, and product images before submitting.
+ */
 export default function AddCatalog() {
+
+  // Ref used to determine image card insertion order when adding custom image slots.
   const imageContainerRef = useRef();
+
+  // Tracks user-entered image URLs for each image attribute field.
   const [imageLink, setImageLink] = useState({});
-  // console.log(preview)
   const {
     selectedType,
     handleTypeChange,
@@ -19,6 +30,7 @@ export default function AddCatalog() {
     imageAttributes,
     addImageAttribute,
     changeImageCustomKey,
+    toSnakeCase,
     preview,
     setPreview,
     uploadImageData,
@@ -28,8 +40,15 @@ export default function AddCatalog() {
     error,
     success,
     handleSubmit,
+    customAttributes,
+    addCustomAttribute,
+    handleCustomAttributeChange,
+    removeCustomAttribute,
   } = useCatalogForm();
 
+  // ─── Static Listing Field Definitions ───────────────────────────────────────
+  // These fields are always shown regardless of the selected product category.
+  // The "discount" field is auto-calculated from price and compared_price and is read-only.
   const fixedFields = [
     { key: "sku_id", label: "SKU ID", required: true },
     { key: "product_title", label: "Product Title", required: true },
@@ -50,10 +69,16 @@ export default function AddCatalog() {
     { key: "brand_name", label: "Brand Name", required: true },
   ];
 
+
+  // Converts snake_case field keys into human-readable Title Case labels.
   const formatLabel = (str) =>
     str.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+  // True once a product type has been selected and API attributes have loaded.
   const hasAttributes =
     categoryAttributes.length > 0 || imageAttributes.length > 0;
+
+  // True when a type is selected but the API returned no attributes for it.
   const noAttributes = selectedType && !hasAttributes && !error;
 
   if (success) {
@@ -72,14 +97,45 @@ export default function AddCatalog() {
     );
   }
 
+  /**
+   * Adds a new custom image slot to the image grid.
+   *
+   * The insertion order is based on the current number of rendered image cards,
+   * ensuring new custom slots always appear at the end of the grid.
+   */
   function addCustomCimageContainer() {
-    const orderCount = imageContainerRef.current.childElementCount;
-    addImageAttribute("custom", {
-      name: "Custom",
-      required: false,
+    const orderCount = imageContainerRef.current
+      ? imageContainerRef.current.childElementCount
+      : imageAttributes.length;
+
+    addImageAttribute("Custom", {
       order: orderCount,
       custom: true,
     });
+  }
+
+  /**
+   * Handles user typing a custom image attribute name (e.g. "Product Image").
+   * Automatically converts the name to snake_case for the internal field/type
+   * while keeping the formatted text in description. Migrates any entered image link.
+   *
+   * @param {Object} attr - Attribute object
+   * @param {string} newName - User input
+   */
+  function handleCustomAttributeNameChange(attr, newName) {
+    const oldField = attr.field;
+    const newSnakeField = toSnakeCase(newName) || "custom";
+
+    changeImageCustomKey(attr.id || oldField, newName);
+
+    // If an image link was entered under the old key, migrate it to the new key
+    if (oldField !== newSnakeField && imageLink[oldField] !== undefined) {
+      setImageLink((prev) => {
+        const copy = { ...prev, [newSnakeField]: prev[oldField] };
+        delete copy[oldField];
+        return copy;
+      });
+    }
   }
 
   function uploadImage(key, order) {
@@ -342,6 +398,85 @@ export default function AddCatalog() {
                 })}
               </div>
 
+              {/* ─────────────────────────────────────────────────
+                  CUSTOM ATTRIBUTES
+                  Rendered only when the user has added at least one row.
+                  Each row has an editable name input and a value input,
+                  with an inline remove button to delete the row.
+              ───────────────────────────────────────────────── */}
+              {customAttributes.length > 0 && (
+                <>
+                  <h4 style={{ marginTop: "24px" }}>Custom Attributes</h4>
+                  <div className={styles.listing}>
+                    {customAttributes.map((attr) => (
+                      <div className={styles.line} key={attr.id} style={{ position: "relative" }}>
+                        <input
+                          className={styles.pill}
+                          style={{ minWidth: "140px", fontWeight: 500 }}
+                          placeholder="Attribute name"
+                          value={attr.key}
+                          onChange={(e) =>
+                            handleCustomAttributeChange(attr.id, "key", e.target.value)
+                          }
+                        />
+                        <input
+                          placeholder="Type Here..."
+                          value={attr.value}
+                          onChange={(e) =>
+                            handleCustomAttributeChange(attr.id, "value", e.target.value)
+                          }
+                        />
+                        <button
+                          onClick={() => removeCustomAttribute(attr.id)}
+                          title="Remove"
+                          style={{
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                            color: "#aaa",
+                            fontSize: "1.1em",
+                            padding: "0 4px",
+                            lineHeight: 1,
+                            flexShrink: 0,
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {/* ─────────────────────────────────────────────────
+                  ADD CUSTOM ATTRIBUTE BUTTON
+                  Always visible once step 2 is active. Clicking appends a
+                  blank row to the custom attributes list above.
+              ───────────────────────────────────────────────── */}
+              <button
+                onClick={addCustomAttribute}
+                style={{
+                  marginTop: "20px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  background: "none",
+                  border: "1px dashed #0040D6",
+                  color: "#0040D6",
+                  padding: "8px 16px",
+                  borderRadius: "6px",
+                  fontSize: "0.9em",
+                  cursor: "pointer",
+                  fontWeight: 500,
+                  transition: "background 0.15s",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "#f0f4ff")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+              >
+                <span style={{ fontSize: "1.1em", lineHeight: 1 }}>+</span>
+                Add Custom Attribute
+              </button>
+
               <div className={styles.buttons}>
                 <button className={styles.draft}>Save as draft</button>
 
@@ -376,36 +511,42 @@ export default function AddCatalog() {
                     const isRequired = attr.required;
                     const isCustom = attr.custom;
 
+                    // Display actual description received from API, falling back to name or formatted field
+                    const displayLabel =
+                      attr.description ||
+                      attr.name ||
+                      formatLabel(attr.type || attr.field || "");
+
                     return (
                       <div
-                        key={attr.field}
+                        key={attr.id || attr.field}
                         className={styles.imageCardContainer}
                         style={{ order: `${attr.order}` }}
                       >
-                        <input
-                          className={styles.imageTypeTag}
-                          style={{
-                            fontSize: "13px",
-                            marginBottom: "8px",
-                            fontWeight: 500,
-                          }}
-                          placeholder={
-                            `${attr.name || formatLabel(attr.field)}` +
-                            `${isRequired ? " *" : ""}`
-                          }
-                          disabled={!isCustom}
-                          onChange={(e) => {
-                            changeImageCustomKey(attr.field, e.target.value);
-                          }}
-                          value={
-                            `${attr.name || formatLabel(attr.field)}` +
-                            `${isRequired ? " *" : ""}`
-                          }
-                          autoFocus={isCustom}
-                        />
+                        {isCustom ? (
+                          /* Custom Attribute: Seamless input matching the exact typography of fetched label */
+                          <input
+                            type="text"
+                            className={styles.imageTypeTag}
+                            placeholder="Custom"
+                            value={
+                              attr.description !== undefined
+                                ? attr.description
+                                : attr.name || ""
+                            }
+                            onChange={(e) =>
+                              handleCustomAttributeNameChange(attr, e.target.value)
+                            }
+                          />
+                        ) : (
+                          /* Fetched Attribute: Read-only label with actual description from API */
+                          <div className={styles.imageTypeTag}>
+                            {displayLabel}
+                            {isRequired ? " *" : ""}
+                          </div>
+                        )}
 
                         <div
-                          key={attr.field}
                           className={styles["img-box"]}
                           style={{ padding: "12px" }}
                         >
@@ -457,7 +598,7 @@ export default function AddCatalog() {
                   className={styles["blue-btn"]}
                   onClick={addCustomCimageContainer}
                 >
-                  + Add more image
+                  + Add Custom
                 </button>
               </div>
             </div>
