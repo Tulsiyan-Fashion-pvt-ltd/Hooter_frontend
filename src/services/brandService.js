@@ -47,7 +47,13 @@ export const connectBrandById = async (brandId) => {
 
 /**
  * POST /brand/register
- * Register a new brand with brand details and POC.
+ * Registers a new brand. Sends brandData and pocData as { brand, poc } in the request body.
+ * If poc.self is true, the authenticated user becomes the Point of Contact;
+ * otherwise a new POC account is created from the provided poc details.
+ * 200 OK          -> { message: "brand registered successfully", status: "ok" }
+ * 401 Unauthorized -> { message: "user is not logged in", status: "restricted" }
+ * 403 Forbidden    -> { message: "no brand found for this user", status: "restricted" }
+ * Default          -> { message: string, status: string }
  */
 export const registerBrand = async (brandData, pocData) => {
   const response = await fetch(`${BASE_URL}/brand/register`, {

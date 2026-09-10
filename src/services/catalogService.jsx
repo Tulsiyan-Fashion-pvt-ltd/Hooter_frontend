@@ -9,7 +9,7 @@ export const checkCatalogExists = async () => {
   return response.json(); // { catalog: "available" | "unavailable" }
 };
 
-/**
+ /**
  * Fetches the top-level taxonomy categories used to start category selection.
  * Each category includes an ID and vertical index for subsequent requests.
  *
