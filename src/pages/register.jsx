@@ -1,14 +1,13 @@
 import { ArrowProceedBttn } from "../components/proceed-bttn";
 import styles from "../css/pages/Register.module.css";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { validatePincode } from "../modules/validate";
 import { Spinner } from "../components/spinner";
 import ConfirmAnnimation from "../components/confirmAnnimation";
 import {
   registerBrand,
-  getNiches,
   getUserProfile,
 } from "../services/brandService";
 import { setBrandConnection } from "../store/slices/brandSlice";
@@ -17,14 +16,14 @@ const Register = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const [niches, setNiches] = useState([]);
   const [pincode, setPincode] = useState("");
   const [entityName, setEntityName] = useState("");
   const [brandName, setBrandName] = useState("");
-  const [niche, setNiche] = useState("");
   const [gstin, setGstin] = useState("");
   const [plan, setPlan] = useState("");
   const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
   const [estYear, setEstYear] = useState("");
   const [formError, setFormError] = useState("");
   const [invalidFields, setInvalidFields] = useState({});
@@ -45,17 +44,6 @@ const Register = () => {
 
   const [pincodeValueError, setPincodeValueError] = useState(false);
 
-  useEffect(() => {
-    async function fetchNiches() {
-      try {
-        const data = await getNiches();
-        setNiches(data.niches || []);
-      } catch (err) {
-        console.error("Failed to fetch niches:", err);
-      }
-    }
-    fetchNiches();
-  }, []);
 
 
   async function submit() {
@@ -64,9 +52,10 @@ const Register = () => {
 
     if (!entityName.trim()) errors.entityName = true;
     if (!brandName.trim()) errors.brandName = true;
-    if (!niche || niche === "default") errors.niche = true;
     if (!plan || plan === "default") errors.plan = true;
     if (!address.trim()) errors.address = true;
+    if (!city.trim()) errors.city = true;
+    if (!state.trim()) errors.state = true;
     if (!pincode.trim()) {
       errors.pincode = true;
       setPincodeValueError(false);
@@ -113,18 +102,20 @@ const Register = () => {
 
     setLoading(true);
     try {
+      const { confPassword: _stripped, ...pocPayload } = POC;
       const res = await registerBrand(
         {
-          "entity-name": entityName,
-          "brand-name": brandName,
-          niche: niche,
+          entity_name: entityName,
+          brand_name: brandName,
           gstin: gstin,
           plan: plan,
           address: address,
+          city: city,
+          state: state,
           pincode: pincode,
-          estyear: estYear,
+          estyear: parseInt(estYear, 10),
         },
-        POC
+        pocPayload
       );
 
       if (res.status !== 200) {
@@ -155,10 +146,11 @@ const Register = () => {
         setPincode("");
         setEntityName("");
         setBrandName("");
-        setNiche("");
         setGstin("");
         setPlan("");
         setAddress("");
+        setCity("");
+        setState("");
         setEstYear("");
         setCheckPOC(false);
         setInvalidFields({});
@@ -222,9 +214,7 @@ const Register = () => {
     }
   }
 
-  function handleBackButton() {
-    navigate(-1);
-  }
+
 
 
   const incorrect = { outline: "1px solid red" };
@@ -275,33 +265,42 @@ const Register = () => {
 
           <div className={styles.row}>
             <div className={styles.formGroup}>
-              <select
+              <input
                 onChange={(e) => {
-                  setNiche(e.target.value);
-                  if (invalidFields.niche) {
-                    setInvalidFields((prev) => ({ ...prev, niche: false }));
+                  setCity(e.target.value);
+                  if (invalidFields.city) {
+                    setInvalidFields((prev) => ({ ...prev, city: false }));
                   }
                 }}
-                value={niche === "" ? "default" : niche}
-                name="niche"
-                id="niche"
-                className={`${styles.item} ${invalidFields.niche ? "incorrect-input" : ""}`}
-                style={invalidFields.niche ? incorrect : {}}
-                placeholder="Brand Niche *"
+                value={city}
+                type="text"
+                name="city"
+                placeholder="City *"
+                maxLength={100}
                 required
-              >
-                <option value="default" disabled hidden>
-                  Brand Niche *
-                </option>
-                {niches.map((nicheItem, key) => {
-                  return (
-                    <option key={key} value={nicheItem}>
-                      {nicheItem.charAt(0).toUpperCase() + nicheItem.slice(1)}
-                    </option>
-                  );
-                })}
-              </select>
+                className={invalidFields.city ? "incorrect-input" : ""}
+              />
             </div>
+            <div className={styles.formGroup}>
+              <input
+                onChange={(e) => {
+                  setState(e.target.value);
+                  if (invalidFields.state) {
+                    setInvalidFields((prev) => ({ ...prev, state: false }));
+                  }
+                }}
+                value={state}
+                type="text"
+                name="state"
+                placeholder="State *"
+                maxLength={100}
+                required
+                className={invalidFields.state ? "incorrect-input" : ""}
+              />
+            </div>
+          </div>
+
+          <div className={styles.row}>
             <div className={styles.formGroup}>
               <input
                 onChange={(e) => {
@@ -548,9 +547,6 @@ const Register = () => {
         </div>
 
         <div className={styles.footer}>
-          <button onClick={handleBackButton} className={styles.backLink}>
-            Back
-          </button>
           <ArrowProceedBttn onClick={submit} />
         </div>
         <div className={styles.row}>

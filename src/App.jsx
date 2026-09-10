@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/login";
 import Homepage from "./pages/homepage";
 import Register from "./pages/register";
@@ -30,6 +30,12 @@ function App() {
         <Route path="/catalog/add-catalog" element={<AddCatalog />} />
         <Route path="/catalog/add-bulk-catalog" element={<AddBulkCatalog />} />
         <Route path="/catalog/edit" element={<EditInventory />} />
+
+        {/* Redirect /inventory to default tab /inventory/stock */}
+        <Route
+          path="/inventory"
+          element={<Navigate to="/inventory/stock" replace />}
+        />
         <Route
           path="/inventory/stock"
           element={<Inventory tab={"inventory"} />}
@@ -56,12 +62,18 @@ function App() {
       />
 
       <Route
-        path="/register-brand"
+        path="/brand/register"
         element={
           <Protect>
             <Register />
           </Protect>
         }
+      />
+
+      {/* Backward-compatible redirect from /register-brand to /brand/register */}
+      <Route
+        path="/register-brand"
+        element={<Navigate to="/brand/register" replace />}
       />
 
       <Route
@@ -72,7 +84,6 @@ function App() {
           </Protect>
         }
       />
-
 
       <Route
         path="/login"

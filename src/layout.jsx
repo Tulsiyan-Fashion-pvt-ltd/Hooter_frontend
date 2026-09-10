@@ -36,7 +36,7 @@ const Layout = () => {
 
   // No brand registered for this user → send them to register.
   if (connection === "not connected" && brands === null) {
-    return <Navigate to={`/register-brand?${searchParams}`} replace />;
+    return <Navigate to={`/brand/register?${searchParams}`} replace />;
   }
 
   // Multiple brands and none selected yet → send them to select-brand.

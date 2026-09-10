@@ -32,7 +32,7 @@ const SelectBrand = () => {
           if (res.status === 201) {
             if (res.data.brands === null) {
               dispatch(setBrandConnection(res.data));
-              navigate("/register-brand");
+              navigate("/brand/register");
               return;
             } else if (Array.isArray(res.data.brands)) {
               dispatch(setBrandConnection(res.data));
@@ -128,7 +128,7 @@ const SelectBrand = () => {
         </div>
 
         <div className={styles.footer}>
-          <Link to="/register-brand" className={styles.registerLink}>
+          <Link to="/brand/register" className={styles.registerLink}>
             + Register a new brand
           </Link>
         </div>
