@@ -69,13 +69,7 @@ function App() {
           </Protect>
         }
       />
-
-      {/* Backward-compatible redirect from /register-brand to /brand/register */}
-      <Route
-        path="/register-brand"
-        element={<Navigate to="/brand/register" replace />}
-      />
-
+      
       <Route
         path="/select-brand"
         element={

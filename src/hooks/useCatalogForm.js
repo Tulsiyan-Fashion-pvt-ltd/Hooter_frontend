@@ -189,34 +189,76 @@ export default function useCatalogForm() {
 
   /**
    * Appends a new blank custom attribute row to the list.
-   * Each row is assigned a unique id based on the current timestamp.
+   *
+   * Each custom attribute row contains:
+   *   - `name`: Human-readable label typed by the user (e.g., "Fabric Care").
+  /**
+   * Appends a new blank custom attribute row to the list.
+   *
+   * Each custom attribute row follows the standard catalog attribute specification:
+   *   - `name`: Display label entered by the user (max 100 characters).
+   *   - `key`: Snake-case payload key auto-derived from `name`.
+   *   - `value`: Attribute value entered by the user (max 100 characters).
+   *
+   * @returns {void}
    */
   const addCustomAttribute = () => {
     setCustomAttributes((prev) => [
       ...prev,
-      { id: `ca_${Date.now()}`, key: '', value: '' },
+      {
+        id: `ca_${Date.now()}`,
+        name: '',
+        key: '',
+        value: '',
+      },
     ]);
   };
 
-
   /**
-   * Updates either the key or the value of a custom attribute row.
+   * Handles user updates for an individual custom attribute row.
    *
-   * @param {string}          id    - Unique id of the row to update
-   * @param {'key' | 'value'} field - Which field to update
-   * @param {string}          val   - New value to set
+   * Automatically enforces:
+   *   - Character limit constraint (maximum 100 characters for both name and value).
+   *   - Snake-case key derivation from the entered display name.
+   *
+   * @param {string} id - Unique identifier of the custom attribute row.
+   * @param {'name' | 'value'} field - Field being updated ('name' or 'value').
+   * @param {string} val - New value to set.
+   * @returns {void}
    */
   const handleCustomAttributeChange = (id, field, val) => {
+    // Enforce fixed 100-character maximum length limit across all custom attributes
+    const sanitizedVal = typeof val === 'string' ? val.slice(0, 100) : val;
+
     setCustomAttributes((prev) =>
-      prev.map((attr) => (attr.id === id ? { ...attr, [field]: val } : attr))
+      prev.map((attr) => {
+        if (attr.id !== id) return attr;
+
+        if (field === 'name') {
+          return {
+            ...attr,
+            name: sanitizedVal,
+            key: toSnakeCase(sanitizedVal),
+          };
+        }
+
+        if (field === 'value') {
+          return {
+            ...attr,
+            value: sanitizedVal,
+          };
+        }
+
+        return { ...attr, [field]: sanitizedVal };
+      })
     );
   };
 
-
   /**
-   * Removes a custom attribute row by its unique id.
+   * Removes a custom attribute row by its unique identifier.
    *
-   * @param {string} id - Unique id of the row to remove
+   * @param {string} id - Unique identifier of the custom attribute row.
+   * @returns {void}
    */
   const removeCustomAttribute = (id) => {
     setCustomAttributes((prev) => prev.filter((attr) => attr.id !== id));
@@ -369,11 +411,12 @@ export default function useCatalogForm() {
       const listingAttributesPayload = { ...fixedValues };
       const categoryAttributesPayload = { ...dynamicValues };
 
-      // Merge user-defined custom attributes into the category payload.
-      // Keys are converted to snake_case; rows with an empty key are ignored.
+      // Merge user-defined custom attributes into the standard category attributes payload.
+      // Keys are normalized in snake_case and values are stored as trimmed strings.
       customAttributes.forEach(({ key, value }) => {
         const snakeKey = toSnakeCase(key);
-        if (snakeKey) categoryAttributesPayload[snakeKey] = value;
+        if (!snakeKey || value === undefined || value === '') return;
+        categoryAttributesPayload[snakeKey] = String(value).trim();
       });
 
       let catalogResult;

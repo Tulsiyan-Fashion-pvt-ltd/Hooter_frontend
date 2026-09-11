@@ -193,6 +193,25 @@ body {
     height: 100%;
     background: #1a73e8;
     border-radius: 0 6px 6px 0;
+    pointer-events: none;
+}
+
+.pill_input {
+    border: none !important;
+    border-bottom: none !important;
+    outline: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 1em !important;
+    font-family: inherit !important;
+    color: inherit !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.pill_input::placeholder {
+    color: #999;
 }
 
 .required {

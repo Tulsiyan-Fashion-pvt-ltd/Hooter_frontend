@@ -400,45 +400,70 @@ export default function AddCatalog() {
 
               {/* ─────────────────────────────────────────────────
                   CUSTOM ATTRIBUTES
-                  Rendered only when the user has added at least one row.
-                  Each row has an editable name input and a value input,
-                  with an inline remove button to delete the row.
+                  Follows the exact visual layout of Listing Information and Product Attributes:
+                    - Same .line container layout (gap, alignment, margins).
+                    - Attribute name displayed inside the exact same .pill shape with the blue right accent strip.
+                    - Same underline input ("Type Here...") for entering the attribute value.
+                    - Inline remove button (✕) to delete the custom attribute row.
+                  On submit, these are merged seamlessly into categoryAttributesPayload.
               ───────────────────────────────────────────────── */}
               {customAttributes.length > 0 && (
                 <>
                   <h4 style={{ marginTop: "24px" }}>Custom Attributes</h4>
+
                   <div className={styles.listing}>
                     {customAttributes.map((attr) => (
-                      <div className={styles.line} key={attr.id} style={{ position: "relative" }}>
-                        <input
+                      <div className={styles.line} key={attr.id}>
+                        {/* Custom Attribute Name: Styled inside the exact same .pill container as other attributes */}
+                        <span
                           className={styles.pill}
-                          style={{ minWidth: "140px", fontWeight: 500 }}
-                          placeholder="Attribute name"
-                          value={attr.key}
-                          onChange={(e) =>
-                            handleCustomAttributeChange(attr.id, "key", e.target.value)
-                          }
-                        />
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            background: "white",
+                          }}
+                        >
+                          <input
+                            type="text"
+                            placeholder="Attribute name"
+                            value={attr.name}
+                            maxLength={100}
+                            onChange={(e) =>
+                              handleCustomAttributeChange(attr.id, "name", e.target.value)
+                            }
+                            className={styles.pill_input}
+                          />
+                        </span>
+
+                        {/* Custom Attribute Value: Exact same look and feel as Product Attributes */}
                         <input
                           placeholder="Type Here..."
-                          value={attr.value}
+                          value={attr.value || ""}
+                          maxLength={100}
                           onChange={(e) =>
                             handleCustomAttributeChange(attr.id, "value", e.target.value)
                           }
                         />
+
+                        {/* Remove button to delete the custom attribute row */}
                         <button
+                          type="button"
                           onClick={() => removeCustomAttribute(attr.id)}
                           title="Remove"
                           style={{
                             background: "none",
                             border: "none",
                             cursor: "pointer",
-                            color: "#aaa",
+                            color: "#888",
                             fontSize: "1.1em",
-                            padding: "0 4px",
+                            padding: "0 6px",
                             lineHeight: 1,
                             flexShrink: 0,
+                            marginLeft: "-2rem",
+                            transition: "color 0.15s ease",
                           }}
+                          onMouseEnter={(e) => (e.currentTarget.style.color = "#d32f2f")}
+                          onMouseLeave={(e) => (e.currentTarget.style.color = "#888")}
                         >
                           ✕
                         </button>
