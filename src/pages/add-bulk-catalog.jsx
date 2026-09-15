@@ -6,6 +6,7 @@ import CatalogSelector from "../components/CatalogSelector";
 import {
   getBulkExcelSheet,
   uploadBulkCatalog,
+  downloadErrorSheet,
 } from "../services/catalogService";
 
 export default function AddBulkCatalog() {
@@ -15,6 +16,8 @@ export default function AddBulkCatalog() {
   const [uploadStatus, setUploadStatus] = useState(null); // 'success', 'error', null
   const [errorMessage, setErrorMessage] = useState("");
   const [errorFile, setErrorFile] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(null);
+  const [errorDownloadLink, setErrorDownloadLink] = useState(null);
   const navigate = useNavigate();
 
   // Use the catalog form hook for product type selection
@@ -109,16 +112,61 @@ export default function AddBulkCatalog() {
       setUploadLoading(true);
       const data = await uploadBulkCatalog(selectedType.id, selectedFile);
 
-      if (data.status === "ok") {
+      if (data.status === "successful" || data.status === "ok") {
         setUploadStatus("success");
         setErrorMessage("Bulk catalog uploaded successfully!");
         setSelectedFile(null);
         setErrorFile(null);
         setFileInputKey((prev) => prev + 1);
 
-        setTimeout(() => {
-          navigate("/catalog");
-        }, 2000);
+        if (data.sse_url) {
+          setErrorMessage("Processing bulk upload...");
+          setUploadProgress("0%");
+          const BASE_URL = import.meta.env.VITE_BASEAPI;
+          const eventSource = new EventSource(`${BASE_URL}${data.sse_url}`, {
+            withCredentials: true,
+          });
+
+          const handleSSEData = (dataStr) => {
+            try {
+              const parsed = JSON.parse(dataStr);
+              if (parsed.message) {
+                setErrorMessage(parsed.message);
+              }
+              if (parsed.progress) {
+                setUploadProgress(parsed.progress);
+              }
+
+              if (parsed.download_link) {
+                setErrorDownloadLink(parsed.download_link);
+                setUploadStatus("error"); // Show error box with download button
+                eventSource.close();
+              } else if (
+                parsed.status === "finished" ||
+                parsed.status === "completed"
+              ) {
+                eventSource.close();
+                setTimeout(() => {
+                  navigate("/catalog");
+                }, 2000);
+              }
+            } catch (e) {
+              setErrorMessage(`Processing: ${dataStr}`);
+            }
+          };
+
+          eventSource.onmessage = (event) => handleSSEData(event.data);
+          eventSource.addEventListener("completed", (event) => handleSSEData(event.data));
+
+          eventSource.onerror = (error) => {
+            console.error("SSE error or connection closed:", error);
+            eventSource.close();
+          };
+        } else {
+          setTimeout(() => {
+            navigate("/catalog");
+          }, 2000);
+        }
       } else if (data.status === "partial-failure") {
         setErrorFile(data.failedRowsBlob);
         setErrorMessage(
@@ -137,22 +185,39 @@ export default function AddBulkCatalog() {
 
   // Download error file
   const handleDownloadErrorFile = async () => {
-    if (!errorFile) return;
-
-    try {
-      const url = window.URL.createObjectURL(errorFile);
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute(
-        "download",
-        `bulk_upload_errors_${selectedType.id}.xlsx`,
-      );
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Error downloading error file:", error);
+    if (errorFile) {
+      try {
+        const url = window.URL.createObjectURL(errorFile);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute(
+          "download",
+          `bulk_upload_errors_${selectedType.id}.xlsx`,
+        );
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error("Error downloading error file:", error);
+      }
+    } else if (errorDownloadLink) {
+      try {
+        const blob = await downloadErrorSheet(errorDownloadLink);
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute(
+          "download",
+          `bulk_upload_errors_${selectedType?.id || "download"}.xlsx`,
+        );
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error("Error downloading error file:", error);
+      }
     }
   };
 
@@ -328,10 +393,10 @@ export default function AddBulkCatalog() {
                     }}
                   >
                     <p style={{ margin: "0", color: "#c62828" }}>
-                      ⚠ {errorMessage}
+                      ⚠ {errorMessage} {uploadProgress && `(${uploadProgress})`}
                     </p>
 
-                    {errorFile && (
+                    {(errorFile || errorDownloadLink) && (
                       <button
                         onClick={handleDownloadErrorFile}
                         style={{
@@ -368,7 +433,7 @@ export default function AddBulkCatalog() {
                         fontWeight: "500",
                       }}
                     >
-                      ✓ {errorMessage}
+                      ✓ {errorMessage} {uploadProgress && `(${uploadProgress})`}
                     </p>
                   </div>
                 )}

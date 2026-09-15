@@ -425,6 +425,7 @@ const Register = () => {
                 type="text"
                 placeholder="Full name *"
                 value={POC.name}
+                readOnly={POC.self}
                 maxLength={36}
                 className={invalidFields.pocName ? "incorrect-input" : ""}
               />
@@ -441,6 +442,7 @@ const Register = () => {
                 type="text"
                 placeholder="User Designation *"
                 value={POC.designation}
+                readOnly={POC.self}
                 maxLength={64}
                 className={invalidFields.pocDesignation ? "incorrect-input" : ""}
               />
@@ -460,6 +462,7 @@ const Register = () => {
                 type="text"
                 placeholder="Contact Number *"
                 value={POC.number}
+                readOnly={POC.self}
                 maxLength={10}
                 className={invalidFields.pocNumber ? "incorrect-input" : ""}
               />
@@ -476,6 +479,7 @@ const Register = () => {
                 type="email"
                 placeholder="Email Address *"
                 value={POC.email}
+                readOnly={POC.self}
                 maxLength={128}
                 className={invalidFields.pocEmail ? "incorrect-input" : ""}
               />
@@ -497,6 +501,7 @@ const Register = () => {
                 className={`${styles.item} ${invalidFields.pocAccess ? "incorrect-input" : ""}`}
                 style={invalidFields.pocAccess ? incorrect : {}}
                 value={POC.access === "" ? "default" : POC.access}
+                disabled={POC.self}
                 maxLength={12}
               >
                 <option value="default" disabled hidden>

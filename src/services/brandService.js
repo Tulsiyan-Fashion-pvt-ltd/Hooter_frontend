@@ -91,11 +91,11 @@ export const getNiches = async () => {
 };
 
 /**
- * GET /user/profile
+ * GET /users/profile
  * Fetch user profile information (e.g. for self POC autofill).
  */
 export const getUserProfile = async () => {
-  const response = await fetch(`${BASE_URL}/user/profile`, {
+  const response = await fetch(`${BASE_URL}/users/profile`, {
     credentials: "include",
   });
 

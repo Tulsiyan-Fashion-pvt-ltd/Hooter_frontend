@@ -64,7 +64,7 @@ export const createCatalog = async (
   categoryAttributes,
 ) => {
   const response = await fetch(
-    `${BASE_URL}/catalog/products/single?type-id=${typeId}`,
+    `${BASE_URL}/catalog/products/single?type-id=${encodeURIComponent(typeId)}`,
     {
       method: "POST",
       credentials: "include",
@@ -84,7 +84,7 @@ export const createCatalog = async (
 // download (e.g. via URL.createObjectURL) since there's no JSON body here.
 export const getBulkExcelSheet = async (typeId, vertical) => {
   const response = await fetch(
-    `${BASE_URL}/catalog/categories/bulk-excel-sheet?type-id=${typeId}&vertical=${vertical}`,
+    `${BASE_URL}/catalog/categories/bulk-excel-sheet/${encodeURIComponent(typeId)}?vertical=${vertical}`,
     { credentials: "include" },
   );
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -102,7 +102,7 @@ export const uploadBulkCatalog = async (typeId, file) => {
   formData.append("sheet", file);
 
   const response = await fetch(
-    `${BASE_URL}/catalog/products/bulk?type-id=${typeId}`,
+    `${BASE_URL}/catalog/products/bulk?type-id=${encodeURIComponent(typeId)}`,
     {
       method: "POST",
       credentials: "include",
@@ -126,6 +126,15 @@ export const uploadBulkCatalog = async (typeId, file) => {
   }
 
   return data; // { status: "ok" }
+};
+
+// ── Download error sheet ──────────────────────────────────
+export const downloadErrorSheet = async (downloadLink) => {
+  const response = await fetch(`${BASE_URL}${downloadLink}`, {
+    credentials: "include",
+  });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.blob();
 };
 
 // ── Products list / detail / lifecycle ─────────────────────
