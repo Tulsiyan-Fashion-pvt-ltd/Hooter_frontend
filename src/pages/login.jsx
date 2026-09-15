@@ -55,10 +55,10 @@ const Login = () => {
       setLoading(false);
 
       if (response.status !== 200) {
-        setErrorMessage(data.login?.message || "Login failed");
+        setErrorMessage(data?.login?.message || "Login failed");
       } else {
         dispatch(setSession(data));
-        const brand = data.brand_connection;
+        const brand = data?.brand_connection;
 
         if (brand) {
           dispatch(setBrandConnection(brand));
