@@ -114,7 +114,7 @@ src/
 | `/inventory/grn` | GRN inventory | Protected + Brand required |
 | `/inventory/inward/entry` | Inward entry form | Protected |
 | `/orders` | Orders | Protected + Brand required |
-| `/register-brand` | Register a new brand | Protected |
+| `/brand/register` | Register a new brand | Protected |
 | `/select-brand` | Select from multiple brands | Protected |
 | `/login` | Login | Public (redirects if logged in) |
 | `/signup` | Sign up | Public (redirects if logged in) |
@@ -134,12 +134,12 @@ Every protected page that sits inside the main layout (sidebar + outlet) also go
 ```
 GET /brand/connect
   ├── 200 (connected)           → render the page normally
-  ├── 201 + brands: null        → redirect to /register-brand
+  ├── 201 + brands: null        → redirect to /brand/register
   ├── 201 + brands: [...]       → redirect to /select-brand
   └── 401                       → handled by Protect (redirect to /login)
 ```
 
-This means a logged-in user who hasn't registered a brand can never access the dashboard — they are always redirected to `/register-brand` first.
+This means a logged-in user who hasn't registered a brand can never access the dashboard — they are always redirected to `/brand/register` first.
 
 ---
 
@@ -221,7 +221,7 @@ Ensure the API server has CORS configured to allow credentials from the frontend
 ### `VITE_BASEAPI` not picked up
 Restart the dev server after any `.env` change. All Vite env variables must be prefixed with `VITE_`.
 
-### Redirected to `/register-brand` unexpectedly
+### Redirected to `/brand/register` unexpectedly
 The brand guard in `Layout` calls `GET /brand/connect` on every fresh page load. If the API returns `201` with `brands: null`, the redirect is intentional — the logged-in user has no brand registered yet.
 
 ---

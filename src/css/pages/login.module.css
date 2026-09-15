@@ -79,6 +79,39 @@
   align-items: center;
 }
 
+.footerLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.forgot {
+  font-size: 0.9em;
+  color: #000000;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.forgot:hover {
+  text-decoration: underline;
+  opacity: 0.7;
+}
+
+.createAccount {
+  font-size: 0.9em;
+  color: #000000;
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.createAccount:hover {
+  text-decoration: underline;
+  opacity: 0.7;
+}
+
 .blueStyleContainer {
   background-color: var(--second-color--);
   width: 100%;

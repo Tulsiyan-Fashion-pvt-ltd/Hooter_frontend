@@ -3,7 +3,7 @@ import styles from "../css/pages/login.module.css";
 import "../css/layout/universal-layout.css";
 import { ArrowProceedBttn } from "../components/proceed-bttn";
 import { Spinner } from "../components/spinner";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setSession } from "../store/slices/authSlice";
 import { setBrandConnection } from "../store/slices/brandSlice";
@@ -66,7 +66,7 @@ const Login = () => {
           if (brand.connection === "connected") {
             navigate("/");
           } else if (brand.brands === null) {
-            navigate("/register-brand");
+            navigate("/brand/register");
           } else if (Array.isArray(brand.brands) || brand.brands) {
             navigate("/select-brand");
           } else {
@@ -120,7 +120,14 @@ const Login = () => {
             <div className={styles.errorMsg}>{errorMessage}</div>
 
             <div className={styles.formFooter}>
-              <span className={styles.forgot}>Forgot Password?</span>
+              <div className={styles.footerLinks}>
+                <Link to="/forgot-password" className={styles.forgot}>
+                  Forgot Password?
+                </Link>
+                <Link to="/signup" className={styles.createAccount}>
+                  Create an account
+                </Link>
+              </div>
               <ArrowProceedBttn type="submit" />
             </div>
           </form>
