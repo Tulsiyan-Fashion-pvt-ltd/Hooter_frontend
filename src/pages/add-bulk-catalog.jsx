@@ -146,9 +146,7 @@ export default function AddBulkCatalog() {
                 parsed.status === "completed"
               ) {
                 eventSource.close();
-                setTimeout(() => {
-                  navigate("/catalog");
-                }, 2000);
+                // Redirect removed as per request
               }
             } catch (e) {
               setErrorMessage(`Processing: ${dataStr}`);
@@ -156,16 +154,16 @@ export default function AddBulkCatalog() {
           };
 
           eventSource.onmessage = (event) => handleSSEData(event.data);
-          eventSource.addEventListener("completed", (event) => handleSSEData(event.data));
+          eventSource.addEventListener("completed", (event) =>
+            handleSSEData(event.data),
+          );
 
           eventSource.onerror = (error) => {
             console.error("SSE error or connection closed:", error);
             eventSource.close();
           };
         } else {
-          setTimeout(() => {
-            navigate("/catalog");
-          }, 2000);
+          // Redirect removed as per request
         }
       } else if (data.status === "partial-failure") {
         setErrorFile(data.failedRowsBlob);
