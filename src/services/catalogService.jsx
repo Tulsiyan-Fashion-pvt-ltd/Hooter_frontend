@@ -143,7 +143,11 @@ export const getProducts = async () => {
     credentials: "include",
   });
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  return response.json(); // { count: {...}, "catalog-list": [...] }
+  const data = await response.json(); // { count: {...}, "catalog_list": [...] }
+  if (data.status === "failed") {
+    throw new Error(data.message || "Failed to fetch catalog data");
+  }
+  return data;
 };
 
 export const getProduct = async (uskuId) => {

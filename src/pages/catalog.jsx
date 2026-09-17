@@ -27,12 +27,12 @@ export default function Catalog() {
 
       const data = await getProducts();
 
-      setProducts(data["catalog-list"] || []);
-      const count = data.count;
+      setProducts(data.catalog_list || []);
+      const count = data.count || {};
       setStats({
-        total: count.total,
-        pending: count.pending,
-        completed: count.completed,
+        total: count.total || 0,
+        pending: count.pending || 0,
+        completed: count.completed || 0,
       });
     } catch (err) {
       console.error("Fetch error:", err);
