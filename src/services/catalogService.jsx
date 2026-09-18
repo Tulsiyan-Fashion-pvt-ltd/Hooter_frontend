@@ -184,12 +184,15 @@ export const markComplete = async (uskuId) => {
 };
 
 export const deleteProduct = async (uskuId) => {
-  const response = await fetch(`${BASE_URL}/catalog/products/${uskuId}`, {
+  const response = await fetch(`${BASE_URL}/catalog/products/${encodeURIComponent(uskuId)}`, {
     method: "DELETE",
     credentials: "include",
   });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  return response.json(); // { status: "successful", msg: "..." }
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.message || data.msg || `HTTP ${response.status}`);
+  }
+  return data; // { "message": "Product deleted successfully", "status": "success" }
 };
 
 // data = flat key/value product fields (already using "_" delimiters per API)
