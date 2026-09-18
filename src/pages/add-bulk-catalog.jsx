@@ -405,7 +405,7 @@ export default function AddBulkCatalog() {
                       : "Download Sample Excel File"}
                   </button>
 
-                  <button
+                  {/* <button
                     onClick={handleDownloadExcelFile}
                     disabled={uploadLoading}
                     style={{
@@ -418,7 +418,7 @@ export default function AddBulkCatalog() {
                     }}
                   >
                     Download Excel File
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </div>
