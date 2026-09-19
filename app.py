@@ -12,11 +12,14 @@ async def hello():
     return {"message": "Hello"}
 
 
-@app.get("/")
-@app.get("/<path:path>")
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
 async def index(path=None):
-    if path:
+    file = Path(app.static_folder) / path
+
+    if path and file.is_file():
         return await send_from_directory(app.static_folder, path)
+
     return await send_from_directory(app.static_folder, "index.html")
 
 
