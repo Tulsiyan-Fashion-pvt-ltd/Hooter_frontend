@@ -15,12 +15,31 @@ import camera from "../assets/icons/upload_photo.svg";
  *         optional custom attributes, and product images before submitting.
  */
 export default function AddCatalog() {
-
   // Ref used to determine image card insertion order when adding custom image slots.
   const imageContainerRef = useRef();
 
   // Tracks user-entered image URLs for each image attribute field.
   const [imageLink, setImageLink] = useState({});
+
+  // Always-current mirror of imageLink used by async fetch callbacks to detect
+  // whether a slot was cleared while the request was in-flight.
+  // Updated SYNCHRONOUSLY inside every setter call so there is zero render-lag.
+  const imageLinkRef = useRef({});
+
+  /**
+   * Drop-in replacement for setImageLink that keeps imageLinkRef in sync
+   * immediately — before the next render — so that any in-flight fetch
+   * can reliably detect stale results even within the same event loop tick.
+   *
+   * @param {((prev: Object) => Object) | Object} updater
+   */
+  const syncSetImageLink = (updater) => {
+    setImageLink((prev) => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      imageLinkRef.current = next;   // synchronous update
+      return next;
+    });
+  };
   const {
     selectedType,
     handleTypeChange,
@@ -34,6 +53,8 @@ export default function AddCatalog() {
     preview,
     setPreview,
     uploadImageData,
+    clearImageData,
+    clearAllImages,
     dynamicValues,
     handleDynamicChange,
     submitting,
@@ -68,7 +89,6 @@ export default function AddCatalog() {
     },
     { key: "brand_name", label: "Brand Name", required: true },
   ];
-
 
   // Converts snake_case field keys into human-readable Title Case labels.
   const formatLabel = (str) =>
@@ -130,7 +150,7 @@ export default function AddCatalog() {
 
     // If an image link was entered under the old key, migrate it to the new key
     if (oldField !== newSnakeField && imageLink[oldField] !== undefined) {
-      setImageLink((prev) => {
+      syncSetImageLink((prev) => {
         const copy = { ...prev, [newSnakeField]: prev[oldField] };
         delete copy[oldField];
         return copy;
@@ -161,22 +181,32 @@ export default function AddCatalog() {
   }
 
   async function handleImageLink(key, link) {
-    console.log(link);
+    // Nothing to fetch for empty / whitespace-only strings
+    if (!link || !link.trim()) {
+      syncSetImageLink((prev) => {
+        const copy = { ...prev };
+        delete copy[key];
+        return copy;
+      });
+      setPreview((prev) => {
+        const copy = { ...prev };
+        delete copy[key];
+        return copy;
+      });
+      return;
+    }
 
-    setImageLink((prev) => ({
-      ...prev,
-      [key]: link,
-    }));
-
-    const running = imageLink[key];
+    syncSetImageLink((prev) => ({ ...prev, [key]: link }));
 
     try {
       const response = await fetch(link);
       const image = await response.blob();
-      console.log(image);
+
+      // Stale-closure guard: if the user cleared or changed this slot while
+      // the fetch was in-flight, discard the result and don't touch preview.
+      if (imageLinkRef.current[key] !== link) return;
 
       if (!response.ok) {
-        console.log(running);
         setPreview((prev) => ({
           ...prev,
           [key]: { url: "", object: null },
@@ -197,6 +227,8 @@ export default function AddCatalog() {
         }));
       }
     } catch {
+      // Guard again in the error path
+      if (imageLinkRef.current[key] !== link) return;
       setPreview((prev) => ({
         ...prev,
         [key]: { url: "", object: null },
@@ -216,9 +248,8 @@ export default function AddCatalog() {
           <div className={styles.row}>
             <div className={styles.steps}>
               <div
-                className={`${styles.step} ${
-                  !hasAttributes ? styles.active : ""
-                }`}
+                className={`${styles.step} ${!hasAttributes ? styles.active : ""
+                  }`}
               >
                 {hasAttributes ? (
                   <span className={styles.check}>✔</span>
@@ -229,9 +260,8 @@ export default function AddCatalog() {
               </div>
 
               <div
-                className={`${styles.step} ${
-                  hasAttributes ? styles.active : ""
-                }`}
+                className={`${styles.step} ${hasAttributes ? styles.active : ""
+                  }`}
               >
                 <span>2&nbsp;</span>
                 Add Product Details
@@ -313,30 +343,33 @@ export default function AddCatalog() {
                 {fixedFields.map(({ key, label, required }) => (
                   <div className={styles.line} key={key}>
                     <span
-                      className={`${styles.pill} ${
-                        required ? styles.required : ""
-                      }`}
+                      className={`${styles.pill} ${required ? styles.required : ""
+                        }`}
                     >
                       {label}
                       {required ? " *" : ""}
                     </span>
 
                     <input
-                      placeholder="Type Here..."
+                      placeholder={
+                        key === "discount"
+                          ? "Discount %"
+                          : "Enter the listing description"
+                      }
                       value={
                         key === "discount"
                           ? (() => {
-                              const factor = Math.pow(10, 2);
-                              return `${
-                                Math.trunc(
-                                  ((fixedValues["compared_price"] -
-                                    fixedValues["price"]) /
-                                    fixedValues["compared_price"]) *
-                                    100 *
-                                    factor,
-                                ) / factor
-                              }%`;
-                            })()
+                            const cp = parseFloat(
+                              fixedValues["compared_price"],
+                            );
+                            const p = parseFloat(fixedValues["price"]);
+                            if (!cp || isNaN(cp) || isNaN(p)) return "";
+                            const factor = Math.pow(10, 2);
+                            const result =
+                              Math.trunc(((cp - p) / cp) * 100 * factor) /
+                              factor;
+                            return `${result}%`;
+                          })()
                           : fixedValues[key]
                       }
                       onChange={(e) => handleFixedChange(key, e.target.value)}
@@ -359,9 +392,8 @@ export default function AddCatalog() {
                   return (
                     <div className={styles.line} key={attr.field}>
                       <span
-                        className={`${styles.pill} ${
-                          attr.required ? styles.required : ""
-                        }`}
+                        className={`${styles.pill} ${attr.required ? styles.required : ""
+                          }`}
                       >
                         {attr.name || formatLabel(attr.field || "")}
                         {attr.required ? " *" : ""}
@@ -385,7 +417,7 @@ export default function AddCatalog() {
                         </select>
                       ) : (
                         <input
-                          placeholder="Type Here..."
+                          placeholder="Enter the product description"
                           value={dynamicValues[attr.field] || ""}
                           onChange={(e) =>
                             handleDynamicChange(attr.field, e.target.value)
@@ -429,19 +461,26 @@ export default function AddCatalog() {
                             value={attr.name}
                             maxLength={100}
                             onChange={(e) =>
-                              handleCustomAttributeChange(attr.id, "name", e.target.value)
+                              handleCustomAttributeChange(
+                                attr.id,
+                                "name",
+                                e.target.value,
+                              )
                             }
                             className={styles.pill_input}
                           />
                         </span>
 
-                        {/* Custom Attribute Value: Exact same look and feel as Product Attributes */}
+                        {/* Custom Attribute Value: Retains standard string data typing with unrestricted description/text length */}
                         <input
-                          placeholder="Type Here..."
+                          placeholder="Enter the attribute description"
                           value={attr.value || ""}
-                          maxLength={100}
                           onChange={(e) =>
-                            handleCustomAttributeChange(attr.id, "value", e.target.value)
+                            handleCustomAttributeChange(
+                              attr.id,
+                              "value",
+                              e.target.value,
+                            )
                           }
                         />
 
@@ -462,8 +501,12 @@ export default function AddCatalog() {
                             marginLeft: "-2rem",
                             transition: "color 0.15s ease",
                           }}
-                          onMouseEnter={(e) => (e.currentTarget.style.color = "#d32f2f")}
-                          onMouseLeave={(e) => (e.currentTarget.style.color = "#888")}
+                          onMouseEnter={(e) =>
+                            (e.currentTarget.style.color = "#d32f2f")
+                          }
+                          onMouseLeave={(e) =>
+                            (e.currentTarget.style.color = "#888")
+                          }
                         >
                           ✕
                         </button>
@@ -495,8 +538,12 @@ export default function AddCatalog() {
                   fontWeight: 500,
                   transition: "background 0.15s",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#f0f4ff")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.background = "#f0f4ff")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.background = "none")
+                }
               >
                 <span style={{ fontSize: "1.1em", lineHeight: 1 }}>+</span>
                 Add Custom Attribute
@@ -560,7 +607,10 @@ export default function AddCatalog() {
                                 : attr.name || ""
                             }
                             onChange={(e) =>
-                              handleCustomAttributeNameChange(attr, e.target.value)
+                              handleCustomAttributeNameChange(
+                                attr,
+                                e.target.value,
+                              )
                             }
                           />
                         ) : (
@@ -580,15 +630,64 @@ export default function AddCatalog() {
                             onClick={() => {
                               uploadImage(attr.field, attr.order);
                             }}
-                            style={{
-                              backgroundImage: preview[attr.field]
-                                ? preview[attr.field]["url"] &&
-                                  preview[attr.field]["url"] != ""
-                                  ? `url(${preview[attr.field]["url"]})`
-                                  : `url(${camera})`
-                                : `url(${camera})`,
-                            }}
-                          ></div>
+                          >
+                            {/* Show the selected image if one exists, otherwise the camera placeholder */}
+                            <img
+                              src={
+                                preview[attr.field]?.url
+                                  ? preview[attr.field]["url"]
+                                  : camera
+                              }
+                              alt={preview[attr.field]?.url ? "Preview" : "Upload"}
+                              style={{
+                                width: preview[attr.field]?.url ? "100%" : "40px",
+                                height: preview[attr.field]?.url ? "100%" : "40px",
+                                objectFit: "cover",
+                                borderRadius: preview[attr.field]?.url ? "4px" : "0",
+                                pointerEvents: "none",
+                              }}
+                            />
+                          </div>
+
+                          {/* Clear button — only shown when an image has been staged */}
+                          {preview[attr.field]?.url && (
+                            <button
+                              type="button"
+                              title="Remove image"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                /* Clear from hook's images + preview maps */
+                                clearImageData(attr.field);
+                                /* Also wipe the image-link input for this card */
+                                syncSetImageLink((prev) => {
+                                  const copy = { ...prev };
+                                  delete copy[attr.field];
+                                  return copy;
+                                });
+                              }}
+                              style={{
+                                marginTop: "6px",
+                                background: "none",
+                                border: "none",
+                                cursor: "pointer",
+                                fontSize: "0.8em",
+                                color: "#888",
+                                padding: "2px 6px",
+                                borderRadius: "4px",
+                                transition: "color 0.15s ease, background 0.15s ease",
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.color = "#d32f2f";
+                                e.currentTarget.style.background = "#ffe5e5";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.color = "#888";
+                                e.currentTarget.style.background = "none";
+                              }}
+                            >
+                              ✕ Remove
+                            </button>
+                          )}
 
                           <p
                             style={{
@@ -607,10 +706,6 @@ export default function AddCatalog() {
                           className={styles.imageLink}
                           value={imageLink[attr.field] || ""}
                           onChange={(e) => {
-                            setImageLink((prev) => ({
-                              ...prev,
-                              [attr.field]: e.target.value,
-                            }));
                             handleImageLink(attr.field, e.target.value);
                           }}
                         />
@@ -619,12 +714,49 @@ export default function AddCatalog() {
                   })}
                 </div>
 
-                <button
-                  className={styles["blue-btn"]}
-                  onClick={addCustomCimageContainer}
-                >
-                  + Add Custom
-                </button>
+                <div style={{ display: "flex", gap: "10px", marginTop: "12px", flexWrap: "wrap" }}>
+                  <button
+                    className={styles["blue-btn"]}
+                    style={{ marginTop: 0 }}
+                    onClick={addCustomCimageContainer}
+                  >
+                    + Add Custom
+                  </button>
+
+                  {/* Only shown when at least one image has been staged */}
+                  {Object.values(preview).some((p) => p?.url) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        clearAllImages();
+                        syncSetImageLink({});
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        background: "none",
+                        border: "1px dashed #d32f2f",
+                        color: "#d32f2f",
+                        padding: "8px 16px",
+                        borderRadius: "6px",
+                        fontSize: "0.9em",
+                        cursor: "pointer",
+                        fontWeight: 500,
+                        transition: "background 0.15s",
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.background = "#fff0f0")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.background = "none")
+                      }
+                    >
+                      <span style={{ fontSize: "1.1em", lineHeight: 1 }}>✕</span>
+                      Clear All Images
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>

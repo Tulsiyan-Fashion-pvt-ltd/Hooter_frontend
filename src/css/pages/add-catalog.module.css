@@ -332,17 +332,13 @@ body {
 
 /* CAMERA */
 .circle {
-    /* margin: 10px auto 0; */
     width: 100%;
     height: 90%;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-image: url(../../assets/icons/upload_photo.svg);
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center center;
     cursor: pointer;
+    overflow: hidden;
 }
 
 .imageTypeTag {
