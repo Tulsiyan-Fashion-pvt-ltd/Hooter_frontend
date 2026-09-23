@@ -105,12 +105,12 @@ export default function AddCatalog() {
     return (
       <div className={styles.globalAddCatalogContainer}>
         <div className={styles.main}>
-          <div style={{ textAlign: "center", padding: "60px" }}>
-            <div style={{ fontSize: "48px", marginBottom: "16px" }}>✅</div>
-            <h2 style={{ color: "#0040D6", marginBottom: "8px" }}>
+          <div className={styles.successBox}>
+            <div className={styles.successEmoji}>✅</div>
+            <h2 className={styles.successTitle}>
               Catalog Added Successfully!
             </h2>
-            <p style={{ color: "#666" }}>Redirecting to dashboard...</p>
+            <p className={styles.successText}>Redirecting to dashboard...</p>
           </div>
         </div>
       </div>
@@ -284,35 +284,14 @@ export default function AddCatalog() {
 
         {/* ── ERROR BANNER ── */}
         {error && (
-          <div
-            id="error"
-            style={{
-              background: "#fff0f0",
-              border: "1px solid #E51300",
-              borderRadius: "8px",
-              padding: "12px 16px",
-              marginBottom: "16px",
-              color: "#E51300",
-              fontSize: "14px",
-            }}
-          >
+          <div id="error" className={styles.errorBanner}>
             ⚠ {error}
           </div>
         )}
 
         {/* ── NO ATTRIBUTES MESSAGE ── */}
         {noAttributes && (
-          <div
-            style={{
-              background: "#fffbe6",
-              border: "1px solid #f0c000",
-              borderRadius: "8px",
-              padding: "12px 16px",
-              marginBottom: "16px",
-              color: "#7a5c00",
-              fontSize: "14px",
-            }}
-          >
+          <div className={styles.noAttrWarning}>
             ⚠ This product type has no attributes configured yet. Please select
             a different product.
           </div>
@@ -379,7 +358,7 @@ export default function AddCatalog() {
                 ))}
               </div>
 
-              <h4 style={{ marginTop: "24px" }}>Product Attributes</h4>
+              <h4 className={styles.sectionHeading}>Product Attributes</h4>
               <div className={styles.listing}>
                 {categoryAttributes.map((attr) => {
                   if (attr.field === "niche_id") return null;
@@ -441,19 +420,14 @@ export default function AddCatalog() {
               ───────────────────────────────────────────────── */}
               {customAttributes.length > 0 && (
                 <>
-                  <h4 style={{ marginTop: "24px" }}>Custom Attributes</h4>
+                  <h4 className={styles.sectionHeading}>Custom Attributes</h4>
 
                   <div className={styles.listing}>
                     {customAttributes.map((attr) => (
                       <div className={styles.line} key={attr.id}>
                         {/* Custom Attribute Name: Styled inside the exact same .pill container as other attributes */}
                         <span
-                          className={styles.pill}
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            background: "white",
-                          }}
+                          className={`${styles.pill} ${styles.pillCustom}`}
                         >
                           <input
                             type="text"
@@ -489,24 +463,7 @@ export default function AddCatalog() {
                           type="button"
                           onClick={() => removeCustomAttribute(attr.id)}
                           title="Remove"
-                          style={{
-                            background: "none",
-                            border: "none",
-                            cursor: "pointer",
-                            color: "#888",
-                            fontSize: "1.1em",
-                            padding: "0 6px",
-                            lineHeight: 1,
-                            flexShrink: 0,
-                            marginLeft: "-2rem",
-                            transition: "color 0.15s ease",
-                          }}
-                          onMouseEnter={(e) =>
-                            (e.currentTarget.style.color = "#d32f2f")
-                          }
-                          onMouseLeave={(e) =>
-                            (e.currentTarget.style.color = "#888")
-                          }
+                          className={styles.removeAttrBtn}
                         >
                           ✕
                         </button>
@@ -523,29 +480,9 @@ export default function AddCatalog() {
               ───────────────────────────────────────────────── */}
               <button
                 onClick={addCustomAttribute}
-                style={{
-                  marginTop: "20px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  background: "none",
-                  border: "1px dashed #0040D6",
-                  color: "#0040D6",
-                  padding: "8px 16px",
-                  borderRadius: "6px",
-                  fontSize: "0.9em",
-                  cursor: "pointer",
-                  fontWeight: 500,
-                  transition: "background 0.15s",
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = "#f0f4ff")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.background = "none")
-                }
+                className={styles.addCustomAttrBtn}
               >
-                <span style={{ fontSize: "1.1em", lineHeight: 1 }}>+</span>
+                <span className={styles.addBtnIcon}>+</span>
                 Add Custom Attribute
               </button>
 
@@ -556,7 +493,6 @@ export default function AddCatalog() {
                   className={styles.submit}
                   onClick={handleSubmit}
                   disabled={submitting}
-                  style={{ opacity: submitting ? 0.7 : 1 }}
                 >
                   {submitting ? "Submitting..." : "Submit"}
                 </button>
@@ -568,13 +504,7 @@ export default function AddCatalog() {
               <div className={styles.card1}>
                 <h2>Add Images</h2>
 
-                <p
-                  style={{
-                    fontSize: "0.85em",
-                    color: "#666",
-                    marginBottom: "12px",
-                  }}
-                >
+                <p className={styles.imageCardSubtext}>
                   Fields marked with * are required.
                 </p>
 
@@ -621,10 +551,7 @@ export default function AddCatalog() {
                           </div>
                         )}
 
-                        <div
-                          className={styles["img-box"]}
-                          style={{ padding: "12px" }}
-                        >
+                        <div className={`${styles["img-box"]} ${styles.imgBoxPadded}`}>
                           <div
                             className={styles.circle}
                             onClick={() => {
@@ -639,13 +566,11 @@ export default function AddCatalog() {
                                   : camera
                               }
                               alt={preview[attr.field]?.url ? "Preview" : "Upload"}
-                              style={{
-                                width: preview[attr.field]?.url ? "100%" : "40px",
-                                height: preview[attr.field]?.url ? "100%" : "40px",
-                                objectFit: "cover",
-                                borderRadius: preview[attr.field]?.url ? "4px" : "0",
-                                pointerEvents: "none",
-                              }}
+                              className={
+                                preview[attr.field]?.url
+                                  ? styles.circleImgPreview
+                                  : styles.circleImg
+                              }
                             />
                           </div>
 
@@ -654,6 +579,7 @@ export default function AddCatalog() {
                             <button
                               type="button"
                               title="Remove image"
+                              className={styles.removeImageBtn}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 /* Clear from hook's images + preview maps */
@@ -665,37 +591,12 @@ export default function AddCatalog() {
                                   return copy;
                                 });
                               }}
-                              style={{
-                                marginTop: "6px",
-                                background: "none",
-                                border: "none",
-                                cursor: "pointer",
-                                fontSize: "0.8em",
-                                color: "#888",
-                                padding: "2px 6px",
-                                borderRadius: "4px",
-                                transition: "color 0.15s ease, background 0.15s ease",
-                              }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.color = "#d32f2f";
-                                e.currentTarget.style.background = "#ffe5e5";
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.color = "#888";
-                                e.currentTarget.style.background = "none";
-                              }}
                             >
                               ✕ Remove
                             </button>
                           )}
 
-                          <p
-                            style={{
-                              fontSize: "11px",
-                              color: "#888",
-                              marginTop: "6px",
-                            }}
-                          >
+                          <p className={styles.imageCardRequired}>
                             {isRequired ? "Required" : "Optional"}
                           </p>
                         </div>
@@ -714,10 +615,9 @@ export default function AddCatalog() {
                   })}
                 </div>
 
-                <div style={{ display: "flex", gap: "10px", marginTop: "12px", flexWrap: "wrap" }}>
+                <div className={styles.imageBtnRow}>
                   <button
-                    className={styles["blue-btn"]}
-                    style={{ marginTop: 0 }}
+                    className={`${styles["blue-btn"]} ${styles.blueBtnNoMargin}`}
                     onClick={addCustomCimageContainer}
                   >
                     + Add Custom
@@ -727,32 +627,13 @@ export default function AddCatalog() {
                   {Object.values(preview).some((p) => p?.url) && (
                     <button
                       type="button"
+                      className={styles.clearAllBtn}
                       onClick={() => {
                         clearAllImages();
                         syncSetImageLink({});
                       }}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        background: "none",
-                        border: "1px dashed #d32f2f",
-                        color: "#d32f2f",
-                        padding: "8px 16px",
-                        borderRadius: "6px",
-                        fontSize: "0.9em",
-                        cursor: "pointer",
-                        fontWeight: 500,
-                        transition: "background 0.15s",
-                      }}
-                      onMouseEnter={(e) =>
-                        (e.currentTarget.style.background = "#fff0f0")
-                      }
-                      onMouseLeave={(e) =>
-                        (e.currentTarget.style.background = "none")
-                      }
                     >
-                      <span style={{ fontSize: "1.1em", lineHeight: 1 }}>✕</span>
+                      <span className={styles.clearBtnIcon}>✕</span>
                       Clear All Images
                     </button>
                   )}

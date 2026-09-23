@@ -456,6 +456,201 @@ input.imageTypeTag:focus {
 }
 
 
+/* SUBMIT BUTTON — disabled state */
+.submit:disabled {
+    opacity: 0.7;
+}
+
+/* SUCCESS SCREEN */
+.successBox {
+    text-align: center;
+    padding: 60px;
+}
+
+.successEmoji {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.successTitle {
+    color: #0040D6;
+    margin-bottom: 8px;
+}
+
+.successText {
+    color: #666;
+}
+
+/* SECTION HEADINGS (Product Attributes, Custom Attributes) */
+.sectionHeading {
+    margin-top: 24px;
+}
+
+/* CUSTOM ATTRIBUTE PILL — inline-flex variant */
+.pillCustom {
+    display: inline-flex;
+    align-items: center;
+    background: white;
+}
+
+/* REMOVE CUSTOM ATTRIBUTE BUTTON */
+.removeAttrBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #888;
+    font-size: 1.1em;
+    padding: 0 6px;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-left: -2rem;
+    transition: color 0.15s ease;
+}
+
+.removeAttrBtn:hover {
+    color: #d32f2f;
+}
+
+/* ADD CUSTOM ATTRIBUTE BUTTON */
+.addCustomAttrBtn {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: 1px dashed #0040D6;
+    color: #0040D6;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.9em;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.15s;
+}
+
+.addCustomAttrBtn:hover {
+    background: #f0f4ff;
+}
+
+.addBtnIcon {
+    font-size: 1.1em;
+    line-height: 1;
+}
+
+/* IMAGE SECTION — subtext */
+.imageCardSubtext {
+    font-size: 0.85em;
+    color: #666;
+    margin-bottom: 12px;
+}
+
+/* IMAGE PREVIEW inside .circle */
+.circleImg {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 0;
+    pointer-events: none;
+}
+
+.circleImgPreview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+    pointer-events: none;
+}
+
+/* REMOVE IMAGE BUTTON */
+.removeImageBtn {
+    margin-top: 6px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.8em;
+    color: #888;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+
+.removeImageBtn:hover {
+    color: #d32f2f;
+    background: #ffe5e5;
+}
+
+/* REQUIRED / OPTIONAL label under image */
+.imageCardRequired {
+    font-size: 11px;
+    color: #888;
+    margin-top: 6px;
+}
+
+/* IMG-BOX override — add padding */
+.imgBoxPadded {
+    padding: 12px;
+}
+
+/* IMAGE BUTTON ROW (Add Custom + Clear All) */
+.imageBtnRow {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+/* BLUE BTN variant with no top margin */
+.blueBtnNoMargin {
+    margin-top: 0;
+}
+
+/* CLEAR ALL IMAGES BUTTON */
+.clearAllBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: 1px dashed #d32f2f;
+    color: #d32f2f;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.9em;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.15s;
+}
+
+.clearAllBtn:hover {
+    background: #fff0f0;
+}
+
+.clearBtnIcon {
+    font-size: 1.1em;
+    line-height: 1;
+}
+
+/* ERROR BANNER */
+.errorBanner {
+    background: #fff0f0;
+    border: 1px solid #E51300;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    color: #E51300;
+    font-size: 14px;
+}
+
+/* NO ATTRIBUTES WARNING */
+.noAttrWarning {
+    background: #fffbe6;
+    border: 1px solid #f0c000;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    color: #7a5c00;
+    font-size: 14px;
+}
+
 /* RESPONSIVE */
 @media(max-width:768px) {
     .after_top {
