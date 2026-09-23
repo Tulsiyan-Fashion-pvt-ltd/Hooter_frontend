@@ -3,6 +3,11 @@
 /* =========================
    MAIN WRAPPER
 ========================= */
+.bulkCatalogContainer {
+  width: 100%;
+  padding: 24px 32px;
+  box-sizing: border-box;
+}
 
 
 /* =========================

@@ -1,4 +1,12 @@
 const BASE_URL = import.meta.env.VITE_BASEAPI;
+import { store } from "../store/store";
+
+const getCSRFToken = () => {
+  const state = store.getState();
+  const csrf = state.csrf.csrf;
+  console.log("csrf", csrf)
+  return csrf;
+}
 
 /**
  * GET /brand/connect
@@ -10,8 +18,14 @@ const BASE_URL = import.meta.env.VITE_BASEAPI;
  * 403 Forbidden -> no brand found for this user
  */
 export const connectBrand = async () => {
+
+  
+
   const response = await fetch(`${BASE_URL}/brand/connect`, {
     credentials: "include",
+    headers: {
+      "X-CSRF-Token": getCSRFToken(),
+    }
   });
 
   const data = await response.json().catch(() => ({}));

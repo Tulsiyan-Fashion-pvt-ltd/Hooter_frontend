@@ -1,3 +1,9 @@
+.InventoryGlobalContainer {
+  padding: 24px 32px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .emptyState {
   padding: 24px;
   text-align: center;

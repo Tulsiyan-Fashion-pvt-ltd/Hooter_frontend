@@ -4,6 +4,8 @@
   background-color: #FAFAFA;
   font-family: 'Inter', sans-serif;
   font-weight: 400;
+  padding: 24px 32px;
+  box-sizing: border-box;
 }
 
 /* inner container */

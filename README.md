@@ -143,6 +143,36 @@ This means a logged-in user who hasn't registered a brand can never access the d
 
 ---
 
+## Security (CSRF)
+
+The API requires an `X-CSRF-Token` header for state-modifying requests (and some protected GET requests). The token is fetched automatically and stored in the Redux store.
+
+### How to use the CSRF token in API calls
+
+If you are writing a plain JavaScript service file (e.g., inside `src/services/`), you can access the token directly from the Redux store:
+
+```javascript
+import { store } from "../store/store";
+
+const getCSRFToken = () => {
+  const state = store.getState();
+  return state.csrf.csrf;
+};
+
+// Example usage:
+const response = await fetch(`${BASE_URL}/some/endpoint`, {
+  method: "POST",
+  credentials: "include",
+  headers: {
+    "Content-Type": "application/json",
+    "X-CSRF-Token": getCSRFToken(),
+  },
+  body: JSON.stringify(data),
+});
+```
+
+---
+
 ## API Services
 
 ### `brandService.js`
