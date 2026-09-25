@@ -18,9 +18,6 @@ const getCSRFToken = () => {
  * 403 Forbidden -> no brand found for this user
  */
 export const connectBrand = async () => {
-
-  
-
   const response = await fetch(`${BASE_URL}/brand/connect`, {
     credentials: "include",
     headers: {

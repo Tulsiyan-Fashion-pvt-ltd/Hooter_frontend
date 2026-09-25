@@ -46,8 +46,11 @@
 .btnSecondaryOutline {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  height: 36px;
+  box-sizing: border-box;
   gap: 6px;
-  padding: 8px 16px;
+  padding: 0 16px;
   background: #ffffff;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
@@ -74,8 +77,11 @@
 .btnPrimarySolid {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  height: 36px;
+  box-sizing: border-box;
   gap: 8px;
-  padding: 8px 16px;
+  padding: 0 16px;
   background-color: #2563eb;
   border: 1px solid #2563eb;
   border-radius: 8px;

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import styles from "../css/pages/Catalog.module.css";
 import { Link } from "react-router-dom";
 import imageNA from "../assets/icons/imagena.png";
-import { getProducts, deleteProduct } from "../services/catalogService";
+import { getProducts, deleteProduct, getUploadedCategories } from "../services/catalogService";
 import DeleteConfirmModal from "../components/DeleteConfirmModal";
 
 const route = import.meta.env.VITE_BASEAPI;
@@ -60,6 +60,8 @@ export default function Catalog() {
   const [rowsPerPage, setRowsPerPage] = useState(8);
   const [activeTab, setActiveTab] = useState("All");
   const [searchSku, setSearchSku] = useState("");
+  const [uploadedCategories, setUploadedCategories] = useState([]);
+  const [activeCategory, setActiveCategory] = useState("All");
 
   // Delete modal state
   const [deleteModal, setDeleteModal] = useState({
@@ -78,9 +80,13 @@ export default function Catalog() {
       setLoading(true);
       setError("");
 
-      const data = await getProducts();
+      const [data, catData] = await Promise.all([
+        getProducts(),
+        getUploadedCategories().catch(e => { console.error(e); return { categories: [] }; })
+      ]);
 
       setProducts(data.catalog_list || []);
+      setUploadedCategories(catData.categories || []);
       const count = data.count || {};
       setStats({
         total: count.total || 0,
@@ -217,13 +223,21 @@ export default function Catalog() {
     }
 
     // Tab filter
-    if (activeTab === "All") return true;
-    const status = (p.status || "").toLowerCase();
-    if (activeTab === "QC in progress") return status === "qc in progress" || status === "pending";
-    if (activeTab === "QC pass") return status === "qc pass" || status === "completed";
-    if (activeTab === "QC error") return status === "qc error";
-    if (activeTab === "Draft") return status === "draft";
-    if (activeTab === "Action required") return status === "action required";
+    if (activeTab !== "All") {
+      const status = (p.status || "").toLowerCase();
+      if (activeTab === "QC in progress" && status !== "qc in progress" && status !== "pending") return false;
+      if (activeTab === "QC pass" && status !== "qc pass" && status !== "completed") return false;
+      if (activeTab === "QC error" && status !== "qc error") return false;
+      if (activeTab === "Draft" && status !== "draft") return false;
+      if (activeTab === "Action required" && status !== "action required") return false;
+    }
+
+    // Category filter
+    if (activeCategory !== "All") {
+      const pCategory = snakeToPlainText(p.product_type) || "Kurta";
+      if (pCategory !== activeCategory) return false;
+    }
+
     return true;
   });
 
@@ -340,15 +354,22 @@ export default function Catalog() {
                 </button>
               );
             })}
-            <div className={styles.dropdownBtn}>
-              <span>Category</span>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M6 9l6 6 6-6"/>
-              </svg>
-            </div>
-            <div className={styles.dropdownBtn}>
-              <span>Marketplace</span>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <div style={{ position: "relative", display: "inline-block" }}>
+              <select 
+                className={styles.dropdownBtn}
+                style={{ appearance: "none", paddingRight: "28px", cursor: "pointer", outline: "none" }}
+                value={activeCategory}
+                onChange={(e) => {
+                  setActiveCategory(e.target.value);
+                  setCurrentPage(1);
+                }}
+              >
+                <option value="All">Category (All)</option>
+                {uploadedCategories.map((cat) => (
+                  <option key={cat.id} value={cat.category}>{cat.category}</option>
+                ))}
+              </select>
+              <svg style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "#64748b" }} width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M6 9l6 6 6-6"/>
               </svg>
             </div>
