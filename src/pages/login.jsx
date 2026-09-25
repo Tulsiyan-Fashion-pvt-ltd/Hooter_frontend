@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "../css/pages/login.module.css";
 import "../css/layout/universal-layout.css";
 import { ArrowProceedBttn } from "../components/proceed-bttn";
 import { Spinner } from "../components/spinner";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setSession } from "../store/slices/authSlice";
 import { setBrandConnection } from "../store/slices/brandSlice";
 import { validateEmail } from "../modules/validate";
+import { fetchCsrf } from "../store/slices/csrfSlice";
 
 const route = import.meta.env.VITE_BASEAPI;
 
@@ -16,10 +17,18 @@ const Login = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const csrfToken = useSelector((state) => state.csrf.csrf);
+  console.log("csrfToken", csrfToken);
   const [errorMessage, setErrorMessage] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!csrfToken) {
+      dispatch(fetchCsrf());
+    }
+  }, [csrfToken, dispatch]);
 
   const login = async () => {
     setErrorMessage("");
@@ -40,7 +49,10 @@ const Login = () => {
     try {
       const response = await fetch(`${route}/users/login`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrfToken 
+        },
         credentials: "include",
         body: JSON.stringify({ email, password }),
       });

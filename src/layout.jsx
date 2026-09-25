@@ -2,9 +2,11 @@ import { Outlet, Navigate, useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Sidebar from "./components/sidebar";
+import Header from "./components/Header";
 import styles from './css/layout/Layout.module.css';
 import { connectBrand } from "./services/brandService";
 import { setBrandConnection } from "./store/slices/brandSlice";
+import { fetchCsrf } from "./store/slices/csrfSlice";
 
 const Layout = () => {
   const [searchParams] = useSearchParams();
@@ -18,6 +20,9 @@ const Layout = () => {
 
     async function checkBrand() {
       try {
+        // Fetch CSRF token first and wait for it
+        await dispatch(fetchCsrf()).unwrap();
+
         const res = await connectBrand();
         if (res.status === 200 || res.status === 201) {
           dispatch(setBrandConnection(res.data));
@@ -49,11 +54,14 @@ const Layout = () => {
       <div className={styles.sidebar_body}>
         <Sidebar />
       </div>
-      <div className={styles.globalOutlet}>
-        <Outlet />
+      <div className={styles.mainWrapper}>
+        <Header />
+        <div className={styles.globalOutlet}>
+          <Outlet />
+        </div>
       </div>
     </div>
   );
 };
 
-export default Layout;
+export default Layout;
