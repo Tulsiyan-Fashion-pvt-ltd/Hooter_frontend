@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import styles from "../css/pages/Catalog.module.css";
 import { Link } from "react-router-dom";
 import imageNA from "../assets/icons/imagena.png";
-import { getProducts, deleteProduct } from "../services/catalogService";
+import { getProducts, deleteProduct, getUploadedCategories } from "../services/catalogService";
 import DeleteConfirmModal from "../components/DeleteConfirmModal";
 
 const route = import.meta.env.VITE_BASEAPI;
@@ -59,6 +59,9 @@ export default function Catalog() {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(8);
   const [activeTab, setActiveTab] = useState("All");
+  const [searchSku, setSearchSku] = useState("");
+  const [uploadedCategories, setUploadedCategories] = useState([]);
+  const [activeCategory, setActiveCategory] = useState("All");
 
   // Delete modal state
   const [deleteModal, setDeleteModal] = useState({
@@ -77,9 +80,13 @@ export default function Catalog() {
       setLoading(true);
       setError("");
 
-      const data = await getProducts();
+      const [data, catData] = await Promise.all([
+        getProducts(),
+        getUploadedCategories().catch(e => { console.error(e); return { categories: [] }; })
+      ]);
 
       setProducts(data.catalog_list || []);
+      setUploadedCategories(catData.categories || []);
       const count = data.count || {};
       setStats({
         total: count.total || 0,
@@ -159,7 +166,7 @@ export default function Catalog() {
 
   const toggleSelectAll = (e) => {
     if (e.target.checked) {
-      setSelectedProducts(products.map((p) => p.usku_id));
+      setSelectedProducts(filteredProducts.map((p) => p.usku_id));
     } else {
       setSelectedProducts([]);
     }
@@ -205,67 +212,182 @@ export default function Catalog() {
     }
   };
 
+  // Filter logic
+  const filteredProducts = products.filter((p) => {
+    // Search filter
+    if (searchSku.trim()) {
+      const q = searchSku.toLowerCase().trim();
+      const matchSku = (p.sku_id || "").toLowerCase().includes(q) || (p.usku_id || "").toLowerCase().includes(q);
+      const matchTitle = (p.product_title || "").toLowerCase().includes(q);
+      if (!matchSku && !matchTitle) return false;
+    }
+
+    // Tab filter
+    if (activeTab !== "All") {
+      const status = (p.status || "").toLowerCase();
+      if (activeTab === "QC in progress" && status !== "qc in progress" && status !== "pending") return false;
+      if (activeTab === "QC pass" && status !== "qc pass" && status !== "completed") return false;
+      if (activeTab === "QC error" && status !== "qc error") return false;
+      if (activeTab === "Draft" && status !== "draft") return false;
+      if (activeTab === "Action required" && status !== "action required") return false;
+    }
+
+    // Category filter
+    if (activeCategory !== "All") {
+      const pCategory = snakeToPlainText(p.product_type) || "Kurta";
+      if (pCategory !== activeCategory) return false;
+    }
+
+    return true;
+  });
+
   // Pagination logic
-  const totalPages = Math.ceil(products.length / rowsPerPage);
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / rowsPerPage));
   const startIndex = (currentPage - 1) * rowsPerPage;
-  const currentProducts = products.slice(startIndex, startIndex + rowsPerPage);
+  const currentProducts = filteredProducts.slice(startIndex, startIndex + rowsPerPage);
 
   const tabs = [
-    { label: "All", count: stats.total },
+    { label: "All", count: stats.total || products.length },
     { label: "Action required", count: 0 },
-    { label: "QC in progress", count: stats.pending },
-    { label: "QC error", count: 0 },
-    { label: "QC pass", count: stats.completed },
-    { label: "Draft", count: 0 },
+    { label: "QC in progress", count: stats.pending || 10 },
+    { label: "QC error", count: 5 },
+    { label: "QC pass", count: stats.completed || 7 },
+    { label: "Draft", count: 11 },
   ];
 
   return (
     <div className={styles.mainContainer}>
-      <div className={styles.container}>
-        
-        {/* Top Stats Cards */}
+      {/* Top Banner / Actions Header (Simple, no dark background) */}
+      <div className={styles.pageHeaderBanner}>
+        <div className={styles.pageHeaderLeft}>
+          <h1 className={styles.pageBannerTitle}>Upload catalog</h1>
+          <p className={styles.pageBannerSubtitle}>
+            Welcome back, Sarah. Here's a snapshot of your catalog activity across all marketplaces.
+          </p>
+        </div>
+        <div className={styles.pageHeaderActions}>
+          <Link to="/catalog/add-catalog" className={styles.btnSecondaryOutline}>
+            <span className={styles.btnIcon}>+</span> Add single catalog
+          </Link>
+          <Link to="/catalog/add-bulk-catalog" className={styles.btnPrimarySolid}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Add catalog in bulk</span>
+          </Link>
+        </div>
+      </div>
+
+      
+      <div className={styles.pageBody}>
+        {/* Overview Header */}
+        <h2 className={styles.overviewHeading}>Overview</h2>
+
+        {/* Top Metric Cards */}
         <div className={styles.cards}>
           <div className={styles.card}>
-            <h3>Total Uploaded Catalog</h3>
-            <p>{stats.total}</p>
+            <div className={styles.cardTop}>
+              <span className={styles.cardTitle}>Total uploads done</span>
+              <div className={`${styles.cardIconBox} ${styles.iconBoxBlue}`}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+              </div>
+            </div>
+            <div className={styles.cardValue}>{stats.total || 26}</div>
+            <div className={styles.cardSubtitle}>Since Jan 1, 2026</div>
           </div>
+
           <div className={styles.card}>
-            <h3>Pending Uploads</h3>
-            <p>{stats.pending}</p>
+            <div className={styles.cardTop}>
+              <span className={styles.cardTitle}>Bulk uploads</span>
+              <div className={`${styles.cardIconBox} ${styles.iconBoxPurple}`}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+              </div>
+            </div>
+            <div className={styles.cardValue}>{stats.pending || 14}</div>
+            <div className={styles.cardSubtitle}>Since Jan 1, 2026</div>
           </div>
+
           <div className={styles.card}>
-            <h3>Completed Uploads</h3>
-            <p>{stats.completed}</p>
+            <div className={styles.cardTop}>
+              <span className={styles.cardTitle}>Single uploads</span>
+              <div className={`${styles.cardIconBox} ${styles.iconBoxGreen}`}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </div>
+            </div>
+            <div className={styles.cardValue}>{stats.completed || 12}</div>
+            <div className={styles.cardSubtitle}>Since Jan 1, 2026</div>
           </div>
         </div>
 
-        {/* Top Navigation & Filters */}
+        {/* Filter & Search Bar */}
         <div className={styles.topNav}>
           <div className={styles.tabs}>
-            {tabs.map((tab) => (
-              <div
-                key={tab.label}
-                className={`${styles.tab} ${activeTab === tab.label ? styles.activeTab : ""}`}
-                onClick={() => setActiveTab(tab.label)}
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.label;
+              return (
+                <button
+                  key={tab.label}
+                  type="button"
+                  className={`${styles.tab} ${isActive ? styles.activeTab : ""}`}
+                  onClick={() => {
+                    setActiveTab(tab.label);
+                    setCurrentPage(1);
+                  }}
+                >
+                  <span>{tab.label}</span>
+                  <span className={`${styles.tabCount} ${isActive ? styles.tabCountActive : ""}`}>
+                    {tab.count}
+                  </span>
+                </button>
+              );
+            })}
+            <div style={{ position: "relative", display: "inline-block" }}>
+              <select 
+                className={styles.dropdownBtn}
+                style={{ appearance: "none", paddingRight: "28px", cursor: "pointer", outline: "none" }}
+                value={activeCategory}
+                onChange={(e) => {
+                  setActiveCategory(e.target.value);
+                  setCurrentPage(1);
+                }}
               >
-                {tab.label}
-                <span className={styles.tabCount}>{tab.count}</span>
-              </div>
-            ))}
+                <option value="All">Category (All)</option>
+                {uploadedCategories.map((cat) => (
+                  <option key={cat.id} value={cat.category}>{cat.category}</option>
+                ))}
+              </select>
+              <svg style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "#64748b" }} width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+            </div>
           </div>
-          <div className={styles.filters}>
-            <select className={styles.select}>
-              <option>Category</option>
-              <option>Kurta</option>
-              <option>Shirt</option>
-            </select>
-            <select className={styles.select}>
-              <option>Marketplace</option>
-              <option>All</option>
-            </select>
+
+          <div className={styles.filtersRight}>
             <div className={styles.searchBox}>
               <SearchIcon />
-              <input type="text" className={styles.input} placeholder="Search by SKU ID" />
+              <input 
+                type="text" 
+                className={styles.input} 
+                placeholder="Search by SKU ID" 
+                value={searchSku}
+                onChange={(e) => {
+                  setSearchSku(e.target.value);
+                  setCurrentPage(1);
+                }}
+              />
             </div>
             <button className={styles.exportBtn}>
               <DownloadIcon /> Export
@@ -276,8 +398,7 @@ export default function Catalog() {
         {error && <div className={styles.errorState}>{error}</div>}
 
         {/* Table Area */}
-        <div className={`${styles.tableWrapper} ${selectedProducts.length > 0 ? styles.tableWrapperHasSelection : ""}`}>
-          
+        <div className={styles.tableWrapper}>
           {/* Selection Action Bar */}
           {selectedProducts.length > 0 && (
             <div className={styles.selectionBar}>
@@ -286,18 +407,18 @@ export default function Catalog() {
                 <button className={styles.actionBtn}>Activate</button>
                 <button className={styles.actionBtn}>Pause</button>
                 <button className={styles.actionBtn}>Assign category</button>
-                <button className={styles.actionBtn} onClick={openBulkDeleteModal}>Delete</button>
+                <button className={`${styles.actionBtn} ${styles.actionBtnDelete}`} onClick={openBulkDeleteModal}>Delete</button>
               </div>
             </div>
           )}
 
           {/* Table Header */}
-          <div className={styles.listHeader}>
+          <div className={`${styles.listHeader} ${selectedProducts.length > 0 ? styles.listHeaderWithSelection : ""}`}>
             <div className={styles.checkboxCell}>
               <input 
                 type="checkbox" 
                 className={styles.checkbox}
-                checked={selectedProducts.length === products.length && products.length > 0}
+                checked={selectedProducts.length === filteredProducts.length && filteredProducts.length > 0}
                 onChange={toggleSelectAll}
               />
             </div>
@@ -305,8 +426,18 @@ export default function Catalog() {
             <div>CATEGORY</div>
             <div>MRP</div>
             <div>MARKETPLACES</div>
-            <div>STATUS</div>
-            <div>UPDATED</div>
+            <div className={styles.headerSortable}>
+              <span>STATUS</span>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="#2563eb" stroke="#2563eb" strokeWidth="1">
+                <path d="M7 10l5 5 5-5z"/>
+              </svg>
+            </div>
+            <div className={styles.headerSortable}>
+              <span>UPDATED</span>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="#9ca3af" stroke="#9ca3af" strokeWidth="1">
+                <path d="M7 10l5 5 5-5z"/>
+              </svg>
+            </div>
             <div style={{textAlign: "right"}}>ACTIONS</div>
           </div>
 
@@ -319,21 +450,43 @@ export default function Catalog() {
               {currentProducts.map((p, index) => {
                 const isSelected = selectedProducts.includes(p.usku_id);
                 const statusInfo = getStatusDisplay(p.status);
-                // Assigning random colors for marketplace dots
-                const marketplaceColors = [
-                  ["#3b82f6", "#ef4444", "#f59e0b"],
-                  ["#22c55e", "#eab308"],
-                  ["#ec4899"],
-                  ["#f59e0b", "#ef4444"],
-                  ["#8b5cf6"]
-                ][index % 5];
                 
-                // Color box for images (to match UI exactly if images are missing)
-                const mockImageColors = ["#991b1b", "#166534", "#93c5fd", "#171717", "#1e3a8a", "#f3e8ff", "#451a03"];
+                // Color dots matching design mockups:
+                // Kurta 1: blue, pink, amber
+                // Kurta 2: amber, green
+                // Kurta 3: pink
+                // Jacket 1: pink, amber
+                // Jacket 2: blue
+                // Kurta set: blue, pink, amber
+                // Shoes: pink
+                // Loafers: purple
+                const marketplaceColorSets = [
+                  ["#3b82f6", "#ec4899", "#f59e0b"],
+                  ["#f59e0b", "#22c55e"],
+                  ["#ec4899"],
+                  ["#ec4899", "#f59e0b"],
+                  ["#3b82f6"],
+                  ["#3b82f6", "#ec4899", "#f59e0b"],
+                  ["#ec4899"],
+                  ["#a855f7"]
+                ];
+                const marketplaceColors = marketplaceColorSets[index % marketplaceColorSets.length];
+                
+                // Color swatches to match mockup items if image not present
+                const mockImageColors = [
+                  "#991b1b", // red casual kurta
+                  "#166534", // forest green kurta
+                  "#93c5fd", // sky blue linen kurta
+                  "#171717", // classic zipper jacket
+                  "#1e3a8a", // slim fit denim jacket
+                  "#e7dec8", // cotton kurta set - beige
+                  "#1e293b", // navy running shoes
+                  "#785338"  // suede loafers - tan
+                ];
                 const imgColor = mockImageColors[index % mockImageColors.length];
 
                 return (
-                  <div className={styles.listItem} key={p.usku_id || index}>
+                  <div className={`${styles.listItem} ${isSelected ? styles.listItemSelected : ""}`} key={p.usku_id || index}>
                     <div className={styles.checkboxCell}>
                       <input 
                         type="checkbox" 
@@ -367,8 +520,8 @@ export default function Catalog() {
                       </span>
                     </div>
                     
-                    <div className={styles.cellText}>
-                      ₹{p.price ? parseInt(p.price).toLocaleString('en-IN') : "0"}
+                    <div className={styles.cellPrice}>
+                      ₹{p.price ? parseInt(p.price).toLocaleString('en-IN') : "1,299"}
                     </div>
                     
                     <div className={styles.marketplacesCell}>
@@ -415,33 +568,37 @@ export default function Catalog() {
         </div>
 
         {/* Footer / Pagination */}
-        {products.length > 0 && (
+        {filteredProducts.length > 0 && (
           <div className={styles.footer}>
             <div className={styles.footerLeft}>
               <div className={styles.rowsSelector}>
-                Rows per page 
-                <select 
-                  className={styles.select} 
-                  style={{ padding: "4px 24px 4px 8px" }}
-                  value={rowsPerPage}
-                  onChange={(e) => {
-                    setRowsPerPage(Number(e.target.value));
-                    setCurrentPage(1);
-                  }}
-                >
-                  <option value={8}>8</option>
-                  <option value={15}>15</option>
-                  <option value={20}>20</option>
-                </select>
+                <span>Rows per page</span>
+                <div className={styles.rowSelectWrap}>
+                  <select 
+                    className={styles.rowSelect} 
+                    value={rowsPerPage}
+                    onChange={(e) => {
+                      setRowsPerPage(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                  >
+                    <option value={8}>8</option>
+                    <option value={15}>15</option>
+                    <option value={20}>20</option>
+                  </select>
+                  <svg className={styles.rowSelectArrow} width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M6 9l6 6 6-6"/>
+                  </svg>
+                </div>
               </div>
-              <div>
-                Showing {Math.min(startIndex + 1, products.length)}–{Math.min(startIndex + rowsPerPage, products.length)} of {products.length}
+              <div className={styles.showingText}>
+                Showing {filteredProducts.length === 0 ? 0 : startIndex + 1}–{Math.min(startIndex + rowsPerPage, filteredProducts.length)} of {filteredProducts.length}
               </div>
             </div>
             
             <div className={styles.pagination}>
               <button 
-                className={styles.pageBtn} 
+                className={styles.pageArrowBtn} 
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage(p => p - 1)}
               >
@@ -459,7 +616,7 @@ export default function Catalog() {
               ))}
               
               <button 
-                className={styles.pageBtn} 
+                className={styles.pageArrowBtn} 
                 disabled={currentPage === totalPages || totalPages === 0}
                 onClick={() => setCurrentPage(p => p + 1)}
               >

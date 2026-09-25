@@ -4,6 +4,8 @@
     display: flex;
     flex-flow: column nowrap;
     gap: 30px;
+    padding: 24px 32px;
+    box-sizing: border-box;
 }
 
 .section {
