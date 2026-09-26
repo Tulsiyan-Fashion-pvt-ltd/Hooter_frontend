@@ -3,17 +3,20 @@
 /* =========================
    MAIN WRAPPER
 ========================= */
+.bulkCatalogContainer {
+  width: 100%;
+  padding: 24px 32px;
+  box-sizing: border-box;
+}
 
 
 /* =========================
    TOP CONTAINER
 ========================= */
 .topContainer {
-  background: #ffffff;
-  padding: 24px 28px;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
-  border-left: 1px solid #000000;
+  background: transparent;
+  padding: 0 0 24px 0;
+  border-bottom: 1px solid #e2e8f0;
   margin-bottom: 0;
 }
 
@@ -169,14 +172,20 @@ margin-top: 12px;
 }
 
 .uploadBtn {
-  background: #0040d6;
+  background: #2563eb;
   color: #ffffff;
-  border: none;
+  border: 1px solid #2563eb;
   padding: 10px 22px;
-  font-size: 16px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  border-radius: 2px;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25);
+  transition: all 0.15s ease;
+}
+.uploadBtn:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
 }
 
 .uploadInfo {
@@ -208,8 +217,9 @@ margin-top: 12px;
 .leftSection {
   flex: 3;
   background: #ffffff;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
   padding: 28px;
 }
 
@@ -229,10 +239,20 @@ margin-top: 12px;
 
 /* Copy Box */
 .copyBox {
-  background: #0040d60d;
-  padding: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 24px;
   font-size: 14px;
-  margin-bottom: 40px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.copyText {
+  opacity: 0.6;
 }
 
 /* Empty State */
@@ -255,24 +275,45 @@ margin-top: 12px;
 /* Buttons */
 .buttonRow {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
 }
 
 .draft {
-  background: #0040d60d;
-  border: none;
-  padding: 10px 22px;
+  background: #ffffff;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  padding: 10px 24px;
   font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.draft:hover:not(:disabled) {
+  background: #f8fafc;
 }
 
 .submit {
-  background: #0040d6;
+  background: #2563eb;
   color: #ffffff;
   border: none;
   padding: 10px 30px;
   font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25);
+  transition: all 0.15s ease;
+}
+
+.submit:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.submit:disabled, .draft:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* =========================
@@ -367,6 +408,48 @@ margin-top: 12px;
   font-size: 14px;
   cursor: pointer;
   color: #e51300;
+}
+
+/* Checklist Card */
+.checklistCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.checklistTitle {
+  font-size: 16.5px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 24px 0;
+  line-height: 1.4;
+}
+
+.checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  font-size: 14.5px;
+  color: #334155;
+  line-height: 1.6;
+}
+
+.checkIcon {
+  color: #10b981;
+  font-weight: 600;
+  font-size: 16px;
+  margin-top: 2px;
 }
 
 /* =========================

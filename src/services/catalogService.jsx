@@ -151,6 +151,14 @@ export const downloadErrorSheet = async (downloadLink) => {
 };
 
 // ── Products list / detail / lifecycle ─────────────────────
+export const getUploadedCategories = async () => {
+  const response = await fetch(`${BASE_URL}/catalog/products/uploaded-categories`, {
+    credentials: "include",
+  });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.json(); // { categories: [ { category, id } ], status: "successful" }
+};
+
 export const getProducts = async () => {
   const response = await fetch(`${BASE_URL}/catalog/products`, {
     credentials: "include",

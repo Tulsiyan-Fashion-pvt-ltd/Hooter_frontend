@@ -514,27 +514,17 @@ export default function AddBulkCatalog() {
                 )}
 
                 <div className={styles.copyBox}>
-                  <input type="checkbox" id="copy" disabled />
-
-                  <label htmlFor="copy" style={{ opacity: 0.6 }}>
+                  <div className={styles.copyText}>
                     Copy input details to all products
                     <br />
                     <small>
                       If you want to change specific fields for particular
                       product like Color, Fabric etc
                     </small>
-                  </label>
+                  </div>
                 </div>
 
                 <div className={styles.buttonRow}>
-                  <button
-                    className={styles.draft}
-                    onClick={handleSaveDraft}
-                    disabled={uploadLoading || !selectedFile}
-                  >
-                    Save as draft
-                  </button>
-
                   <button
                     className={styles.submit}
                     onClick={handleUpload}
@@ -547,33 +537,30 @@ export default function AddBulkCatalog() {
 
               {/* RIGHT SIDE COLUMN */}
               <div className={styles.rightSection}>
-                <div
-                  style={{
-                    padding: "16px",
-                    backgroundColor: "#f5f5f5",
-                    borderRadius: "4px",
-                  }}
-                >
-                  <h3 style={{ margin: "0 0 12px 0", fontSize: "1em" }}>
-                    Upload Status
-                  </h3>
-
-                  <p style={{ margin: "0 0 8px 0", color: "#666" }}>
-                    {!selectedFile
-                      ? "No file selected"
-                      : `File: ${selectedFile.name}`}
-                  </p>
-
-                  <p
-                    style={{
-                      margin: "0",
-                      fontSize: "0.9em",
-                      color: "#999",
-                    }}
-                  >
-                    Select an Excel file and click Submit to upload your bulk
-                    catalog
-                  </p>
+                <div className={styles.checklistCard}>
+                  <h3 className={styles.checklistTitle}>Before you upload, make sure your file has:</h3>
+                  <ul className={styles.checklist}>
+                    <li>
+                      <span className={styles.checkIcon}>✓</span>
+                      A unique SKU ID for every row
+                    </li>
+                    <li>
+                      <span className={styles.checkIcon}>✓</span>
+                      Product title, brand and category filled in
+                    </li>
+                    <li>
+                      <span className={styles.checkIcon}>✓</span>
+                      MRP and stock quantity as numbers, no currency symbols
+                    </li>
+                    <li>
+                      <span className={styles.checkIcon}>✓</span>
+                      At least one image URL or filename per product
+                    </li>
+                    <li>
+                      <span className={styles.checkIcon}>✓</span>
+                      No more than 5,000 rows per file — split larger catalogs into batches
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
