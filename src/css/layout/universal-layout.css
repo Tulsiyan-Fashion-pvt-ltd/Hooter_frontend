@@ -22,7 +22,6 @@
 *{
     margin: 0px;
     padding: 0px;
-    font-size: clamp(10px, 12vw, 16px);
 }
 
 :root{

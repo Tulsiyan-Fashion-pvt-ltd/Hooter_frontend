@@ -77,39 +77,6 @@ export default function AddBulkCatalog() {
     }
   };
 
-  const handleDownloadExcelFile = async () => {
-    try {
-      setUploadLoading(true);
-      const staticTypeId = "gid://shopify/TaxonomyCategory/aa-1-23-2-1";
-      const vertical = 1;
-      const blob = await getBulkExcelSheet(
-        staticTypeId,
-        vertical,
-      );
-
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute(
-        "download",
-        `bulk_upload_template_static.xlsx`,
-      );
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
-      setErrorMessage("");
-      setUploadStatus(null);
-    } catch (error) {
-      console.error("Download error:", error);
-      setErrorMessage(error.message || "Failed to download template");
-      setUploadStatus("error");
-    } finally {
-      setUploadLoading(false);
-    }
-  };
-
   // Handle file selection
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
@@ -187,7 +154,8 @@ export default function AddBulkCatalog() {
                   navigate("/catalog");
                 }, 2000);
               }
-            } catch (e) {
+            } catch (error) {
+              console.error("SSE data parsing error:", error, dataStr);
               setErrorMessage(`Processing: ${dataStr}`);
             }
           };
@@ -210,7 +178,8 @@ export default function AddBulkCatalog() {
         setErrorFile(null);
         setErrorJobId(data.data?.job_id || null);
         setErrorMessage(
-          data.data?.message || "Invalid request. Please download the error sheet to see details.",
+          data.data?.message ||
+            "Invalid request. Please download the error sheet to see details.",
         );
         setUploadStatus("error");
       } else if (data.status === "partial-failure") {
@@ -232,50 +201,35 @@ export default function AddBulkCatalog() {
 
   // Download error file
   const handleDownloadErrorFile = async () => {
-    if (errorDownloadLink) {
-      try {
-        const blob = await downloadErrorSheet(errorDownloadLink);
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute(
-          "download",
-          `bulk_upload_errors_${selectedType?.id || "download"}.xlsx`,
-        );
-        document.body.appendChild(link);
-        link.click();
-        link.parentNode.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      } catch (error) {
-        console.error("Error downloading error file:", error);
-      }
-    } else if (errorFile || errorJobId) {
-      try {
-        let blob;
-        let filename;
-        
-        if (errorJobId) {
-          blob = await getErrorSheet(errorJobId);
-          filename = `bulk_upload_errors_${errorJobId}.xlsx`;
-        } else {
-          blob = errorFile;
-          filename = `bulk_upload_errors_${selectedType?.id || "errors"}.xlsx`;
-        }
+    if (!errorDownloadLink && !errorFile && !errorJobId) return;
 
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute(
-          "download",
-          filename,
-        );
-        document.body.appendChild(link);
-        link.click();
-        link.parentNode.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      } catch (error) {
-        console.error("Error downloading error file:", error);
+    try {
+      let blob;
+      let filename;
+
+      if (errorDownloadLink) {
+        blob = await downloadErrorSheet(errorDownloadLink);
+        filename = `bulk_upload_errors_${selectedType?.id || "download"}.xlsx`;
+      } else if (errorJobId) {
+        blob = await getErrorSheet(errorJobId);
+        filename = `bulk_upload_errors_${errorJobId}.xlsx`;
+      } else if (errorFile) {
+        blob = errorFile;
+        filename = `bulk_upload_errors_${selectedType?.id || "errors"}.xlsx`;
       }
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading error file:", error);
+      setErrorMessage(error.message || "Failed to download error report");
+      setUploadStatus("error");
     }
   };
 
@@ -365,7 +319,7 @@ export default function AddBulkCatalog() {
         )}
 
         {/* STEP 2: Upload & Process - Show when product type is selected */}
-        { (
+        {
           <>
             <div className={styles.uploadSection}>
               <label htmlFor="file-upload" className={styles.uploadBtn}>
@@ -565,7 +519,7 @@ export default function AddBulkCatalog() {
               </div>
             </div>
           </>
-        )}
+        }
       </div>
     </div>
   );
