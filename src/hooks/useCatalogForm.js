@@ -280,16 +280,12 @@ export default function useCatalogForm() {
     const nextOrder =
       extraProps.order !== undefined ? extraProps.order : imageAttributes.length;
 
-    // Use a unique field key (rawKey + newId suffix) so that multiple custom
-    // cards never collide in the shared `preview` / `images` state maps.
-    const uniqueField = `${rawKey}_${newId}`;
-
     setImageAttributes((prev) => [
       ...prev,
       {
         id: newId,
-        field: uniqueField,
-        type: uniqueField,
+        field: rawKey,
+        type: rawKey,
         name: initialName,
         description: initialName,
         required: false,
@@ -311,38 +307,51 @@ export default function useCatalogForm() {
   const changeImageCustomKey = (idOrOldField, newLabel) => {
     const newField = toSnakeCase(newLabel) || 'custom';
 
-    setImageAttributes((prev) =>
-      prev.map((attr) => {
-        if (attr.id === idOrOldField || attr.field === idOrOldField) {
-          const oldKey = attr.field;
+    setImageAttributes((prev) => {
+      /* ── DUPLICATE FIELD GUARD ──────────────────────────────────────────────────
+         If another slot already owns this snake_case field key, keep the current
+         slot's field unchanged (only update the display name/description).
+         This prevents the preview migration below from overwriting or erasing
+         an unrelated slot's uploaded image.                                       */
+      const isDuplicate = prev.some(
+        (a) =>
+          a.field === newField &&
+          a.id !== idOrOldField &&
+          a.field !== idOrOldField,
+      );
 
-          // Migrate already uploaded image / preview if key changed
-          if (oldKey && oldKey !== newField) {
-            setImages((prevImages) => {
-              if (!prevImages[oldKey]) return prevImages;
-              const copy = { ...prevImages, [newField]: prevImages[oldKey] };
-              delete copy[oldKey];
-              return copy;
-            });
-            setPreview((prevPreview) => {
-              if (!prevPreview[oldKey]) return prevPreview;
-              const copy = { ...prevPreview, [newField]: prevPreview[oldKey] };
-              delete copy[oldKey];
-              return copy;
-            });
-          }
+      return prev.map((attr) => {
+        if (attr.id !== idOrOldField && attr.field !== idOrOldField) return attr;
 
-          return {
-            ...attr,
-            field: newField,
-            type: newField,
-            name: newLabel,
-            description: newLabel,
-          };
+        const oldKey = attr.field;
+
+        /* Only migrate images/preview when the field key actually changes
+           AND there is no collision with an existing slot.                         */
+        if (!isDuplicate && oldKey && oldKey !== newField) {
+          setImages((prevImages) => {
+            if (!prevImages[oldKey]) return prevImages;
+            const copy = { ...prevImages, [newField]: prevImages[oldKey] };
+            delete copy[oldKey];
+            return copy;
+          });
+          setPreview((prevPreview) => {
+            if (!prevPreview[oldKey]) return prevPreview;
+            const copy = { ...prevPreview, [newField]: prevPreview[oldKey] };
+            delete copy[oldKey];
+            return copy;
+          });
         }
-        return attr;
-      })
-    );
+
+        return {
+          ...attr,
+          /* Keep old field key if collision; user must pick a unique name first. */
+          field: isDuplicate ? oldKey : newField,
+          type:  isDuplicate ? oldKey : newField,
+          name: newLabel,
+          description: newLabel,
+        };
+      });
+    });
   };
 
   /**
@@ -384,94 +393,6 @@ export default function useCatalogForm() {
     }));
   };
 
-  /**
-   * Clears a staged (locally selected) image from both the submission map and
-   * the preview map. Used when the user wants to deselect an image before
-   * submitting. No API call is made — the product has not been created yet.
-   *
-   * After clearing, if multiple custom image cards exist and none of them have
-   * a staged image remaining, the extra cards are collapsed back to one fresh
-   * placeholder so the grid stays clean.
-   *
-   * @param {string} key - Attribute field key to clear (e.g. "front")
-   */
-  const clearImageData = (key) => {
-    setImages((prev) => {
-      const copy = { ...prev };
-      delete copy[key];
-      return copy;
-    });
-    setPreview((prev) => {
-      const copy = { ...prev };
-      delete copy[key];
-      return copy;
-    });
-
-    // ── Collapse empty custom cards ────────────────────────────────────────
-    // After clearing `key`, check whether any OTHER custom card still has an
-    // image staged. We use the current (pre-update) closure values of `images`
-    // and `preview` — these are still accurate for every card except `key`.
-    setImageAttributes((prevAttrs) => {
-      const customCards = prevAttrs.filter((a) => a.custom);
-      if (customCards.length <= 1) return prevAttrs; // nothing to collapse
-
-      const anyOtherCustomHasImage = customCards.some(
-        (a) => a.field !== key && (images[a.field] || preview[a.field]?.url),
-      );
-
-      if (anyOtherCustomHasImage) return prevAttrs; // at least one custom still filled
-
-      // All custom cards are now empty — collapse to a single fresh placeholder
-      const apiCards = prevAttrs.filter((a) => !a.custom);
-      const newId = `custom_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
-      return [
-        ...apiCards,
-        {
-          id: newId,
-          field: `custom_${newId}`,
-          type: `custom_${newId}`,
-          name: 'Custom',
-          description: 'Custom',
-          required: false,
-          order: apiCards.length,
-          custom: true,
-        },
-      ];
-    });
-  };
-
-  /**
-   * Clears ALL staged images from both the submission map and the preview map,
-   * and collapses any extra custom image cards the user added back to a single
-   * placeholder so the grid doesn't linger with empty slots.
-   * No API call is made — the product has not been created yet.
-   */
-  const clearAllImages = () => {
-    setImages({});
-    setPreview({});
-
-    // Keep API-fetched (non-custom) attribute cards intact.
-    // If there are none (fallback-only scenario), reset to exactly one fresh
-    // custom placeholder so the user always has at least one slot to work with.
-    setImageAttributes((prev) => {
-      const apiCards = prev.filter((a) => !a.custom);
-      if (apiCards.length > 0) return apiCards;
-
-      const newId = `custom_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
-      return [
-        {
-          id: newId,
-          field: `custom_${newId}`,
-          type: `custom_${newId}`,
-          name: 'Custom',
-          description: 'Custom',
-          required: false,
-          order: 0,
-          custom: true,
-        },
-      ];
-    });
-  };
 
   /**
    * Validates the form and submits the catalog to the backend.
@@ -529,7 +450,6 @@ export default function useCatalogForm() {
 
       const uskuId = catalogResult.usku_id;
 
-      /* Pass imagesData directly — uploadProductImages builds FormData internally */
       if (Object.keys(images).length > 0) {
         try {
           await uploadProductImages(uskuId, images);
@@ -577,8 +497,6 @@ export default function useCatalogForm() {
     changeImageCustomKey,
     removeImageAttribute,
     uploadImageData,
-    clearImageData,
-    clearAllImages,
     preview,
     setPreview,
 
