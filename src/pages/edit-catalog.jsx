@@ -6,8 +6,9 @@ import {
   getProduct,
   getAttributeFields,
   updateProduct,
-  uploadImages,
-  getImage,
+  uploadProductImages,
+  getProductImages,
+  deleteProductImages,
   markComplete,
 } from "../services/catalogService";
 
@@ -37,6 +38,7 @@ export default function EditInventory() {
   const [imageAttributes, setImageAttributes] = useState([]);
   const [imageField, setImageField] = useState({});
   const [editImage, setEditImage] = useState({});
+  const [deletingImage, setDeletingImage] = useState({}); /* tracks per-type delete loading */
   const [error, setError] = useState();
   const [success, setSuccess] = useState();
   const [submitting, setSubmitting] = useState(false);
@@ -104,6 +106,39 @@ export default function EditInventory() {
     input.click();
   }
 
+  /**
+   * Calls DELETE /catalog/images/{uskuId}?image-type={key}.
+   * On success clears the saved preview so the camera placeholder shows again.
+   */
+  async function handleDeleteImage(key) {
+    /* Prevent concurrent deletes on the same image card */
+    if (deletingImage[key]) return;
+
+    setDeletingImage((prev) => ({ ...prev, [key]: true }));
+    setError(null);
+
+    try {
+      await deleteProductImages(uskuId, key);
+
+      /* Remove from both the saved preview and any pending local edit */
+      setImageField((prev) => {
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      });
+      setEditImage((prev) => {
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      });
+    } catch (e) {
+      console.error(`Delete image failed for type "${key}":`, e);
+      setError(e.message || "Could not delete image");
+    } finally {
+      setDeletingImage((prev) => ({ ...prev, [key]: false }));
+    }
+  }
+
   async function handleURL(key, url, order) {
     try {
       const response = await fetch(url);
@@ -129,21 +164,9 @@ export default function EditInventory() {
 
       await updateProduct(uskuId, field["category_id"], data);
 
-      const files = Object.keys(editImage).map((key) => editImage[key].image);
-
-      const meta = {};
-
-      Object.keys(editImage).forEach((key) => {
-        const file = editImage[key].image;
-
-        meta[file.name] = {
-          image_order: editImage[key].order,
-          image_type: key,
-        };
-      });
-
-      if (files.length > 0) {
-        await uploadImages(uskuId, files, meta);
+      /* Pass imagesData directly — uploadProductImages builds FormData internally */
+      if (Object.keys(editImage).length > 0) {
+        await uploadProductImages(uskuId, editImage);
       }
 
       await markComplete(uskuId);
@@ -188,7 +211,7 @@ export default function EditInventory() {
 
         for (const attr of imageAttributes) {
           try {
-            const img = await getImage(uskuId, attr.field);
+            const img = await getProductImages(uskuId, attr.field);
 
             setImageField((prev) => ({
               ...prev,
@@ -428,9 +451,26 @@ export default function EditInventory() {
                       }}
                     ></div>
 
-                    <p className={styles.imageNote}>
-                      {attr.required ? "Required" : "Optional"}
-                    </p>
+                    <div className={styles.imageCardFooter}>
+                      <p className={styles.imageNote}>
+                        {attr.required ? "Required" : "Optional"}
+                      </p>
+
+                      {/* Show delete button only when a saved image exists for this type */}
+                      {(imageField[attr.field] || editImage[attr.field]) && (
+                        <button
+                          className={styles.deleteImageBtn}
+                          title={`Delete ${attr.name || attr.field} image`}
+                          disabled={deletingImage[attr.field]}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteImage(attr.field);
+                          }}
+                        >
+                          {deletingImage[attr.field] ? "…" : "🗑"}
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   <input

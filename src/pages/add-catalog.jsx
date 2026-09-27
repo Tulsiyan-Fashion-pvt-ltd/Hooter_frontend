@@ -15,12 +15,31 @@ import camera from "../assets/icons/upload_photo.svg";
  *         optional custom attributes, and product images before submitting.
  */
 export default function AddCatalog() {
-
   // Ref used to determine image card insertion order when adding custom image slots.
   const imageContainerRef = useRef();
 
   // Tracks user-entered image URLs for each image attribute field.
   const [imageLink, setImageLink] = useState({});
+
+  // Always-current mirror of imageLink used by async fetch callbacks to detect
+  // whether a slot was cleared while the request was in-flight.
+  // Updated SYNCHRONOUSLY inside every setter call so there is zero render-lag.
+  const imageLinkRef = useRef({});
+
+  /**
+   * Drop-in replacement for setImageLink that keeps imageLinkRef in sync
+   * immediately — before the next render — so that any in-flight fetch
+   * can reliably detect stale results even within the same event loop tick.
+   *
+   * @param {((prev: Object) => Object) | Object} updater
+   */
+  const syncSetImageLink = (updater) => {
+    setImageLink((prev) => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      imageLinkRef.current = next;   // synchronous update
+      return next;
+    });
+  };
   const {
     selectedType,
     handleTypeChange,
@@ -34,6 +53,8 @@ export default function AddCatalog() {
     preview,
     setPreview,
     uploadImageData,
+    clearImageData,
+    clearAllImages,
     dynamicValues,
     handleDynamicChange,
     submitting,
@@ -69,7 +90,6 @@ export default function AddCatalog() {
     { key: "brand_name", label: "Brand Name", required: true },
   ];
 
-
   // Converts snake_case field keys into human-readable Title Case labels.
   const formatLabel = (str) =>
     str.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -85,12 +105,12 @@ export default function AddCatalog() {
     return (
       <div className={styles.globalAddCatalogContainer}>
         <div className={styles.main}>
-          <div style={{ textAlign: "center", padding: "60px" }}>
-            <div style={{ fontSize: "48px", marginBottom: "16px" }}>✅</div>
-            <h2 style={{ color: "#0040D6", marginBottom: "8px" }}>
+          <div className={styles.successBox}>
+            <div className={styles.successEmoji}>✅</div>
+            <h2 className={styles.successTitle}>
               Catalog Added Successfully!
             </h2>
-            <p style={{ color: "#666" }}>Redirecting to dashboard...</p>
+            <p className={styles.successText}>Redirecting to dashboard...</p>
           </div>
         </div>
       </div>
@@ -130,7 +150,7 @@ export default function AddCatalog() {
 
     // If an image link was entered under the old key, migrate it to the new key
     if (oldField !== newSnakeField && imageLink[oldField] !== undefined) {
-      setImageLink((prev) => {
+      syncSetImageLink((prev) => {
         const copy = { ...prev, [newSnakeField]: prev[oldField] };
         delete copy[oldField];
         return copy;
@@ -161,22 +181,32 @@ export default function AddCatalog() {
   }
 
   async function handleImageLink(key, link) {
-    console.log(link);
+    // Nothing to fetch for empty / whitespace-only strings
+    if (!link || !link.trim()) {
+      syncSetImageLink((prev) => {
+        const copy = { ...prev };
+        delete copy[key];
+        return copy;
+      });
+      setPreview((prev) => {
+        const copy = { ...prev };
+        delete copy[key];
+        return copy;
+      });
+      return;
+    }
 
-    setImageLink((prev) => ({
-      ...prev,
-      [key]: link,
-    }));
-
-    const running = imageLink[key];
+    syncSetImageLink((prev) => ({ ...prev, [key]: link }));
 
     try {
       const response = await fetch(link);
       const image = await response.blob();
-      console.log(image);
+
+      // Stale-closure guard: if the user cleared or changed this slot while
+      // the fetch was in-flight, discard the result and don't touch preview.
+      if (imageLinkRef.current[key] !== link) return;
 
       if (!response.ok) {
-        console.log(running);
         setPreview((prev) => ({
           ...prev,
           [key]: { url: "", object: null },
@@ -197,6 +227,8 @@ export default function AddCatalog() {
         }));
       }
     } catch {
+      // Guard again in the error path
+      if (imageLinkRef.current[key] !== link) return;
       setPreview((prev) => ({
         ...prev,
         [key]: { url: "", object: null },
@@ -216,9 +248,8 @@ export default function AddCatalog() {
           <div className={styles.row}>
             <div className={styles.steps}>
               <div
-                className={`${styles.step} ${
-                  !hasAttributes ? styles.active : ""
-                }`}
+                className={`${styles.step} ${!hasAttributes ? styles.active : ""
+                  }`}
               >
                 {hasAttributes ? (
                   <span className={styles.check}>✔</span>
@@ -229,9 +260,8 @@ export default function AddCatalog() {
               </div>
 
               <div
-                className={`${styles.step} ${
-                  hasAttributes ? styles.active : ""
-                }`}
+                className={`${styles.step} ${hasAttributes ? styles.active : ""
+                  }`}
               >
                 <span>2&nbsp;</span>
                 Add Product Details
@@ -254,35 +284,14 @@ export default function AddCatalog() {
 
         {/* ── ERROR BANNER ── */}
         {error && (
-          <div
-            id="error"
-            style={{
-              background: "#fff0f0",
-              border: "1px solid #E51300",
-              borderRadius: "8px",
-              padding: "12px 16px",
-              marginBottom: "16px",
-              color: "#E51300",
-              fontSize: "14px",
-            }}
-          >
+          <div id="error" className={styles.errorBanner}>
             ⚠ {error}
           </div>
         )}
 
         {/* ── NO ATTRIBUTES MESSAGE ── */}
         {noAttributes && (
-          <div
-            style={{
-              background: "#fffbe6",
-              border: "1px solid #f0c000",
-              borderRadius: "8px",
-              padding: "12px 16px",
-              marginBottom: "16px",
-              color: "#7a5c00",
-              fontSize: "14px",
-            }}
-          >
+          <div className={styles.noAttrWarning}>
             ⚠ This product type has no attributes configured yet. Please select
             a different product.
           </div>
@@ -313,30 +322,33 @@ export default function AddCatalog() {
                 {fixedFields.map(({ key, label, required }) => (
                   <div className={styles.line} key={key}>
                     <span
-                      className={`${styles.pill} ${
-                        required ? styles.required : ""
-                      }`}
+                      className={`${styles.pill} ${required ? styles.required : ""
+                        }`}
                     >
                       {label}
                       {required ? " *" : ""}
                     </span>
 
                     <input
-                      placeholder="Type Here..."
+                      placeholder={
+                        key === "discount"
+                          ? "Discount %"
+                          : "Enter the listing description"
+                      }
                       value={
                         key === "discount"
                           ? (() => {
-                              const factor = Math.pow(10, 2);
-                              return `${
-                                Math.trunc(
-                                  ((fixedValues["compared_price"] -
-                                    fixedValues["price"]) /
-                                    fixedValues["compared_price"]) *
-                                    100 *
-                                    factor,
-                                ) / factor
-                              }%`;
-                            })()
+                            const cp = parseFloat(
+                              fixedValues["compared_price"],
+                            );
+                            const p = parseFloat(fixedValues["price"]);
+                            if (!cp || isNaN(cp) || isNaN(p)) return "";
+                            const factor = Math.pow(10, 2);
+                            const result =
+                              Math.trunc(((cp - p) / cp) * 100 * factor) /
+                              factor;
+                            return `${result}%`;
+                          })()
                           : fixedValues[key]
                       }
                       onChange={(e) => handleFixedChange(key, e.target.value)}
@@ -346,7 +358,7 @@ export default function AddCatalog() {
                 ))}
               </div>
 
-              <h4 style={{ marginTop: "24px" }}>Product Attributes</h4>
+              <h4 className={styles.sectionHeading}>Product Attributes</h4>
               <div className={styles.listing}>
                 {categoryAttributes.map((attr) => {
                   if (attr.field === "niche_id") return null;
@@ -359,9 +371,8 @@ export default function AddCatalog() {
                   return (
                     <div className={styles.line} key={attr.field}>
                       <span
-                        className={`${styles.pill} ${
-                          attr.required ? styles.required : ""
-                        }`}
+                        className={`${styles.pill} ${attr.required ? styles.required : ""
+                          }`}
                       >
                         {attr.name || formatLabel(attr.field || "")}
                         {attr.required ? " *" : ""}
@@ -385,7 +396,7 @@ export default function AddCatalog() {
                         </select>
                       ) : (
                         <input
-                          placeholder="Type Here..."
+                          placeholder="Enter the product description"
                           value={dynamicValues[attr.field] || ""}
                           onChange={(e) =>
                             handleDynamicChange(attr.field, e.target.value)
@@ -409,19 +420,14 @@ export default function AddCatalog() {
               ───────────────────────────────────────────────── */}
               {customAttributes.length > 0 && (
                 <>
-                  <h4 style={{ marginTop: "24px" }}>Custom Attributes</h4>
+                  <h4 className={styles.sectionHeading}>Custom Attributes</h4>
 
                   <div className={styles.listing}>
                     {customAttributes.map((attr) => (
                       <div className={styles.line} key={attr.id}>
                         {/* Custom Attribute Name: Styled inside the exact same .pill container as other attributes */}
                         <span
-                          className={styles.pill}
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            background: "white",
-                          }}
+                          className={`${styles.pill} ${styles.pillCustom}`}
                         >
                           <input
                             type="text"
@@ -429,19 +435,26 @@ export default function AddCatalog() {
                             value={attr.name}
                             maxLength={100}
                             onChange={(e) =>
-                              handleCustomAttributeChange(attr.id, "name", e.target.value)
+                              handleCustomAttributeChange(
+                                attr.id,
+                                "name",
+                                e.target.value,
+                              )
                             }
                             className={styles.pill_input}
                           />
                         </span>
 
-                        {/* Custom Attribute Value: Exact same look and feel as Product Attributes */}
+                        {/* Custom Attribute Value: Retains standard string data typing with unrestricted description/text length */}
                         <input
-                          placeholder="Type Here..."
+                          placeholder="Enter the attribute description"
                           value={attr.value || ""}
-                          maxLength={100}
                           onChange={(e) =>
-                            handleCustomAttributeChange(attr.id, "value", e.target.value)
+                            handleCustomAttributeChange(
+                              attr.id,
+                              "value",
+                              e.target.value,
+                            )
                           }
                         />
 
@@ -450,20 +463,7 @@ export default function AddCatalog() {
                           type="button"
                           onClick={() => removeCustomAttribute(attr.id)}
                           title="Remove"
-                          style={{
-                            background: "none",
-                            border: "none",
-                            cursor: "pointer",
-                            color: "#888",
-                            fontSize: "1.1em",
-                            padding: "0 6px",
-                            lineHeight: 1,
-                            flexShrink: 0,
-                            marginLeft: "-2rem",
-                            transition: "color 0.15s ease",
-                          }}
-                          onMouseEnter={(e) => (e.currentTarget.style.color = "#d32f2f")}
-                          onMouseLeave={(e) => (e.currentTarget.style.color = "#888")}
+                          className={styles.removeAttrBtn}
                         >
                           ✕
                         </button>
@@ -480,25 +480,9 @@ export default function AddCatalog() {
               ───────────────────────────────────────────────── */}
               <button
                 onClick={addCustomAttribute}
-                style={{
-                  marginTop: "20px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  background: "none",
-                  border: "1px dashed #0040D6",
-                  color: "#0040D6",
-                  padding: "8px 16px",
-                  borderRadius: "6px",
-                  fontSize: "0.9em",
-                  cursor: "pointer",
-                  fontWeight: 500,
-                  transition: "background 0.15s",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#f0f4ff")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+                className={styles.addCustomAttrBtn}
               >
-                <span style={{ fontSize: "1.1em", lineHeight: 1 }}>+</span>
+                <span className={styles.addBtnIcon}>+</span>
                 Add Custom Attribute
               </button>
 
@@ -509,7 +493,6 @@ export default function AddCatalog() {
                   className={styles.submit}
                   onClick={handleSubmit}
                   disabled={submitting}
-                  style={{ opacity: submitting ? 0.7 : 1 }}
                 >
                   {submitting ? "Submitting..." : "Submit"}
                 </button>
@@ -521,13 +504,7 @@ export default function AddCatalog() {
               <div className={styles.card1}>
                 <h2>Add Images</h2>
 
-                <p
-                  style={{
-                    fontSize: "0.85em",
-                    color: "#666",
-                    marginBottom: "12px",
-                  }}
-                >
+                <p className={styles.imageCardSubtext}>
                   Fields marked with * are required.
                 </p>
 
@@ -560,7 +537,10 @@ export default function AddCatalog() {
                                 : attr.name || ""
                             }
                             onChange={(e) =>
-                              handleCustomAttributeNameChange(attr, e.target.value)
+                              handleCustomAttributeNameChange(
+                                attr,
+                                e.target.value,
+                              )
                             }
                           />
                         ) : (
@@ -571,32 +551,52 @@ export default function AddCatalog() {
                           </div>
                         )}
 
-                        <div
-                          className={styles["img-box"]}
-                          style={{ padding: "12px" }}
-                        >
+                        <div className={`${styles["img-box"]} ${styles.imgBoxPadded}`}>
                           <div
                             className={styles.circle}
                             onClick={() => {
                               uploadImage(attr.field, attr.order);
                             }}
-                            style={{
-                              backgroundImage: preview[attr.field]
-                                ? preview[attr.field]["url"] &&
-                                  preview[attr.field]["url"] != ""
-                                  ? `url(${preview[attr.field]["url"]})`
-                                  : `url(${camera})`
-                                : `url(${camera})`,
-                            }}
-                          ></div>
-
-                          <p
-                            style={{
-                              fontSize: "11px",
-                              color: "#888",
-                              marginTop: "6px",
-                            }}
                           >
+                            {/* Show the selected image if one exists, otherwise the camera placeholder */}
+                            <img
+                              src={
+                                preview[attr.field]?.url
+                                  ? preview[attr.field]["url"]
+                                  : camera
+                              }
+                              alt={preview[attr.field]?.url ? "Preview" : "Upload"}
+                              className={
+                                preview[attr.field]?.url
+                                  ? styles.circleImgPreview
+                                  : styles.circleImg
+                              }
+                            />
+                          </div>
+
+                          {/* Clear button — only shown when an image has been staged */}
+                          {preview[attr.field]?.url && (
+                            <button
+                              type="button"
+                              title="Remove image"
+                              className={styles.removeImageBtn}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                /* Clear from hook's images + preview maps */
+                                clearImageData(attr.field);
+                                /* Also wipe the image-link input for this card */
+                                syncSetImageLink((prev) => {
+                                  const copy = { ...prev };
+                                  delete copy[attr.field];
+                                  return copy;
+                                });
+                              }}
+                            >
+                              ✕ Remove
+                            </button>
+                          )}
+
+                          <p className={styles.imageCardRequired}>
                             {isRequired ? "Required" : "Optional"}
                           </p>
                         </div>
@@ -607,10 +607,6 @@ export default function AddCatalog() {
                           className={styles.imageLink}
                           value={imageLink[attr.field] || ""}
                           onChange={(e) => {
-                            setImageLink((prev) => ({
-                              ...prev,
-                              [attr.field]: e.target.value,
-                            }));
                             handleImageLink(attr.field, e.target.value);
                           }}
                         />
@@ -619,12 +615,29 @@ export default function AddCatalog() {
                   })}
                 </div>
 
-                <button
-                  className={styles["blue-btn"]}
-                  onClick={addCustomCimageContainer}
-                >
-                  + Add Custom
-                </button>
+                <div className={styles.imageBtnRow}>
+                  <button
+                    className={`${styles["blue-btn"]} ${styles.blueBtnNoMargin}`}
+                    onClick={addCustomCimageContainer}
+                  >
+                    + Add Custom
+                  </button>
+
+                  {/* Only shown when at least one image has been staged */}
+                  {Object.values(preview).some((p) => p?.url) && (
+                    <button
+                      type="button"
+                      className={styles.clearAllBtn}
+                      onClick={() => {
+                        clearAllImages();
+                        syncSetImageLink({});
+                      }}
+                    >
+                      <span className={styles.clearBtnIcon}>✕</span>
+                      Clear All Images
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
