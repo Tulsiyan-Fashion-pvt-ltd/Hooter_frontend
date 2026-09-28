@@ -102,9 +102,7 @@ export default function useCatalogForm() {
             (attr.type
               ? attr.type.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
               : `Image ${idx + 1}`),
-          name:
-            attr.description ||
-            attr.name ||
+          name: attr.name ||
             (attr.type
               ? attr.type.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
               : `Image ${idx + 1}`),

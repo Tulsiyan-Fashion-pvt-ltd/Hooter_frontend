@@ -649,11 +649,9 @@ export default function AddCatalog() {
                     /* Only the first image slot is required — marked with * */
                     const isRequired = index === 0;
                     const isCustom = attr.custom;
-
+                    // console.log(attr)                      
                     // Display actual description received from API, falling back to name or formatted field
-                    const displayLabel =
-                      attr.description ||
-                      attr.name ||
+                    const displayLabel = attr.name ||
                       formatLabel(attr.type || attr.field || "");
 
                     return (
@@ -668,11 +666,7 @@ export default function AddCatalog() {
                             type="text"
                             className={styles.imageTypeTag}
                             placeholder="Custom"
-                            value={
-                              attr.description !== undefined
-                                ? attr.description
-                                : attr.name || ""
-                            }
+                            value={attr.name}
                             onChange={(e) =>
                               handleCustomAttributeNameChange(
                                 attr,
