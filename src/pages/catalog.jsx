@@ -62,6 +62,7 @@ export default function Catalog() {
   const [searchSku, setSearchSku] = useState("");
   const [uploadedCategories, setUploadedCategories] = useState([]);
   const [activeCategory, setActiveCategory] = useState("All");
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
 
   // Delete modal state
   const [deleteModal, setDeleteModal] = useState({
@@ -355,23 +356,45 @@ export default function Catalog() {
               );
             })}
             <div style={{ position: "relative", display: "inline-block" }}>
-              <select 
+              <button 
+                type="button"
                 className={styles.dropdownBtn}
-                style={{ appearance: "none", paddingRight: "28px", cursor: "pointer", outline: "none" }}
-                value={activeCategory}
-                onChange={(e) => {
-                  setActiveCategory(e.target.value);
-                  setCurrentPage(1);
-                }}
+                onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                style={{ paddingRight: "28px" }}
               >
-                <option value="All">Category (All)</option>
-                {uploadedCategories.map((cat) => (
-                  <option key={cat.id} value={cat.category}>{cat.category}</option>
-                ))}
-              </select>
+                {activeCategory === "All" ? "Category (All)" : activeCategory}
+              </button>
               <svg style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "#64748b" }} width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M6 9l6 6 6-6"/>
               </svg>
+
+              {isCategoryDropdownOpen && (
+                <div className={styles.customDropdownMenu}>
+                  <div 
+                    className={styles.customDropdownItem}
+                    onClick={() => {
+                      setActiveCategory("All");
+                      setCurrentPage(1);
+                      setIsCategoryDropdownOpen(false);
+                    }}
+                  >
+                    Category (All)
+                  </div>
+                  {uploadedCategories.map((cat) => (
+                    <div 
+                      key={cat.id} 
+                      className={styles.customDropdownItem}
+                      onClick={() => {
+                        setActiveCategory(cat.category);
+                        setCurrentPage(1);
+                        setIsCategoryDropdownOpen(false);
+                      }}
+                    >
+                      {cat.category}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 

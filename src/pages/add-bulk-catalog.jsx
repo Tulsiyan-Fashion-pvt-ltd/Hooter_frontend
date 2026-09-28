@@ -334,18 +334,6 @@ export default function AddBulkCatalog() {
             {/* Cascade Dropdowns */}
             <CatalogSelector onTypeSelect={handleTypeChange} />
 
-            <div className={styles["mandatory-row"]}>
-              <p className={styles.mandatory}>
-                Mandatory Fields<span>*</span>
-              </p>
-
-              <div className={`${styles.guideline} ${styles.small}`}>
-                <Link to="#">
-                  ⚠ Follow guidelines to reduce quality check failures
-                </Link>
-              </div>
-            </div>
-
             {/* <hr className={styles.hr1} /> */}
           </div>
         </header>
@@ -365,8 +353,20 @@ export default function AddBulkCatalog() {
         )}
 
         {/* STEP 2: Upload & Process - Show when product type is selected */}
-        { (
+        {selectedType && (
           <>
+            <div className={styles["mandatory-row"]}>
+              <p className={styles.mandatory}>
+                Mandatory Fields<span>*</span>
+              </p>
+
+              <div className={`${styles.guideline} ${styles.small}`}>
+                <Link to="#">
+                  ⚠ Follow guidelines to reduce quality check failures
+                </Link>
+              </div>
+            </div>
+
             <div className={styles.uploadSection}>
               <label htmlFor="file-upload" className={styles.uploadBtn}>
                 {uploadLoading ? "Processing..." : "Upload Excel File"}
@@ -515,15 +515,21 @@ export default function AddBulkCatalog() {
 
                 <div className={styles.copyBox}>
                   <div className={styles.copyText}>
-                    Copy input details to all products
-                    <br />
-                    <small>
-                      If you want to change specific fields for particular
-                      product like Color, Fabric etc
-                    </small>
+                    <h3 style={{ marginTop: 0, marginBottom: "12px", fontSize: "16px", color: "#1e293b" }}>
+                      Bulk Product Upload Instructions
+                    </h3>
+                    <ol style={{ paddingLeft: "20px", margin: 0, display: "flex", flexDirection: "column", gap: "8px", color: "#475569" }}>
+                      <li>Download the sample Excel file using the <strong>“Download Sample Excel File”</strong> option.</li>
+                      <li>Before entering product data, remove the <strong>Description</strong> and <strong>Note</strong> rows/sections from the sheet.</li>
+                      <li style={{ marginBottom: "8px" }}>Enter the correct product information <strong>row by row</strong>, ensuring that each value matches the corresponding field description.</li>
+                      <li>Verify all product data carefully before uploading the Excel file.</li>
+                      <li>Upload the completed Excel file using the <strong>Bulk Upload</strong> option.</li>
+                      <li>If any products fail to upload, download the <strong>Error Sheet</strong> to review the errors and make the necessary corrections.</li>
+                    </ol>
                   </div>
                 </div>
 
+                {/* 
                 <div className={styles.buttonRow}>
                   <button
                     className={styles.submit}
@@ -532,7 +538,8 @@ export default function AddBulkCatalog() {
                   >
                     {uploadLoading ? "Uploading..." : "Submit"}
                   </button>
-                </div>
+                </div> 
+                */}
               </div>
 
               {/* RIGHT SIDE COLUMN */}
@@ -552,10 +559,7 @@ export default function AddBulkCatalog() {
                       <span className={styles.checkIcon}>✓</span>
                       MRP and stock quantity as numbers, no currency symbols
                     </li>
-                    <li>
-                      <span className={styles.checkIcon}>✓</span>
-                      At least one image URL or filename per product
-                    </li>
+
                     <li>
                       <span className={styles.checkIcon}>✓</span>
                       No more than 5,000 rows per file — split larger catalogs into batches
