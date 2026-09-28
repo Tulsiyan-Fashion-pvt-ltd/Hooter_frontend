@@ -26,6 +26,43 @@ export default function AddCatalog() {
   // Updated SYNCHRONOUSLY inside every setter call so there is zero render-lag.
   const imageLinkRef = useRef({});
 
+
+
+
+  /* ─── Image Status Toast ───────────────────────────────────────────────────
+     Tracks the current bottom-right popup: message, colour type
+     ("red" | "yellow" | "green"), and whether it is currently visible.       */
+  const [toast, setToast] = useState({ message: "", type: "", visible: false });
+
+
+
+
+  /* Holds the auto-dismiss setTimeout ID so we can cancel a pending dismiss
+     whenever a newer toast fires before the previous one fades out.           */
+  const toastTimerRef = useRef(null);
+
+
+
+
+  /**
+   * showToast — Triggers the bottom-right image status popup.
+   *
+   * Cancels any in-flight auto-dismiss timer first so rapid interactions
+   * always reset the 4-second window from scratch.
+   *
+   * @param {string} message              - Text to display inside the toast.
+   * @param {"red"|"yellow"|"green"} type - Visual colour variant.
+   */
+  function showToast(message, type) {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+
+    setToast({ message, type, visible: true });
+
+    toastTimerRef.current = setTimeout(() => {
+      setToast((prev) => ({ ...prev, visible: false }));
+    }, 4000);
+  }
+
   /**
    * Drop-in replacement for setImageLink that keeps imageLinkRef in sync
    * immediately — before the next render — so that any in-flight fetch
@@ -49,12 +86,11 @@ export default function AddCatalog() {
     imageAttributes,
     addImageAttribute,
     changeImageCustomKey,
+    removeImageAttribute,
     toSnakeCase,
     preview,
     setPreview,
     uploadImageData,
-    clearImageData,
-    clearAllImages,
     dynamicValues,
     handleDynamicChange,
     submitting,
@@ -66,6 +102,11 @@ export default function AddCatalog() {
     handleCustomAttributeChange,
     removeCustomAttribute,
   } = useCatalogForm();
+
+
+
+
+
 
   // ─── Static Listing Field Definitions ───────────────────────────────────────
   // These fields are always shown regardless of the selected product category.
@@ -134,6 +175,10 @@ export default function AddCatalog() {
     });
   }
 
+
+
+
+
   /**
    * Handles user typing a custom image attribute name (e.g. "Product Image").
    * Automatically converts the name to snake_case for the internal field/type
@@ -145,6 +190,23 @@ export default function AddCatalog() {
   function handleCustomAttributeNameChange(attr, newName) {
     const oldField = attr.field;
     const newSnakeField = toSnakeCase(newName) || "custom";
+
+    /* ── DUPLICATE NAME TOAST ────────────────────────────────────────────────────
+       Fire a yellow toast the moment the typed name resolves to a snake_case key
+       already owned by a different slot. The hook's collision guard will prevent
+       any data from being overwritten, but we need to tell the user why.          */
+    const isDuplicate = imageAttributes.some(
+      (a) =>
+        a.field === newSnakeField &&
+        (a.id || a.field) !== (attr.id || attr.field),
+    );
+
+    if (isDuplicate) {
+      showToast(
+        "2 images can't have the same name — try a different one",
+        "yellow",
+      );
+    }
 
     changeImageCustomKey(attr.id || oldField, newName);
 
@@ -174,11 +236,50 @@ export default function AddCatalog() {
         }));
 
         uploadImageData(key, file, order);
+
+        /* ── SUCCESS TOAST ── Green confirmation once a file is chosen */
+        showToast("Image uploaded successfully!", "green");
       }
     };
 
     input.click();
   }
+
+
+  /**
+   * removeImage — Clears the preview and image-link state for a single slot.
+   * Called by the per-card ✕ Remove button.
+   *
+   * @param {string} key - The field key of the image slot to clear.
+   */
+  function removeImage(key) {
+    setPreview((prev) => {
+      const copy = { ...prev };
+      delete copy[key];
+      return copy;
+    });
+
+    syncSetImageLink((prev) => {
+      const copy = { ...prev };
+      delete copy[key];
+      return copy;
+    });
+  }
+
+
+
+
+  /**
+   * clearAllImages — Resets every image slot's preview and link state at once.
+   * Called by the "Clear All" button visible when any image is uploaded.
+   */
+  function clearAllImages() {
+    setPreview({});
+    syncSetImageLink({});
+  }
+
+
+
 
   async function handleImageLink(key, link) {
     // Nothing to fetch for empty / whitespace-only strings
@@ -201,6 +302,9 @@ export default function AddCatalog() {
     try {
       const response = await fetch(link);
       const image = await response.blob();
+
+
+
 
       // Stale-closure guard: if the user cleared or changed this slot while
       // the fetch was in-flight, discard the result and don't touch preview.
@@ -236,6 +340,10 @@ export default function AddCatalog() {
     }
   }
 
+
+
+
+
   return (
     <div className={styles.globalAddCatalogContainer}>
       <div className={styles.main}>
@@ -269,6 +377,9 @@ export default function AddCatalog() {
             </div>
           </div>
 
+
+
+
           {/* ── CATALOG SELECTOR — self-contained ── */}
           <CatalogSelector onTypeSelect={handleTypeChange} />
 
@@ -282,12 +393,16 @@ export default function AddCatalog() {
           </div>
         </div>
 
+
+
         {/* ── ERROR BANNER ── */}
         {error && (
           <div id="error" className={styles.errorBanner}>
             ⚠ {error}
           </div>
         )}
+
+
 
         {/* ── NO ATTRIBUTES MESSAGE ── */}
         {noAttributes && (
@@ -296,6 +411,8 @@ export default function AddCatalog() {
             a different product.
           </div>
         )}
+
+
 
         {/* ════════════════════════════════════════
             STEP 2 — details + images side by side
@@ -409,6 +526,8 @@ export default function AddCatalog() {
                 })}
               </div>
 
+
+
               {/* ─────────────────────────────────────────────────
                   CUSTOM ATTRIBUTES
                   Follows the exact visual layout of Listing Information and Product Attributes:
@@ -473,6 +592,9 @@ export default function AddCatalog() {
                 </>
               )}
 
+
+
+
               {/* ─────────────────────────────────────────────────
                   ADD CUSTOM ATTRIBUTE BUTTON
                   Always visible once step 2 is active. Clicking appends a
@@ -491,7 +613,18 @@ export default function AddCatalog() {
 
                 <button
                   className={styles.submit}
-                  onClick={handleSubmit}
+                  onClick={() => {
+                    /* ── RED TOAST ── Block submit if the required first image is missing */
+                    const firstAttr = imageAttributes[0];
+                    if (firstAttr && !preview[firstAttr.field]?.url) {
+                      showToast(
+                        "Upload atleast 1 image to submit",
+                        "red",
+                      );
+                      return;
+                    }
+                    handleSubmit();
+                  }}
                   disabled={submitting}
                 >
                   {submitting ? "Submitting..." : "Submit"}
@@ -499,18 +632,22 @@ export default function AddCatalog() {
               </div>
             </div>
 
+
+
+
             {/* RIGHT — Images */}
             <div className={styles.right}>
               <div className={styles.card1}>
-                <h2>Add Images</h2>
+                <h2>Product Images</h2>
 
                 <p className={styles.imageCardSubtext}>
                   Fields marked with * are required.
                 </p>
 
                 <div className={styles["image-grid"]} ref={imageContainerRef}>
-                  {imageAttributes.map((attr) => {
-                    const isRequired = attr.required;
+                  {imageAttributes.map((attr, index) => {
+                    /* Only the first image slot is required — marked with * */
+                    const isRequired = index === 0;
                     const isCustom = attr.custom;
 
                     // Display actual description received from API, falling back to name or formatted field
@@ -542,6 +679,34 @@ export default function AddCatalog() {
                                 e.target.value,
                               )
                             }
+                            onBlur={(e) => {
+                              const val = e.target.value.trim();
+
+                              /* ── YELLOW TOAST: placeholder name ── */
+                              if (!val || val.toLowerCase() === "custom") {
+                                showToast(
+                                  'Give your custom image a name — "Custom" is just a placeholder',
+                                  "yellow",
+                                );
+                                return;
+                              }
+
+                              /* ── YELLOW TOAST: duplicate name ─────────────────────────────────
+                                 If another slot already resolves to the same snake_case field key,
+                                 warn the user so they know the field key wasn't actually updated. */
+                              const newSnakeField = toSnakeCase(val);
+                              const isDuplicate = imageAttributes.some(
+                                (a) =>
+                                  a.field === newSnakeField &&
+                                  (a.id || a.field) !== (attr.id || attr.field),
+                              );
+                              if (isDuplicate) {
+                                showToast(
+                                  'Another image already uses this name — choose a different one',
+                                  "yellow",
+                                );
+                              }
+                            }}
                           />
                         ) : (
                           /* Fetched Attribute: Read-only label with actual description from API */
@@ -558,7 +723,6 @@ export default function AddCatalog() {
                               uploadImage(attr.field, attr.order);
                             }}
                           >
-                            {/* Show the selected image if one exists, otherwise the camera placeholder */}
                             <img
                               src={
                                 preview[attr.field]?.url
@@ -574,32 +738,30 @@ export default function AddCatalog() {
                             />
                           </div>
 
-                          {/* Clear button — only shown when an image has been staged */}
-                          {preview[attr.field]?.url && (
-                            <button
-                              type="button"
-                              title="Remove image"
-                              className={styles.removeImageBtn}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                /* Clear from hook's images + preview maps */
-                                clearImageData(attr.field);
-                                /* Also wipe the image-link input for this card */
-                                syncSetImageLink((prev) => {
-                                  const copy = { ...prev };
-                                  delete copy[attr.field];
-                                  return copy;
-                                });
-                              }}
-                            >
-                              ✕ Remove
-                            </button>
-                          )}
-
                           <p className={styles.imageCardRequired}>
                             {isRequired ? "Required" : "Optional"}
                           </p>
                         </div>
+
+
+                        {/* ── SINGLE IMAGE REMOVE ── Only rendered when this slot has a preview.
+                            Custom slots: removes the entire card via removeImageAttribute.
+                            API slots:    clears only the preview via removeImage.          */}
+                        {preview[attr.field]?.url && (
+                          <button
+                            type="button"
+                            className={styles.removeImageBtn}
+                            onClick={() =>
+                              isCustom
+                                ? removeImageAttribute(attr.id || attr.field)
+                                : removeImage(attr.field)
+                            }
+                            title="Remove image"
+                          >
+                            ✕ Remove
+                          </button>
+                        )}
+
 
                         <input
                           type="text"
@@ -615,26 +777,68 @@ export default function AddCatalog() {
                   })}
                 </div>
 
+
+
+
+                {/* ── IMAGE ACTION BUTTONS ROW ──────────────────────────────────────────────
+                    Holds the "+ Add Custom" and the conditional "Clear All" button.
+                    Clear All is only rendered once at least one image has been uploaded. */}
                 <div className={styles.imageBtnRow}>
                   <button
                     className={`${styles["blue-btn"]} ${styles.blueBtnNoMargin}`}
-                    onClick={addCustomCimageContainer}
+                    onClick={() => {
+                      /* ── GUARD 1: unnamed slot ─────────────────────────────────────────────
+                         Block if any custom slot still has the default "Custom" placeholder. */
+                      const hasUnnamedCustom = imageAttributes.some((attr) => {
+                        if (!attr.custom) return false;
+                        const name = (attr.description ?? attr.name ?? "").trim();
+                        return !name || name.toLowerCase() === "custom";
+                      });
+
+                      if (hasUnnamedCustom) {
+                        showToast(
+                          'Rename your existing "Custom" image before adding another',
+                          "yellow",
+                        );
+                        return;
+                      }
+
+                      /* ── GUARD 2: duplicate display name ──────────────────────────────────────
+                         The hook keeps internal field keys distinct when a collision is typed,
+                         so checking field keys alone misses the case. Instead, resolve every
+                         slot's display name (description / name) to snake_case and look for
+                         repeated values — that's the true source of the duplicate conflict.    */
+                      const resolvedKeys = imageAttributes.map((a) =>
+                        toSnakeCase(a.description ?? a.name ?? ""),
+                      );
+                      const hasDuplicateName = resolvedKeys.some(
+                        (key, idx) => key && resolvedKeys.indexOf(key) !== idx,
+                      );
+
+                      if (hasDuplicateName) {
+                        showToast(
+                          "Please resolve duplicate image names before adding a new one — each image must have a unique name",
+                          "yellow",
+                        );
+                        return;
+                      }
+
+                      addCustomCimageContainer();
+                    }}
                   >
-                    + Add Custom
+                    + Add More Images
                   </button>
 
-                  {/* Only shown when at least one image has been staged */}
+
+                  {/* Clear All: only visible once at least one image preview is loaded */}
                   {Object.values(preview).some((p) => p?.url) && (
                     <button
                       type="button"
                       className={styles.clearAllBtn}
-                      onClick={() => {
-                        clearAllImages();
-                        syncSetImageLink({});
-                      }}
+                      onClick={clearAllImages}
                     >
-                      <span className={styles.clearBtnIcon}>✕</span>
-                      Clear All Images
+                      <span className={styles.clearBtnIcon}>🗑</span>
+                      Clear All
                     </button>
                   )}
                 </div>
@@ -643,6 +847,30 @@ export default function AddCatalog() {
           </div>
         )}
       </div>
+
+
+
+
+      {/* ── IMAGE STATUS TOAST ─────────────────────────────────────────────────
+          Fixed bottom-right popup that slides in on image interactions.
+          Colour variant is driven by toast.type: red / yellow / green.       */}
+      {toast.visible && (
+        <div
+          className={`${styles.toast} ${toast.type === "green"
+            ? styles.toastGreen
+            : toast.type === "yellow"
+              ? styles.toastYellow
+              : styles.toastRed
+            }`}
+        >
+          <span className={styles.toastIcon}>
+            {toast.type === "green" ? "✓" : toast.type === "yellow" ? "⚠" : "✕"}
+          </span>
+          {toast.message}
+        </div>
+      )}
+
+
     </div>
   );
 }
