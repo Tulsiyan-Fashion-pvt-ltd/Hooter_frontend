@@ -16,12 +16,11 @@
 .topContainer {
   background: transparent;
   padding: 0 0 24px 0;
-  border-bottom: 1px solid #e2e8f0;
   margin-bottom: 0;
 }
 
 .title {
-  /* font-size: 24px; */
+  font-size: 24px;
   font-weight: 600;
   margin-bottom: 8px;
   color: #333;
@@ -112,12 +111,11 @@
 
 /* MANDATORY ROW */
 .mandatory-row {
-margin-top: 12px;
-    padding-top: 12px;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .mandatory {
@@ -224,7 +222,7 @@ margin-top: 12px;
 }
 
 .leftHeading {
-  font-size: 22px;
+  font-size: 16px;
   font-weight: 500;
   margin-bottom: 18px;
   color: rgba(0, 0, 0, 0.7);
@@ -246,9 +244,9 @@ margin-top: 12px;
   font-size: 14px;
   margin-bottom: 24px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  align-items: flex-start;
+  justify-content: flex-start;
+  text-align: left;
 }
 
 .copyText {
@@ -392,7 +390,6 @@ margin-top: 12px;
 ========================= */
 .rightSection {
   flex: 1;
-  padding-top: 20px;
 }
 
 .errorText {
@@ -420,7 +417,7 @@ margin-top: 12px;
 }
 
 .checklistTitle {
-  font-size: 16.5px;
+  font-size: 16px;
   font-weight: 700;
   color: #0f172a;
   margin: 0 0 24px 0;

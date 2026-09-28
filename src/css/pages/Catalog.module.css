@@ -146,9 +146,7 @@
 
 /* Page Body Container */
 .pageBody {
-  max-width: 1440px;
   padding: 0 32px;
-  margin: 0 auto;
 }
 
 .overviewHeading {
@@ -248,6 +246,7 @@
   border-radius: 9999px;
   font-size: 13px;
   font-weight: 500;
+  font-family: inherit;
   color: #64748b;
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -288,11 +287,42 @@
   border-radius: 9999px;
   font-size: 13px;
   font-weight: 500;
+  font-family: inherit;
   color: #64748b;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   cursor: pointer;
   user-select: none;
+}
+
+.customDropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 10;
+  min-width: 150px;
+  padding: 4px 0;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.customDropdownItem {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.customDropdownItem:hover {
+  background-color: #f8fafc;
+  color: #1e293b;
 }
 
 .dropdownBtn:hover {
@@ -325,9 +355,11 @@
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
   width: 210px;
   background-color: #ffffff;
-  color: #1e293b;
+  color: #64748b;
   outline: none;
 }
 
@@ -341,7 +373,8 @@
   border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
-  color: #475569;
+  font-family: inherit;
+  color: #64748b;
   background: #ffffff;
   cursor: pointer;
   display: flex;
@@ -415,7 +448,7 @@
   padding: 12px 16px;
   background: #f8fafc;
   border-bottom: 1px solid #edf2f7;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 600;
   color: #64748b;
   letter-spacing: 0.04em;
@@ -444,6 +477,7 @@
   padding: 12px 16px;
   border-bottom: 1px solid #f1f5f9;
   transition: background-color 0.1s ease;
+  font-size: 12px;
 }
 
 .listItem:last-child {
@@ -512,7 +546,7 @@
 }
 
 .productTitle {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: #1e293b;
   white-space: nowrap;
@@ -521,7 +555,7 @@
 }
 
 .productSku {
-  font-size: 11.5px;
+  font-size: 11px;
   color: #94a3b8;
   margin-top: 2px;
   font-weight: 400;
@@ -540,7 +574,7 @@
 
 /* MRP Price */
 .cellPrice {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: #0f172a;
 }
@@ -630,7 +664,7 @@
 }
 
 .cellText {
-  font-size: 12.5px;
+  font-size: 12px;
   color: #475569;
 }
 
