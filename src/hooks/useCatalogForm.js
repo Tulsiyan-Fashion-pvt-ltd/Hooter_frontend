@@ -24,12 +24,61 @@ export const toSnakeCase = (str = '') => {
     .replace(/^_+|_+$/g, '');
 };
 
+
+
+
+
+/**
+ * Converts a raw user-typed string into PascalCase (UpperCamelCase).
+ * Each word is capitalised and spaces are removed so the result reads
+ * as a clean display label and a human-friendly payload key.
+ *
+ * e.g. "fabric care"  -> "FabricCare"
+ *      "front view 1" -> "FrontView1"
+ *      "SIZE"         -> "Size"
+ *
+ * @param {string} str - Raw input string
+ * @returns {string} PascalCase formatted string
+ */
+export const toPascalCase = (str = '') => {
+  return str
+    .toString()
+    .trim()
+    .replace(/[^a-zA-Z0-9\s]/g, '')
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join('');
+};
+
+
+
+
+
+/**
+ * Derives a camelCase payload key from a PascalCase display name.
+ * Simply lowercases the very first character of the PascalCase string.
+ *
+ * e.g. "FabricCare" -> "fabricCare"
+ *      "FrontView1" -> "frontView1"
+ *
+ * @param {string} pascalStr - PascalCase string (output of toPascalCase)
+ * @returns {string} camelCase formatted string
+ */
+const toCamelCase = (pascalStr = '') => {
+  if (!pascalStr) return '';
+  return pascalStr.charAt(0).toLowerCase() + pascalStr.slice(1);
+};
+
+
+
+
+
 export default function useCatalogForm() {
 
   // ─── Selected Product Type ────────────────────────────────────────────────
   // Holds the category selected by the user via CatalogSelector { id, vertical }.
   const [selectedType, setSelectedType] = useState(null);
-
 
   // ─── Form Values ──────────────────────────────────────────────────────────
   // fixedValues   : values for the static listing fields (SKU, price, title, etc.).
@@ -37,13 +86,11 @@ export default function useCatalogForm() {
   const [fixedValues, setFixedValues] = useState({});
   const [dynamicValues, setDynamicValues] = useState({});
 
-
   // ─── Attribute Lists ──────────────────────────────────────────────────────
   // Populated from the API after a product type is selected.
   const [listingAttributes, setListingAttributes] = useState([]);
   const [categoryAttributes, setCategoryAttributes] = useState([]);
   const [imageAttributes, setImageAttributes] = useState([]);
-
 
   // ─── Image State ─────────────────────────────────────────────────────────
   // images  : map of field key → { image: File, order: number } for submission.
@@ -51,21 +98,22 @@ export default function useCatalogForm() {
   const [images, setImages] = useState({});
   const [preview, setPreview] = useState({});
 
-
   // ─── UI State ────────────────────────────────────────────────────────────
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-
   // ─── Custom Attributes ───────────────────────────────────────────────────
   // User-defined key/value pairs appended to the category payload on submit.
   // Each entry: { id: string, key: string, value: string }.
   const [customAttributes, setCustomAttributes] = useState([]);
 
-
   const navigate = useNavigate();
+
+
+
+
 
   /**
    * Loads product fields after the selector returns the final category ID
@@ -144,6 +192,10 @@ export default function useCatalogForm() {
     fetchAttributeFields();
   }, [selectedType]);
 
+
+
+
+
   /**
    * Updates the selected product type. Triggers the attribute fetch effect.
    *
@@ -152,6 +204,9 @@ export default function useCatalogForm() {
   const handleTypeChange = (value) => {
     setSelectedType(value);
   };
+
+
+
 
 
   /**
@@ -169,6 +224,9 @@ export default function useCatalogForm() {
   };
 
 
+
+
+
   /**
    * Updates a dynamic category attribute value.
    * Stores null for empty strings to keep the payload clean.
@@ -183,21 +241,19 @@ export default function useCatalogForm() {
     }));
   };
 
+
+
+
+
   // ─── Custom Attribute Handlers ────────────────────────────────────────────
 
   /**
    * Appends a new blank custom attribute row to the list.
    *
-   * Each custom attribute row contains:
-   *   - `name`: Human-readable label typed by the user (e.g., "Fabric Care").
-  /**
-   * Appends a new blank custom attribute row to the list.
-   *
    * Each custom attribute row follows the standard catalog attribute specification:
-   *   - `name`: Display label entered by the user (bounded to 100 characters for concise taxonomy labeling).
-   *   - `key`: Snake-case payload property key auto-generated from `name`.
-   *   - `value`: Attribute value / description entered by the user. Kept as a standard string
-   *              data type with no arbitrary character limit, allowing flexible text lengths.
+   *   - `name`  : PascalCase display label entered by the user (max 100 chars).
+   *   - `key`   : camelCase payload key auto-derived from the PascalCase name.
+   *   - `value` : Attribute value typed by the user (no character limit).
    *
    * @returns {void}
    */
@@ -213,19 +269,23 @@ export default function useCatalogForm() {
     ]);
   };
 
+
+
+
+
   /**
    * Handles user updates for an individual custom attribute row.
    *
    * Architectural Design Notes:
-   *   - Attribute Name: Enforces a 100-character upper limit to ensure clean, consistent pill tags
-   *     and predictable snake_case key derivation.
-   *   - Attribute Value / Description: Enforces standard string data typing with no length cap,
-   *     ensuring users can enter unrestricted descriptive content without premature truncation.
-   *   - Snake-Case Derivation: Updates the payload key automatically on name modification.
+   *   - Attribute Name: Auto-formats to PascalCase on every keystroke so the display
+   *     label is always clean (e.g. "fabric care" → "FabricCare"). Capped at 100 chars.
+   *   - Payload Key: Derived in camelCase from the PascalCase name
+   *     (e.g. "FabricCare" → "fabricCare") for a clean, JS-idiomatic key.
+   *   - Attribute Value: No character limit — users can enter any descriptive text.
    *
-   * @param {string} id - Unique identifier of the custom attribute row.
-   * @param {'name' | 'value'} field - Target field being updated ('name' or 'value').
-   * @param {string} val - Raw input value from the change event.
+   * @param {string} id             - Unique identifier of the custom attribute row.
+   * @param {'name' | 'value'} field - The field being updated.
+   * @param {string} val             - Raw input value from the change event.
    * @returns {void}
    */
   const handleCustomAttributeChange = (id, field, val) => {
@@ -234,17 +294,24 @@ export default function useCatalogForm() {
         if (attr.id !== id) return attr;
 
         if (field === 'name') {
-          // Constrain label name to 100 characters for layout consistency
-          const sanitizedName = typeof val === 'string' ? val.slice(0, 100) : val;
+          // Auto-format to PascalCase, capped at 100 characters
+          const raw = typeof val === 'string' ? val : String(val ?? '');
+          const pascalName = toPascalCase(raw.slice(0, 100));
+
+          // If the user is still actively typing (raw ends with a space or is all lowercase
+          // mid-word), preserve the raw input so autocomplete doesn't fight the cursor.
+          // Only commit the PascalCase result once a full word boundary is visible.
+          const displayName = raw.endsWith(' ') ? raw.slice(0, 100) : (pascalName || raw.slice(0, 100));
+
           return {
             ...attr,
-            name: sanitizedName,
-            key: toSnakeCase(sanitizedName),
+            name: displayName,
+            key: toCamelCase(toPascalCase(raw.slice(0, 100))),
           };
         }
 
         if (field === 'value') {
-          // Preserve full string value with no character length cap (unrestricted description/value)
+          // No length cap — preserve full descriptive text
           return {
             ...attr,
             value: typeof val === 'string' ? val : String(val ?? ''),
@@ -256,6 +323,10 @@ export default function useCatalogForm() {
     );
   };
 
+
+
+
+
   /**
    * Removes a custom attribute row by its unique identifier.
    *
@@ -265,6 +336,10 @@ export default function useCatalogForm() {
   const removeCustomAttribute = (id) => {
     setCustomAttributes((prev) => prev.filter((attr) => attr.id !== id));
   };
+
+
+
+
 
   /**
    * Adds a new custom image attribute card to the form.
@@ -293,6 +368,10 @@ export default function useCatalogForm() {
       },
     ]);
   };
+
+
+
+
 
   /**
    * Renames a custom image attribute, auto-converting user input to snake_case
@@ -352,6 +431,10 @@ export default function useCatalogForm() {
     });
   };
 
+
+
+
+
   /**
    * Removes a custom image attribute card and deletes any associated image file.
    *
@@ -376,6 +459,10 @@ export default function useCatalogForm() {
     });
   };
 
+
+
+
+
   /**
    * Registers an uploaded image file against its attribute key and display order.
    * Called after the user selects a file via the image upload input.
@@ -390,6 +477,9 @@ export default function useCatalogForm() {
       [key]: { image: object, order },
     }));
   };
+
+
+
 
 
   /**
@@ -473,6 +563,10 @@ export default function useCatalogForm() {
       setSubmitting(false);
     }
   };
+
+
+
+
 
   return {
     // ── Category / Type Selection ─────────────────────

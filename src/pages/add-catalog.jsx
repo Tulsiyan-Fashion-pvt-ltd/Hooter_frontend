@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import camera from "../assets/icons/upload_photo.svg";
 
+
 /**
  * AddCatalog — Single catalog creation form.
  *
@@ -15,11 +16,24 @@ import camera from "../assets/icons/upload_photo.svg";
  *         optional custom attributes, and product images before submitting.
  */
 export default function AddCatalog() {
+
+
+
+
+
   // Ref used to determine image card insertion order when adding custom image slots.
   const imageContainerRef = useRef();
 
+
+
+
+
   // Tracks user-entered image URLs for each image attribute field.
   const [imageLink, setImageLink] = useState({});
+
+
+
+
 
   // Always-current mirror of imageLink used by async fetch callbacks to detect
   // whether a slot was cleared while the request was in-flight.
@@ -27,14 +41,10 @@ export default function AddCatalog() {
   const imageLinkRef = useRef({});
 
 
-
-
-  /* ─── Image Status Toast ───────────────────────────────────────────────────
+  /* --- Image Status Toast ---------------------------------------------------
      Tracks the current bottom-right popup: message, colour type
      ("red" | "yellow" | "green"), and whether it is currently visible.       */
   const [toast, setToast] = useState({ message: "", type: "", visible: false });
-
-
 
 
   /* Holds the auto-dismiss setTimeout ID so we can cancel a pending dismiss
@@ -44,39 +54,7 @@ export default function AddCatalog() {
 
 
 
-  /**
-   * showToast — Triggers the bottom-right image status popup.
-   *
-   * Cancels any in-flight auto-dismiss timer first so rapid interactions
-   * always reset the 4-second window from scratch.
-   *
-   * @param {string} message              - Text to display inside the toast.
-   * @param {"red"|"yellow"|"green"} type - Visual colour variant.
-   */
-  function showToast(message, type) {
-    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
 
-    setToast({ message, type, visible: true });
-
-    toastTimerRef.current = setTimeout(() => {
-      setToast((prev) => ({ ...prev, visible: false }));
-    }, 4000);
-  }
-
-  /**
-   * Drop-in replacement for setImageLink that keeps imageLinkRef in sync
-   * immediately — before the next render — so that any in-flight fetch
-   * can reliably detect stale results even within the same event loop tick.
-   *
-   * @param {((prev: Object) => Object) | Object} updater
-   */
-  const syncSetImageLink = (updater) => {
-    setImageLink((prev) => {
-      const next = typeof updater === 'function' ? updater(prev) : updater;
-      imageLinkRef.current = next;   // synchronous update
-      return next;
-    });
-  };
   const {
     selectedType,
     handleTypeChange,
@@ -107,40 +85,48 @@ export default function AddCatalog() {
 
 
 
-
-  // ─── Static Listing Field Definitions ───────────────────────────────────────
+  // --- Static Listing Field Definitions --------------------------------------
   // These fields are always shown regardless of the selected product category.
   // The "discount" field is auto-calculated from price and compared_price and is read-only.
   const fixedFields = [
-    { key: "sku_id", label: "SKU ID", required: true },
-    { key: "product_title", label: "Product Title", required: true },
-    { key: "price", label: "Product Price", required: true },
-    { key: "compared_price", label: "Compared Price", required: true },
-    { key: "discount", label: "Discount", required: false },
-    { key: "purchasing_cost", label: "Purchasing Cost", required: false },
-    { key: "vendor", label: "Vendor", required: false },
-    { key: "ean", label: "EAN", required: false },
-    { key: "hsn", label: "HSN", required: false },
-    { key: "net_weight_kg", label: "Net Weight", required: false },
-    { key: "dead_weight_kg", label: "Dead Weight", required: false },
-    {
-      key: "volumetric_weight_kg",
-      label: "Volumetric Weight",
-      required: false,
-    },
-    { key: "brand_name", label: "Brand Name", required: true },
+    { key: "sku_id",               label: "SKU ID",             required: true  },
+    { key: "product_title",        label: "Product Title",       required: true  },
+    { key: "price",                label: "Product Price",       required: true  },
+    { key: "compared_price",       label: "Compared Price",      required: true  },
+    { key: "discount",             label: "Discount",            required: false },
+    { key: "purchasing_cost",      label: "Purchasing Cost",     required: false },
+    { key: "vendor",               label: "Vendor",              required: false },
+    { key: "ean",                  label: "EAN",                 required: false },
+    { key: "hsn",                  label: "HSN",                 required: false },
+    { key: "net_weight_kg",        label: "Net Weight",          required: false },
+    { key: "dead_weight_kg",       label: "Dead Weight",         required: false },
+    { key: "volumetric_weight_kg", label: "Volumetric Weight",   required: false },
+    { key: "brand_name",           label: "Brand Name",          required: true  },
   ];
+
+
+
+
 
   // Converts snake_case field keys into human-readable Title Case labels.
   const formatLabel = (str) =>
     str.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
+
+
+
+
   // True once a product type has been selected and API attributes have loaded.
   const hasAttributes =
     categoryAttributes.length > 0 || imageAttributes.length > 0;
 
+
+
+
+
   // True when a type is selected but the API returned no attributes for it.
   const noAttributes = selectedType && !hasAttributes && !error;
+
 
   if (success) {
     return (
@@ -157,6 +143,10 @@ export default function AddCatalog() {
       </div>
     );
   }
+
+
+
+
 
   /**
    * Adds a new custom image slot to the image grid.
@@ -184,17 +174,16 @@ export default function AddCatalog() {
    * Automatically converts the name to snake_case for the internal field/type
    * while keeping the formatted text in description. Migrates any entered image link.
    *
-   * @param {Object} attr - Attribute object
+   * @param {Object} attr    - Attribute object
    * @param {string} newName - User input
    */
   function handleCustomAttributeNameChange(attr, newName) {
-    const oldField = attr.field;
+    const oldField      = attr.field;
     const newSnakeField = toSnakeCase(newName) || "custom";
 
-    /* ── DUPLICATE NAME TOAST ────────────────────────────────────────────────────
-       Fire a yellow toast the moment the typed name resolves to a snake_case key
-       already owned by a different slot. The hook's collision guard will prevent
-       any data from being overwritten, but we need to tell the user why.          */
+    /* -- DUPLICATE NAME TOAST -----------------------------------------------
+       Fire a yellow toast the moment the typed name resolves to a snake_case
+       key already owned by a different slot.                                  */
     const isDuplicate = imageAttributes.some(
       (a) =>
         a.field === newSnakeField &&
@@ -220,9 +209,62 @@ export default function AddCatalog() {
     }
   }
 
+
+
+
+
+  /**
+   * showToast — Triggers the bottom-right image status popup.
+   *
+   * Cancels any in-flight auto-dismiss timer first so rapid interactions
+   * always reset the 4-second window from scratch.
+   *
+   * @param {string} message              - Text to display inside the toast.
+   * @param {"red"|"yellow"|"green"} type - Visual colour variant.
+   */
+  function showToast(message, type) {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+
+    setToast({ message, type, visible: true });
+
+    toastTimerRef.current = setTimeout(() => {
+      setToast((prev) => ({ ...prev, visible: false }));
+    }, 4000);
+  }
+
+
+
+
+
+  /**
+   * Drop-in replacement for setImageLink that keeps imageLinkRef in sync
+   * immediately — before the next render — so that any in-flight fetch
+   * can reliably detect stale results even within the same event loop tick.
+   *
+   * @param {((prev: Object) => Object) | Object} updater
+   */
+  const syncSetImageLink = (updater) => {
+    setImageLink((prev) => {
+      const next = typeof updater === "function" ? updater(prev) : updater;
+      imageLinkRef.current = next; // synchronous update
+      return next;
+    });
+  };
+
+
+
+
+
+  /**
+   * uploadImage — Opens a native file picker, then stores the chosen file as
+   * a local object URL for preview and queues it for upload.
+   *
+   * @param {string} key   - Attribute field key for this image slot.
+   * @param {number} order - Display order passed to the upload payload.
+   */
   function uploadImage(key, order) {
-    const input = document.createElement("input");
-    input.type = "file";
+    const input  = document.createElement("input");
+    input.type   = "file";
     input.accept = "image/*";
 
     input.onchange = (e) => {
@@ -237,7 +279,7 @@ export default function AddCatalog() {
 
         uploadImageData(key, file, order);
 
-        /* ── SUCCESS TOAST ── Green confirmation once a file is chosen */
+        /* -- SUCCESS TOAST -- Green confirmation once a file is chosen */
         showToast("Image uploaded successfully!", "green");
       }
     };
@@ -246,9 +288,12 @@ export default function AddCatalog() {
   }
 
 
+
+
+
   /**
    * removeImage — Clears the preview and image-link state for a single slot.
-   * Called by the per-card ✕ Remove button.
+   * Called by the per-card X Remove button.
    *
    * @param {string} key - The field key of the image slot to clear.
    */
@@ -269,6 +314,7 @@ export default function AddCatalog() {
 
 
 
+
   /**
    * clearAllImages — Resets every image slot's preview and link state at once.
    * Called by the "Clear All" button visible when any image is uploaded.
@@ -281,6 +327,15 @@ export default function AddCatalog() {
 
 
 
+
+  /**
+   * handleImageLink — Fetches an image from a user-supplied URL and stores the
+   * resulting Blob as a preview. Guards against stale in-flight responses using
+   * imageLinkRef so clearing a slot mid-fetch is always respected.
+   *
+   * @param {string} key  - The field key of the image slot.
+   * @param {string} link - Raw URL string entered by the user.
+   */
   async function handleImageLink(key, link) {
     // Nothing to fetch for empty / whitespace-only strings
     if (!link || !link.trim()) {
@@ -301,10 +356,7 @@ export default function AddCatalog() {
 
     try {
       const response = await fetch(link);
-      const image = await response.blob();
-
-
-
+      const image    = await response.blob();
 
       // Stale-closure guard: if the user cleared or changed this slot while
       // the fetch was in-flight, discard the result and don't touch preview.
@@ -344,20 +396,21 @@ export default function AddCatalog() {
 
 
 
+  // --- Render ----------------------------------------------------------------
   return (
     <div className={styles.globalAddCatalogContainer}>
       <div className={styles.main}>
-        {/* ── TOP HEADER ── */}
+
+        {/* -- TOP HEADER -- */}
         <div className={styles.top}>
           <h1>Add Single Catalog</h1>
           <p>Add the information for your catalog</p>
 
-          {/* ── STEPS ── */}
+          {/* -- STEPS -- */}
           <div className={styles.row}>
             <div className={styles.steps}>
               <div
-                className={`${styles.step} ${!hasAttributes ? styles.active : ""
-                  }`}
+                className={`${styles.step} ${!hasAttributes ? styles.active : ""}`}
               >
                 {hasAttributes ? (
                   <span className={styles.check}>✔</span>
@@ -368,8 +421,7 @@ export default function AddCatalog() {
               </div>
 
               <div
-                className={`${styles.step} ${hasAttributes ? styles.active : ""
-                  }`}
+                className={`${styles.step} ${hasAttributes ? styles.active : ""}`}
               >
                 <span>2&nbsp;</span>
                 Add Product Details
@@ -377,10 +429,7 @@ export default function AddCatalog() {
             </div>
           </div>
 
-
-
-
-          {/* ── CATALOG SELECTOR — self-contained ── */}
+          {/* -- CATALOG SELECTOR — self-contained -- */}
           <CatalogSelector onTypeSelect={handleTypeChange} />
 
           <div className={styles["mandatory-row"]}>
@@ -394,8 +443,7 @@ export default function AddCatalog() {
         </div>
 
 
-
-        {/* ── ERROR BANNER ── */}
+        {/* -- ERROR BANNER -- */}
         {error && (
           <div id="error" className={styles.errorBanner}>
             ⚠ {error}
@@ -403,8 +451,7 @@ export default function AddCatalog() {
         )}
 
 
-
-        {/* ── NO ATTRIBUTES MESSAGE ── */}
+        {/* -- NO ATTRIBUTES MESSAGE -- */}
         {noAttributes && (
           <div className={styles.noAttrWarning}>
             ⚠ This product type has no attributes configured yet. Please select
@@ -413,19 +460,18 @@ export default function AddCatalog() {
         )}
 
 
-
-        {/* ════════════════════════════════════════
+        {/* ==================================================================
             STEP 2 — details + images side by side
-        ════════════════════════════════════════ */}
+        ================================================================== */}
         {hasAttributes && (
           <div className={styles.after_top}>
+
             {/* LEFT — Product Details */}
             <div className={styles.left}>
               <h3>Add product details</h3>
 
               <div className={styles["info-box"]}>
                 <div className={styles["info-top"]}>
-                  {/* <span className={styles.tick}>✔</span> */}
                   <p>Fill in all required fields marked with *</p>
                 </div>
                 <p className={styles["info-text"]}>
@@ -439,8 +485,7 @@ export default function AddCatalog() {
                 {fixedFields.map(({ key, label, required }) => (
                   <div className={styles.line} key={key}>
                     <span
-                      className={`${styles.pill} ${required ? styles.required : ""
-                        }`}
+                      className={`${styles.pill} ${required ? styles.required : ""}`}
                     >
                       {label}
                       {required ? " *" : ""}
@@ -455,17 +500,15 @@ export default function AddCatalog() {
                       value={
                         key === "discount"
                           ? (() => {
-                            const cp = parseFloat(
-                              fixedValues["compared_price"],
-                            );
-                            const p = parseFloat(fixedValues["price"]);
-                            if (!cp || isNaN(cp) || isNaN(p)) return "";
-                            const factor = Math.pow(10, 2);
-                            const result =
-                              Math.trunc(((cp - p) / cp) * 100 * factor) /
-                              factor;
-                            return `${result}%`;
-                          })()
+                              const cp = parseFloat(fixedValues["compared_price"]);
+                              const p  = parseFloat(fixedValues["price"]);
+                              if (!cp || isNaN(cp) || isNaN(p)) return "";
+                              const factor = Math.pow(10, 2);
+                              const result =
+                                Math.trunc(((cp - p) / cp) * 100 * factor) /
+                                factor;
+                              return `${result}%`;
+                            })()
                           : fixedValues[key]
                       }
                       onChange={(e) => handleFixedChange(key, e.target.value)}
@@ -488,8 +531,7 @@ export default function AddCatalog() {
                   return (
                     <div className={styles.line} key={attr.field}>
                       <span
-                        className={`${styles.pill} ${attr.required ? styles.required : ""
-                          }`}
+                        className={`${styles.pill} ${attr.required ? styles.required : ""}`}
                       >
                         {attr.name || formatLabel(attr.field || "")}
                         {attr.required ? " *" : ""}
@@ -526,17 +568,12 @@ export default function AddCatalog() {
                 })}
               </div>
 
-
-
-              {/* ─────────────────────────────────────────────────
+              {/* -------------------------------------------------------
                   CUSTOM ATTRIBUTES
-                  Follows the exact visual layout of Listing Information and Product Attributes:
-                    - Same .line container layout (gap, alignment, margins).
-                    - Attribute name displayed inside the exact same .pill shape with the blue right accent strip.
-                    - Same underline input ("Type Here...") for entering the attribute value.
-                    - Inline remove button (✕) to delete the custom attribute row.
-                  On submit, these are merged seamlessly into categoryAttributesPayload.
-              ───────────────────────────────────────────────── */}
+                  Follows the exact visual layout of Listing Information
+                  and Product Attributes. On submit, these are merged
+                  seamlessly into categoryAttributesPayload.
+              ------------------------------------------------------- */}
               {customAttributes.length > 0 && (
                 <>
                   <h4 className={styles.sectionHeading}>Custom Attributes</h4>
@@ -544,10 +581,8 @@ export default function AddCatalog() {
                   <div className={styles.listing}>
                     {customAttributes.map((attr) => (
                       <div className={styles.line} key={attr.id}>
-                        {/* Custom Attribute Name: Styled inside the exact same .pill container as other attributes */}
-                        <span
-                          className={`${styles.pill} ${styles.pillCustom}`}
-                        >
+                        {/* Custom Attribute Name: inside the same .pill container */}
+                        <span className={`${styles.pill} ${styles.pillCustom}`}>
                           <input
                             type="text"
                             placeholder="Attribute name"
@@ -564,7 +599,7 @@ export default function AddCatalog() {
                           />
                         </span>
 
-                        {/* Custom Attribute Value: Retains standard string data typing with unrestricted description/text length */}
+                        {/* Custom Attribute Value: unrestricted string input */}
                         <input
                           placeholder="Enter the attribute description"
                           value={attr.value || ""}
@@ -592,14 +627,11 @@ export default function AddCatalog() {
                 </>
               )}
 
-
-
-
-              {/* ─────────────────────────────────────────────────
+              {/* -------------------------------------------------------
                   ADD CUSTOM ATTRIBUTE BUTTON
-                  Always visible once step 2 is active. Clicking appends a
-                  blank row to the custom attributes list above.
-              ───────────────────────────────────────────────── */}
+                  Always visible once step 2 is active. Clicking appends
+                  a blank row to the custom attributes list above.
+              ------------------------------------------------------- */}
               <button
                 onClick={addCustomAttribute}
                 className={styles.addCustomAttrBtn}
@@ -614,7 +646,7 @@ export default function AddCatalog() {
                 <button
                   className={styles.submit}
                   onClick={() => {
-                    /* ── RED TOAST ── Block submit if the required first image is missing */
+                    /* -- RED TOAST -- Block submit if required first image is missing */
                     const firstAttr = imageAttributes[0];
                     if (firstAttr && !preview[firstAttr.field]?.url) {
                       showToast(
@@ -633,8 +665,6 @@ export default function AddCatalog() {
             </div>
 
 
-
-
             {/* RIGHT — Images */}
             <div className={styles.right}>
               <div className={styles.card1}>
@@ -648,11 +678,11 @@ export default function AddCatalog() {
                   {imageAttributes.map((attr, index) => {
                     /* Only the first image slot is required — marked with * */
                     const isRequired = index === 0;
-                    const isCustom = attr.custom;
-                    // console.log(attr)                      
-                    // Display actual description received from API, falling back to name or formatted field
-                    const displayLabel = attr.name ||
-                      formatLabel(attr.type || attr.field || "");
+                    const isCustom   = attr.custom;
+
+                    // Display label: API description, falling back to name or formatted field
+                    const displayLabel =
+                      attr.name || formatLabel(attr.type || attr.field || "");
 
                     return (
                       <div
@@ -661,7 +691,7 @@ export default function AddCatalog() {
                         style={{ order: `${attr.order}` }}
                       >
                         {isCustom ? (
-                          /* Custom Attribute: Seamless input matching the exact typography of fetched label */
+                          /* Custom Attribute: editable input matching fetched label typography */
                           <input
                             type="text"
                             className={styles.imageTypeTag}
@@ -676,7 +706,7 @@ export default function AddCatalog() {
                             onBlur={(e) => {
                               const val = e.target.value.trim();
 
-                              /* ── YELLOW TOAST: placeholder name ── */
+                              /* -- YELLOW TOAST: placeholder name -- */
                               if (!val || val.toLowerCase() === "custom") {
                                 showToast(
                                   'Give your custom image a name — "Custom" is just a placeholder',
@@ -685,25 +715,23 @@ export default function AddCatalog() {
                                 return;
                               }
 
-                              /* ── YELLOW TOAST: duplicate name ─────────────────────────────────
-                                 If another slot already resolves to the same snake_case field key,
-                                 warn the user so they know the field key wasn't actually updated. */
+                              /* -- YELLOW TOAST: duplicate name -- */
                               const newSnakeField = toSnakeCase(val);
-                              const isDuplicate = imageAttributes.some(
+                              const isDuplicate   = imageAttributes.some(
                                 (a) =>
                                   a.field === newSnakeField &&
                                   (a.id || a.field) !== (attr.id || attr.field),
                               );
                               if (isDuplicate) {
                                 showToast(
-                                  'Another image already uses this name — choose a different one',
+                                  "Another image already uses this name — choose a different one",
                                   "yellow",
                                 );
                               }
                             }}
                           />
                         ) : (
-                          /* Fetched Attribute: Read-only label with actual description from API */
+                          /* Fetched Attribute: read-only label from API */
                           <div className={styles.imageTypeTag}>
                             {displayLabel}
                             {isRequired ? " *" : ""}
@@ -737,8 +765,7 @@ export default function AddCatalog() {
                           </p>
                         </div>
 
-
-                        {/* ── SINGLE IMAGE REMOVE ── Only rendered when this slot has a preview.
+                        {/* -- SINGLE IMAGE REMOVE --
                             Custom slots: removes the entire card via removeImageAttribute.
                             API slots:    clears only the preview via removeImage.          */}
                         {preview[attr.field]?.url && (
@@ -756,7 +783,6 @@ export default function AddCatalog() {
                           </button>
                         )}
 
-
                         <input
                           type="text"
                           placeholder="Image link"
@@ -772,16 +798,14 @@ export default function AddCatalog() {
                 </div>
 
 
-
-
-                {/* ── IMAGE ACTION BUTTONS ROW ──────────────────────────────────────────────
-                    Holds the "+ Add Custom" and the conditional "Clear All" button.
+                {/* -- IMAGE ACTION BUTTONS ROW --
+                    Holds the "+ Add More Images" and the conditional "Clear All" button.
                     Clear All is only rendered once at least one image has been uploaded. */}
                 <div className={styles.imageBtnRow}>
                   <button
                     className={`${styles["blue-btn"]} ${styles.blueBtnNoMargin}`}
                     onClick={() => {
-                      /* ── GUARD 1: unnamed slot ─────────────────────────────────────────────
+                      /* -- GUARD 1: unnamed slot --
                          Block if any custom slot still has the default "Custom" placeholder. */
                       const hasUnnamedCustom = imageAttributes.some((attr) => {
                         if (!attr.custom) return false;
@@ -797,11 +821,9 @@ export default function AddCatalog() {
                         return;
                       }
 
-                      /* ── GUARD 2: duplicate display name ──────────────────────────────────────
-                         The hook keeps internal field keys distinct when a collision is typed,
-                         so checking field keys alone misses the case. Instead, resolve every
-                         slot's display name (description / name) to snake_case and look for
-                         repeated values — that's the true source of the duplicate conflict.    */
+                      /* -- GUARD 2: duplicate display name --
+                         Resolve every slot's display name to snake_case and look for
+                         repeated values — that's the true source of duplicate conflicts. */
                       const resolvedKeys = imageAttributes.map((a) =>
                         toSnakeCase(a.description ?? a.name ?? ""),
                       );
@@ -823,7 +845,6 @@ export default function AddCatalog() {
                     + Add More Images
                   </button>
 
-
                   {/* Clear All: only visible once at least one image preview is loaded */}
                   {Object.values(preview).some((p) => p?.url) && (
                     <button
@@ -843,19 +864,18 @@ export default function AddCatalog() {
       </div>
 
 
-
-
-      {/* ── IMAGE STATUS TOAST ─────────────────────────────────────────────────
+      {/* -- IMAGE STATUS TOAST -----------------------------------------------
           Fixed bottom-right popup that slides in on image interactions.
           Colour variant is driven by toast.type: red / yellow / green.       */}
       {toast.visible && (
         <div
-          className={`${styles.toast} ${toast.type === "green"
-            ? styles.toastGreen
-            : toast.type === "yellow"
-              ? styles.toastYellow
-              : styles.toastRed
-            }`}
+          className={`${styles.toast} ${
+            toast.type === "green"
+              ? styles.toastGreen
+              : toast.type === "yellow"
+                ? styles.toastYellow
+                : styles.toastRed
+          }`}
         >
           <span className={styles.toastIcon}>
             {toast.type === "green" ? "✓" : toast.type === "yellow" ? "⚠" : "✕"}
