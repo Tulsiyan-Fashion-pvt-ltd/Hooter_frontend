@@ -522,8 +522,8 @@ export default function AddBulkCatalog() {
                 </div>
               </div>
             </div>
-          </>)
-        }
+          </>
+        )}
       </div>
     </div>
   );

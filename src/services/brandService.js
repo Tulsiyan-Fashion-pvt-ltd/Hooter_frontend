@@ -4,7 +4,6 @@ import { store } from "../store/store";
 const getCSRFToken = () => {
   const state = store.getState();
   const csrf = state.csrf.csrf;
-  console.log("csrf", csrf)
   return csrf;
 }
 

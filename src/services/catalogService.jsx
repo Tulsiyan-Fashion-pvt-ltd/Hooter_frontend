@@ -159,8 +159,22 @@ export const getUploadedCategories = async () => {
   return response.json(); // { categories: [ { category, id } ], status: "successful" }
 };
 
-export const getProducts = async () => {
-  const response = await fetch(`${BASE_URL}/catalog/products`, {
+export const getProductCounts = async () => {
+  const response = await fetch(`${BASE_URL}/catalog/products/counts`, {
+    credentials: "include",
+  });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.json();
+};
+
+export const getProducts = async (params = {}) => {
+  const url = new URL(`${BASE_URL}/catalog/products`);
+  if (params.category) url.searchParams.append("category", params.category);
+  if (params.status) url.searchParams.append("status", params.status);
+  if (params.rows) url.searchParams.append("rows", params.rows);
+  if (params.page) url.searchParams.append("page", params.page);
+
+  const response = await fetch(url.toString(), {
     credentials: "include",
   });
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
