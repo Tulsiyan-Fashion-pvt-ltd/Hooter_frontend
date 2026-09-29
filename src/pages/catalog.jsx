@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import styles from "../css/pages/Catalog.module.css";
 import { Link } from "react-router-dom";
 import imageNA from "../assets/icons/imagena.png";
-import { getProducts, deleteProduct, getUploadedCategories } from "../services/catalogService";
+import { getProducts, deleteProduct, getUploadedCategories, getProductCounts } from "../services/catalogService";
 import DeleteConfirmModal from "../components/DeleteConfirmModal";
 
 const route = import.meta.env.VITE_BASEAPI;
@@ -52,6 +52,9 @@ export default function Catalog() {
     pending: 0,
     completed: 0,
     total: 0,
+    actionRequired: 0,
+    qcError: 0,
+    draft: 0,
   });
 
   // Table State
@@ -74,25 +77,41 @@ export default function Catalog() {
 
   useEffect(() => {
     fetchCatalogs();
-  }, []);
+  }, [currentPage, rowsPerPage, activeTab, activeCategory]);
 
   const fetchCatalogs = async () => {
     try {
       setLoading(true);
       setError("");
 
-      const [data, catData] = await Promise.all([
-        getProducts(),
-        getUploadedCategories().catch(e => { console.error(e); return { categories: [] }; })
+      let statusParam = "";
+      if (activeTab === "Pending") statusParam = "pending";
+      else if (activeTab === "Completed") statusParam = "completed";
+      else if (activeTab !== "All") statusParam = activeTab.toLowerCase();
+
+      const params = {
+        category: activeCategory !== "All" ? activeCategory : undefined,
+        status: statusParam || undefined,
+        rows: rowsPerPage,
+        page: currentPage,
+      };
+
+      const [data, catData, countData] = await Promise.all([
+        getProducts(params),
+        getUploadedCategories().catch(e => { console.error(e); return { categories: [] }; }),
+        getProductCounts().catch(e => { console.error(e); return { count: {} }; })
       ]);
 
       setProducts(data.catalog_list || []);
       setUploadedCategories(catData.categories || []);
-      const count = data.count || {};
+      const count = countData.count || {};
       setStats({
         total: count.total || 0,
         pending: count.pending || 0,
         completed: count.completed || 0,
+        actionRequired: count.action_required || count["action required"] || 0,
+        qcError: count.qc_error || count["qc error"] || 0,
+        draft: count.draft || 0,
       });
     } catch (err) {
       console.error("Fetch error:", err);
@@ -195,25 +214,27 @@ export default function Catalog() {
   // Helper to map status to specific style classes and text
   const getStatusDisplay = (statusStr) => {
     const status = statusStr?.toLowerCase() || "draft";
+    const text = snakeToPlainText(statusStr) || "Draft";
+    
     switch (status) {
       case "active":
       case "completed":
-        return { text: "Active", className: styles.statusActive };
+        return { text, className: styles.statusActive };
       case "paused":
-        return { text: "Paused", className: styles.statusPaused };
+        return { text, className: styles.statusPaused };
       case "qc in progress":
       case "pending":
-        return { text: "QC in progress", className: styles.statusQcInProgress };
+        return { text, className: styles.statusQcInProgress };
       case "qc error":
-        return { text: "QC error", className: styles.statusQcError };
+        return { text, className: styles.statusQcError };
       case "qc pass":
-        return { text: "QC pass", className: styles.statusQcPass };
+        return { text, className: styles.statusQcPass };
       default:
-        return { text: "Draft", className: styles.statusDraft };
+        return { text, className: styles.statusDraft };
     }
   };
 
-  // Filter logic
+  // Filter logic (now mostly handled by backend, except search)
   const filteredProducts = products.filter((p) => {
     // Search filter
     if (searchSku.trim()) {
@@ -222,38 +243,30 @@ export default function Catalog() {
       const matchTitle = (p.product_title || "").toLowerCase().includes(q);
       if (!matchSku && !matchTitle) return false;
     }
-
-    // Tab filter
-    if (activeTab !== "All") {
-      const status = (p.status || "").toLowerCase();
-      if (activeTab === "QC in progress" && status !== "qc in progress" && status !== "pending") return false;
-      if (activeTab === "QC pass" && status !== "qc pass" && status !== "completed") return false;
-      if (activeTab === "QC error" && status !== "qc error") return false;
-      if (activeTab === "Draft" && status !== "draft") return false;
-      if (activeTab === "Action required" && status !== "action required") return false;
-    }
-
-    // Category filter
-    if (activeCategory !== "All") {
-      const pCategory = snakeToPlainText(p.product_type) || "Kurta";
-      if (pCategory !== activeCategory) return false;
-    }
-
     return true;
   });
 
   // Pagination logic
-  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / rowsPerPage));
+  let totalItems = stats.total || 0;
+  if (activeTab === "Pending") totalItems = stats.pending || 0;
+  else if (activeTab === "Completed") totalItems = stats.completed || 0;
+  else if (activeTab === "Action required") totalItems = stats.actionRequired || 0;
+  else if (activeTab === "QC error") totalItems = stats.qcError || 0;
+  else if (activeTab === "Draft") totalItems = stats.draft || 0;
+  else totalItems = 0;
+  
+  const totalPages = Math.max(1, Math.ceil(totalItems / rowsPerPage));
+  // Backend handles offset, so we just use the filtered products
   const startIndex = (currentPage - 1) * rowsPerPage;
-  const currentProducts = filteredProducts.slice(startIndex, startIndex + rowsPerPage);
+  const currentProducts = filteredProducts;
 
   const tabs = [
-    { label: "All", count: stats.total || products.length },
-    { label: "Action required", count: 0 },
-    { label: "QC in progress", count: stats.pending || 10 },
-    { label: "QC error", count: 5 },
-    { label: "QC pass", count: stats.completed || 7 },
-    { label: "Draft", count: 11 },
+    { label: "All", count: stats.total },
+    { label: "Action required", count: stats.actionRequired },
+    { label: "Pending", count: stats.pending },
+    { label: "QC error", count: stats.qcError },
+    { label: "Completed", count: stats.completed },
+    { label: "Draft", count: stats.draft },
   ];
 
   return (
@@ -299,13 +312,13 @@ export default function Catalog() {
                 </svg>
               </div>
             </div>
-            <div className={styles.cardValue}>{stats.total || 26}</div>
-            <div className={styles.cardSubtitle}>Since Jan 1, 2026</div>
+            <div className={styles.cardValue}>{stats.total}</div>
+          
           </div>
 
           <div className={styles.card}>
             <div className={styles.cardTop}>
-              <span className={styles.cardTitle}>Bulk uploads</span>
+              <span className={styles.cardTitle}>Pending uploads</span>
               <div className={`${styles.cardIconBox} ${styles.iconBoxPurple}`}>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -314,13 +327,13 @@ export default function Catalog() {
                 </svg>
               </div>
             </div>
-            <div className={styles.cardValue}>{stats.pending || 14}</div>
-            <div className={styles.cardSubtitle}>Since Jan 1, 2026</div>
+            <div className={styles.cardValue}>{stats.pending}</div>
+          
           </div>
 
           <div className={styles.card}>
             <div className={styles.cardTop}>
-              <span className={styles.cardTitle}>Single uploads</span>
+              <span className={styles.cardTitle}>Completed uploads</span>
               <div className={`${styles.cardIconBox} ${styles.iconBoxGreen}`}>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -328,8 +341,8 @@ export default function Catalog() {
                 </svg>
               </div>
             </div>
-            <div className={styles.cardValue}>{stats.completed || 12}</div>
-            <div className={styles.cardSubtitle}>Since Jan 1, 2026</div>
+            <div className={styles.cardValue}>{stats.completed}</div>
+            
           </div>
         </div>
 
@@ -349,9 +362,11 @@ export default function Catalog() {
                   }}
                 >
                   <span>{tab.label}</span>
-                  <span className={`${styles.tabCount} ${isActive ? styles.tabCountActive : ""}`}>
-                    {tab.count}
-                  </span>
+                  {tab.count !== undefined && (
+                    <span className={`${styles.tabCount} ${isActive ? styles.tabCountActive : ""}`}>
+                      {tab.count}
+                    </span>
+                  )}
                 </button>
               );
             })}

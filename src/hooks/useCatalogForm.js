@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   getAttributeFields,
   createCatalog,
-  uploadImages,
+  uploadProductImages,
   markComplete,
 } from '../services/catalogService';
 
@@ -102,9 +102,7 @@ export default function useCatalogForm() {
             (attr.type
               ? attr.type.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
               : `Image ${idx + 1}`),
-          name:
-            attr.description ||
-            attr.name ||
+          name: attr.name ||
             (attr.type
               ? attr.type.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
               : `Image ${idx + 1}`),
@@ -196,9 +194,10 @@ export default function useCatalogForm() {
    * Appends a new blank custom attribute row to the list.
    *
    * Each custom attribute row follows the standard catalog attribute specification:
-   *   - `name`: Display label entered by the user (max 100 characters).
-   *   - `key`: Snake-case payload key auto-derived from `name`.
-   *   - `value`: Attribute value entered by the user (max 100 characters).
+   *   - `name`: Display label entered by the user (bounded to 100 characters for concise taxonomy labeling).
+   *   - `key`: Snake-case payload property key auto-generated from `name`.
+   *   - `value`: Attribute value / description entered by the user. Kept as a standard string
+   *              data type with no arbitrary character limit, allowing flexible text lengths.
    *
    * @returns {void}
    */
@@ -217,39 +216,42 @@ export default function useCatalogForm() {
   /**
    * Handles user updates for an individual custom attribute row.
    *
-   * Automatically enforces:
-   *   - Character limit constraint (maximum 100 characters for both name and value).
-   *   - Snake-case key derivation from the entered display name.
+   * Architectural Design Notes:
+   *   - Attribute Name: Enforces a 100-character upper limit to ensure clean, consistent pill tags
+   *     and predictable snake_case key derivation.
+   *   - Attribute Value / Description: Enforces standard string data typing with no length cap,
+   *     ensuring users can enter unrestricted descriptive content without premature truncation.
+   *   - Snake-Case Derivation: Updates the payload key automatically on name modification.
    *
    * @param {string} id - Unique identifier of the custom attribute row.
-   * @param {'name' | 'value'} field - Field being updated ('name' or 'value').
-   * @param {string} val - New value to set.
+   * @param {'name' | 'value'} field - Target field being updated ('name' or 'value').
+   * @param {string} val - Raw input value from the change event.
    * @returns {void}
    */
   const handleCustomAttributeChange = (id, field, val) => {
-    // Enforce fixed 100-character maximum length limit across all custom attributes
-    const sanitizedVal = typeof val === 'string' ? val.slice(0, 100) : val;
-
     setCustomAttributes((prev) =>
       prev.map((attr) => {
         if (attr.id !== id) return attr;
 
         if (field === 'name') {
+          // Constrain label name to 100 characters for layout consistency
+          const sanitizedName = typeof val === 'string' ? val.slice(0, 100) : val;
           return {
             ...attr,
-            name: sanitizedVal,
-            key: toSnakeCase(sanitizedVal),
+            name: sanitizedName,
+            key: toSnakeCase(sanitizedName),
           };
         }
 
         if (field === 'value') {
+          // Preserve full string value with no character length cap (unrestricted description/value)
           return {
             ...attr,
-            value: sanitizedVal,
+            value: typeof val === 'string' ? val : String(val ?? ''),
           };
         }
 
-        return { ...attr, [field]: sanitizedVal };
+        return { ...attr, [field]: val };
       })
     );
   };
@@ -303,38 +305,51 @@ export default function useCatalogForm() {
   const changeImageCustomKey = (idOrOldField, newLabel) => {
     const newField = toSnakeCase(newLabel) || 'custom';
 
-    setImageAttributes((prev) =>
-      prev.map((attr) => {
-        if (attr.id === idOrOldField || attr.field === idOrOldField) {
-          const oldKey = attr.field;
+    setImageAttributes((prev) => {
+      /* ── DUPLICATE FIELD GUARD ──────────────────────────────────────────────────
+         If another slot already owns this snake_case field key, keep the current
+         slot's field unchanged (only update the display name/description).
+         This prevents the preview migration below from overwriting or erasing
+         an unrelated slot's uploaded image.                                       */
+      const isDuplicate = prev.some(
+        (a) =>
+          a.field === newField &&
+          a.id !== idOrOldField &&
+          a.field !== idOrOldField,
+      );
 
-          // Migrate already uploaded image / preview if key changed
-          if (oldKey && oldKey !== newField) {
-            setImages((prevImages) => {
-              if (!prevImages[oldKey]) return prevImages;
-              const copy = { ...prevImages, [newField]: prevImages[oldKey] };
-              delete copy[oldKey];
-              return copy;
-            });
-            setPreview((prevPreview) => {
-              if (!prevPreview[oldKey]) return prevPreview;
-              const copy = { ...prevPreview, [newField]: prevPreview[oldKey] };
-              delete copy[oldKey];
-              return copy;
-            });
-          }
+      return prev.map((attr) => {
+        if (attr.id !== idOrOldField && attr.field !== idOrOldField) return attr;
 
-          return {
-            ...attr,
-            field: newField,
-            type: newField,
-            name: newLabel,
-            description: newLabel,
-          };
+        const oldKey = attr.field;
+
+        /* Only migrate images/preview when the field key actually changes
+           AND there is no collision with an existing slot.                         */
+        if (!isDuplicate && oldKey && oldKey !== newField) {
+          setImages((prevImages) => {
+            if (!prevImages[oldKey]) return prevImages;
+            const copy = { ...prevImages, [newField]: prevImages[oldKey] };
+            delete copy[oldKey];
+            return copy;
+          });
+          setPreview((prevPreview) => {
+            if (!prevPreview[oldKey]) return prevPreview;
+            const copy = { ...prevPreview, [newField]: prevPreview[oldKey] };
+            delete copy[oldKey];
+            return copy;
+          });
         }
-        return attr;
-      })
-    );
+
+        return {
+          ...attr,
+          /* Keep old field key if collision; user must pick a unique name first. */
+          field: isDuplicate ? oldKey : newField,
+          type:  isDuplicate ? oldKey : newField,
+          name: newLabel,
+          description: newLabel,
+        };
+      });
+    });
   };
 
   /**
@@ -375,6 +390,7 @@ export default function useCatalogForm() {
       [key]: { image: object, order },
     }));
   };
+
 
   /**
    * Validates the form and submits the catalog to the backend.
@@ -432,16 +448,9 @@ export default function useCatalogForm() {
 
       const uskuId = catalogResult.usku_id;
 
-      const files = Object.keys(images).map((key) => images[key].image);
-      const meta = {};
-      Object.keys(images).forEach((key) => {
-        const file = images[key].image;
-        meta[file.name] = { image_order: images[key].order, image_type: key };
-      });
-
-      if (files.length > 0) {
+      if (Object.keys(images).length > 0) {
         try {
-          await uploadImages(uskuId, files, meta);
+          await uploadProductImages(uskuId, images);
         } catch {
           setError("image upload failed");
           navigate("#error");
