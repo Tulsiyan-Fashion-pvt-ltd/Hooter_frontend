@@ -262,10 +262,10 @@ export default function Catalog() {
 
   const tabs = [
     { label: "All", count: stats.total },
-    { label: "Action required", count: stats.actionRequired },
     { label: "Pending", count: stats.pending },
-    { label: "QC error", count: stats.qcError },
     { label: "Completed", count: stats.completed },
+    { label: "Action required", count: stats.actionRequired },
+    { label: "QC error", count: stats.qcError },
     { label: "Draft", count: stats.draft },
   ];
 
@@ -462,16 +462,17 @@ export default function Catalog() {
             </div>
             <div>PRODUCT</div>
             <div>CATEGORY</div>
-            <div>MRP</div>
-            <div>MARKETPLACES</div>
+            <div>COMPARED PRICE</div>
+            <div>PRICE</div>
+            <div>PURCHASING COST</div>
             <div className={styles.headerSortable}>
-              <span>STATUS</span>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="#2563eb" stroke="#2563eb" strokeWidth="1">
+              <span>UPDATED AT</span>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="#9ca3af" stroke="#9ca3af" strokeWidth="1">
                 <path d="M7 10l5 5 5-5z"/>
               </svg>
             </div>
             <div className={styles.headerSortable}>
-              <span>UPDATED</span>
+              <span>CREATED AT</span>
               <svg width="10" height="10" viewBox="0 0 24 24" fill="#9ca3af" stroke="#9ca3af" strokeWidth="1">
                 <path d="M7 10l5 5 5-5z"/>
               </svg>
@@ -539,7 +540,7 @@ export default function Catalog() {
                         {p.image_url ? (
                           <img
                             className={styles.productImage}
-                            src={`${route}${p.image_url}`}
+                            src={`${route}/${p.image_url}`}
                             alt={p.product_title || "product"}
                           />
                         ) : (
@@ -548,35 +549,34 @@ export default function Catalog() {
                       </div>
                       <div className={styles.productDetails}>
                         <span className={styles.productTitle}>{p.product_title || "Untitled Product"}</span>
-                        <span className={styles.productSku}>#{p.sku_id || p.usku_id}</span>
+                        <span className={styles.productSku}>{p.sku_id || p.usku_id}</span>
                       </div>
                     </div>
                     
                     <div className={styles.cellText}>
                       <span className={styles.categoryTag}>
-                        {snakeToPlainText(p.product_type) || "Kurta"}
+                        {p.type_name || snakeToPlainText(p.product_type) || "Kurta"}
                       </span>
                     </div>
-                    
+
+                    <div className={styles.cellPrice}>
+                      ₹{p.compared_price ? parseInt(p.compared_price).toLocaleString('en-IN') : "-"}
+                    </div>
+
                     <div className={styles.cellPrice}>
                       ₹{p.price ? parseInt(p.price).toLocaleString('en-IN') : "1,299"}
                     </div>
-                    
-                    <div className={styles.marketplacesCell}>
-                      {marketplaceColors.map((color, i) => (
-                        <div key={i} className={styles.dot} style={{ backgroundColor: color }}></div>
-                      ))}
-                    </div>
-                    
-                    <div>
-                      <span className={`${styles.statusBadge} ${statusInfo.className}`}>
-                        <div className={styles.statusDot}></div>
-                        {statusInfo.text}
-                      </span>
+
+                    <div className={styles.cellPrice}>
+                      ₹{p.purchasing_cost ? parseInt(p.purchasing_cost).toLocaleString('en-IN') : "1,299"}
                     </div>
                     
                     <div className={styles.cellText}>
-                      {getMockDate(index)}
+                      {p.updated_at ? new Date(p.updated_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : getMockDate(index)}
+                    </div>
+                    
+                    <div className={styles.cellText}>
+                      {p.created_at ? new Date(p.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : getMockDate(index)}
                     </div>
                     
                     <div className={styles.actionsCell}>
