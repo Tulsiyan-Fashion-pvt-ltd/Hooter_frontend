@@ -16,45 +16,25 @@ import camera from "../assets/icons/upload_photo.svg";
  *         optional custom attributes, and product images before submitting.
  */
 export default function AddCatalog() {
-
-
-
-
-
   // Ref used to determine image card insertion order when adding custom image slots.
   const imageContainerRef = useRef();
 
-
-
-
-
   // Tracks user-entered image URLs for each image attribute field.
   const [imageLink, setImageLink] = useState({});
-
-
-
-
 
   // Always-current mirror of imageLink used by async fetch callbacks to detect
   // whether a slot was cleared while the request was in-flight.
   // Updated SYNCHRONOUSLY inside every setter call so there is zero render-lag.
   const imageLinkRef = useRef({});
 
-
   /* --- Image Status Toast ---------------------------------------------------
      Tracks the current bottom-right popup: message, colour type
      ("red" | "yellow" | "green"), and whether it is currently visible.       */
   const [toast, setToast] = useState({ message: "", type: "", visible: false });
 
-
   /* Holds the auto-dismiss setTimeout ID so we can cancel a pending dismiss
      whenever a newer toast fires before the previous one fades out.           */
   const toastTimerRef = useRef(null);
-
-
-
-
-
   const {
     selectedType,
     handleTypeChange,
@@ -82,9 +62,6 @@ export default function AddCatalog() {
   } = useCatalogForm();
 
 
-
-
-
   // --- Static Listing Field Definitions --------------------------------------
   // These fields are always shown regardless of the selected product category.
   // The "discount" field is auto-calculated from price and compared_price and is read-only.
@@ -104,6 +81,12 @@ export default function AddCatalog() {
     { key: "brand_name",           label: "Brand Name",          required: true  },
   ];
 
+    // True once a product type has been selected and API attributes have loaded.
+  const hasAttributes =
+    categoryAttributes.length > 0 || imageAttributes.length > 0;
+
+    // True when a type is selected but the API returned no attributes for it.
+  const noAttributes = selectedType && !hasAttributes && !error;
 
 
 
@@ -113,20 +96,7 @@ export default function AddCatalog() {
     str.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
 
-
-
-
-  // True once a product type has been selected and API attributes have loaded.
-  const hasAttributes =
-    categoryAttributes.length > 0 || imageAttributes.length > 0;
-
-
-
-
-
-  // True when a type is selected but the API returned no attributes for it.
-  const noAttributes = selectedType && !hasAttributes && !error;
-
+  
 
   if (success) {
     return (
