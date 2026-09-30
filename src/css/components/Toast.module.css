@@ -1,0 +1,48 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   TOAST
+   Fixed bottom-right popup that slides in to give user feedback.
+   Three colour variants: .toastRed (error) | .toastYellow (warning) | .toastGreen (success).
+───────────────────────────────────────────────────────────────────────────── */
+.toast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-size: 0.95em;
+    font-weight: 600;
+    color: #fff;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.22);
+    z-index: 9999;
+    animation: toastSlideIn 0.3s ease;
+    max-width: 360px;
+    line-height: 1.4;
+    pointer-events: none;
+}
+
+
+.toastIcon {
+    font-size: 1.2em;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+
+.toastGreen  { background: #2e7d32; }
+.toastYellow { background: #d97706; }
+.toastRed    { background: #c62828; }
+
+
+@keyframes toastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

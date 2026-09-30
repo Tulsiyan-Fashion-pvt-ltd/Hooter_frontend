@@ -1,7 +1,9 @@
 import React from "react";
 import styles from "../css/pages/add-catalog.module.css";
 import useCatalogForm from "../hooks/useCatalogForm";
+import useToast from "../hooks/useToast";
 import CatalogSelector from "../components/CatalogSelector";
+import Toast from "../components/Toast";
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import camera from "../assets/icons/upload_photo.svg";
@@ -27,19 +29,17 @@ export default function AddCatalog() {
   // Updated SYNCHRONOUSLY inside every setter call so there is zero render-lag.
   const imageLinkRef = useRef({});
 
-  /* --- Image Status Toast ---------------------------------------------------
-     Tracks the current bottom-right popup: message, colour type
-     ("red" | "yellow" | "green"), and whether it is currently visible.       */
-  const [toast, setToast] = useState({ message: "", type: "", visible: false });
+  /* --- Toast ----------------------------------------------------------------
+     Reusable hook — call showToast(message, type) anywhere in this component.
+     Render <Toast toast={toast} /> once at the bottom of the JSX tree.       */
+  const { toast, showToast } = useToast();
 
-  /* Holds the auto-dismiss setTimeout ID so we can cancel a pending dismiss
-     whenever a newer toast fires before the previous one fades out.           */
-  const toastTimerRef = useRef(null);
   const {
     selectedType,
     handleTypeChange,
     fixedValues,
     handleFixedChange,
+    listingAttributes,
     categoryAttributes,
     imageAttributes,
     addImageAttribute,
@@ -62,24 +62,9 @@ export default function AddCatalog() {
   } = useCatalogForm();
 
 
-  // --- Static Listing Field Definitions --------------------------------------
-  // These fields are always shown regardless of the selected product category.
+  // --- Listing Field Definitions (API-driven) ---------------------------------
+  // Populated from the API after a product type is selected (listing_attributes).
   // The "discount" field is auto-calculated from price and compared_price and is read-only.
-  const fixedFields = [
-    { key: "sku_id",               label: "SKU ID",             required: true  },
-    { key: "product_title",        label: "Product Title",       required: true  },
-    { key: "price",                label: "Product Price",       required: true  },
-    { key: "compared_price",       label: "Compared Price",      required: true  },
-    { key: "discount",             label: "Discount",            required: false },
-    { key: "purchasing_cost",      label: "Purchasing Cost",     required: false },
-    { key: "vendor",               label: "Vendor",              required: false },
-    { key: "ean",                  label: "EAN",                 required: false },
-    { key: "hsn",                  label: "HSN",                 required: false },
-    { key: "net_weight_kg",        label: "Net Weight",          required: false },
-    { key: "dead_weight_kg",       label: "Dead Weight",         required: false },
-    { key: "volumetric_weight_kg", label: "Volumetric Weight",   required: false },
-    { key: "brand_name",           label: "Brand Name",          required: true  },
-  ];
 
     // True once a product type has been selected and API attributes have loaded.
   const hasAttributes =
@@ -179,28 +164,6 @@ export default function AddCatalog() {
     }
   }
 
-
-
-
-
-  /**
-   * showToast — Triggers the bottom-right image status popup.
-   *
-   * Cancels any in-flight auto-dismiss timer first so rapid interactions
-   * always reset the 4-second window from scratch.
-   *
-   * @param {string} message              - Text to display inside the toast.
-   * @param {"red"|"yellow"|"green"} type - Visual colour variant.
-   */
-  function showToast(message, type) {
-    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-
-    setToast({ message, type, visible: true });
-
-    toastTimerRef.current = setTimeout(() => {
-      setToast((prev) => ({ ...prev, visible: false }));
-    }, 4000);
-  }
 
 
 
@@ -452,40 +415,46 @@ export default function AddCatalog() {
 
               <h2>Listing Information</h2>
               <div className={styles.listing}>
-                {fixedFields.map(({ key, label, required }) => (
-                  <div className={styles.line} key={key}>
-                    <span
-                      className={`${styles.pill} ${required ? styles.required : ""}`}
-                    >
-                      {label}
-                      {required ? " *" : ""}
-                    </span>
+                {listingAttributes.map((attr) => {
+                  const key      = attr.field || attr.key;
+                  const label    = attr.name  || formatLabel(key);
+                  const required = Boolean(attr.required);
 
-                    <input
-                      placeholder={
-                        key === "discount"
-                          ? "Discount %"
-                          : "Enter the listing description"
-                      }
-                      value={
-                        key === "discount"
-                          ? (() => {
-                              const cp = parseFloat(fixedValues["compared_price"]);
-                              const p  = parseFloat(fixedValues["price"]);
-                              if (!cp || isNaN(cp) || isNaN(p)) return "";
-                              const factor = Math.pow(10, 2);
-                              const result =
-                                Math.trunc(((cp - p) / cp) * 100 * factor) /
-                                factor;
-                              return `${result}%`;
-                            })()
-                          : fixedValues[key]
-                      }
-                      onChange={(e) => handleFixedChange(key, e.target.value)}
-                      disabled={key === "discount" ? true : false}
-                    />
-                  </div>
-                ))}
+                  return (
+                    <div className={styles.line} key={key}>
+                      <span
+                        className={`${styles.pill} ${required ? styles.required : ""}`}
+                      >
+                        {label}
+                        {required ? " *" : ""}
+                      </span>
+
+                      <input
+                        placeholder={
+                          key === "discount"
+                            ? "Discount %"
+                            : "Enter the listing description"
+                        }
+                        value={
+                          key === "discount"
+                            ? (() => {
+                                const cp = parseFloat(fixedValues["compared_price"]);
+                                const p  = parseFloat(fixedValues["price"]);
+                                if (!cp || isNaN(cp) || isNaN(p)) return "";
+                                const factor = Math.pow(10, 2);
+                                const result =
+                                  Math.trunc(((cp - p) / cp) * 100 * factor) /
+                                  factor;
+                                return `${result}%`;
+                              })()
+                            : fixedValues[key] ?? ""
+                        }
+                        onChange={(e) => handleFixedChange(key, e.target.value)}
+                        disabled={key === "discount"}
+                      />
+                    </div>
+                  );
+                })}
               </div>
 
               <h4 className={styles.sectionHeading}>Product Attributes</h4>
@@ -834,25 +803,8 @@ export default function AddCatalog() {
       </div>
 
 
-      {/* -- IMAGE STATUS TOAST -----------------------------------------------
-          Fixed bottom-right popup that slides in on image interactions.
-          Colour variant is driven by toast.type: red / yellow / green.       */}
-      {toast.visible && (
-        <div
-          className={`${styles.toast} ${
-            toast.type === "green"
-              ? styles.toastGreen
-              : toast.type === "yellow"
-                ? styles.toastYellow
-                : styles.toastRed
-          }`}
-        >
-          <span className={styles.toastIcon}>
-            {toast.type === "green" ? "✓" : toast.type === "yellow" ? "⚠" : "✕"}
-          </span>
-          {toast.message}
-        </div>
-      )}
+      {/* -- TOAST ---------------------------------------------------------- */}
+      <Toast toast={toast} />
 
 
     </div>
