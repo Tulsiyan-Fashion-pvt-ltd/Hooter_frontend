@@ -444,7 +444,7 @@
 
 /* Grid Definition: Checkbox (44px), Product (2.8fr), Category (1.2fr), MRP (1fr), Marketplaces (1.3fr), Status (1.4fr), Updated (1.5fr), Actions (70px) */
 :root {
-  --table-grid: 44px minmax(220px, 2.8fr) minmax(110px, 1.2fr) minmax(90px, 1fr) minmax(110px, 1.3fr) minmax(130px, 1.4fr) minmax(130px, 1.5fr) 70px;
+  --table-grid: 44px minmax(220px, 2.5fr) minmax(180px, 2fr) minmax(120px, 1.2fr) minmax(120px, 1.2fr) minmax(110px, 1.2fr) minmax(90px, 1fr) 70px;
 }
 
 .listHeader {
@@ -726,6 +726,18 @@
     background:#fff;
     border-radius:8px;
     overflow:hidden;
+}
+
+.footerLeft {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.rowsSelector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .rowSelectWrap {
