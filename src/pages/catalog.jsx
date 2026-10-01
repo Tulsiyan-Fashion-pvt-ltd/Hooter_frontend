@@ -60,7 +60,8 @@ export default function Catalog() {
   // Table State
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(8);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [paginationData, setPaginationData] = useState({ totalItems: 0, totalPages: 1 });
   const [activeTab, setActiveTab] = useState("All");
   const [searchSku, setSearchSku] = useState("");
   const [uploadedCategories, setUploadedCategories] = useState([]);
@@ -103,6 +104,11 @@ export default function Catalog() {
       ]);
 
       setProducts(data.catalog_list || []);
+      const pageInfo = data.pagitation || data.pagination || {};
+      setPaginationData({
+        totalItems: pageInfo.total_items || 0,
+        totalPages: pageInfo.total_pages || 1,
+      });
       setUploadedCategories(catData.categories || []);
       const count = countData.count || {};
       setStats({
@@ -247,15 +253,9 @@ export default function Catalog() {
   });
 
   // Pagination logic
-  let totalItems = stats.total || 0;
-  if (activeTab === "Pending") totalItems = stats.pending || 0;
-  else if (activeTab === "Completed") totalItems = stats.completed || 0;
-  else if (activeTab === "Action required") totalItems = stats.actionRequired || 0;
-  else if (activeTab === "QC error") totalItems = stats.qcError || 0;
-  else if (activeTab === "Draft") totalItems = stats.draft || 0;
-  else totalItems = 0;
+  const totalItems = paginationData.totalItems;
+  const totalPages = Math.max(1, paginationData.totalPages);
   
-  const totalPages = Math.max(1, Math.ceil(totalItems / rowsPerPage));
   // Backend handles offset, so we just use the filtered products
   const startIndex = (currentPage - 1) * rowsPerPage;
   const currentProducts = filteredProducts;
@@ -606,7 +606,7 @@ export default function Catalog() {
         </div>
 
         {/* Footer / Pagination */}
-        {filteredProducts.length > 0 && (
+        {totalItems > 0 && (
           <div className={styles.footer}>
             <div className={styles.footerLeft}>
               <div className={styles.rowsSelector}>
@@ -620,7 +620,7 @@ export default function Catalog() {
                       setCurrentPage(1);
                     }}
                   >
-                    <option value={8}>8</option>
+                    <option value={10}>10</option>
                     <option value={15}>15</option>
                     <option value={20}>20</option>
                   </select>
@@ -630,7 +630,7 @@ export default function Catalog() {
                 </div>
               </div>
               <div className={styles.showingText}>
-                Showing {filteredProducts.length === 0 ? 0 : startIndex + 1}–{Math.min(startIndex + rowsPerPage, filteredProducts.length)} of {filteredProducts.length}
+                Showing {totalItems === 0 ? 0 : startIndex + 1}–{Math.min(startIndex + currentProducts.length, totalItems)} of {totalItems}
               </div>
             </div>
             
