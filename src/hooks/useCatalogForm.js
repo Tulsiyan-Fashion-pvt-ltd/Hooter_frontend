@@ -419,13 +419,19 @@ export default function useCatalogForm() {
           });
         }
 
+        /* Apply PascalCase to the display name — same trailing-space guard used
+           by handleCustomAttributeChange so the cursor isn't fought mid-word.   */
+        const displayName = newLabel.endsWith(' ')
+          ? newLabel
+          : (toPascalCase(newLabel) || newLabel);
+
         return {
           ...attr,
           /* Keep old field key if collision; user must pick a unique name first. */
           field: isDuplicate ? oldKey : newField,
           type:  isDuplicate ? oldKey : newField,
-          name: newLabel,
-          description: newLabel,
+          name: displayName,
+          description: displayName,
         };
       });
     });
@@ -502,9 +508,12 @@ export default function useCatalogForm() {
         return;
       }
 
-      if (!fixedValues['sku_id'] || !fixedValues['product_title'] || !fixedValues['price'] || !fixedValues['brand_name']) {
-        setError('Please fill in all mandatory fields');
-        return;
+      for (const attr of listingAttributes) {
+        const key = attr.field || attr.key;
+        if (attr.required && key !== 'discount' && !fixedValues[key]) {
+          setError(`Please fill in the ${attr.name || key} field`);
+          return;
+        }
       }
 
       for (const attr of categoryAttributes) {
