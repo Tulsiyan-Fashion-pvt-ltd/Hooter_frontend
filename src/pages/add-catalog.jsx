@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import styles from "../css/pages/add-catalog.module.css";
 import useCatalogForm from "../hooks/useCatalogForm";
 import useToast from "../hooks/useToast";
@@ -315,9 +315,8 @@ export default function AddCatalog() {
           <div className={styles.row}>
             <div className={styles.steps}>
               <div
-                className={`${styles.step} ${
-                  !hasAttributes ? styles.active : ""
-                }`}
+                className={`${styles.step} ${!hasAttributes ? styles.active : ""
+                  }`}
               >
                 {hasAttributes ? (
                   <span className={styles.check}>✔</span>
@@ -328,9 +327,8 @@ export default function AddCatalog() {
               </div>
 
               <div
-                className={`${styles.step} ${
-                  hasAttributes ? styles.active : ""
-                }`}
+                className={`${styles.step} ${hasAttributes ? styles.active : ""
+                  }`}
               >
                 <span>2&nbsp;</span>
                 Add Product Details
@@ -396,8 +394,8 @@ export default function AddCatalog() {
 
               <div className={styles.listing}>
                 {listingAttributes.map((attr) => {
-                  const key      = attr.field || attr.key;
-                  const label    = attr.name  || formatLabel(key);
+                  const key = attr.field || attr.key;
+                  const label = attr.name || formatLabel(key);
                   const required = Boolean(attr.required);
 
                   return (
@@ -418,15 +416,15 @@ export default function AddCatalog() {
                         value={
                           key === "discount"
                             ? (() => {
-                                const cp = parseFloat(fixedValues["compared_price"]);
-                                const p  = parseFloat(fixedValues["price"]);
-                                if (!cp || isNaN(cp) || isNaN(p)) return "";
-                                const factor = Math.pow(10, 2);
-                                const result =
-                                  Math.trunc(((cp - p) / cp) * 100 * factor) /
-                                  factor;
-                                return `${result}%`;
-                              })()
+                              const cp = parseFloat(fixedValues["compared_price"]);
+                              const p = parseFloat(fixedValues["price"]);
+                              if (!cp || isNaN(cp) || isNaN(p)) return "";
+                              const factor = Math.pow(10, 2);
+                              const result =
+                                Math.trunc(((cp - p) / cp) * 100 * factor) /
+                                factor;
+                              return `${result}%`;
+                            })()
                             : fixedValues[key] ?? ""
                         }
                         onChange={(e) => handleFixedChange(key, e.target.value)}
@@ -451,9 +449,8 @@ export default function AddCatalog() {
                   return (
                     <div className={styles.line} key={attr.field}>
                       <span
-                        className={`${styles.pill} ${
-                          attr.required ? styles.required : ""
-                        }`}
+                        className={`${styles.pill} ${attr.required ? styles.required : ""
+                          }`}
                       >
                         {attr.name || formatLabel(attr.field || "")}
                         {attr.required ? " *" : ""}
