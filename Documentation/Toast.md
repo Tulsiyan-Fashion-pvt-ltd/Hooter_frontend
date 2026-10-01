@@ -4,6 +4,8 @@ A lightweight, reusable toast notification system for the Hooter frontend. Consi
 
 ---
 
+
+
 ## File Structure
 
 ```
@@ -18,6 +20,8 @@ src/
 ```
 
 ---
+
+
 
 ## Quick Start
 
@@ -42,6 +46,8 @@ export default function MyPage() {
 ```
 
 ---
+
+
 
 ## API Reference
 
@@ -110,6 +116,8 @@ import Toast from '../components/Toast';
 
 ---
 
+
+
 ## Variants
 
 The `type` argument passed to `showToast` controls the colour and icon.
@@ -121,6 +129,8 @@ The `type` argument passed to `showToast` controls the colour and icon.
 | `"red"`    | Crimson    | `#c62828` | `✕`  | Error — action failed or is blocked.    |
 
 ---
+
+
 
 ## Usage Examples
 
@@ -146,6 +156,8 @@ const { toast, showToast } = useToast(7000); // stays visible for 7 seconds
 
 ---
 
+
+
 ## Styling
 
 Styles live in `src/css/components/Toast.module.css`.
@@ -162,6 +174,8 @@ To adjust colours or position, edit `Toast.module.css` — all pages using the c
 
 ---
 
+
+
 ## Where It Is Currently Used
 
 | Page / Component   | File                            |
@@ -169,6 +183,8 @@ To adjust colours or position, edit `Toast.module.css` — all pages using the c
 | Add Single Catalog | `src/pages/add-catalog.jsx`     |
 
 ---
+
+
 
 ## Extension Guide
 
