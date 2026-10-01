@@ -256,4 +256,25 @@ The brand guard in `Layout` calls `GET /brand/connect` on every fresh page load.
 
 ---
 
+## Reusable Components
+
+### `DeleteConfirmModal`
+A reusable confirmation modal for dangerous actions (like deletions).
+
+**Location:** `src/components/DeleteConfirmModal.jsx`
+
+**Props:**
+- `isOpen` (boolean): Controls modal visibility.
+- `title` (string): Main heading text.
+- `subtitle` (string): Secondary text below the title.
+- `warningNote` (string): Additional warning text.
+- `warningHighlight` (string): Bolded text at the start of the warning box.
+- `confirmText` (string, default: "Delete"): Text for the primary action button.
+- `cancelText` (string, default: "Cancel"): Text for the cancel button.
+- `isLoading` (boolean, default: false): Disables buttons and shows a loading state if true.
+- `onConfirm` (function): Callback when the primary action button is clicked.
+- `onCancel` (function): Callback when the cancel button or overlay is clicked.
+
+---
+
 *Hooter Frontend — last updated September 2026*
