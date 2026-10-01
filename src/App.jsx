@@ -51,7 +51,8 @@ function App() {
         <Route path="/orders" element={<Orders />} />
         <Route path="/orders/active-orders" element={<Orders />} />
       </Route>
-
+      
+      {/* To enter the inwards this is why it is seperate from the layout */}
       <Route
         path="/inventory/inward/entry"
         element={
