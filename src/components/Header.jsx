@@ -1,51 +1,93 @@
 import React from "react";
 import { useLocation, Link } from "react-router-dom";
 import styles from "../css/layout/Header.module.css";
+import pathTree from "../pathTree.json";
 
-// Route to breadcrumb mapping
+
+/**
+ * Gets the traced path object with name and path properties
+ * example:
+ *    [{"path": /catalog, "name": Catalog}]
+ * @param {string} pathname 
+ * @returns {object} path
+ */
 const getBreadcrumbs = (pathname) => {
-  if (pathname === "/" || pathname === "") {
-    return { root: "Dashboard", current: "Overview", rootLink: "/" };
-  }
-  if (pathname === "/catalog") {
-    return { root: "Catalog", current: "Upload catalog", rootLink: "/catalog" };
-  }
-  if (pathname === "/catalog/add-catalog") {
-    return { root: "Catalog", current: "Add single catalog", rootLink: "/catalog" };
-  }
-  if (pathname === "/catalog/add-bulk-catalog") {
-    return { root: "Catalog", current: "Add bulk catalog", rootLink: "/catalog" };
-  }
-  if (pathname.startsWith("/catalog/edit")) {
-    return { root: "Catalog", current: "Edit catalog", rootLink: "/catalog" };
-  }
-  if (pathname.startsWith("/inventory")) {
-    return { root: "Inventory", current: "Manage inventory", rootLink: "/inventory" };
-  }
-  if (pathname.startsWith("/orders")) {
-    return { root: "Orders", current: "All orders", rootLink: "/orders" };
+  
+  if (pathname == "/"){
+    return [{"path": pathTree.path, "name": pathTree.name}]
   }
 
-  // Fallback: format path segment
-  const segments = pathname.split("/").filter(Boolean);
-  const root = segments[0] ? segments[0].charAt(0).toUpperCase() + segments[0].slice(1) : "Home";
-  const current = segments[1] ? segments[1].replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "Overview";
-  return { root, current, rootLink: `/${segments[0] || ""}` };
-};
+  // traced path with name
+  let path = [] 
+
+  const pathArray = pathname.split('/').filter(Boolean);  // array of pathnames only without emtpy string
+  let branch = pathTree.children;   // defines the current depth
+
+
+  // loop over the pathArray and return the path and their names
+  for (let i = 0; i < pathArray.length; i++){
+    
+    // path name from the pathname without '/'
+    let givenpath = pathArray[i];
+
+    if (branch.length == 0){      // if no children further nodes then stop
+      return path;
+    } 
+    
+    // iterate over the branch nodes (checking the width)
+    for (let j = 0; j < branch.length; j++){
+      
+      let foundPath = `${branch[j].path}` // needs to map to the parent node paths
+      let foundname = branch[j].name
+      let pathflag = branch[j].path.replace(/^\//, "");
+      
+      // if found then append the properties for path and move to the branch's children nodes (checking depth)
+      if(pathflag == givenpath){
+        
+        // forming the relative path for the foundPath e.g /catalog/add-catalog
+        if (path.length == 0){
+          path.push({"path": foundPath, "name": foundname})
+        }
+        else{
+          let relativePath = path.map((pathObj, index, array)=>{
+            return pathObj.path
+          })
+
+          relativePath = relativePath.join('/');
+          path.push({"path": `${relativePath}/${foundPath}`, "name": foundname})
+        }
+        branch = branch[j].children   //
+        break;
+      }
+    }
+  }
+  console.log(path)
+  return path;
+}
+
+
 
 export default function Header() {
   const location = useLocation();
-  const { root, current, rootLink } = getBreadcrumbs(location.pathname);
+  const path = getBreadcrumbs(location.pathname);     // header path section
 
   return (
     <header className={styles.headerContainer}>
       {/* Left: Breadcrumbs */}
-      <div className={styles.breadcrumb}>
-        <Link to={rootLink} className={styles.breadcrumbRoot}>
-          {root}
-        </Link>
-        <span className={styles.breadcrumbSeparator}>/</span>
-        <span className={styles.breadcrumbCurrent}>{current}</span>
+
+      <div className={styles.breadcrumbURLSection}>
+        {
+          path.map((path, index, arr)=> {
+            return (<div className={styles.breadcrumb} key={index}>
+              <Link to={path.path} className={styles.breadcrumbRoot} style={index == arr.length -1? {"fontWeight": "bolder", "color": "black"}: null}>
+                {path.name}
+              </Link>
+
+              {/* render "/" in between iteratios */}
+              {index < arr.length-1? <span className={styles.breadcrumbSeparator}>/</span>: ""}
+            </div> )
+          })
+        }
       </div>
 
       {/* Right: Clock, Notification, Avatar */}

@@ -67,7 +67,11 @@ const Login = () => {
       setLoading(false);
 
       if (response.status !== 200) {
-        setErrorMessage(data?.login?.message || "Login failed");
+        if (response.status == 429){
+          setErrorMessage("Too many attempts, try in 15 minutes");
+        }else{
+          setErrorMessage(data?.login?.message || "Login failed");
+        }
       } else {
         dispatch(setSession(data));
         const brand = data?.brand_connection;

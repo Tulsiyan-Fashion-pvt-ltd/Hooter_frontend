@@ -1,0 +1,83 @@
+{
+    "path": "/",
+    "name": "Darshboard",
+    "children": [
+        {
+            "path": "/catalog",
+            "name": "Manage catalog",
+            "children": [
+                {
+                    "path": "/add-catalog",
+                    "name": "Add single catalog",
+                    "children": []
+                },
+                {
+                    "path": "/add-bulk-catalog",
+                    "name": "Add bulk catalog",
+                    "children": []
+                },
+                {
+                    "path": "/edit",
+                    "name": "Edit product listing",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "path": "/inventory",
+            "name": "Manage inventory",
+            "children": [
+                {
+                    "path": "/stock",
+                    "name": "Manage inventory stocks",
+                    "children": []
+                },
+                {
+                    "path": "/inward",
+                    "name": "Manage inventory inwards",
+                    "children": [{
+                        "path": "/entry",
+                        "name": "Inventory inward entry",
+                        "children": []
+                    }]
+                },
+                {
+                    "path": "/grn",
+                    "name": "Edit product listing",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "path": "/orders",
+            "name": "Manage orders",
+            "children": [
+                {
+                    "path": "/all-orders",
+                    "name": "Manage all orders",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "path": "/login",
+            "name": "Log in",
+            "children": []
+        },
+        {
+            "path": "/signup",
+            "name": "Sign up",
+            "children": []
+        },
+        {
+            "path": "/select-brand",
+            "name": "Select brand",
+            "children": []
+        },
+        {
+            "path": "/brand/register",
+            "name": "Select brand",
+            "children": []
+        }
+    ]
+}

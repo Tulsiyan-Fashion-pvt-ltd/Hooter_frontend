@@ -7,13 +7,11 @@ export const fetchCsrf = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
 
-        console.log("function running")
       const res = await fetch(`${Base_Url}/security/csrf`, {
         credentials: "include"
       });
 
       const data = await res.json();
-      console.log("csrf response", data);
 
       if (!res.ok) throw new Error("Failed to fetch");
 
