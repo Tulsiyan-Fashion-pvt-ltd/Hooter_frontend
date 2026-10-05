@@ -15,14 +15,14 @@
 }
 
 .container {
-    border: 1px solid var(--second-color--);
+    border: 1px solid var(--second-color);
     min-width: 400px;
     max-width: 100svw;
     padding: 16px;
     height: 625px;
     border-radius: 8px;
     margin: auto;
-    background-color: var(--main-color--);
+    background-color: var(--main-color);
 }
 
 .identificationContainer{

@@ -4,13 +4,16 @@ import { BrowserRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { store } from './store/store.js'
 import './index.css'
-import './css/layout/universal-layout.css'
+// import './css/layout/universal-layout.css'
 import App from './App.jsx'
+
+
+
 
 createRoot(document.getElementById('root')).render(
   <Provider store={store}>
     <BrowserRouter>
-      <App />
+        <App />
     </BrowserRouter>
   </Provider>,
 )

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import styles from "../css/pages/login.module.css";
-import "../css/layout/universal-layout.css";
 import { ArrowProceedBttn } from "../components/proceed-bttn";
 import { Spinner } from "../components/spinner";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
@@ -18,7 +17,7 @@ const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const csrfToken = useSelector((state) => state.csrf.csrf);
-  console.log("csrfToken", csrfToken);
+
   const [errorMessage, setErrorMessage] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -62,7 +61,7 @@ const Login = () => {
         data = await response.json();
       } catch {
         /* response has no JSON body */
-      }
+      } 
 
       setLoading(false);
 
@@ -73,6 +72,7 @@ const Login = () => {
           setErrorMessage(data?.login?.message || "Login failed");
         }
       } else {
+        dispatch(fetchCsrf());      // creating new token for the csrf
         dispatch(setSession(data));
         const brand = data?.brand_connection;
 

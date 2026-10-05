@@ -172,6 +172,7 @@
   user-select: none;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: transform 0.15s ease;
+  anchor-name: --profile-anchor;
 }
 
 .avatar:hover {

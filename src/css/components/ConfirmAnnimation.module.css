@@ -1,5 +1,5 @@
 .body{
-    background-color: var(--main-color--2);
+    background-color: var(--main-color);
     height: 100svh;
     width: 100%;
     display: flex;
@@ -15,7 +15,7 @@
     width: 150px;
     height: 150px;
     border-radius: 50%;
-    background-color: var(--second-color--);
+    background-color: var(--second-color);
     display: flex;
   justify-content: center;
   align-items: center;
@@ -35,7 +35,7 @@
 }
 
 .check{
-    background-color: var(--main-color--);
+    background-color: var(--main-color);
     border-radius: 50px;
 }
 

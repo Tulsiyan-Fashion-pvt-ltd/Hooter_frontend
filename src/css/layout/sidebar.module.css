@@ -1,7 +1,7 @@
 .isolatedSidebar
 {
   height: 100%;
-  background-color: var(--second-color--);
+  background-color: var(--second-color);
   width: 340px;
   border-radius: 0px 8px 8px 0px;
   /* transition: width 0.3s ease-in; */
@@ -55,13 +55,13 @@ position: absolute;
 .isolatedSidebar p, .isolatedSidebar a,
 .isolatedSidebar .sidebarItem
 {
-  color: var(--main-color--);
+  color: var(--main-color);
 }
 
 .noUnderline
 {
   text-decoration: none;
-  color: var(--main-color--);
+  color: var(--main-color);
 }
 
 .sidebarFooter
@@ -195,7 +195,7 @@ letter-spacing: 0%;
   left: 100%;
   top: 0;
   margin-left: 12px;
-  background-color: var(--second-color--);
+  background-color: var(--second-color);
   border-radius: 8px;
   padding: 16px 20px;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.3);
@@ -231,7 +231,7 @@ letter-spacing: 0%;
 .activeText
 {
   opacity: 1;
-  color: var(--main-color--);
+  color: var(--main-color);
 }
 
 
@@ -299,7 +299,7 @@ letter-spacing: 0%;
   width: 40px;
   height: 40px;
   background-size: contain;
-  border: 1px solid var(--main-color--);
+  border: 1px solid var(--main-color);
   border-radius: 50%;
   background-size: 55%;
   background-position: center;
