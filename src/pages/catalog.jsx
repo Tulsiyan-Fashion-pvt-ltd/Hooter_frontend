@@ -2,44 +2,106 @@ import { useState, useEffect } from "react";
 import styles from "../css/pages/Catalog.module.css";
 import { Link } from "react-router-dom";
 import imageNA from "../assets/icons/imagena.png";
-import { getProducts, deleteProduct, getUploadedCategories, getProductCounts } from "../services/catalogService";
+import {
+  getProducts,
+  deleteProduct,
+  getUploadedCategories,
+  getProductCounts,
+} from "../services/catalogService";
 import DeleteConfirmModal from "../components/DeleteConfirmModal";
 
 const route = import.meta.env.VITE_BASEAPI;
 
 // SVG Icons
 const SearchIcon = () => (
-  <svg className={styles.searchIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+  <svg
+    className={styles.searchIcon}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+    />
   </svg>
 );
 
 const DownloadIcon = () => (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+  <svg
+    width="14"
+    height="14"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+    />
   </svg>
 );
 
 const EditIcon = () => (
-  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+  <svg
+    width="16"
+    height="16"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+    />
   </svg>
 );
 
 const TrashIcon = () => (
-  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+  <svg
+    width="16"
+    height="16"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+    />
   </svg>
 );
 
 const ChevronLeftIcon = () => (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+  <svg
+    width="14"
+    height="14"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
     <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
   </svg>
 );
 
 const ChevronRightIcon = () => (
-  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+  <svg
+    width="14"
+    height="14"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
   </svg>
 );
@@ -61,7 +123,10 @@ export default function Catalog() {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [paginationData, setPaginationData] = useState({ totalItems: 0, totalPages: 1 });
+  const [paginationData, setPaginationData] = useState({
+    totalItems: 0,
+    totalPages: 1,
+  });
   const [activeTab, setActiveTab] = useState("All");
   const [searchSku, setSearchSku] = useState("");
   const [uploadedCategories, setUploadedCategories] = useState([]);
@@ -99,8 +164,14 @@ export default function Catalog() {
 
       const [data, catData, countData] = await Promise.all([
         getProducts(params),
-        getUploadedCategories().catch(e => { console.error(e); return { categories: [] }; }),
-        getProductCounts().catch(e => { console.error(e); return { count: {} }; })
+        getUploadedCategories().catch((e) => {
+          console.error(e);
+          return { categories: [] };
+        }),
+        getProductCounts().catch((e) => {
+          console.error(e);
+          return { count: {} };
+        }),
       ]);
 
       setProducts(data.catalog_list || []);
@@ -202,7 +273,7 @@ export default function Catalog() {
     setSelectedProducts((prev) =>
       prev.includes(uskuId)
         ? prev.filter((id) => id !== uskuId)
-        : [...prev, uskuId]
+        : [...prev, uskuId],
     );
   };
 
@@ -213,7 +284,12 @@ export default function Catalog() {
 
   // Helper for mock date based on ID length or just fallback
   const getMockDate = (index) => {
-    const dates = ["Fri, Sep 12 2026", "Thu, Sep 11 2026", "Wed, Sep 10 2026", "Tue, Sep 9 2026"];
+    const dates = [
+      "Fri, Sep 12 2026",
+      "Thu, Sep 11 2026",
+      "Wed, Sep 10 2026",
+      "Tue, Sep 9 2026",
+    ];
     return dates[index % dates.length];
   };
 
@@ -221,7 +297,7 @@ export default function Catalog() {
   const getStatusDisplay = (statusStr) => {
     const status = statusStr?.toLowerCase() || "draft";
     const text = snakeToPlainText(statusStr) || "Draft";
-    
+
     switch (status) {
       case "active":
       case "completed":
@@ -245,7 +321,9 @@ export default function Catalog() {
     // Search filter
     if (searchSku.trim()) {
       const q = searchSku.toLowerCase().trim();
-      const matchSku = (p.sku_id || "").toLowerCase().includes(q) || (p.usku_id || "").toLowerCase().includes(q);
+      const matchSku =
+        (p.sku_id || "").toLowerCase().includes(q) ||
+        (p.usku_id || "").toLowerCase().includes(q);
       const matchTitle = (p.product_title || "").toLowerCase().includes(q);
       if (!matchSku && !matchTitle) return false;
     }
@@ -255,7 +333,7 @@ export default function Catalog() {
   // Pagination logic
   const totalItems = paginationData.totalItems;
   const totalPages = Math.max(1, paginationData.totalPages);
-  
+
   // Backend handles offset, so we just use the filtered products
   const startIndex = (currentPage - 1) * rowsPerPage;
   const currentProducts = filteredProducts;
@@ -276,15 +354,31 @@ export default function Catalog() {
         <div className={styles.pageHeaderLeft}>
           <h1 className={styles.pageBannerTitle}>Upload catalog</h1>
           <p className={styles.pageBannerSubtitle}>
-            Welcome back, Sarah. Here's a snapshot of your catalog activity across all marketplaces.
+            Welcome back, Sarah. Here's a snapshot of your catalog activity
+            across all marketplaces.
           </p>
         </div>
         <div className={styles.pageHeaderActions}>
-          <Link to="/catalog/add-catalog" className={styles.btnSecondaryOutline}>
+          <Link
+            to="/catalog/add-catalog"
+            className={styles.btnSecondaryOutline}
+          >
             <span className={styles.btnIcon}>+</span> Add single catalog
           </Link>
-          <Link to="/catalog/add-bulk-catalog" className={styles.btnPrimarySolid}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <Link
+            to="/catalog/add-bulk-catalog"
+            className={styles.btnPrimarySolid}
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
               <polyline points="7 10 12 15 17 10"></polyline>
               <line x1="12" y1="15" x2="12" y2="3"></line>
@@ -294,7 +388,6 @@ export default function Catalog() {
         </div>
       </div>
 
-      
       <div className={styles.pageBody}>
         {/* Overview Header */}
         <h2 className={styles.overviewHeading}>Overview</h2>
@@ -305,7 +398,16 @@ export default function Catalog() {
             <div className={styles.cardTop}>
               <span className={styles.cardTitle}>Total uploads done</span>
               <div className={`${styles.cardIconBox} ${styles.iconBoxBlue}`}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#2563eb"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                   <circle cx="8.5" cy="8.5" r="1.5"></circle>
                   <polyline points="21 15 16 10 5 21"></polyline>
@@ -313,14 +415,22 @@ export default function Catalog() {
               </div>
             </div>
             <div className={styles.cardValue}>{stats.total}</div>
-          
           </div>
 
           <div className={styles.card}>
             <div className={styles.cardTop}>
               <span className={styles.cardTitle}>Pending uploads</span>
               <div className={`${styles.cardIconBox} ${styles.iconBoxPurple}`}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#8b5cf6"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                   <polyline points="7 10 12 15 17 10"></polyline>
                   <line x1="12" y1="15" x2="12" y2="3"></line>
@@ -328,21 +438,28 @@ export default function Catalog() {
               </div>
             </div>
             <div className={styles.cardValue}>{stats.pending}</div>
-          
           </div>
 
           <div className={styles.card}>
             <div className={styles.cardTop}>
               <span className={styles.cardTitle}>Completed uploads</span>
               <div className={`${styles.cardIconBox} ${styles.iconBoxGreen}`}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#22c55e"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <line x1="12" y1="5" x2="12" y2="19"></line>
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
               </div>
             </div>
             <div className={styles.cardValue}>{stats.completed}</div>
-            
           </div>
         </div>
 
@@ -363,7 +480,9 @@ export default function Catalog() {
                 >
                   <span>{tab.label}</span>
                   {tab.count !== undefined && (
-                    <span className={`${styles.tabCount} ${isActive ? styles.tabCountActive : ""}`}>
+                    <span
+                      className={`${styles.tabCount} ${isActive ? styles.tabCountActive : ""}`}
+                    >
                       {tab.count}
                     </span>
                   )}
@@ -371,21 +490,38 @@ export default function Catalog() {
               );
             })}
             <div style={{ position: "relative", display: "inline-block" }}>
-              <button 
+              <button
                 type="button"
                 className={styles.dropdownBtn}
-                onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                onClick={() =>
+                  setIsCategoryDropdownOpen(!isCategoryDropdownOpen)
+                }
                 style={{ paddingRight: "28px" }}
               >
                 {activeCategory === "All" ? "Category (All)" : activeCategory}
               </button>
-              <svg style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "#64748b" }} width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M6 9l6 6 6-6"/>
+              <svg
+                style={{
+                  position: "absolute",
+                  right: "12px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  pointerEvents: "none",
+                  color: "#64748b",
+                }}
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                <path d="M6 9l6 6 6-6" />
               </svg>
 
               {isCategoryDropdownOpen && (
                 <div className={styles.customDropdownMenu}>
-                  <div 
+                  <div
                     className={styles.customDropdownItem}
                     onClick={() => {
                       setActiveCategory("All");
@@ -396,8 +532,8 @@ export default function Catalog() {
                     Category (All)
                   </div>
                   {uploadedCategories.map((cat) => (
-                    <div 
-                      key={cat.id} 
+                    <div
+                      key={cat.id}
                       className={styles.customDropdownItem}
                       onClick={() => {
                         setActiveCategory(cat.category);
@@ -416,10 +552,10 @@ export default function Catalog() {
           <div className={styles.filtersRight}>
             <div className={styles.searchBox}>
               <SearchIcon />
-              <input 
-                type="text" 
-                className={styles.input} 
-                placeholder="Search by SKU ID" 
+              <input
+                type="text"
+                className={styles.input}
+                placeholder="Search by SKU ID"
                 value={searchSku}
                 onChange={(e) => {
                   setSearchSku(e.target.value);
@@ -440,23 +576,35 @@ export default function Catalog() {
           {/* Selection Action Bar */}
           {selectedProducts.length > 0 && (
             <div className={styles.selectionBar}>
-              <div className={styles.selectionText}>{selectedProducts.length} products selected</div>
+              <div className={styles.selectionText}>
+                {selectedProducts.length} products selected
+              </div>
               <div className={styles.selectionActions}>
                 <button className={styles.actionBtn}>Activate</button>
                 <button className={styles.actionBtn}>Pause</button>
                 <button className={styles.actionBtn}>Assign category</button>
-                <button className={`${styles.actionBtn} ${styles.actionBtnDelete}`} onClick={openBulkDeleteModal}>Delete</button>
+                <button
+                  className={`${styles.actionBtn} ${styles.actionBtnDelete}`}
+                  onClick={openBulkDeleteModal}
+                >
+                  Delete
+                </button>
               </div>
             </div>
           )}
 
           {/* Table Header */}
-          <div className={`${styles.listHeader} ${selectedProducts.length > 0 ? styles.listHeaderWithSelection : ""}`}>
+          <div
+            className={`${styles.listHeader} ${selectedProducts.length > 0 ? styles.listHeaderWithSelection : ""}`}
+          >
             <div className={styles.checkboxCell}>
-              <input 
-                type="checkbox" 
+              <input
+                type="checkbox"
                 className={styles.checkbox}
-                checked={selectedProducts.length === filteredProducts.length && filteredProducts.length > 0}
+                checked={
+                  selectedProducts.length === filteredProducts.length &&
+                  filteredProducts.length > 0
+                }
                 onChange={toggleSelectAll}
               />
             </div>
@@ -467,17 +615,31 @@ export default function Catalog() {
             <div>PURCHASING COST</div>
             <div className={styles.headerSortable}>
               <span>UPDATED AT</span>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="#9ca3af" stroke="#9ca3af" strokeWidth="1">
-                <path d="M7 10l5 5 5-5z"/>
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="#9ca3af"
+                stroke="#9ca3af"
+                strokeWidth="1"
+              >
+                <path d="M7 10l5 5 5-5z" />
               </svg>
             </div>
             <div className={styles.headerSortable}>
               <span>CREATED AT</span>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="#9ca3af" stroke="#9ca3af" strokeWidth="1">
-                <path d="M7 10l5 5 5-5z"/>
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="#9ca3af"
+                stroke="#9ca3af"
+                strokeWidth="1"
+              >
+                <path d="M7 10l5 5 5-5z" />
               </svg>
             </div>
-            <div style={{textAlign: "right"}}>ACTIONS</div>
+            <div style={{ textAlign: "right" }}>ACTIONS</div>
           </div>
 
           {loading ? (
@@ -489,7 +651,7 @@ export default function Catalog() {
               {currentProducts.map((p, index) => {
                 const isSelected = selectedProducts.includes(p.usku_id);
                 const statusInfo = getStatusDisplay(p.status);
-                
+
                 // Color dots matching design mockups:
                 // Kurta 1: blue, pink, amber
                 // Kurta 2: amber, green
@@ -507,10 +669,11 @@ export default function Catalog() {
                   ["#3b82f6"],
                   ["#3b82f6", "#ec4899", "#f59e0b"],
                   ["#ec4899"],
-                  ["#a855f7"]
+                  ["#a855f7"],
                 ];
-                const marketplaceColors = marketplaceColorSets[index % marketplaceColorSets.length];
-                
+                const marketplaceColors =
+                  marketplaceColorSets[index % marketplaceColorSets.length];
+
                 // Color swatches to match mockup items if image not present
                 const mockImageColors = [
                   "#991b1b", // red casual kurta
@@ -520,21 +683,25 @@ export default function Catalog() {
                   "#1e3a8a", // slim fit denim jacket
                   "#e7dec8", // cotton kurta set - beige
                   "#1e293b", // navy running shoes
-                  "#785338"  // suede loafers - tan
+                  "#785338", // suede loafers - tan
                 ];
-                const imgColor = mockImageColors[index % mockImageColors.length];
+                const imgColor =
+                  mockImageColors[index % mockImageColors.length];
 
                 return (
-                  <div className={`${styles.listItem} ${isSelected ? styles.listItemSelected : ""}`} key={p.usku_id || index}>
+                  <div
+                    className={`${styles.listItem} ${isSelected ? styles.listItemSelected : ""}`}
+                    key={p.usku_id || index}
+                  >
                     <div className={styles.checkboxCell}>
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         className={styles.checkbox}
                         checked={isSelected}
                         onChange={() => toggleSelect(p.usku_id)}
                       />
                     </div>
-                    
+
                     <div className={styles.productCell}>
                       <div className={styles.productImageWrap}>
                         {p.image_url ? (
@@ -544,41 +711,79 @@ export default function Catalog() {
                             alt={p.product_title || "product"}
                           />
                         ) : (
-                          <div className={styles.colorBox} style={{ backgroundColor: imgColor }}></div>
+                          <div
+                            className={styles.colorBox}
+                            style={{ backgroundColor: imgColor }}
+                          ></div>
                         )}
                       </div>
                       <div className={styles.productDetails}>
-                        <span className={styles.productTitle}>{p.product_title || "Untitled Product"}</span>
-                        <span className={styles.productSku}>{p.sku_id || p.usku_id}</span>
+                        <span className={styles.productTitle}>
+                          {p.product_title || "Untitled Product"}
+                        </span>
+                        <Link
+                          to={`/catalog/products/${p.usku_id}`}
+                          className={styles.productSku}
+                          style={{
+                            textDecoration: "none",
+                            color: "#3b82f6",
+                            fontWeight: "500",
+                          }}
+                        >
+                          {p.sku_id || p.usku_id}
+                        </Link>
                       </div>
                     </div>
-                    
+
                     <div className={styles.cellText}>
                       <span className={styles.categoryTag}>
-                        {p.type_name || snakeToPlainText(p.product_type) || "Kurta"}
+                        {p.type_name ||
+                          snakeToPlainText(p.product_type) ||
+                          "Kurta"}
                       </span>
                     </div>
 
                     <div className={styles.cellPrice}>
-                      ₹{p.compared_price ? parseInt(p.compared_price).toLocaleString('en-IN') : "-"}
+                      ₹
+                      {p.compared_price
+                        ? parseInt(p.compared_price).toLocaleString("en-IN")
+                        : "-"}
                     </div>
 
                     <div className={styles.cellPrice}>
-                      ₹{p.price ? parseInt(p.price).toLocaleString('en-IN') : "1,299"}
+                      ₹
+                      {p.price
+                        ? parseInt(p.price).toLocaleString("en-IN")
+                        : "1,299"}
                     </div>
 
                     <div className={styles.cellPrice}>
-                      ₹{p.purchasing_cost ? parseInt(p.purchasing_cost).toLocaleString('en-IN') : "1,299"}
+                      ₹
+                      {p.purchasing_cost
+                        ? parseInt(p.purchasing_cost).toLocaleString("en-IN")
+                        : "1,299"}
                     </div>
-                    
+
                     <div className={styles.cellText}>
-                      {p.updated_at ? new Date(p.updated_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : getMockDate(index)}
+                      {p.updated_at
+                        ? new Date(p.updated_at).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })
+                        : getMockDate(index)}
                     </div>
-                    
+
                     <div className={styles.cellText}>
-                      {p.created_at ? new Date(p.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : getMockDate(index)}
+                      {p.created_at
+                        ? new Date(p.created_at).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })
+                        : getMockDate(index)}
                     </div>
-                    
+
                     <div className={styles.actionsCell}>
                       <Link
                         to={`/catalog/edit?id=${p.usku_id}&type=${p.type_id}&vertical=${p.vertical}`}
@@ -612,8 +817,8 @@ export default function Catalog() {
               <div className={styles.rowsSelector}>
                 <span>Rows per page</span>
                 <div className={styles.rowSelectWrap}>
-                  <select 
-                    className={styles.rowSelect} 
+                  <select
+                    className={styles.rowSelect}
                     value={rowsPerPage}
                     onChange={(e) => {
                       setRowsPerPage(Number(e.target.value));
@@ -624,39 +829,49 @@ export default function Catalog() {
                     <option value={15}>15</option>
                     <option value={20}>20</option>
                   </select>
-                  <svg className={styles.rowSelectArrow} width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <path d="M6 9l6 6 6-6"/>
+                  <svg
+                    className={styles.rowSelectArrow}
+                    width="10"
+                    height="10"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <path d="M6 9l6 6 6-6" />
                   </svg>
                 </div>
               </div>
               <div className={styles.showingText}>
-                Showing {totalItems === 0 ? 0 : startIndex + 1}–{Math.min(startIndex + currentProducts.length, totalItems)} of {totalItems}
+                Showing {totalItems === 0 ? 0 : startIndex + 1}–
+                {Math.min(startIndex + currentProducts.length, totalItems)} of{" "}
+                {totalItems}
               </div>
             </div>
-            
+
             <div className={styles.pagination}>
-              <button 
-                className={styles.pageArrowBtn} 
+              <button
+                className={styles.pageArrowBtn}
                 disabled={currentPage === 1}
-                onClick={() => setCurrentPage(p => p - 1)}
+                onClick={() => setCurrentPage((p) => p - 1)}
               >
                 <ChevronLeftIcon />
               </button>
-              
+
               {Array.from({ length: totalPages }).map((_, i) => (
-                <button 
-                  key={i} 
+                <button
+                  key={i}
                   className={`${styles.pageBtn} ${currentPage === i + 1 ? styles.pageActive : ""}`}
                   onClick={() => setCurrentPage(i + 1)}
                 >
                   {i + 1}
                 </button>
               ))}
-              
-              <button 
-                className={styles.pageArrowBtn} 
+
+              <button
+                className={styles.pageArrowBtn}
                 disabled={currentPage === totalPages || totalPages === 0}
-                onClick={() => setCurrentPage(p => p + 1)}
+                onClick={() => setCurrentPage((p) => p + 1)}
               >
                 <ChevronRightIcon />
               </button>

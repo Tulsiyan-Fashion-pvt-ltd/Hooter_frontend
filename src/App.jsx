@@ -18,7 +18,7 @@ import AddBulkCatalog from "./pages/add-bulk-catalog";
 import Inventory from "./pages/inventory";
 import InwardEntry from "./pages/inward-entry";
 import EditInventory from "./pages/edit-catalog";
-
+import ProductDetails from "./pages/product-details";
 
 
 
@@ -54,6 +54,7 @@ function App() {
           <Route path="/" element={<Homepage />} />
 
           <Route path="/catalog" element={<Catalog />} />
+          <Route path="/catalog/products/:sku_id" element={<ProductDetails />} />
           <Route path="/catalog/add-catalog" element={<AddCatalog />} />
           <Route path="/catalog/add-bulk-catalog" element={<AddBulkCatalog />} />
           <Route path="/catalog/edit" element={<EditInventory />} />

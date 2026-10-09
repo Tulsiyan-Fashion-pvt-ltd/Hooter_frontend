@@ -1,3 +1,4 @@
+import { store } from "../store/store";
 const BASE_URL = import.meta.env.VITE_BASEAPI;
 
 // ── Existing ─────────────────────────
@@ -217,15 +218,23 @@ export const deleteProduct = async (uskuId) => {
   return data; // { "message": "Product deleted successfully", "status": "success" }
 };
 
-// data = flat key/value product fields (already using "_" delimiters per API)
-export const updateProduct = async (uskuId, categoryId, data) => {
+export const updateProduct = async (uskuId, typeId, listingAttributes, categoryAttributes) => {
+  const state = store.getState();
+  const csrf = state.csrf.csrf;
+  
   const response = await fetch(
-    `${BASE_URL}/catalog/products/${uskuId}?id=${categoryId}`,
+    `${BASE_URL}/catalog/products/${encodeURIComponent(uskuId)}?type-id=${encodeURIComponent(typeId)}`,
     {
       method: "PUT",
       credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ data }),
+      headers: { 
+        "Content-Type": "application/json",
+        "X-CSRF-Token": csrf
+      },
+      body: JSON.stringify({
+        listing_attributes: listingAttributes,
+        category_attributes: categoryAttributes
+      }),
     },
   );
   if (!response.ok) throw new Error(`HTTP ${response.status}`);

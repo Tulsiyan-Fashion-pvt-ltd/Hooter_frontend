@@ -63,6 +63,7 @@ src/
 │   ├── select-brand.jsx     # Brand selector (multi-brand accounts)
 │   ├── homepage.jsx
 │   ├── catalog.jsx
+│   ├── product-details.jsx  # Detailed view for a specific product
 │   ├── add-catalog.jsx
 │   ├── add-bulk-catalog.jsx
 │   ├── edit-catalog.jsx

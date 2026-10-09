@@ -38,7 +38,9 @@ export default function EditInventory() {
   const [imageAttributes, setImageAttributes] = useState([]);
   const [imageField, setImageField] = useState({});
   const [editImage, setEditImage] = useState({});
-  const [deletingImage, setDeletingImage] = useState({}); /* tracks per-type delete loading */
+  const [deletingImage, setDeletingImage] = useState(
+    {},
+  ); /* tracks per-type delete loading */
   const [error, setError] = useState();
   const [success, setSuccess] = useState();
   const [submitting, setSubmitting] = useState(false);
