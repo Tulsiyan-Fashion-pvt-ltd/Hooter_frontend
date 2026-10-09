@@ -31,19 +31,14 @@
     --main-color: #ffff;
     --second-color: #000000;
     --layout-padding: 28px;
-    font-family: 'nunito-sans';
+    font-family: 'nunito-sans', -apple-system,"Segoe UI",Arial,sans-serif;
 }
 
 body{
-    /* display: flex;
-  justify-content: center;
-  align-content: center;
-  align-items: center; */
   height: 100svh;
   width: 100%;
   background-color: #f9f9f9;
   box-sizing: border-box;
-  font-size: 16px;
   font-weight: 400;
   color: #222;
 }
