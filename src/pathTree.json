@@ -20,6 +20,11 @@
                     "path": "/edit",
                     "name": "Edit product listing",
                     "children": []
+                },
+                {
+                    "path": "/products",
+                    "name": "Products",
+                    "children": []
                 }
             ]
         },
