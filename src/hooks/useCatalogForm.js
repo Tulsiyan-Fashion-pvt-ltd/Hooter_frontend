@@ -174,7 +174,21 @@ export default function useCatalogForm() {
             },
           ]);
         } else {
-          setImageAttributes(fetchedImages);
+          // Always append one default optional custom slot so the grid
+          // shows ≥ 2 cards without the user needing to click "+ Add More".
+          setImageAttributes([
+            ...fetchedImages,
+            {
+              id: `custom_default_${Date.now()}`,
+              field: 'custom_optional',
+              type: 'custom_optional',
+              name: 'Optional',
+              description: 'Optional',
+              required: false,
+              order: fetchedImages.length,
+              custom: true,
+            },
+          ]);
         }
 
         setPreview({});
