@@ -628,6 +628,8 @@ export default function AddCatalog() {
                 Add Custom Attribute
               </button>
 
+              {/* ── DIVIDER — separates custom attributes from the action buttons ── */}
+              <hr className={styles.actionsDivider} />
 
               <div className={styles.buttons}>
                 <button className={styles.draft}>Save as draft</button>
