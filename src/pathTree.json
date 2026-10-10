@@ -1,6 +1,6 @@
 {
     "path": "/",
-    "name": "Darshboard",
+    "name": "Dashboard",
     "children": [
         {
             "path": "/catalog",
@@ -35,11 +35,13 @@
                 {
                     "path": "/inward",
                     "name": "Manage inventory inwards",
-                    "children": [{
-                        "path": "/entry",
-                        "name": "Inventory inward entry",
-                        "children": []
-                    }]
+                    "children": [
+                        {
+                            "path": "/entry",
+                            "name": "Inventory inward entry",
+                            "children": []
+                        }
+                    ]
                 },
                 {
                     "path": "/grn",

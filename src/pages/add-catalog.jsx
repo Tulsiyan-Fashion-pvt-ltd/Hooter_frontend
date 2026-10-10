@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import styles from "../css/pages/add-catalog.module.css";
 import useCatalogForm from "../hooks/useCatalogForm";
 import useToast from "../hooks/useToast";
@@ -7,6 +7,7 @@ import Toast from "../components/Toast";
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import camera from "../assets/icons/upload_photo.svg";
+import { getFieldPlaceholder } from "../components/fieldPlaceholders";
 
 /**
  * AddCatalog — Single catalog creation form.
@@ -22,6 +23,22 @@ export default function AddCatalog() {
 
   // Tracks user-entered image URLs for each image attribute field.
   const [imageLink, setImageLink] = useState({});
+
+  /* ── SALES CHANNELS ────────────────────────────────────────────────────────
+     Local toggle state for each channel. `enabled` drives the toggle switch.
+     Add or remove channels here — the list renders automatically.           */
+  const [salesChannels, setSalesChannels] = useState([
+    { id: "flipkart", label: "Flipkart",  enabled: false },
+    { id: "shopify",  label: "Shopify",   enabled: false },
+    { id: "myntra",   label: "Myntra",    enabled: false },
+    { id: "amazon",   label: "Amazon",    enabled: false },
+  ]);
+
+  // Flips the enabled flag for a single channel by id.
+  const toggleChannel = (id) =>
+    setSalesChannels((prev) =>
+      prev.map((ch) => (ch.id === id ? { ...ch, enabled: !ch.enabled } : ch)),
+    );
 
   // Always-current mirror of imageLink used by async fetch callbacks to detect
   // whether a slot was cleared while the request was in-flight.
@@ -95,6 +112,18 @@ export default function AddCatalog() {
 
   // True when a type is selected but the API returned no attributes for it.
   const noAttributes = selectedType && !hasAttributes && !error;
+
+  /* ── STEPS DEFINITION ────────────────────────────────────────────────────
+     Add or rename steps here and the step indicators + "Step X of Y" label
+     update automatically everywhere — no manual count changes needed.      */
+  const STEPS = [
+    { label: "Select Category" },
+    { label: "Add Product Details" },
+  ];
+  const totalSteps = STEPS.length;
+
+  // 0-indexed active step: step 0 until category chosen, then step 1
+  const activeStepIndex = hasAttributes ? 1 : 0;
 
 
 
@@ -304,36 +333,50 @@ export default function AddCatalog() {
 
   return (
     <div className={styles.globalAddCatalogContainer}>
-      <div className={styles.main}>
+      {/* Step 1 container — position/size independently via .step1Container */}
+      <div className={styles.step1Container}>
         {/* ── TOP HEADER ── */}
         <div className={styles.top}>
           <h1>Add Single Catalog</h1>
-          <p>Add the information for your catalog</p>
+          <p>Let&#39;s set up your catalog &mdash; Enter your catalog details</p>
 
 
-          {/* ── STEPS ── */}
-          <div className={styles.row}>
+          {/* ── STEP INDICATORS + GUIDELINE ROW ──────────────────────────
+              All three elements sit on one flex row:
+                left:   step pills separated by '—' connectors
+                right:  guideline warning link
+              Adding a step to the STEPS array is all that's needed —
+              connectors and counts update automatically.              */}
+          <div className={styles.stepsRow}>
             <div className={styles.steps}>
-              <div
-                className={`${styles.step} ${!hasAttributes ? styles.active : ""
-                  }`}
-              >
-                {hasAttributes ? (
-                  <span className={styles.check}>✔</span>
-                ) : (
-                  <span>1&nbsp;</span>
-                )}
-                Select Category
-              </div>
-
-              <div
-                className={`${styles.step} ${hasAttributes ? styles.active : ""
-                  }`}
-              >
-                <span>2&nbsp;</span>
-                Add Product Details
-              </div>
+              {STEPS.map((step, index) => {
+                const isCompleted = index < activeStepIndex;
+                const isActive    = index === activeStepIndex;
+                return (
+                  <React.Fragment key={step.label}>
+                    {/* '—' connector between steps, not after the last one */}
+                    {index > 0 && (
+                      <span className={styles.stepConnector}>—</span>
+                    )}
+                    <div
+                      className={`${styles.step} ${isActive ? styles.active : ""}`}
+                    >
+                      {isCompleted ? (
+                        <span className={styles.check}>✔</span>
+                      ) : (
+                        <span>{index + 1}&nbsp;</span>
+                      )}
+                      {step.label}
+                    </div>
+                  </React.Fragment>
+                );
+              })}
             </div>
+
+            {/* Guideline pill — pushed to the right of the steps row */}
+            <Link to="#" className={styles.guidelineLink}>
+              ⚠ Follow the field guidelines below to reduce quality-check rejections
+            </Link>
           </div>
 
 
@@ -341,56 +384,66 @@ export default function AddCatalog() {
           <CatalogSelector onTypeSelect={handleTypeChange} />
 
 
-          <div className={styles["mandatory-row"]}>
-            <p className={styles.mandatory}>
-              Mandatory Fields<span>*</span>
-            </p>
-            <div className={`${styles.guideline} ${styles.small}`}>
-              <Link to="#">⚠ Follow guidelines to reduce quality check</Link>
-            </div>
-          </div>
+          {/* ── MANDATORY FIELDS NOTICE ────────────────────────────────── */}
+          <p className={styles.mandatoryNotice}>
+            Mandatory fields<span>*</span> are required before this SKU can be submitted for QC
+          </p>
         </div>
+      </div>{/* end .step1Container */}
 
 
-        {/* ── ERROR BANNER ── */}
-        {error && (
-          <div id="error" className={styles.errorBanner}>
-            ⚠ {error}
-          </div>
-        )}
+      {/* ── ERROR / WARNING BANNERS (between steps) ── */}
+      {error && (
+        <div id="error" className={styles.errorBanner}>
+          ⚠ {error}
+        </div>
+      )}
+      {noAttributes && (
+        <div className={styles.noAttrWarning}>
+          ⚠ This product type has no attributes configured yet. Please select
+          a different product.
+        </div>
+      )}
 
 
-        {/* ── NO ATTRIBUTES MESSAGE ── */}
-        {noAttributes && (
-          <div className={styles.noAttrWarning}>
-            ⚠ This product type has no attributes configured yet. Please select
-            a different product.
-          </div>
-        )}
-
-
-        {/* ════════════════════════════════════════
-            STEP 2 — details + images side by side
-        ════════════════════════════════════════ */}
-        {hasAttributes && (
+      {/* Step 2 container — position/size independently via .step2Container */}
+      {hasAttributes && (
+        <div className={styles.step2Container}>
           <div className={styles.after_top}>
             {/* LEFT — Product Details */}
             <div className={styles.left}>
-              <h3>Add product details</h3>
+
+              {/* ── Panel header: title + dynamic "Step X of Y" counter ── */}
+              <div className={styles.panelHeader}>
+                <h3>Product details</h3>
+                <span className={styles.stepLabel}>
+                  Step {activeStepIndex + 1} of {totalSteps}
+                </span>
+              </div>
+              <hr className={styles.panelDivider} />
 
 
+              {/* ── INFO BANNER ──────────────────────────────────────────────
+                  Icon anchored left; title + subtitle stacked in a text block.
+                  Matches the lavender-grey card in the reference image.       */}
               <div className={styles["info-box"]}>
-                <div className={styles["info-top"]}>
-                  <p>Fill in all required fields marked with *</p>
+                <span className={styles.tick}>ℹ</span>
+                <div className={styles.infoTextBlock}>
+                  <strong className={styles.infoTitle}>Copy input details to all products</strong>
+                  <p className={styles["info-text"]}>
+                    Change specific fields per product — like color or fabric — after copying.
+                  </p>
                 </div>
-                <p className={styles["info-text"]}>
-                  Mandatory fields are marked with * and must be filled before
-                  submitting.
-                </p>
               </div>
 
 
-              <h2>Listing Information</h2>
+              {/* ── LISTING INFORMATION SECTION ──────────────────────────────
+                  Uppercase label + muted subtitle mirrors the reference image.
+                  The actual fields are rendered dynamically from the API.     */}
+              <div className={styles.sectionLabel}>
+                <span className={styles.sectionLabelTitle}>Listing Information</span>
+                <span className={styles.sectionLabelSub}>Core fields required by every marketplace</span>
+              </div>
 
               <div className={styles.listing}>
                 {listingAttributes.map((attr) => {
@@ -410,8 +463,8 @@ export default function AddCatalog() {
                       <input
                         placeholder={
                           key === "discount"
-                            ? "Discount %"
-                            : "Enter the listing description"
+                            ? "Auto-calculated"
+                            : getFieldPlaceholder(attr)
                         }
                         value={
                           key === "discount"
@@ -436,7 +489,13 @@ export default function AddCatalog() {
               </div>
 
 
-              <h4 className={styles.sectionHeading}>Product Attributes</h4>
+              {/* ── SECTION DIVIDER — separates Listing Information from Product Attributes */}
+              <hr className={styles.sectionDivider} />
+
+              <div className={styles.sectionLabel}>
+                <span className={styles.sectionLabelTitle}>Product Attributes</span>
+                <span className={styles.sectionLabelSub}>Category-specific fields for this product type</span>
+              </div>
               <div className={styles.listing}>
                 {categoryAttributes.map((attr) => {
                   if (attr.field === "niche_id") return null;
@@ -474,7 +533,7 @@ export default function AddCatalog() {
                         </select>
                       ) : (
                         <input
-                          placeholder="Enter the product description"
+                          placeholder={getFieldPlaceholder(attr)}
                           value={dynamicValues[attr.field] || ""}
                           onChange={(e) =>
                             handleDynamicChange(attr.field, e.target.value)
@@ -492,13 +551,15 @@ export default function AddCatalog() {
                   CUSTOM ATTRIBUTES
                   Follows the exact visual layout of Listing Information and Product Attributes:
                     - Same .line container layout (gap, alignment, margins).
-                    - Attribute name displayed inside the exact same .pill shape with the blue right accent strip.
-                    - Same underline input ("Type Here...") for entering the attribute value.
-                    - Inline remove button (✕) to delete the custom attribute row.
+                    - Label displayed as a plain bold pill_input inside .pillCustom.
+                    - Rounded-border input for the value; ✕ remove button in .lineInputGroup.
                   On submit, these are merged seamlessly into categoryAttributesPayload.
               ───────────────────────────────────────────────── */}
               {customAttributes.length > 0 && (
                 <>
+                  {/* ── SECTION DIVIDER — separates Product Attributes from Custom Attributes */}
+                  <hr className={styles.sectionDivider} />
+
                   <h4 className={styles.sectionHeading}>Custom Attributes</h4>
 
                   <div className={styles.listing}>
@@ -522,28 +583,31 @@ export default function AddCatalog() {
                           />
                         </span>
 
-                        {/* Custom Attribute Value: Retains standard string data typing with unrestricted description/text length */}
-                        <input
-                          placeholder="Enter the attribute description"
-                          value={attr.value || ""}
-                          onChange={(e) =>
-                            handleCustomAttributeChange(
-                              attr.id,
-                              "value",
-                              e.target.value,
-                            )
-                          }
-                        />
+                      {/* Custom Attribute Value + Remove button — grouped in one flex row
+                          so both sit in column 2 of the .line grid */}
+                        <div className={styles.lineInputGroup}>
+                          <input
+                            placeholder="Enter the attribute description"
+                            value={attr.value || ""}
+                            onChange={(e) =>
+                              handleCustomAttributeChange(
+                                attr.id,
+                                "value",
+                                e.target.value,
+                              )
+                            }
+                          />
 
-                        {/* Remove button to delete the custom attribute row */}
-                        <button
-                          type="button"
-                          onClick={() => removeCustomAttribute(attr.id)}
-                          title="Remove"
-                          className={styles.removeAttrBtn}
-                        >
-                          ✕
-                        </button>
+                          {/* Remove button to delete the custom attribute row */}
+                          <button
+                            type="button"
+                            onClick={() => removeCustomAttribute(attr.id)}
+                            title="Remove"
+                            className={styles.removeAttrBtn}
+                          >
+                            ✕
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -564,6 +628,8 @@ export default function AddCatalog() {
                 Add Custom Attribute
               </button>
 
+              {/* ── DIVIDER — separates custom attributes from the action buttons ── */}
+              <hr className={styles.actionsDivider} />
 
               <div className={styles.buttons}>
                 <button className={styles.draft}>Save as draft</button>
@@ -591,12 +657,13 @@ export default function AddCatalog() {
             <div className={styles.right}>
               <div className={styles.card1}>
 
-                <h2>Product Images</h2>
 
-
-                <p className={styles.imageCardSubtext}>
-                  Fields marked with * are required.
-                </p>
+                {/* ── SECTION LABEL — mirrors the left-panel heading style ── */}
+                <div className={styles.sectionLabel}>
+                  <span className={styles.sectionLabelTitle}>Product Images</span>
+                  <span className={styles.sectionLabelSub}>First image is required — add more as needed</span>
+                </div>
+                <hr className={styles.panelDivider} />
 
 
                 <div className={styles["image-grid"]} ref={imageContainerRef}>
@@ -622,7 +689,7 @@ export default function AddCatalog() {
                           <input
                             type="text"
                             className={styles.imageTypeTag}
-                            placeholder="Custom"
+                            placeholder="Image name"
                             value={
                               attr.description !== undefined
                                 ? attr.description
@@ -697,10 +764,22 @@ export default function AddCatalog() {
                             />
                           </div>
 
-                          <p className={styles.imageCardRequired}>
-                            {isRequired ? "Required" : "Optional"}
-                          </p>
                         </div>
+
+                        {/* ── REQUIRED / OPTIONAL BADGE — outside the drop-zone, visible at a glance ── */}
+                        <p
+                          className={`${styles.imageCardRequired} ${
+                            isRequired
+                              ? styles.imageCardRequiredBadge
+                              : styles.imageCardOptionalBadge
+                          }`}
+                        >
+                          {isRequired ? (
+                            <><span className={styles.imageRequiredStar}>*</span> Required</>
+                          ) : (
+                            "Optional"
+                          )}
+                        </p>
 
                         {/* ── SINGLE IMAGE REMOVE ── Only rendered when this slot has a preview.
                             Custom slots: removes the entire card via removeImageAttribute.
@@ -722,7 +801,7 @@ export default function AddCatalog() {
 
                         <input
                           type="text"
-                          placeholder="Image link"
+                          placeholder="Paste image URL here"
                           className={styles.imageLink}
                           value={imageLink[attr.field] || ""}
                           onChange={(e) => {
@@ -799,11 +878,62 @@ export default function AddCatalog() {
                     </button>
                   )}
                 </div>
-              </div>
-            </div>
+              </div>{/* end .card1 */}
+
+
+              {/* ── CARD 2 — Sales Channels ─────────────────────────────────
+                  Each row: letter avatar | channel name | toggle switch.
+                  Driven by salesChannels state — add entries there to extend. */}
+              <div className={styles.card2}>
+
+                {/* Title */}
+                <h3 className={styles.channelCardTitle}>Sales channels</h3>
+                <hr className={styles.panelDivider} />
+
+
+                {/* Channel rows */}
+                <ul className={styles.channelList}>
+                  {salesChannels.map((ch) => (
+                    <li key={ch.id} className={styles.channelRow}>
+
+                      {/* Letter avatar */}
+                      <span className={styles.channelAvatar}>
+                        {ch.label[0].toUpperCase()}
+                      </span>
+
+                      {/* Channel name */}
+                      <span className={styles.channelName}>{ch.label}</span>
+
+                      {/* Toggle switch */}
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={ch.enabled}
+                        onClick={() => toggleChannel(ch.id)}
+                        className={`${styles.toggle} ${
+                          ch.enabled ? styles.toggleOn : styles.toggleOff
+                        }`}
+                        aria-label={`${ch.enabled ? "Disable" : "Enable"} ${ch.label}`}
+                      >
+                        <span className={styles.toggleThumb} />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+
+
+                {/* Connect CTA */}
+                <button type="button" className={styles.connectChannelBtn}>
+                  + Connect a channel
+                </button>
+
+              </div>{/* end .card2 */}
+
+
+            </div>{/* end .right */}
           </div>
-        )}
-      </div>
+        </div>
+      )}{/* end .step2Container */}
 
       {/* -- TOAST ---------------------------------------------------------- */}
       <Toast toast={toast} />
