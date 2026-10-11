@@ -142,6 +142,7 @@ h1{
     border: none;
     padding: 0.8rem 3rem;
     cursor: pointer;
+    border-radius: 8px;
 }
 
 .submit {
@@ -151,6 +152,7 @@ h1{
     padding: 0.8rem 4rem;
     font-weight: bolder;
     cursor: pointer;
+    border-radius: 8px;
 }
 
 .buttons{
