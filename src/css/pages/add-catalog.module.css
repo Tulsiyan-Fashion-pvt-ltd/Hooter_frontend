@@ -10,12 +10,12 @@
 
 .globalAddCatalogContainer {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 40px 24px;
+  /* max-width: 1200px; */
+  /* margin: 0 auto; */
+  /* padding: 0 40px 24px; */
   box-sizing: border-box;
   /* Inherit the catalog page font stack */
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: #1e293b;
 }
 
@@ -29,8 +29,9 @@
 
 .top {
   background: transparent;
-  padding: 14px 20px;
-  margin-bottom: 1.5rem;
+  /* padding: 14px 20px; */
+  margin-bottom: 28px;
+  width: 100%;
 }
 
 /* Title — matches .pageBannerTitle in Catalog.module.css */
@@ -43,11 +44,11 @@
 }
 
 /* Subtitle — matches .pageBannerSubtitle in Catalog.module.css */
-.top p {
+/* .top p {
   font-size: 13.5px;
   color: #64748b;
   margin: 0;
-}
+} */
 
 
 /* ── STEP INDICATOR ROW ───────────────────────────────────── */
@@ -61,7 +62,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 0.75rem 0;
+  margin: 32px 0rem;
 }
 
 .steps {
@@ -102,10 +103,9 @@
 /* ── MANDATORY ROW ─────────────────────────────────────────── */
 
 .mandatoryNotice {
-  font-size: 13px;
-  font-weight: 700;
-  color: #2563eb;
-  margin: 12px 0 4px;
+  font-size: 14px;
+  color: #555;
+  margin: 0;
 }
 
 /* Required asterisk turns red */
@@ -146,7 +146,7 @@
 /* Step 1 — Category selection header */
 .step1Container {
   width: 100%;
-  max-width: 900px;
+  /* max-width: 900px; */
   margin-bottom: 12px;
 }
 
@@ -168,11 +168,13 @@
 /* ── LEFT PANEL — Product Details form ────────────────────── */
 
 .left {
-  flex: 3;
+  /* flex: 3; */
   background: white;
   border-radius: 12px;
   padding: 20px 28px;
-  box-shadow: 0px 4px 8px 0px #00000020;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  width: 693px;
 }
 
 /*
@@ -188,12 +190,13 @@
 }
 
 /* "Product details" heading — matches catalog's card heading weight */
-.panelHeader h3 {
-  font-size: 16px;
+/* .panelHeader h3 {
+  font-size: 13.5px;
+  font-family: 'inter-semi-bold';
   font-weight: 700;
   color: #0f172a;
   margin: 0;
-}
+} */
 
 /* "Step X of Y" — muted, right-aligned, matches catalog's muted text */
 .stepLabel {
@@ -519,32 +522,29 @@
   justify-content: space-between;
 }
 
-.draft,
-.submit {
-  font-size: 1em;
-  border-radius: 8px;
+
+.uploadBttn{
+      display: flex;
+    gap: 9px;
+    align-items: center;
 }
 
 .draft {
   background: #eee;
   border: none;
-  padding: 0.8rem 3rem;
+  /* padding: 0.8rem 3rem; */
   cursor: pointer;
   border-radius: 8px;
+  color: black;
 }
 
-.submit {
-  background: #0b4ddb;
-  color: white;
-  border: none;
-  padding: 0.8rem 4rem;
-  font-weight: bolder;
-  cursor: pointer;
-  border-radius: 8px;
+.draft:hover{
+  opacity: 80%;
+  background: none;
 }
 
 /* Disabled state while the API request is in-flight */
-.submit:disabled {
+.uploadBttn:disabled {
   opacity: 0.7;
 }
 
@@ -563,8 +563,9 @@
 .card2 {
   background: white;
   border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0px 4px 8px 0px #00000020;
+  padding: 20px 28px;
+  box-shadow: var(--container-shadow);
+  border: var(--container-border)
 }
 
 /* card1 sizes to its content — does not stretch to match the left panel */

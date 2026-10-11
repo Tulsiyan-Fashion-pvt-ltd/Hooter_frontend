@@ -51,7 +51,7 @@
     overflow:hidden;
     transform-origin:top right;
     position: absolute;
-    right: var(--layout-padding);
+    right: var(--side-layout-padding);
     position-anchor: --profile-anchor;
     top: 14px;
     position-area: bottom right;

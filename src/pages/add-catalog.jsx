@@ -337,9 +337,10 @@ export default function AddCatalog() {
       <div className={styles.step1Container}>
         {/* ── TOP HEADER ── */}
         <div className={styles.top}>
-          <h1>Add Single Catalog</h1>
-          <p>Let&#39;s set up your catalog &mdash; Enter your catalog details</p>
-
+          <div class="heading">
+            <h1 className="main-heading">Add single catalog</h1>
+            <p className="heading-message">Let&#39;s set up your catalog &mdash; Enter your catalog details</p>
+          </div>
 
           {/* ── STEP INDICATORS + GUIDELINE ROW ──────────────────────────
               All three elements sit on one flex row:
@@ -415,7 +416,7 @@ export default function AddCatalog() {
 
               {/* ── Panel header: title + dynamic "Step X of Y" counter ── */}
               <div className={styles.panelHeader}>
-                <h3>Product details</h3>
+                <h3 className={styles.sectionLabelTitle}>Product details</h3>
                 <span className={styles.stepLabel}>
                   Step {activeStepIndex + 1} of {totalSteps}
                 </span>
@@ -632,10 +633,10 @@ export default function AddCatalog() {
               <hr className={styles.actionsDivider} />
 
               <div className={styles.buttons}>
-                <button className={styles.draft}>Save as draft</button>
+                <button className={`${styles.draft} submit-bttn`}>Save as draft</button>
 
                 <button
-                  className={styles.submit}
+                  className={`${styles.uploadBttn} submit-bttn`}
                   onClick={() => {
                     /* ── RED TOAST ── Block submit if the required first image is missing */
                     const firstAttr = imageAttributes[0];
@@ -647,7 +648,9 @@ export default function AddCatalog() {
                   }}
                   disabled={submitting}
                 >
-                  {submitting ? "Submitting..." : "Submit"}
+                  {submitting ? "Uploading for listing..." : <>Upload listing <svg width="20" height="17" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0.75 9.25H18.75M10.25 17.75L18.75 9.25L10.25 0.75" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg></>}
                 </button>
               </div>
             </div>
@@ -660,8 +663,8 @@ export default function AddCatalog() {
 
                 {/* ── SECTION LABEL — mirrors the left-panel heading style ── */}
                 <div className={styles.sectionLabel}>
-                  <span className={styles.sectionLabelTitle}>Product Images</span>
-                  <span className={styles.sectionLabelSub}>First image is required — add more as needed</span>
+                  <span className={styles.sectionLabelTitle}>Product images</span>
+                  {/* <span className={styles.sectionLabelSub}>First image is required — add more as needed</span> */}
                 </div>
                 <hr className={styles.panelDivider} />
 
@@ -867,7 +870,7 @@ export default function AddCatalog() {
                   </button>
 
                   {/* Clear All: only visible once at least one image preview is loaded */}
-                  {Object.values(preview).some((p) => p?.url) && (
+                  {/* {Object.values(preview).some((p) => p?.url) && (
                     <button
                       type="button"
                       className={styles.clearAllBtn}
@@ -876,7 +879,7 @@ export default function AddCatalog() {
                       <span className={styles.clearBtnIcon}>🗑</span>
                       Clear All
                     </button>
-                  )}
+                  )} */}
                 </div>
               </div>{/* end .card1 */}
 
