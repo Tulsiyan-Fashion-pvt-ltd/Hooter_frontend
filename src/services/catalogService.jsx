@@ -1,4 +1,3 @@
-import { store } from "../store/store";
 const BASE_URL = import.meta.env.VITE_BASEAPI;
 
 // ── Existing ─────────────────────────
@@ -18,6 +17,8 @@ export const getErrorSheet = async (jobId) => {
   return response.blob();
 };
 
+
+
 /**
  * Fetches the top-level taxonomy categories used to start category selection.
  * Each category includes an ID and vertical index for subsequent requests.
@@ -31,6 +32,9 @@ export const getTopCategories = async () => {
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response.json(); // { level0: [ { id, name, full_name, vertical }, ... ] }
 };
+
+
+
 
 /**
  * Fetches the child categories for the selected taxonomy category.
@@ -49,6 +53,9 @@ export const getNextCategories = async (categoryId, vertical) => {
   return response.json(); // { next: [ { id, name, full_name, level }, ... ] }
 };
 
+
+
+
 /**
  * Fetches the fields required to create a product for the final category.
  *
@@ -65,6 +72,9 @@ export const getAttributeFields = async (typeId, vertical) => {
   return response.json();
   // { listing_attributes: [...], category_attributes: [...], image_attributes: [...] }
 };
+
+
+
 
 // ── Create catalog (payload restructured) ────────────────
 export const createCatalog = async (
@@ -88,6 +98,9 @@ export const createCatalog = async (
   return response.json(); // { Status: "successful", message: "..." }
 };
 
+
+
+
 // ── Bulk excel sheet (template download) ──────────────────
 // Returns a Blob (.xlsx) — caller is responsible for turning it into a
 // download (e.g. via URL.createObjectURL) since there's no JSON body here.
@@ -99,6 +112,8 @@ export const getBulkExcelSheet = async (typeId, vertical) => {
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response.blob();
 };
+
+
 
 // ── Bulk catalog upload ────────────────────────────────────
 // NOTE: the API's success/failure responses aren't uniformly JSON:
@@ -142,6 +157,9 @@ export const uploadBulkCatalog = async (typeId, file) => {
   return data; // { status: "ok" } or { status: "successful" }
 };
 
+
+
+
 // ── Download error sheet ──────────────────────────────────
 export const downloadErrorSheet = async (downloadLink) => {
   const response = await fetch(`${BASE_URL}${downloadLink}`, {
@@ -150,6 +168,8 @@ export const downloadErrorSheet = async (downloadLink) => {
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response.blob();
 };
+
+
 
 // ── Products list / detail / lifecycle ─────────────────────
 export const getUploadedCategories = async () => {
@@ -167,6 +187,8 @@ export const getProductCounts = async () => {
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response.json();
 };
+
+
 
 export const getProducts = async (params = {}) => {
   const url = new URL(`${BASE_URL}/catalog/products`);
@@ -186,6 +208,8 @@ export const getProducts = async (params = {}) => {
   return data;
 };
 
+
+
 export const getProduct = async (uskuId) => {
   const response = await fetch(`${BASE_URL}/catalog/products/${uskuId}`, {
     credentials: "include",
@@ -193,6 +217,8 @@ export const getProduct = async (uskuId) => {
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response.json(); // { count: {...}, "catalog-list": [ {...} ] }
 };
+
+
 
 export const markComplete = async (uskuId) => {
   const response = await fetch(
@@ -206,6 +232,8 @@ export const markComplete = async (uskuId) => {
   return response.json(); // { status: "successful", msg: "..." }
 };
 
+
+
 export const deleteProduct = async (uskuId) => {
   const response = await fetch(`${BASE_URL}/catalog/products/${encodeURIComponent(uskuId)}`, {
     method: "DELETE",
@@ -218,28 +246,25 @@ export const deleteProduct = async (uskuId) => {
   return data; // { "message": "Product deleted successfully", "status": "success" }
 };
 
-export const updateProduct = async (uskuId, typeId, listingAttributes, categoryAttributes) => {
-  const state = store.getState();
-  const csrf = state.csrf.csrf;
-  
+
+
+// data = flat key/value product fields (already using "_" delimiters per API)
+export const updateProduct = async (uskuId, categoryId, data) => {
   const response = await fetch(
-    `${BASE_URL}/catalog/products/${encodeURIComponent(uskuId)}?type-id=${encodeURIComponent(typeId)}`,
+    `${BASE_URL}/catalog/products/${uskuId}?id=${categoryId}`,
     {
       method: "PUT",
       credentials: "include",
-      headers: { 
-        "Content-Type": "application/json",
-        "X-CSRF-Token": csrf
-      },
-      body: JSON.stringify({
-        listing_attributes: listingAttributes,
-        category_attributes: categoryAttributes
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data }),
     },
   );
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response.json(); // { status: "successful", msg: "updated successfully" }
 };
+
+
+
 
 // ── Images ───────────────────────────────────────────────
 
@@ -349,6 +374,9 @@ export const uploadProductImages = async (uskuId, imagesData) => {
   return data;
 };
 
+
+
+
 /**
  * GET /catalog/images/{usku_id}
  * Retrieves product image URLs for a given USKU ID.
@@ -422,6 +450,9 @@ export const getProductImages = async (uskuId, imageType = null) => {
    */
   return data;
 };
+
+
+
 
 /**
  * DELETE /catalog/images/{usku_id}

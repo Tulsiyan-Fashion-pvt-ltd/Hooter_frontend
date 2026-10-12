@@ -30,9 +30,6 @@ function useAuthSession() {
         }
       } catch (error) {
         console.error("Session check failed:", error);
-        if (isMounted) {
-          dispatch(clearSession());
-        }
       }
     }
 
@@ -47,6 +44,9 @@ function useAuthSession() {
 
   return { isAuthenticated, loading, user };
 }
+
+
+
 
 export function Protect({ children }) {
   const [searchParams] = useSearchParams();

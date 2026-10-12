@@ -5,7 +5,7 @@
 ========================= */
 .bulkCatalogContainer {
   width: 100%;
-  padding: 24px 32px;
+  /* padding: 24px 32px; */
   box-sizing: border-box;
 }
 
@@ -15,7 +15,7 @@
 ========================= */
 .topContainer {
   background: transparent;
-  padding: 0 0 24px 0;
+  /* padding: 0 0 24px 0; */
   margin-bottom: 0;
 }
 
@@ -79,14 +79,17 @@
 .row {
   display: flex;
   gap: 20px;
-  margin: 2rem 0rem;
-  margin-top: 12px;
+  margin: 32px 0rem;
+  /* margin-top: 12px; */
+  justify-content: space-between;
+  height: 26px;
 }
 
 .steps {
-  display: flex;
-  gap: 20px;
-  margin: 0;
+    display: flex;
+    gap: 8px;
+    margin: 0;
+    align-items: center;
 }
 
 .step {
@@ -111,26 +114,33 @@
 
 /* MANDATORY ROW */
 .mandatory-row {
-  margin-top: 12px;
-  padding-top: 12px;
+  /* margin-top: 12px;
+  padding-top: 12px; */
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .mandatory {
-  font-size: 0.9em;
+  font-size: 14px;
   color: #555;
   margin: 0;
 }
 
 .mandatory span {
   color: red;
-  font-weight: 600;
 }
 
 .guideline {
-      margin-bottom: 1.5rem;
+    display: inline-block;
+    font-size: 12.5px;
+    color: #c25a00;
+    background: #fff7ed;
+    border: 1px solid #fdba74;
+    padding: 4px 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background 0.15s;
 }
 
 .guideline.small {
@@ -147,8 +157,8 @@
   text-decoration: none;
 }
 
-.guideline a:hover {
-  background: #ffe0b2;
+.guideline:hover {
+  background: #ffedd5;
 }
 
 .icon {
@@ -213,12 +223,12 @@
    LEFT CARD
 ========================= */
 .leftSection {
-  flex: 3;
+  /* flex: 3; */
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  padding: 28px;
+  padding: 20px 28px;
 }
 
 .leftHeading {
@@ -388,9 +398,9 @@
 /* =========================
    RIGHT SIDE
 ========================= */
-.rightSection {
+/* .rightSection {
   flex: 1;
-}
+} */
 
 .errorText {
   color: #e51300;
@@ -412,7 +422,8 @@
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 32px;
+  width: 351px;
+  padding: 20px 28px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 }
 
@@ -420,8 +431,11 @@
   font-size: 16px;
   font-weight: 700;
   color: #0f172a;
-  margin: 0 0 24px 0;
+  margin: 0 0 18px 0;
   line-height: 1.4;
+  font-size: 13.5px;
+  font-family: 'inter-semi-bold';
+  font-weight: normal;
 }
 
 .checklist {
