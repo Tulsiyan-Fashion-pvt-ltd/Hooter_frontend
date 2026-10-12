@@ -272,7 +272,7 @@ export default function AddCatalog() {
 
 
 
-  async function handleImageLink(key, link) {
+  async function handleImageLink(key, link, setToast) {
     // Nothing to fetch for empty / whitespace-only strings
     if (!link || !link.trim()) {
       syncSetImageLink((prev) => {
@@ -303,6 +303,7 @@ export default function AddCatalog() {
           ...prev,
           [key]: { url: "", object: null },
         }));
+        showToast('Could not fetch the image', 'red')
         return;
       }
 
