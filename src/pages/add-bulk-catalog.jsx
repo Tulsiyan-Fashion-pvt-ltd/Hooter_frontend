@@ -274,7 +274,7 @@ export default function AddBulkCatalog() {
                   )}
                   Select Category
                 </div>
-                <span class="_stepConnector_10pi0_58">—</span>
+                <span className={styles.stepConnector}>—</span>
 
                 <div
                   className={`${styles.step} ${selectedType ? styles.active : ""

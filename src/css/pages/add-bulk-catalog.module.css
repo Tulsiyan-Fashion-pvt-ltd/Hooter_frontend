@@ -93,7 +93,7 @@
 }
 
 .step {
-  font-size: 1em;
+  font-size: 14px;
   color: #000000B2;
   cursor: pointer;
   padding-bottom: 4px;
@@ -104,6 +104,10 @@
   color: #0040D6;
   font-weight: 600;
   border-bottom: 2px solid #0040D6;
+}
+
+.stepConnector{
+  opacity: 20%;
 }
 
 .check {

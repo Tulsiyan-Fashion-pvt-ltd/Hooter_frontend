@@ -72,7 +72,7 @@
 }
 
 .step {
-  font-size: 1em;
+  font-size: 14px;
   color: #000000b2;
   cursor: pointer;
   padding-bottom: 4px;
@@ -841,7 +841,7 @@ input.imageTypeTag:focus {
   border: 1px solid #ddd;
   border-radius: 6px;
   padding: 8px 10px;
-  font-size: 0.95em;
+  font-size: 14px;
   outline: none;
   background: white;
   cursor: pointer;
