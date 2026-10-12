@@ -3,6 +3,7 @@ import { useContext } from 'react'
 import { SpinnerContext } from "./appContext";
 import { Spinner } from "./components/spinner";
 import { useState } from "react";
+import './App.css'
 import Login from "./pages/login";
 import Homepage from "./pages/homepage";
 import Register from "./pages/register";

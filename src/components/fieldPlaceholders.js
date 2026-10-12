@@ -1,3 +1,5 @@
+
+
 /**
  * fieldPlaceholders.js
  *
@@ -106,7 +108,7 @@ const FALLBACK = 'Type here...';
  */
 export function getFieldPlaceholder(attr = {}) {
   const type  = (attr.type  || '').toLowerCase().trim();
-  const field = (attr.field || attr.key || '').toLowerCase().trim();
+  const field = (attr.description || attr.key || '').toLowerCase().trim();
 
   for (const rule of TYPE_RULES)  if (rule.match.test(type))  return rule.placeholder;
   for (const rule of FIELD_RULES) if (rule.match.test(field)) return rule.placeholder;

@@ -304,6 +304,9 @@
   position: static;
   min-width: unset;
   border-radius: 0;
+  display: flex;
+  justify-content: start;
+  align-items: start;
 }
 
 /* No pseudo-element strip needed with the new flat label style */
@@ -328,11 +331,6 @@
 
 .pill_input::placeholder {
   color: #999;
-}
-
-/* Required asterisk turns red inside the label */
-.required {
-  color: #e53e3e;
 }
 
 /*
@@ -517,15 +515,16 @@
 /* ── FORM ACTION BUTTONS (Save draft / Submit) ─────────────── */
 
 .buttons {
-  margin-top: 0;
-  display: flex;
-  justify-content: space-between;
+    margin-top: 0;
+    display: flex;
+    justify-content: end;
+    gap: 14px;
 }
 
 
 .uploadBttn{
       display: flex;
-    gap: 9px;
+    gap: 2px;
     align-items: center;
 }
 
@@ -539,8 +538,10 @@
 }
 
 .draft:hover{
-  opacity: 80%;
-  background: none;
+  /* opacity: 80%; */
+  background: #eee;
+  outline: 1px solid black;
+  box-sizing: border-box;
 }
 
 /* Disabled state while the API request is in-flight */
@@ -723,6 +724,11 @@ input.imageTypeTag:focus {
   gap: 10px;
   margin-top: 12px;
   flex-wrap: wrap;
+}
+
+
+.addCustomImageBttn{
+  width: 100%;
 }
 
 /* Primary blue CTA button */

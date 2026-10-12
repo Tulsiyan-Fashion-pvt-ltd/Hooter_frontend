@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import styles from "../css/pages/add-catalog.module.css";
 import useCatalogForm from "../hooks/useCatalogForm";
 import useToast from "../hooks/useToast";
@@ -337,7 +337,7 @@ export default function AddCatalog() {
       <div className={styles.step1Container}>
         {/* ── TOP HEADER ── */}
         <div className={styles.top}>
-          <div class="heading">
+          <div className="heading">
             <h1 className="main-heading">Add single catalog</h1>
             <p className="heading-message">Let&#39;s set up your catalog &mdash; Enter your catalog details</p>
           </div>
@@ -455,10 +455,10 @@ export default function AddCatalog() {
                   return (
                     <div className={styles.line} key={key}>
                       <span
-                        className={`${styles.pill} ${required ? styles.required : ""}`}
+                        className={`${styles.pill}`}
                       >
                         {label}
-                        {required ? " *" : ""}
+                        {required ? <span style={{"color": "red"}}>*</span>: ""}
                       </span>
 
                       <input
@@ -633,7 +633,7 @@ export default function AddCatalog() {
               <hr className={styles.actionsDivider} />
 
               <div className={styles.buttons}>
-                <button className={`${styles.draft} submit-bttn`}>Save as draft</button>
+                <button className={`draft-bttn`}>Save as draft</button>
 
                 <button
                   className={`${styles.uploadBttn} submit-bttn`}
@@ -648,9 +648,7 @@ export default function AddCatalog() {
                   }}
                   disabled={submitting}
                 >
-                  {submitting ? "Uploading for listing..." : <>Upload listing <svg width="20" height="17" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M0.75 9.25H18.75M10.25 17.75L18.75 9.25L10.25 0.75" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg></>}
+                  {submitting ? "Uploading for listing..." : <>Upload listing</>}
                 </button>
               </div>
             </div>
@@ -677,8 +675,7 @@ export default function AddCatalog() {
 
                     // Display actual description received from API, falling back to name or formatted field
                     const displayLabel =
-                      attr.description ||
-                      attr.name ||
+                      attr.name
                       formatLabel(attr.type || attr.field || "");
 
                     return (
@@ -821,7 +818,7 @@ export default function AddCatalog() {
                     Clear All is only rendered once at least one image has been uploaded. */}
                 <div className={styles.imageBtnRow}>
                   <button
-                    className={`${styles["blue-btn"]} ${styles.blueBtnNoMargin}`}
+                    className={`submit-bttn ${styles.addCustomImageBttn}`}
                     onClick={() => {
                       /* ── GUARD 1: unnamed slot ─────────────────────────────────────────────
                          Block if any custom slot still has the default "Custom" placeholder. */

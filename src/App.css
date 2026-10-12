@@ -1,9 +1,9 @@
-#root {
+/* #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
-}
+} */
 
 .logo {
   height: 6em;
@@ -16,6 +16,89 @@
 }
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+
+/* 
+    FOLLOW THIS THROUGHT THE PAGES
+*/
+
+/* use this for the main heading container 
+eg. Add bulk catalog
+Add the product details through an Excel file and we will process them for you
+*/
+.heading{
+    margin-bottom: var(--heading-margin);
+}
+
+
+/* For the main h1 in the heading */
+.main-heading{
+    font-family: 'inter-semi-bold';
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+/* p tag in the heading */
+.heading-message{
+    font-family: 'inter';
+    font-size: 13.5px;
+    font-weight: 400;
+    color: #64748b;
+}
+
+
+/* Submit button class */
+.submit-bttn{
+    background: #2563eb;
+    color: #ffffff;
+    border: 1px solid #2563eb;
+    padding: 10px 22px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25);
+    transition: all 0.15s ease;
+}
+
+.submit-bttn:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+
+.draft-bttn{
+    background: #eee;
+    color: var(--second-color);
+    padding: 10px 22px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 8px;
+    /* box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25); */
+    transition: all 0.15s ease;
+    border: none;
+}
+
+
+.draft-bttn:hover{
+  background-color: #dadada;
+}
+
+
+hr{
+    border-top: 1px solid #e2e8f0;;
+}
+
+
+.incorrect-input{
+    outline: 1px solid red;
+}
+
+.errorMessage{
+    font-size: 14px;
+    color: red;
 }
 
 @keyframes logo-spin {
