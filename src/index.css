@@ -30,22 +30,75 @@
 :root{
     --main-color: #ffff;
     --second-color: #000000;
-    --layout-padding: 28px;
+    --side-layout-padding: 50px;
+    --top-bottom-layout-padding: 20px;
+    --heading-margin: 24px;
+    --container-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --container-border: 1px solid #e2e8f0;
     font-family: 'nunito-sans';
 }
 
 body{
-    /* display: flex;
-  justify-content: center;
-  align-content: center;
-  align-items: center; */
   height: 100svh;
   width: 100%;
   background-color: #f9f9f9;
   box-sizing: border-box;
-  font-size: 16px;
   font-weight: 400;
   color: #222;
+}
+
+
+/* 
+    FOLLOW THIS THROUGHT THE PAGES
+*/
+
+/* use this for the main heading container 
+eg. Add bulk catalog
+Add the product details through an Excel file and we will process them for you
+*/
+.heading{
+    margin-bottom: var(--heading-margin);
+}
+
+
+/* For the main h1 in the heading */
+.main-heading{
+    font-family: 'inter-semi-bold';
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+/* p tag in the heading */
+.heading-message{
+    font-family: 'inter';
+    font-size: 13.5px;
+    font-weight: 400;
+    color: #64748b;
+}
+
+
+/* Submit button class */
+.submit-bttn{
+    background: #2563eb;
+    color: #ffffff;
+    border: 1px solid #2563eb;
+    padding: 10px 22px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25);
+    transition: all 0.15s ease;
+}
+
+.submit-bttn:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+
+hr{
+    border-top: 1px solid #e2e8f0;;
 }
 
 input{
@@ -80,7 +133,4 @@ button:active{
     font-family: 'inter';
   }
 
-  button:hover {
-    outline: 1px solid black;
-  }
 }

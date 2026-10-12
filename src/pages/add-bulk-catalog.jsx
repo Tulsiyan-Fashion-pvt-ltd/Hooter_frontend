@@ -251,20 +251,21 @@ export default function AddBulkCatalog() {
         {/* ── TOP HEADER ── */}
         <header>
           <div className={styles.topContainer}>
-            <h1 className={styles.title}>Add bulk catalog</h1>
+            <div className="heading">
+              <h1 className={`main-heading`}>Add bulk catalog</h1>
 
-            <p className={styles.subtitle}>
-              Add the product details through an Excel file and we will process
-              them for you
-            </p>
+              <p className={`heading-message`}>
+                Add the product details through an Excel file and we will process
+                them for you
+              </p>
+            </div>
 
             {/* Steps Section */}
             <div className={styles.row}>
               <div className={styles.steps}>
                 <div
-                  className={`${styles.step} ${
-                    !selectedType ? styles.active : ""
-                  }`}
+                  className={`${styles.step} ${!selectedType ? styles.active : ""
+                    }`}
                 >
                   {selectedType ? (
                     <span className={styles.check}>✔</span>
@@ -273,22 +274,30 @@ export default function AddBulkCatalog() {
                   )}
                   Select Category
                 </div>
+                <span class="_stepConnector_10pi0_58">—</span>
 
                 <div
-                  className={`${styles.step} ${
-                    selectedType ? styles.active : ""
-                  }`}
+                  className={`${styles.step} ${selectedType ? styles.active : ""
+                    }`}
                 >
                   <span>2&nbsp;</span>
                   Upload & Process
                 </div>
               </div>
+
+
+              <Link to="#" className={`${styles.guideline}`}>
+                ⚠ Follow guidelines to reduce quality check failures
+              </Link>
             </div>
 
             {/* Cascade Dropdowns */}
             <CatalogSelector onTypeSelect={handleTypeChange} />
 
             {/* <hr className={styles.hr1} /> */}
+            <p className={styles.mandatory}>
+              Mandatory fields<span>* </span> are required before this SKU can be submitted for QC
+            </p>
           </div>
         </header>
 
@@ -309,18 +318,6 @@ export default function AddBulkCatalog() {
         {/* STEP 2: Upload & Process - Show when product type is selected */}
         {selectedType && (
           <>
-            <div className={styles["mandatory-row"]}>
-              <p className={styles.mandatory}>
-                Mandatory Fields<span>*</span>
-              </p>
-
-              <div className={`${styles.guideline} ${styles.small}`}>
-                <Link to="#">
-                  ⚠ Follow guidelines to reduce quality check failures
-                </Link>
-              </div>
-            </div>
-
             <div className={styles.uploadSection}>
               <label htmlFor="file-upload" className={styles.uploadBtn}>
                 {uploadLoading ? "Processing..." : "Upload Excel File"}
@@ -500,6 +497,7 @@ export default function AddBulkCatalog() {
               <div className={styles.rightSection}>
                 <div className={styles.checklistCard}>
                   <h3 className={styles.checklistTitle}>Before you upload, make sure your file has:</h3>
+                  <hr />
                   <ul className={styles.checklist}>
                     <li>
                       <span className={styles.checkIcon}>✓</span>

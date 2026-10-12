@@ -7,6 +7,10 @@ import styles from './css/layout/Layout.module.css';
 import { connectBrand } from "./services/brandService";
 import { setBrandConnection } from "./store/slices/brandSlice";
 import { fetchCsrf } from "./store/slices/csrfSlice";
+import OAuthComponent from './services/oauth';
+
+
+
 
 const Layout = () => {
   const [searchParams] = useSearchParams();
@@ -57,6 +61,7 @@ const Layout = () => {
       <div className={styles.mainWrapper}>
         <Header />
         <div className={styles.globalOutlet}>
+          <OAuthComponent/>
           <Outlet />
         </div>
       </div>
@@ -64,4 +69,4 @@ const Layout = () => {
   );
 };
 
-export default Layout;
+export default Layout;

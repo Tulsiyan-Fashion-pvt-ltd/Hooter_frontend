@@ -35,10 +35,6 @@ function App() {
     return <Navigate to={location.pathname.replace(/\/$/, "")} /> // removing the "/" suffix from the path
   }
 
-
-  
-  
-
   
   return (
     <SpinnerContext.Provider value={setShowSpinner}>

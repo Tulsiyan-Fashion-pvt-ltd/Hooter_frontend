@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
 import styles from "../css/pages/Homepage.module.css";
 import clsx from "clsx";
 const url = import.meta.env.VITE_BASEAPI;
@@ -20,7 +19,6 @@ import {
 
 //import { checkCatalogExists } from "../services/catalogService";
 import NoCatalogModal from "../components/NoCatalogModal";
-
 import OrdersIcon from "../assets/icons/sidebar/orders-active.svg";
 import ShippingIcon from "../assets/icons/sidebar/shipping-active.svg";
 import UsersIcon from "../assets/icons/users.svg";
@@ -28,11 +26,12 @@ import ReturnsIcon from "../assets/icons/returns.svg";
 import NoteIcon from "../assets/icons/note.svg";
 import StatsIcon from "../assets/icons/sidebar/stats-active.svg";
 
+
+
+
 const Homepage = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
   const [activePlatform, setActivePlatform] = useState(0);
   const [activeTab, setActiveTab] = useState(0);
-  const navigate = useNavigate();
 
   // console.log(Object.fromEntries(searchParams))
   const platforms = [
@@ -46,64 +45,6 @@ const Homepage = () => {
     "Lets Check Ajio",
   ];
 
-  // sending search params to the server if the shopify sends the redirect
-  useEffect(() => {
-    const params = Object.fromEntries(searchParams);
-
-    // Only run the Shopify OAuth flow when Shopify
-    // has actually redirected back with the required params.
-    if (!params.code || !params.shop || !params.state) {
-      return;
-    }
-
-    async function sendShopifyRedirect() {
-      try {
-        const response = await fetch(`${url}/shopify/install-store`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(params),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          window.alert("Couldn't fetch the Shopify shop name");
-
-          // Remove OAuth parameters from the URL.
-          setSearchParams({}, { replace: true });
-
-          // Return to the homepage.
-          navigate("/", { replace: true });
-
-          return;
-        }
-
-        // Remove OAuth parameters before continuing the OAuth flow.
-        setSearchParams({}, { replace: true });
-
-        if (data.redirect) {
-          window.location.href = data.redirect;
-          return;
-        }
-
-        // If the backend doesn't provide a redirect,
-        // return to the homepage instead of leaving the
-        // user stuck on the OAuth callback URL.
-        navigate("/", { replace: true });
-      } catch (error) {
-        console.error("Shopify OAuth request failed:", error);
-
-        // Clean up the OAuth parameters.
-        setSearchParams({}, { replace: true });
-
-        // Return to the homepage.
-        navigate("/", { replace: true });
-      }
-    }
-
-    sendShopifyRedirect();
-  }, [searchParams, setSearchParams, navigate]);
 
   const insightsTabs = [
     "All ( 26 )",

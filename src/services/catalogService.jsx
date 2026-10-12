@@ -1,6 +1,24 @@
 import { store } from "../store/store";
 const BASE_URL = import.meta.env.VITE_BASEAPI;
 
+const getCSRFToken = async () => {
+  let csrf = store.getState()?.csrf?.csrf;
+  if (!csrf) {
+    try {
+      const res = await fetch(`${BASE_URL}/security/csrf`, {
+        credentials: "include",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        csrf = data.csrf_token;
+      }
+    } catch (e) {
+      console.warn("Could not fetch CSRF token:", e);
+    }
+  }
+  return csrf;
+};
+
 // ── Existing ─────────────────────────
 export const checkCatalogExists = async () => {
   const response = await fetch(`${BASE_URL}/catalog/products/if-exists`, {
@@ -18,6 +36,8 @@ export const getErrorSheet = async (jobId) => {
   return response.blob();
 };
 
+
+
 /**
  * Fetches the top-level taxonomy categories used to start category selection.
  * Each category includes an ID and vertical index for subsequent requests.
@@ -31,6 +51,9 @@ export const getTopCategories = async () => {
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response.json(); // { level0: [ { id, name, full_name, vertical }, ... ] }
 };
+
+
+
 
 /**
  * Fetches the child categories for the selected taxonomy category.
@@ -49,6 +72,9 @@ export const getNextCategories = async (categoryId, vertical) => {
   return response.json(); // { next: [ { id, name, full_name, level }, ... ] }
 };
 
+
+
+
 /**
  * Fetches the fields required to create a product for the final category.
  *
@@ -65,6 +91,9 @@ export const getAttributeFields = async (typeId, vertical) => {
   return response.json();
   // { listing_attributes: [...], category_attributes: [...], image_attributes: [...] }
 };
+
+
+
 
 // ── Create catalog (payload restructured) ────────────────
 export const createCatalog = async (
@@ -88,6 +117,9 @@ export const createCatalog = async (
   return response.json(); // { Status: "successful", message: "..." }
 };
 
+
+
+
 // ── Bulk excel sheet (template download) ──────────────────
 // Returns a Blob (.xlsx) — caller is responsible for turning it into a
 // download (e.g. via URL.createObjectURL) since there's no JSON body here.
@@ -99,6 +131,8 @@ export const getBulkExcelSheet = async (typeId, vertical) => {
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response.blob();
 };
+
+
 
 // ── Bulk catalog upload ────────────────────────────────────
 // NOTE: the API's success/failure responses aren't uniformly JSON:
@@ -142,6 +176,9 @@ export const uploadBulkCatalog = async (typeId, file) => {
   return data; // { status: "ok" } or { status: "successful" }
 };
 
+
+
+
 // ── Download error sheet ──────────────────────────────────
 export const downloadErrorSheet = async (downloadLink) => {
   const response = await fetch(`${BASE_URL}${downloadLink}`, {
@@ -150,6 +187,8 @@ export const downloadErrorSheet = async (downloadLink) => {
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response.blob();
 };
+
+
 
 // ── Products list / detail / lifecycle ─────────────────────
 export const getUploadedCategories = async () => {
@@ -167,6 +206,8 @@ export const getProductCounts = async () => {
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response.json();
 };
+
+
 
 export const getProducts = async (params = {}) => {
   const url = new URL(`${BASE_URL}/catalog/products`);
@@ -186,6 +227,8 @@ export const getProducts = async (params = {}) => {
   return data;
 };
 
+
+
 export const getProduct = async (uskuId) => {
   const response = await fetch(`${BASE_URL}/catalog/products/${uskuId}`, {
     credentials: "include",
@@ -193,6 +236,8 @@ export const getProduct = async (uskuId) => {
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response.json(); // { count: {...}, "catalog-list": [ {...} ] }
 };
+
+
 
 export const markComplete = async (uskuId) => {
   const response = await fetch(
@@ -206,6 +251,8 @@ export const markComplete = async (uskuId) => {
   return response.json(); // { status: "successful", msg: "..." }
 };
 
+
+
 export const deleteProduct = async (uskuId) => {
   const response = await fetch(`${BASE_URL}/catalog/products/${encodeURIComponent(uskuId)}`, {
     method: "DELETE",
@@ -218,28 +265,68 @@ export const deleteProduct = async (uskuId) => {
   return data; // { "message": "Product deleted successfully", "status": "success" }
 };
 
-export const updateProduct = async (uskuId, typeId, listingAttributes, categoryAttributes) => {
-  const state = store.getState();
-  const csrf = state.csrf.csrf;
-  
+
+
+/**
+ * PUT /catalog/products/{usku_id}?type-id={typeId}
+ * Update catalog product listing and category attributes data
+ *
+ * @param {string} uskuId - Universal SKU ID of the product
+ * @param {string} typeId - Category/Type ID for the product
+ * @param {object} listingAttributesOrPayload - Flat key/value listing attributes or { listing_attributes, category_attributes }
+ * @param {object} [categoryAttributes={}] - Category attributes key/value map
+ * @returns {Promise<{ message: string, status: string }>}
+ */
+export const updateProduct = async (
+  uskuId,
+  typeId,
+  listingAttributesOrPayload,
+  categoryAttributes = {},
+) => {
+  let listingAttributes = listingAttributesOrPayload || {};
+  let catAttributes = categoryAttributes || {};
+
+  // Support both (uskuId, typeId, listingAttributes, categoryAttributes)
+  // and (uskuId, typeId, { listing_attributes, category_attributes })
+  if (
+    listingAttributesOrPayload &&
+    (listingAttributesOrPayload.listing_attributes !== undefined ||
+      listingAttributesOrPayload.category_attributes !== undefined)
+  ) {
+    listingAttributes = listingAttributesOrPayload.listing_attributes || {};
+    catAttributes = listingAttributesOrPayload.category_attributes || {};
+  }
+
+  const csrf = await getCSRFToken();
+  const headers = {
+    "Content-Type": "application/json",
+  };
+  if (csrf) {
+    headers["X-CSRF-Token"] = csrf;
+  }
+
   const response = await fetch(
     `${BASE_URL}/catalog/products/${encodeURIComponent(uskuId)}?type-id=${encodeURIComponent(typeId)}`,
     {
       method: "PUT",
       credentials: "include",
-      headers: { 
-        "Content-Type": "application/json",
-        "X-CSRF-Token": csrf
-      },
+      headers,
       body: JSON.stringify({
+        category_attributes: catAttributes,
         listing_attributes: listingAttributes,
-        category_attributes: categoryAttributes
       }),
     },
   );
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  return response.json(); // { status: "successful", msg: "updated successfully" }
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.message || data.msg || `HTTP ${response.status}`);
+  }
+  return data; // { "message": "successfully updated the catalog product", "status": "successful" }
 };
+
+
+
 
 // ── Images ───────────────────────────────────────────────
 
@@ -349,6 +436,9 @@ export const uploadProductImages = async (uskuId, imagesData) => {
   return data;
 };
 
+
+
+
 /**
  * GET /catalog/images/{usku_id}
  * Retrieves product image URLs for a given USKU ID.
@@ -422,6 +512,9 @@ export const getProductImages = async (uskuId, imageType = null) => {
    */
   return data;
 };
+
+
+
 
 /**
  * DELETE /catalog/images/{usku_id}
