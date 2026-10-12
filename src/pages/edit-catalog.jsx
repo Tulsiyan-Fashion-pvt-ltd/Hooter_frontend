@@ -52,6 +52,7 @@ export default function EditInventory() {
   const typeId = searchParams.get("type");
   // TODO: vertical not returned by getProduct() — currently sourced from route query param
   const vertical = searchParams.get("vertical");
+  const [currentTypeId, setCurrentTypeId] = useState(typeId || "");
 
   function handleEntryInput(key, value) {
     setField((prev) => ({ ...prev, [key]: value }));
@@ -162,9 +163,78 @@ export default function EditInventory() {
     setError(null);
 
     try {
-      const data = { ...field };
+      const activeTypeId =
+        currentTypeId ||
+        typeId ||
+        field["type_id"] ||
+        field["category_id"] ||
+        field["type"];
 
-      await updateProduct(uskuId, field["category_id"], data);
+      if (!activeTypeId) {
+        throw new Error("Category / Type ID is required to update product");
+      }
+
+      const numericFields = new Set([
+        "price",
+        "compared_price",
+        "purchasing_cost",
+        "net_weight_kg",
+        "dead_weight_kg",
+        "volumetric_weight_kg",
+      ]);
+
+      const fixedKeys = new Set(fixedFields.map((f) => f.key));
+      const listingAttributes = {};
+      const categoryAttributesPayload = {};
+
+      fixedFields.forEach(({ key }) => {
+        if (key === "discount") return; // calculated, not part of payload
+        const val = field[key];
+        if (val !== undefined && val !== "") {
+          if (numericFields.has(key) && !isNaN(Number(val))) {
+            listingAttributes[key] = Number(val);
+          } else {
+            listingAttributes[key] = val;
+          }
+        }
+      });
+
+      categoryAttributes.forEach((attr) => {
+        const val = field[attr.field];
+        if (val !== undefined && val !== "") {
+          categoryAttributesPayload[attr.field] = val;
+        }
+      });
+
+      // Include any other non-metadata fields as category attributes
+      const ignoredKeys = new Set([
+        ...fixedKeys,
+        "discount",
+        "category_id",
+        "type_id",
+        "type",
+        "id",
+        "usku_id",
+        "created_at",
+        "updated_at",
+        "status",
+        "image_urls",
+        "image_url",
+        "vertical",
+      ]);
+
+      Object.entries(field).forEach(([k, v]) => {
+        if (!ignoredKeys.has(k) && v !== undefined && v !== "") {
+          categoryAttributesPayload[k] = v;
+        }
+      });
+
+      await updateProduct(
+        uskuId,
+        activeTypeId,
+        listingAttributes,
+        categoryAttributesPayload,
+      );
 
       /* Pass imagesData directly — uploadProductImages builds FormData internally */
       if (Object.keys(editImage).length > 0) {
@@ -188,19 +258,21 @@ export default function EditInventory() {
 
   // fetch attribute definitions
   useEffect(() => {
+    const activeType = currentTypeId || typeId;
     async function fetchAttribute() {
+      if (!activeType) return;
       try {
-        const data = await getAttributeFields(typeId, vertical);
+        const data = await getAttributeFields(activeType, vertical);
 
         setCategoryAttributes(data.category_attributes || []);
         setImageAttributes(data.image_attributes || []);
       } catch (e) {
-        setError(e.message);
+        console.error("Failed to fetch attributes:", e);
       }
     }
 
     fetchAttribute();
-  }, [typeId, vertical]);
+  }, [currentTypeId, typeId, vertical]);
 
   // fetch saved product data + images
   useEffect(() => {
@@ -210,6 +282,10 @@ export default function EditInventory() {
         const product = (data["catalog-list"] && data["catalog-list"][0]) || {};
 
         setField({ ...product });
+
+        if (!currentTypeId && (product.type_id || product.category_id)) {
+          setCurrentTypeId(product.type_id || product.category_id);
+        }
 
         for (const attr of imageAttributes) {
           try {
@@ -235,7 +311,7 @@ export default function EditInventory() {
     if (uskuId && imageAttributes.length > 0) {
       fetchCatalogData();
     }
-  }, [uskuId, imageAttributes]);
+  }, [uskuId, imageAttributes, currentTypeId]);
 
   return (
     <div className={styles.globalEditCatalogContainer}>

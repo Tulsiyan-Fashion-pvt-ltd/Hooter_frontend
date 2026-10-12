@@ -266,7 +266,7 @@ export default function ProductDetails() {
               className={styles.editBtn}
               onClick={() =>
                 navigate(
-                  `/catalog/edit?id=${encodeURIComponent(prodSkuId || sku_id)}`
+                  `/catalog/edit?id=${encodeURIComponent(prodSkuId || sku_id)}${product?.type_id ? `&type=${encodeURIComponent(product.type_id)}` : ""}${product?.vertical ? `&vertical=${encodeURIComponent(product.vertical)}` : ""}`
                 )
               }
             >
