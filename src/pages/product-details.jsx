@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { getProduct, getProductImages } from "../services/catalogService";
 import styles from "../css/pages/ProductDetails.module.css";
 
@@ -114,7 +114,7 @@ const normalizeProductImages = (data) => {
 };
 
 export default function ProductDetails() {
-  const { sku_id } = useParams();
+  const [searchParams] = useSearchParams(); 
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -123,13 +123,14 @@ export default function ProductDetails() {
   const [images, setImages] = useState([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [imagesLoading, setImagesLoading] = useState(false);
+  const uskuId = searchParams.get('usku-id');
 
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
         setLoading(true);
-        const data = await getProduct(sku_id);
-
+        const data = await getProduct(uskuId);
+        // console.log(data)
         // Handle different response structures gracefully
         if (data && data["catalog-list"] && data["catalog-list"].length > 0) {
           setProduct(data["catalog-list"][0]);
@@ -146,14 +147,13 @@ export default function ProductDetails() {
       }
     };
 
-    if (sku_id) {
+    if (uskuId) {
       fetchProductDetails();
     }
-  }, [sku_id]);
+  }, [uskuId]);
 
   useEffect(() => {
     const fetchImages = async () => {
-      const uskuId = product?.usku_id || product?.sku_id || sku_id;
       if (!uskuId) return;
 
       try {
@@ -192,7 +192,7 @@ export default function ProductDetails() {
     };
 
     fetchImages();
-  }, [sku_id, product?.usku_id, product?.sku_id, product?.image_url]);
+  }, [uskuId, product?.usku_id, product?.sku_id, product?.image_url]);
 
   if (loading) {
     return <div className={styles.loading}>Loading product details...</div>;
@@ -248,11 +248,6 @@ export default function ProductDetails() {
     <div className={styles.container}>
       {/* Header */}
       <div className={styles.header}>
-        <div className={styles.breadcrumbs}>
-          <Link to="/catalog">Catalog</Link> /{" "}
-          <Link to="/catalog">Products</Link> / {product_title || "Untitled"}
-        </div>
-
         <div className={styles.titleSection}>
           <div className={styles.titleLeft}>
             <h1 className={styles.title}>

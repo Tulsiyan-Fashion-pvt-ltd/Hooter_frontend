@@ -51,7 +51,7 @@ function App() {
           <Route path="/" element={<Homepage />} />
 
           <Route path="/catalog" element={<Catalog />} />
-          <Route path="/catalog/products/:sku_id" element={<ProductDetails />} />
+          <Route path="/catalog/product" element={<ProductDetails />} />
           <Route path="/catalog/add-catalog" element={<AddCatalog />} />
           <Route path="/catalog/add-bulk-catalog" element={<AddBulkCatalog />} />
           <Route path="/catalog/edit" element={<EditInventory />} />

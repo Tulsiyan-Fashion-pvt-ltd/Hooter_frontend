@@ -18,7 +18,7 @@ export default function OAuthComponent(){
     
     // running the oauth functions
     useEffect(()=> {
-        console.log(params)
+        // console.log(params)
         if (params['request-platform']=="shopify" && params['request-type'] == "oauth"){
 
           // Only run the Shopify OAuth flow when Shopify

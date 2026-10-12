@@ -7,7 +7,7 @@ import Toast from "../components/Toast";
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import camera from "../assets/icons/upload_photo.svg";
-import { getFieldPlaceholder } from "../components/fieldPlaceholders";
+import { getFieldPlaceholder } from "../services/fieldPlaceholders";
 
 /**
  * AddCatalog — Single catalog creation form.

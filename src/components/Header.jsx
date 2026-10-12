@@ -1,4 +1,4 @@
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link , useSearchParams} from "react-router-dom";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -59,7 +59,7 @@ const getBreadcrumbs = (pathname) => {
           path.push({"path": foundPath, "name": foundname})
         }
         else{
-          let relativePath = path.map((pathObj, index, array)=>{
+          let relativePath = path.map((pathObj)=>{
             return pathObj.path
           })
 
@@ -71,7 +71,7 @@ const getBreadcrumbs = (pathname) => {
       }
     }
   }
-  console.log(path)
+  // console.log(path)
   return path;
 }
 
@@ -82,6 +82,7 @@ const getBreadcrumbs = (pathname) => {
 
 export default function Header() {
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const path = getBreadcrumbs(location.pathname);     // header path section
   const [showProfileDropdown, setShowProfilDropdown] = useState(false);
 
@@ -95,7 +96,7 @@ export default function Header() {
         {
           path.map((path, index, arr)=> {
             return (<div className={styles.breadcrumb} key={index}>
-              <Link to={path.path} className={styles.breadcrumbRoot} style={index == arr.length -1? {"fontWeight": "bolder", "color": "black"}: null}>
+              <Link to={index == arr.length -1 ?`${path.path}?${searchParams}`: path.path} className={styles.breadcrumbRoot} style={index == arr.length -1? {"fontWeight": "bolder", "color": "black"}: null}>
                 {path.name}
               </Link>
 

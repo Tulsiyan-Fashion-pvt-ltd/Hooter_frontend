@@ -22,8 +22,8 @@
                     "children": []
                 },
                 {
-                    "path": "/products",
-                    "name": "Products",
+                    "path": "/product",
+                    "name": "Product",
                     "children": []
                 }
             ]

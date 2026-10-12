@@ -718,18 +718,17 @@ export default function Catalog() {
                         )}
                       </div>
                       <div className={styles.productDetails}>
-                        <span className={styles.productTitle}>
-                          {p.product_title || "Untitled Product"}
-                        </span>
                         <Link
-                          to={`/catalog/products/${p.usku_id}`}
+                          to={`/catalog/product?usku-id=${p.usku_id}`}
                           className={styles.productSku}
                           style={{
                             textDecoration: "none",
-                            color: "#3b82f6",
-                            fontWeight: "500",
+                            fontWeight: "bolder",
                           }}
                         >
+                          <span className={styles.productTitle}>
+                            {p.product_title || "Untitled Product"}
+                          </span><br></br>
                           {p.sku_id || p.usku_id}
                         </Link>
                       </div>
