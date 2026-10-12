@@ -1,17 +1,128 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import { getProduct } from "../services/catalogService";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { getProduct, getProductImages } from "../services/catalogService";
 import styles from "../css/pages/ProductDetails.module.css";
-import imageNA from "../assets/icons/imagena.png"; // Fallback image if needed
 
 const route = import.meta.env.VITE_BASEAPI;
 
+const resolveImageUrl = (path) => {
+  if (!path || typeof path !== "string") return "";
+  if (
+    path.startsWith("http://") ||
+    path.startsWith("https://") ||
+    path.startsWith("data:") ||
+    path.startsWith("blob:")
+  ) {
+    return path;
+  }
+  const cleanBase = (route || "").replace(/\/+$/, "");
+  const cleanPath = path.replace(/^\/+/, "");
+  return cleanBase ? `${cleanBase}/${cleanPath}` : `/${cleanPath}`;
+};
+
+const normalizeProductImages = (data) => {
+  if (!data) return [];
+
+  const processImageEntry = (entry, key = "") => {
+    if (!entry) return null;
+
+    if (typeof entry === "string") {
+      const full = resolveImageUrl(entry);
+      return {
+        id: key || full,
+        type: key,
+        order: 0,
+        mainUrl: full,
+        thumbUrl: full,
+        originalUrl: full,
+      };
+    }
+
+    const order = Number(entry.image_order ?? entry.order ?? 0);
+    const urls = entry.image_urls || entry;
+
+    if (typeof urls === "string") {
+      const full = resolveImageUrl(urls);
+      return {
+        id: key || full,
+        type: entry.image_type || key,
+        order,
+        mainUrl: full,
+        thumbUrl: full,
+        originalUrl: full,
+      };
+    }
+
+    if (urls && typeof urls === "object") {
+      const highResol = resolveImageUrl(urls.high_resol_webp || urls.high_resol);
+      const lowResol = resolveImageUrl(urls.low_resol_webp || urls.low_resol);
+      const original = resolveImageUrl(urls.original);
+      const webpCard = resolveImageUrl(urls.webp_card);
+
+      const mainUrl = highResol || webpCard || original || lowResol;
+      const thumbUrl = lowResol || webpCard || highResol || original;
+      const originalUrl = original || highResol || webpCard || mainUrl;
+
+      if (!mainUrl && !thumbUrl) return null;
+
+      return {
+        id: entry.id || key || mainUrl,
+        type: entry.image_type || key || "image",
+        order,
+        mainUrl,
+        thumbUrl,
+        originalUrl,
+      };
+    }
+
+    return null;
+  };
+
+  const results = [];
+
+  if (Array.isArray(data)) {
+    data.forEach((item, idx) => {
+      const parsed = processImageEntry(item, item.image_type || `image_${idx}`);
+      if (parsed) results.push(parsed);
+    });
+  } else if (data && typeof data === "object") {
+    if (data.image_urls && !Array.isArray(data.image_urls)) {
+      const parsed = processImageEntry(data, data.image_type || "default");
+      if (parsed) results.push(parsed);
+    } else if (Array.isArray(data.images)) {
+      data.images.forEach((item, idx) => {
+        const parsed = processImageEntry(item, item.image_type || `image_${idx}`);
+        if (parsed) results.push(parsed);
+      });
+    } else if (Array.isArray(data.image_urls)) {
+      data.image_urls.forEach((item, idx) => {
+        const parsed = processImageEntry(item, item.image_type || `image_${idx}`);
+        if (parsed) results.push(parsed);
+      });
+    } else {
+      Object.entries(data).forEach(([key, val]) => {
+        if (val && typeof val === "object") {
+          const parsed = processImageEntry(val, key);
+          if (parsed) results.push(parsed);
+        }
+      });
+    }
+  }
+
+  results.sort((a, b) => a.order - b.order);
+  return results;
+};
+
 export default function ProductDetails() {
   const { sku_id } = useParams();
+  const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("Overview");
+  const [images, setImages] = useState([]);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [imagesLoading, setImagesLoading] = useState(false);
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -39,6 +150,49 @@ export default function ProductDetails() {
       fetchProductDetails();
     }
   }, [sku_id]);
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      const uskuId = product?.usku_id || product?.sku_id || sku_id;
+      if (!uskuId) return;
+
+      try {
+        setImagesLoading(true);
+        let data = null;
+
+        try {
+          data = await getProductImages(uskuId);
+        } catch (err) {
+          try {
+            data = await getProductImages(uskuId, "front");
+          } catch {
+            data = null;
+          }
+        }
+
+        let parsed = normalizeProductImages(data);
+
+        // Fallback to product.image_url if endpoint had no images
+        if (parsed.length === 0 && product?.image_url) {
+          parsed = normalizeProductImages(product.image_url);
+        }
+
+        setImages(parsed);
+        setSelectedImageIndex(0);
+      } catch (err) {
+        console.error("Failed to load product images:", err);
+        if (product?.image_url) {
+          setImages(normalizeProductImages(product.image_url));
+        } else {
+          setImages([]);
+        }
+      } finally {
+        setImagesLoading(false);
+      }
+    };
+
+    fetchImages();
+  }, [sku_id, product?.usku_id, product?.sku_id, product?.image_url]);
 
   if (loading) {
     return <div className={styles.loading}>Loading product details...</div>;
@@ -79,8 +233,9 @@ export default function ProductDetails() {
     dead_weight_kg,
     net_weight_kg,
     volumetric_weight_kg,
-    image_url,
   } = product;
+
+  const currentImage = images[selectedImageIndex] || images[0] || null;
 
   const margin = price && purchasing_cost ? price - purchasing_cost : 0;
   const marginPercentage = price ? ((margin / price) * 100).toFixed(1) : 0;
@@ -107,7 +262,14 @@ export default function ProductDetails() {
             <span className={styles.skuBadge}>{prodSkuId}</span>
           </div>
           <div className={styles.titleRight}>
-            <button className={styles.editBtn}>
+            <button
+              className={styles.editBtn}
+              onClick={() =>
+                navigate(
+                  `/catalog/edit?id=${encodeURIComponent(prodSkuId || sku_id)}`
+                )
+              }
+            >
               <svg
                 width="14"
                 height="14"
@@ -132,15 +294,74 @@ export default function ProductDetails() {
       <div className={styles.content}>
         <div className={styles.topSection}>
           {/* Image Gallery */}
-          {image_url && (
+          {images.length > 0 && currentImage && (
             <div className={styles.gallery}>
-              <div className={styles.thumbnails}>
-                <div className={styles.thumbWrapActive}>
-                  <img src={`${route}/${image_url}`} alt="thumb 1" />
+              {images.length > 1 && (
+                <div className={styles.thumbnails}>
+                  {images.map((img, idx) => (
+                    <div
+                      key={img.id || idx}
+                      className={
+                        selectedImageIndex === idx
+                          ? styles.thumbWrapActive
+                          : styles.thumbWrap
+                      }
+                      onClick={() => setSelectedImageIndex(idx)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          setSelectedImageIndex(idx);
+                        }
+                      }}
+                      title={
+                        img.type ? `View ${img.type} image` : `View image ${idx + 1}`
+                      }
+                    >
+                      <img
+                        src={img.thumbUrl || img.mainUrl}
+                        alt={img.type || `Thumbnail ${idx + 1}`}
+                      />
+                    </div>
+                  ))}
                 </div>
-              </div>
+              )}
+
               <div className={styles.mainImage}>
-                <img src={`${route}/${image_url}`} alt={product_title} />
+                <img
+                  src={currentImage.mainUrl}
+                  alt={currentImage.type || product_title}
+                />
+                {currentImage.originalUrl && (
+                  <button
+                    type="button"
+                    className={styles.zoomIcon}
+                    title="Open full resolution image"
+                    onClick={() =>
+                      window.open(
+                        currentImage.originalUrl,
+                        "_blank",
+                        "noopener,noreferrer"
+                      )
+                    }
+                  >
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <circle cx="11" cy="11" r="8" />
+                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                      <line x1="11" y1="8" x2="11" y2="14" />
+                      <line x1="8" y1="11" x2="14" y2="11" />
+                    </svg>
+                  </button>
+                )}
               </div>
             </div>
           )}
