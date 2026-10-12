@@ -1,4 +1,23 @@
+import { store } from "../store/store";
 const BASE_URL = import.meta.env.VITE_BASEAPI;
+
+const getCSRFToken = async () => {
+  let csrf = store.getState()?.csrf?.csrf;
+  if (!csrf) {
+    try {
+      const res = await fetch(`${BASE_URL}/security/csrf`, {
+        credentials: "include",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        csrf = data.csrf_token;
+      }
+    } catch (e) {
+      console.warn("Could not fetch CSRF token:", e);
+    }
+  }
+  return csrf;
+};
 
 // ── Existing ─────────────────────────
 export const checkCatalogExists = async () => {
@@ -248,19 +267,62 @@ export const deleteProduct = async (uskuId) => {
 
 
 
-// data = flat key/value product fields (already using "_" delimiters per API)
-export const updateProduct = async (uskuId, categoryId, data) => {
+/**
+ * PUT /catalog/products/{usku_id}?type-id={typeId}
+ * Update catalog product listing and category attributes data
+ *
+ * @param {string} uskuId - Universal SKU ID of the product
+ * @param {string} typeId - Category/Type ID for the product
+ * @param {object} listingAttributesOrPayload - Flat key/value listing attributes or { listing_attributes, category_attributes }
+ * @param {object} [categoryAttributes={}] - Category attributes key/value map
+ * @returns {Promise<{ message: string, status: string }>}
+ */
+export const updateProduct = async (
+  uskuId,
+  typeId,
+  listingAttributesOrPayload,
+  categoryAttributes = {},
+) => {
+  let listingAttributes = listingAttributesOrPayload || {};
+  let catAttributes = categoryAttributes || {};
+
+  // Support both (uskuId, typeId, listingAttributes, categoryAttributes)
+  // and (uskuId, typeId, { listing_attributes, category_attributes })
+  if (
+    listingAttributesOrPayload &&
+    (listingAttributesOrPayload.listing_attributes !== undefined ||
+      listingAttributesOrPayload.category_attributes !== undefined)
+  ) {
+    listingAttributes = listingAttributesOrPayload.listing_attributes || {};
+    catAttributes = listingAttributesOrPayload.category_attributes || {};
+  }
+
+  const csrf = await getCSRFToken();
+  const headers = {
+    "Content-Type": "application/json",
+  };
+  if (csrf) {
+    headers["X-CSRF-Token"] = csrf;
+  }
+
   const response = await fetch(
-    `${BASE_URL}/catalog/products/${uskuId}?id=${categoryId}`,
+    `${BASE_URL}/catalog/products/${encodeURIComponent(uskuId)}?type-id=${encodeURIComponent(typeId)}`,
     {
       method: "PUT",
       credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ data }),
+      headers,
+      body: JSON.stringify({
+        category_attributes: catAttributes,
+        listing_attributes: listingAttributes,
+      }),
     },
   );
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  return response.json(); // { status: "successful", msg: "updated successfully" }
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.message || data.msg || `HTTP ${response.status}`);
+  }
+  return data; // { "message": "successfully updated the catalog product", "status": "successful" }
 };
 
 
