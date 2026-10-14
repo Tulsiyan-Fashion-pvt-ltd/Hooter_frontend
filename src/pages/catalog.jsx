@@ -719,7 +719,7 @@ export default function Catalog() {
                       </div>
                       <div className={styles.productDetails}>
                         <Link
-                          to={`/catalog/product?usku-id=${p.usku_id}`}
+                          to={`/catalog/product?usku-id=${p.usku_id}${p.type_id ? `&type=${encodeURIComponent(p.type_id)}` : ""}${p.vertical ? `&vertical=${encodeURIComponent(p.vertical)}` : ""}`}
                           className={styles.productSku}
                           style={{
                             textDecoration: "none",
@@ -785,7 +785,7 @@ export default function Catalog() {
 
                     <div className={styles.actionsCell}>
                       <Link
-                        to={`/catalog/edit?id=${p.usku_id}&type=${p.type_id}&vertical=${p.vertical}`}
+                        to={`/catalog/product?usku-id=${p.usku_id}${p.type_id ? `&type=${encodeURIComponent(p.type_id)}` : ""}${p.vertical ? `&vertical=${encodeURIComponent(p.vertical)}` : ""}&edit=true`}
                         className={styles.iconBtn}
                         title="Edit"
                       >
