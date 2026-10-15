@@ -12,7 +12,7 @@ import { fetchCsrf } from "../store/slices/csrfSlice";
 const route = import.meta.env.VITE_BASEAPI;
 
 const Login = () => {
-  const [query, setQuery] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -31,7 +31,7 @@ const Login = () => {
 
   const login = async () => {
     setErrorMessage("");
-
+    console.log(csrfToken)
     // 🔹 Validation
     if (!email.trim() || !password.trim()) {
       setErrorMessage("All fields are required");
@@ -80,16 +80,17 @@ const Login = () => {
           dispatch(setBrandConnection(brand));
 
           if (brand.connection === "connected") {
-            navigate("/");
+            navigate(`/?${searchParams}`);    // sending search params for oauth flow or other authentications
           } else if (brand.brands === null) {
             navigate("/brand/register");
           } else if (Array.isArray(brand.brands) || brand.brands) {
             navigate("/select-brand");
           } else {
-            navigate("/");
+            setErrorMessage('Could not connect the brand session');
           }
-        } else {
-          navigate("/");
+        } 
+        else {
+          setErrorMessage('Unexpected error')
         }
       }
     } catch (err) {

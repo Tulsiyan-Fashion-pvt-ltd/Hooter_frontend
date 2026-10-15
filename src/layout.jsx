@@ -61,7 +61,8 @@ const Layout = () => {
       <div className={styles.mainWrapper}>
         <Header />
         <div className={styles.globalOutlet}>
-          <OAuthComponent/>
+          {/* oauth will ensure when the dashboard is logged in then the redirection should work */}
+          <OAuthComponent/>   
           <Outlet />
         </div>
       </div>
