@@ -262,16 +262,19 @@
 .pricingRow {
   display: flex;
   align-items: center;
-  gap: 24px;
+  flex-wrap: nowrap;
+  gap: 16px;
   margin-bottom: 24px;
   padding-bottom: 24px;
   border-bottom: 1px solid #e2e8f0;
+  overflow-x: auto;
 }
 
 .label {
   font-size: 12px;
   color: #64748b;
   margin-bottom: 4px;
+  white-space: nowrap;
 }
 
 .valueLarge {
@@ -667,6 +670,8 @@
   border-radius: 6px;
   padding: 4px 8px;
   gap: 4px;
+  width: 120px;
+  box-sizing: border-box;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -679,26 +684,41 @@
   font-size: 14px;
   font-weight: 600;
   color: #64748b;
+  flex-shrink: 0;
 }
 
 .editInputPrice {
   border: none;
   outline: none;
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 700;
   color: #0f172a;
-  width: 100px;
+  width: 100%;
   background: transparent;
+  -moz-appearance: textfield;
+}
+
+.editInputPrice::-webkit-outer-spin-button,
+.editInputPrice::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .editInputCompared {
   border: none;
   outline: none;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   color: #0f172a;
-  width: 90px;
+  width: 100%;
   background: transparent;
+  -moz-appearance: textfield;
+}
+
+.editInputCompared::-webkit-outer-spin-button,
+.editInputCompared::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .editInlineGroup {
@@ -867,4 +887,69 @@
     transform: rotate(360deg);
   }
 }
+
+/* Product Description Box */
+.descriptionBox {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.descriptionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 14px 0;
+}
+
+.descriptionText {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #475569;
+  white-space: pre-line;
+  margin: 0;
+  word-break: break-word;
+}
+
+.readMoreBtn {
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.15s ease;
+}
+
+.readMoreBtn:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.editDescTextarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.5;
+  color: #1e293b;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.editDescTextarea:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
 

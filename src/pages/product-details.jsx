@@ -61,7 +61,9 @@ const normalizeProductImages = (data) => {
     }
 
     if (urls && typeof urls === "object") {
-      const highResol = resolveImageUrl(urls.high_resol_webp || urls.high_resol);
+      const highResol = resolveImageUrl(
+        urls.high_resol_webp || urls.high_resol,
+      );
       const lowResol = resolveImageUrl(urls.low_resol_webp || urls.low_resol);
       const original = resolveImageUrl(urls.original);
       const webpCard = resolveImageUrl(urls.webp_card);
@@ -98,12 +100,18 @@ const normalizeProductImages = (data) => {
       if (parsed) results.push(parsed);
     } else if (Array.isArray(data.images)) {
       data.images.forEach((item, idx) => {
-        const parsed = processImageEntry(item, item.image_type || `image_${idx}`);
+        const parsed = processImageEntry(
+          item,
+          item.image_type || `image_${idx}`,
+        );
         if (parsed) results.push(parsed);
       });
     } else if (Array.isArray(data.image_urls)) {
       data.image_urls.forEach((item, idx) => {
-        const parsed = processImageEntry(item, item.image_type || `image_${idx}`);
+        const parsed = processImageEntry(
+          item,
+          item.image_type || `image_${idx}`,
+        );
         if (parsed) results.push(parsed);
       });
     } else {
@@ -130,9 +138,12 @@ export default function ProductDetails() {
   const [images, setImages] = useState([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [imagesLoading, setImagesLoading] = useState(false);
-  const [isEditing, setIsEditing] = useState(searchParams.get("edit") === "true");
+  const [isEditing, setIsEditing] = useState(
+    searchParams.get("edit") === "true",
+  );
   const [saving, setSaving] = useState(false);
   const [newImageFiles, setNewImageFiles] = useState({});
+  const [isDescExpanded, setIsDescExpanded] = useState(false);
 
   const { toast, showToast } = useToast();
 
@@ -242,7 +253,8 @@ export default function ProductDetails() {
     if (!file) return;
 
     const url = URL.createObjectURL(file);
-    const imageType = images[selectedImageIndex]?.type || `image_${selectedImageIndex || 1}`;
+    const imageType =
+      images[selectedImageIndex]?.type || `image_${selectedImageIndex || 1}`;
 
     setNewImageFiles((prev) => ({
       ...prev,
@@ -310,6 +322,8 @@ export default function ProductDetails() {
       const fixedKeys = new Set([
         "sku_id",
         "product_title",
+        "product_desc",
+        "description",
         "price",
         "compared_price",
         "purchasing_cost",
@@ -374,7 +388,7 @@ export default function ProductDetails() {
         activeUskuId,
         activeTypeId,
         listingAttributes,
-        categoryAttributesPayload
+        categoryAttributesPayload,
       );
 
       if (Object.keys(newImageFiles).length > 0) {
@@ -443,6 +457,8 @@ export default function ProductDetails() {
     volumetric_weight_kg,
     stock_status = "In Stock",
     availability = "Available",
+    product_desc,
+    description,
   } = displayData;
 
   const currentImage = images[selectedImageIndex] || images[0] || null;
@@ -452,17 +468,23 @@ export default function ProductDetails() {
   const comparedPriceNum = compared_price ? Number(compared_price) : 0;
 
   const margin =
-    currentPriceNum && purchasingCostNum ? currentPriceNum - purchasingCostNum : 0;
+    currentPriceNum && purchasingCostNum
+      ? currentPriceNum - purchasingCostNum
+      : 0;
   const marginPercentage = currentPriceNum
     ? ((margin / currentPriceNum) * 100).toFixed(1)
     : 0;
   const discountPercent =
     comparedPriceNum && currentPriceNum && comparedPriceNum > currentPriceNum
-      ? Math.round(((comparedPriceNum - currentPriceNum) / comparedPriceNum) * 100)
+      ? Math.round(
+          ((comparedPriceNum - currentPriceNum) / comparedPriceNum) * 100,
+        )
       : 0;
 
   const KNOWN_KEYS = new Set([
     "product_title",
+    "product_desc",
+    "description",
     "sku_id",
     "usku_id",
     "status",
@@ -515,7 +537,7 @@ export default function ProductDetails() {
   ]);
 
   const extraAttributeKeys = Object.keys(displayData).filter(
-    (key) => !KNOWN_KEYS.has(key) && typeof displayData[key] !== "object"
+    (key) => !KNOWN_KEYS.has(key) && typeof displayData[key] !== "object",
   );
 
   const renderSpecRow = (label, fieldKey, type = "text", unit = "") => {
@@ -570,7 +592,9 @@ export default function ProductDetails() {
                 type="text"
                 className={styles.titleInput}
                 value={formData.product_title || ""}
-                onChange={(e) => handleInputChange("product_title", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("product_title", e.target.value)
+                }
                 placeholder="Product Title"
               />
             ) : (
@@ -579,21 +603,7 @@ export default function ProductDetails() {
               </h1>
             )}
 
-            {isEditing ? (
-              <select
-                className={styles.statusSelect}
-                value={formData.status || "Pending"}
-                onChange={(e) => handleInputChange("status", e.target.value)}
-              >
-                <option value="Pending">Pending</option>
-                <option value="Active">Active</option>
-                <option value="In Stock">In Stock</option>
-                <option value="Draft">Draft</option>
-                <option value="Completed">Completed</option>
-              </select>
-            ) : (
-              <span className={styles.statusBadge}>{status}</span>
-            )}
+            <span className={styles.statusBadge}>{status}</span>
 
             {isEditing ? (
               <input
@@ -688,7 +698,6 @@ export default function ProductDetails() {
                 Edit product
               </button>
             )}
-            <button className={styles.moreBtn}>...</button>
           </div>
         </div>
 
@@ -709,7 +718,9 @@ export default function ProductDetails() {
               />
             </svg>
             <span>
-              <strong>Edit Mode:</strong> Modify any product fields directly. Click <strong>Save changes</strong> to update the catalog without leaving the page.
+              <strong>Edit Mode:</strong> Modify any product fields directly.
+              Click <strong>Save changes</strong> to update the catalog without
+              leaving the page.
             </span>
           </div>
         )}
@@ -739,7 +750,9 @@ export default function ProductDetails() {
                         }
                       }}
                       title={
-                        img.type ? `View ${img.type} image` : `View image ${idx + 1}`
+                        img.type
+                          ? `View ${img.type} image`
+                          : `View image ${idx + 1}`
                       }
                     >
                       <img
@@ -795,7 +808,7 @@ export default function ProductDetails() {
                       window.open(
                         currentImage.originalUrl,
                         "_blank",
-                        "noopener,noreferrer"
+                        "noopener,noreferrer",
                       )
                     }
                   >
@@ -839,7 +852,11 @@ export default function ProductDetails() {
                 {isEditing && (
                   <label
                     className={styles.saveBtn}
-                    style={{ fontSize: "12px", padding: "6px 12px", marginTop: "8px" }}
+                    style={{
+                      fontSize: "12px",
+                      padding: "6px 12px",
+                      marginTop: "8px",
+                    }}
                   >
                     <input
                       type="file"
@@ -867,7 +884,9 @@ export default function ProductDetails() {
                       type="number"
                       className={styles.editInputPrice}
                       value={formData.price ?? ""}
-                      onChange={(e) => handleInputChange("price", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("price", e.target.value)
+                      }
                       placeholder="0"
                     />
                   </div>
@@ -935,7 +954,8 @@ export default function ProductDetails() {
               <div>
                 <div className={styles.label}>Margin</div>
                 <div className={styles.valueGreen}>
-                  ₹{parseInt(margin).toLocaleString("en-IN")} ({marginPercentage}%)
+                  ₹{parseInt(margin).toLocaleString("en-IN")} (
+                  {marginPercentage}%)
                 </div>
               </div>
             </div>
@@ -954,14 +974,18 @@ export default function ProductDetails() {
                           ? formData.color
                           : "#ffbfa8"
                       }
-                      onChange={(e) => handleInputChange("color", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("color", e.target.value)
+                      }
                       title="Pick color"
                     />
                     <input
                       type="text"
                       className={styles.editInputSmall}
                       value={formData.color || ""}
-                      onChange={(e) => handleInputChange("color", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("color", e.target.value)
+                      }
                       placeholder="Color name"
                     />
                   </div>
@@ -971,7 +995,8 @@ export default function ProductDetails() {
                       className={styles.colorSwatch}
                       style={{
                         backgroundColor:
-                          color && (color.startsWith("#") || color.startsWith("rgb"))
+                          color &&
+                          (color.startsWith("#") || color.startsWith("rgb"))
                             ? color
                             : "#ffbfa8",
                       }}
@@ -998,23 +1023,9 @@ export default function ProductDetails() {
               </div>
               <div>
                 <div className={styles.label}>Status</div>
-                {isEditing ? (
-                  <select
-                    className={styles.editSelectSmall}
-                    value={formData.stock_status || "In Stock"}
-                    onChange={(e) =>
-                      handleInputChange("stock_status", e.target.value)
-                    }
-                  >
-                    <option value="In Stock">In Stock</option>
-                    <option value="Low Stock">Low Stock</option>
-                    <option value="Out of Stock">Out of Stock</option>
-                  </select>
-                ) : (
-                  <div className={styles.valueStatus}>
-                    <span className={styles.statusDotGreen}></span> {stock_status}
-                  </div>
-                )}
+                <div className={styles.valueStatus}>
+                  <span className={styles.statusDotGreen}></span> {stock_status}
+                </div>
               </div>
               <div>
                 <div className={styles.label}>Collection</div>
@@ -1039,7 +1050,9 @@ export default function ProductDetails() {
                     type="text"
                     className={styles.editInputSmall}
                     value={formData.vendor || ""}
-                    onChange={(e) => handleInputChange("vendor", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("vendor", e.target.value)
+                    }
                     placeholder="Vendor"
                   />
                 ) : (
@@ -1048,22 +1061,9 @@ export default function ProductDetails() {
               </div>
               <div>
                 <div className={styles.label}>Availability</div>
-                {isEditing ? (
-                  <select
-                    className={styles.editSelectSmall}
-                    value={formData.availability || "Available"}
-                    onChange={(e) =>
-                      handleInputChange("availability", e.target.value)
-                    }
-                  >
-                    <option value="Available">Available</option>
-                    <option value="Unavailable">Unavailable</option>
-                  </select>
-                ) : (
-                  <div className={styles.valueStatus}>
-                    <span className={styles.statusDotGreen}></span> {availability}
-                  </div>
-                )}
+                <div className={styles.valueStatus}>
+                  <span className={styles.statusDotGreen}></span> {availability}
+                </div>
               </div>
             </div>
           </div>
@@ -1084,6 +1084,51 @@ export default function ProductDetails() {
 
         {activeTab === "Overview" && (
           <>
+            {/* Product Description */}
+            <div className={styles.descriptionBox}>
+              <h2 className={styles.descriptionTitle}>Product Description</h2>
+              {isEditing ? (
+                <textarea
+                  className={styles.editDescTextarea}
+                  rows={4}
+                  value={formData.product_desc ?? formData.description ?? ""}
+                  onChange={(e) => {
+                    handleInputChange("product_desc", e.target.value);
+                    handleInputChange("description", e.target.value);
+                  }}
+                  placeholder="Enter product description"
+                />
+              ) : (
+                (() => {
+                  const descText =
+                    product_desc ||
+                    description ||
+                    "No product description provided.";
+                  const LIMIT = 180;
+                  const isLong = descText.length > LIMIT;
+                  const displayedText =
+                    isLong && !isDescExpanded
+                      ? `${descText.slice(0, LIMIT)}...`
+                      : descText;
+
+                  return (
+                    <div>
+                      <p className={styles.descriptionText}>{displayedText}</p>
+                      {isLong && (
+                        <button
+                          type="button"
+                          className={styles.readMoreBtn}
+                          onClick={() => setIsDescExpanded((prev) => !prev)}
+                        >
+                          {isDescExpanded ? "Read Less" : "Read More"}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })()
+              )}
+            </div>
+
             {/* Specifications Box */}
             <div className={styles.specsBox}>
               <h2 className={styles.sectionTitle}>Product Specifications</h2>
@@ -1095,19 +1140,19 @@ export default function ProductDetails() {
                   {renderSpecRow("Blouse Fabric", "blouse_fabric")}
                   {renderSpecRow(
                     "Blouse Piece Included",
-                    "blouse_piece_included"
+                    "blouse_piece_included",
                   )}
                   {renderSpecRow(
                     "Saree Length",
                     "saree_length_meters",
                     "number",
-                    "m"
+                    "m",
                   )}
                   {renderSpecRow(
                     "Blouse Length",
                     "blouse_length_meters",
                     "number",
-                    "m"
+                    "m",
                   )}
                 </div>
                 {/* Column 2 */}
@@ -1130,27 +1175,24 @@ export default function ProductDetails() {
                     "Dead Weight",
                     "dead_weight_kg",
                     "number",
-                    "kg"
+                    "kg",
                   )}
-                  {renderSpecRow(
-                    "Net Weight",
-                    "net_weight_kg",
-                    "number",
-                    "kg"
-                  )}
+                  {renderSpecRow("Net Weight", "net_weight_kg", "number", "kg")}
                   {renderSpecRow(
                     "Volumetric Weight",
                     "volumetric_weight_kg",
                     "number",
-                    "kg"
+                    "kg",
                   )}
 
                   {/* Render any additional dynamic fields */}
                   {extraAttributeKeys.map((key) =>
                     renderSpecRow(
-                      key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
                       key
-                    )
+                        .replace(/_/g, " ")
+                        .replace(/\b\w/g, (c) => c.toUpperCase()),
+                      key,
+                    ),
                   )}
                 </div>
               </div>
@@ -1184,7 +1226,9 @@ export default function ProductDetails() {
                         type="number"
                         className={styles.editInputCard}
                         value={formData.price ?? ""}
-                        onChange={(e) => handleInputChange("price", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("price", e.target.value)
+                        }
                         placeholder="0"
                       />
                     ) : (
@@ -1238,7 +1282,8 @@ export default function ProductDetails() {
                   <div className={styles.cardRow}>
                     <span>Margin</span>
                     <span className={styles.greenText}>
-                      ₹{parseInt(margin).toLocaleString("en-IN")} ({marginPercentage}%)
+                      ₹{parseInt(margin).toLocaleString("en-IN")} (
+                      {marginPercentage}%)
                     </span>
                   </div>
                 </div>
@@ -1270,7 +1315,9 @@ export default function ProductDetails() {
                         type="text"
                         className={styles.editInputCard}
                         value={formData.sku_id || ""}
-                        onChange={(e) => handleInputChange("sku_id", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("sku_id", e.target.value)
+                        }
                         placeholder="SKU"
                       />
                     ) : (
@@ -1284,7 +1331,9 @@ export default function ProductDetails() {
                         type="text"
                         className={styles.editInputCard}
                         value={formData.ean || ""}
-                        onChange={(e) => handleInputChange("ean", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("ean", e.target.value)
+                        }
                         placeholder="EAN"
                       />
                     ) : (
@@ -1298,7 +1347,9 @@ export default function ProductDetails() {
                         type="text"
                         className={styles.editInputCard}
                         value={formData.hsn || ""}
-                        onChange={(e) => handleInputChange("hsn", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("hsn", e.target.value)
+                        }
                         placeholder="HSN"
                       />
                     ) : (
@@ -1329,7 +1380,8 @@ export default function ProductDetails() {
                   Channel Sync
                 </h3>
                 <p className={styles.syncDesc}>
-                  This product can be synced across your connected sales channels.
+                  This product can be synced across your connected sales
+                  channels.
                 </p>
                 <div className={styles.syncGrid}>
                   <div className={styles.syncItem}>
