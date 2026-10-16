@@ -19,6 +19,8 @@ const getCSRFToken = async () => {
   return csrf;
 };
 
+
+
 // ── Existing ─────────────────────────
 export const checkCatalogExists = async () => {
   const response = await fetch(`${BASE_URL}/catalog/products/if-exists`, {
@@ -106,14 +108,16 @@ export const createCatalog = async (
     {
       method: "POST",
       credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" ,
+        "X-CSRF-Token": await getCSRFToken()
+      },
       body: JSON.stringify({
         listing_attributes: listingAttributes,
         category_attributes: categoryAttributes,
       }),
     },
   );
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  if (!response.ok) throw new Error(`HTTP ${response.status} ${response.message?? ""}`);
   return response.json(); // { Status: "successful", message: "..." }
 };
 
@@ -239,19 +243,6 @@ export const getProduct = async (uskuId) => {
 
 
 
-export const markComplete = async (uskuId) => {
-  const response = await fetch(
-    `${BASE_URL}/catalog/products/${uskuId}/completed`,
-    {
-      method: "PUT",
-      credentials: "include",
-    },
-  );
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  return response.json(); // { status: "successful", msg: "..." }
-};
-
-
 
 export const deleteProduct = async (uskuId) => {
   const response = await fetch(`${BASE_URL}/catalog/products/${encodeURIComponent(uskuId)}`, {
@@ -302,7 +293,7 @@ export const updateProduct = async (
     "Content-Type": "application/json",
   };
   if (csrf) {
-    headers["X-CSRF-Token"] = csrf;
+    headers["X-CSRF-Token"] = await getCSRFToken();
   }
 
   const response = await fetch(

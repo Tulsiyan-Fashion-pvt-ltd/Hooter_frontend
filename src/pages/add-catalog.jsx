@@ -1,13 +1,17 @@
-﻿import React from "react";
+﻿import React, { useEffect, useContext, Fragment} from "react";
+import { toastContext } from "../appContext";
 import styles from "../css/pages/add-catalog.module.css";
 import useCatalogForm from "../hooks/useCatalogForm";
-import useToast from "../hooks/useToast";
 import CatalogSelector from "../components/CatalogSelector";
-import Toast from "../components/Toast";
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import camera from "../assets/icons/upload_photo.svg";
 import { getFieldPlaceholder } from "../services/fieldPlaceholders";
+
+
+
+
+
 
 /**
  * AddCatalog — Single catalog creation form.
@@ -20,6 +24,7 @@ import { getFieldPlaceholder } from "../services/fieldPlaceholders";
 export default function AddCatalog() {
   // Ref used to determine image card insertion order when adding custom image slots.
   const imageContainerRef = useRef();
+  const showToast = useContext(toastContext);
 
   // Tracks user-entered image URLs for each image attribute field.
   const [imageLink, setImageLink] = useState({});
@@ -48,7 +53,7 @@ export default function AddCatalog() {
   /* --- Toast ----------------------------------------------------------------
      Reusable hook — call showToast(message, type) anywhere in this component.
      Render <Toast toast={toast} /> once at the bottom of the JSX tree.       */
-  const { toast, showToast } = useToast();
+  // const { toast, showToast } = useToast();
 
   /**
    * Drop-in replacement for setImageLink that keeps imageLinkRef in sync
@@ -86,7 +91,7 @@ export default function AddCatalog() {
     dynamicValues,
     handleDynamicChange,
     submitting,
-    error,
+    categorySelectorError,
     success,
     handleSubmit,
     customAttributes,
@@ -94,8 +99,6 @@ export default function AddCatalog() {
     handleCustomAttributeChange,
     removeCustomAttribute,
   } = useCatalogForm();
-
-
 
 
   // --- Listing Field Definitions (API-driven) ---------------------------------
@@ -111,7 +114,7 @@ export default function AddCatalog() {
     categoryAttributes.length > 0 || imageAttributes.length > 0;
 
   // True when a type is selected but the API returned no attributes for it.
-  const noAttributes = selectedType && !hasAttributes && !error;
+  const noAttributes = selectedType && !hasAttributes
 
   /* ── STEPS DEFINITION ────────────────────────────────────────────────────
      Add or rename steps here and the step indicators + "Step X of Y" label
@@ -395,7 +398,7 @@ export default function AddCatalog() {
 
 
       {/* ── ERROR / WARNING BANNERS (between steps) ── */}
-      {error && (
+      {categorySelectorError && (
         <div id="error" className={styles.errorBanner}>
           ⚠ {error}
         </div>
@@ -449,28 +452,56 @@ export default function AddCatalog() {
 
               <div className={styles.listing}>
                 {listingAttributes.map((attr) => {
-                  const key = attr.field || attr.key;
+                  const key = attr.field;
                   const label = attr.name || formatLabel(key);
                   const required = Boolean(attr.required);
 
                   return (
-                    <div className={styles.line} key={key}>
-                      <span
-                        className={`${styles.pill}`}
-                      >
-                        {label}
-                        {required ? <span style={{"color": "red"}}>*</span>: ""}
-                      </span>
+                    <Fragment>
+                      <div className={styles.line} key={key}>
+                        <span
+                          className={`${styles.pill}`}
+                        >
+                          {label}
+                          {required ? <span style={{ "color": "red" }}>*</span> : ""}
+                          <span className={styles.pillDescription} style={{"anchorName": `--anchor-${attr.handle}`}}>?
+                            <p className={styles.descriptionText} style={{"positionAnchor": `--anchor-${attr.handle}`}}>{attr.description}</p>
+                          </span>
+                        </span>
 
-                      <input
-                        placeholder={
-                          key === "discount"
-                            ? "Auto-calculated"
-                            : getFieldPlaceholder(attr)
-                        }
-                        value={
-                          key === "discount"
-                            ? (() => {
+                        <input
+                          placeholder={
+                            key === "discount"
+                              ? "Auto-calculated"
+                              : getFieldPlaceholder(attr)
+                          }
+                          value={
+                            fixedValues[key] ?? ""
+                          }
+                          onChange={(e) => handleFixedChange(key, e.target.value)}
+                          disabled={key === "discount"}
+                          maxLength={attr.max_length}
+                          type={
+                            attr.type === "decimal" | "integer" | "number" ? "number" : "text"
+                          }
+                        />
+
+                        {attr.max_length && <p className={styles.pill_inputSizeLimit}>{fixedValues[key] ? fixedValues[key].length : 0}/{attr.max_length}</p>}
+                      </div>
+
+
+                      {attr.field === "compared_price" && 
+                      <div className={styles.line} key={key}>
+                        <span
+                          className={`${styles.pill}`}
+                        >
+                          Discount
+                        </span>
+
+                        <input
+                          placeholder="0.00%"
+                          value={
+                            (() => {
                               const cp = parseFloat(fixedValues["compared_price"]);
                               const p = parseFloat(fixedValues["price"]);
                               if (!cp || isNaN(cp) || isNaN(p)) return "";
@@ -480,12 +511,13 @@ export default function AddCatalog() {
                                 factor;
                               return `${result}%`;
                             })()
-                            : fixedValues[key] ?? ""
-                        }
-                        onChange={(e) => handleFixedChange(key, e.target.value)}
-                        disabled={key === "discount"}
-                      />
-                    </div>
+                          }
+                          disabled="true"
+                        />
+
+                        {attr.max_length && <p className={styles.pill_inputSizeLimit}>{fixedValues[key] ? fixedValues[key].length : 0}/{attr.max_length}</p>}
+                      </div>}
+                    </Fragment>
                   );
                 })}
               </div>
@@ -495,7 +527,7 @@ export default function AddCatalog() {
               <hr className={styles.sectionDivider} />
 
               <div className={styles.sectionLabel}>
-                <span className={styles.sectionLabelTitle}>Product Attributes</span>
+                <span className={styles.sectionLabelTitle}>Product Information</span>
                 <span className={styles.sectionLabelSub}>Category-specific fields for this product type</span>
               </div>
               <div className={styles.listing}>
@@ -514,7 +546,10 @@ export default function AddCatalog() {
                           }`}
                       >
                         {attr.name || formatLabel(attr.field || "")}
-                        {attr.required ? " *" : ""}
+                        {attr.required ? <span style={{"color": "red"}}>*</span> : ""}
+                        <span className={styles.pillDescription} style={{"anchorName": `--anchor-${attr.handle}`}}>?
+                          <p className={styles.descriptionText} style={{"positionAnchor": `--anchor-${attr.handle}`}}>{attr.description}</p>
+                        </span>
                       </span>
 
                       {isDropdown ? (
@@ -541,8 +576,18 @@ export default function AddCatalog() {
                             handleDynamicChange(attr.field, e.target.value)
                           }
                           required={attr.required ? true : false}
+                          maxLength={attr.max_length}
+                          type={
+                            attr.type === "decimal" | "integer"| "number"? "number": "text"
+                          }
                         />
                       )}
+
+                      {attr.max_length && 
+                        <p className={styles.pill_inputSizeLimit}>
+                          {dynamicValues[attr.field]? dynamicValues[attr.field].length: 0}/{attr.max_length}
+                        </p>
+                      }
                     </div>
                   );
                 })}
@@ -639,17 +684,11 @@ export default function AddCatalog() {
                 <button
                   className={`${styles.uploadBttn} submit-bttn`}
                   onClick={() => {
-                    /* ── RED TOAST ── Block submit if the required first image is missing */
-                    const firstAttr = imageAttributes[0];
-                    if (firstAttr && !preview[firstAttr.field]?.url) {
-                      showToast("Upload atleast 1 image to submit", "red");
-                      return;
-                    }
-                    handleSubmit();
+                    handleSubmit(showToast);
                   }}
                   disabled={submitting}
                 >
-                  {submitting ? "Uploading for listing..." : <>Upload listing</>}
+                  {submitting ? "Uploading ....." : <>Upload listing</>}
                 </button>
               </div>
             </div>
@@ -936,8 +975,6 @@ export default function AddCatalog() {
         </div>
       )}{/* end .step2Container */}
 
-      {/* -- TOAST ---------------------------------------------------------- */}
-      <Toast toast={toast} />
     </div>
   );
 }
