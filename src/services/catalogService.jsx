@@ -389,6 +389,9 @@ export const uploadProductImages = async (uskuId, imagesData) => {
     {
       method: "POST",
       credentials: "include",
+      headers:{
+        "X-CSRF-Token": await getCSRFToken()
+      },
       body: formData,
     },
   );

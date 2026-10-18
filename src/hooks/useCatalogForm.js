@@ -523,6 +523,10 @@ export default function useCatalogForm() {
           listingAttributesPayload,
           categoryAttributesPayload,
         );
+
+        // clearing the state
+        setFixedValues({});
+        setDynamicValues({});
       } catch (err) {
         throw new Error(err.message || 'Failed to add catalog');
       }
@@ -532,6 +536,8 @@ export default function useCatalogForm() {
       if (Object.keys(images).length > 0) {
         try {
           await uploadProductImages(uskuId, images);
+
+          setImages({})
         } catch {
           showToast("image upload failed", Toast);
           // navigate("#error");
