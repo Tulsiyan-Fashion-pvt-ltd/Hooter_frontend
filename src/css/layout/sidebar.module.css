@@ -1,15 +1,20 @@
+.isolatedSidebar{
+  --layout-side-padding: 20px;
+}
+
+
 .isolatedSidebar
 {
   height: 100%;
-  background-color: var(--second-color);
-  width: 340px;
+  background-color: var(--accent-color-1000);
+  width: 240px;
   border-radius: 0px 8px 8px 0px;
   /* transition: width 0.3s ease-in; */
   align-items: start;
   justify-content: space-between;
   display: flex;
   flex-flow: column nowrap;
-  padding: 60px 30px;
+  padding: 20px 0px;;
   anchor-name: --collapse-bttn-anchor;
   position: relative;
 }
@@ -19,8 +24,8 @@
 position: absolute;
   top: anchor(0px);
   position-anchor: --collapse-bttn-anchor;
-  top: 120px;
-  right: -14px;
+  top: 62px;
+  right: -3px;
   background-color: white;
   border: none;
   border-radius: 50%;
@@ -32,8 +37,8 @@ position: absolute;
   background-repeat: no-repeat;
   background-position: center;
   background-size: 20px;
-  width: 28px;
-  height: 28px;
+  width: 20px;
+  height: 20px;
 }
 
 .collapseToggle:hover
@@ -45,7 +50,7 @@ position: absolute;
 
 .collapsed
 {
-  width: 102px;
+  width: 76px;
 }
 .collapsed .collapseToggle
 {
@@ -58,6 +63,29 @@ position: absolute;
   color: var(--main-color);
 }
 
+
+.brandProfileEditContainer{
+  width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffffffd6;
+    border-radius: 100%;
+  opacity: 0%;
+  cursor: pointer;
+}
+
+.brandProfileEditContainer:hover{
+    opacity: 100%;
+}
+
+
+.sidebarItem:hover{
+  background-color: var(--accent-color-950);
+}
+
+
 .noUnderline
 {
   text-decoration: none;
@@ -67,7 +95,7 @@ position: absolute;
 .sidebarFooter
 {
   color: white;
-  margin-left: auto;
+  /* margin-left: auto; */
 }
 
 h2
@@ -80,7 +108,11 @@ h2
   display: flex;
   flex-flow: column nowrap;
   width: 100%;
-  height: 85%;
+  height: 100%;
+}
+
+.sidebarMenu hr{
+  margin: 0px var(--layout-side-padding);
 }
 
 .sidebarHeader
@@ -90,15 +122,19 @@ h2
   align-content: center;
   align-items: center;
   gap: 10px;
-
+  padding-left: var(--layout-side-padding);
+  margin-bottom: 1rem;
 }
 
 .icon {
-  width: 40px;
-  height: 40px;
+  width: 35px;
+  height: 35px;
   border: none;
   background: white;
   border-radius: 50%;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 .sidebarTitle {
@@ -106,7 +142,7 @@ h2
   font-family: 'inter';
   font-weight: 400;
   font-style: Regular;
-  font-size: 20px;
+  font-size: 16px;
   line-height: 100%;
   letter-spacing: 0%;
 
@@ -117,7 +153,7 @@ h2
   display: flex;
   flex-flow: column nowrap;
   height: 100%;
-  padding: 45px 0px 0px 5px;
+  padding: 3svh 0px;
   overflow-y: auto;
   scrollbar-width: none;       /* Firefox */
   -ms-overflow-style: none;    /* old Edge/IE */
@@ -131,7 +167,7 @@ h2
   font-family: 'inter';
 font-weight: 400;
 font-style: Regular;
-font-size: 20px;
+font-size: 16px;
 /* line-height: 100%; */
 letter-spacing: 0%;
 }
@@ -140,19 +176,26 @@ letter-spacing: 0%;
 .navigation a,
 .navigation .sidebarItem
 {
-  margin-bottom: 30px;
+  line-height:3rem;
   height: fit-content;
   background-repeat: no-repeat;
-  /* padding-left: calc(40px + 20px); */
   background-size: contain;
   display: flex;
   align-items: center;
   justify-content: start;
-  gap: 5px;
-  gap: 30px;
   /* position: relative; */
   anchor-name: --navigations;
   cursor: pointer;
+}
+
+.navMenu{
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  padding-left: calc(var(--layout-side-padding) - 5px);
+  width: 100%;
+  gap: 10px;
+  height: 50px;
 }
 
 .subMenu {
@@ -172,7 +215,7 @@ letter-spacing: 0%;
 
 .subIndicator {
   content: "";
-  position: absolute;
+  /* position: absolute; */
   left: 0;
   top: 50%;
   transform: translateY(-50%);
@@ -218,10 +261,11 @@ letter-spacing: 0%;
   width: 5px;
   background-color: white;
   opacity: 0%;
-  position: absolute;
+  /* position: absolute; */
   left: 0px;
   border-radius: 0px 2px 2px 0px;
   transition: opacity 0.3s ease, height 0.3s ease;
+  position-anchor: --navigations;
 }
 
 .sidebarLabel{
@@ -264,8 +308,8 @@ letter-spacing: 0%;
 
 .itemIcons
 {
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 26px;
   display: block;
   background-repeat: no-repeat;
   background-size: contain;
@@ -287,17 +331,19 @@ letter-spacing: 0%;
 
 .sidebarFooterContainer{
   min-height: 16px;
-  width: 100%;
+  /* width: 100%; */
   display: flex;
-  justify-content: center;
+  justify-content: start;
   align-items: center;
+  margin: 1rem var(--layout-side-padding) 0px;
+  font-size: 10px;
 }
 
 .sidebarFooterIcon{
   background-image: url(/src/assets/icons/sidebar/apple-touch-icon.png);
   background-repeat: no-repeat;
-  width: 40px;
-  height: 40px;
+  width: 25px;
+  height: 25px;
   background-size: contain;
   border: 1px solid var(--main-color);
   border-radius: 50%;

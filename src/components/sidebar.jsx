@@ -1,10 +1,23 @@
-import { Children, useRef, useState, useEffect } from "react";
+import { Children, useRef, useState, useEffect, } from "react";
+import React from "react";
 import clsx from "clsx";
 import styles from "../css/layout/sidebar.module.css";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
+import { useSelector } from "react-redux";
+import { useContext } from "react";
+import { toastContext } from "../appContext";
+const host = import.meta.env.VITE_BASEAPI;
+
+
 
 const Sidebar = () => {
+  const [brandProfile, setBrandProfile] = useState({});  // brand data to show the sidebar
+  const csrfToken = useSelector(state => state.csrf.csrf);
+
+  // notification toast
+  const showToast = useContext(toastContext);
+
   const [collapsed, setCollapsed] = useState(() => {
     return localStorage.getItem("sidebarCollapsed") === "true";
   });
@@ -69,6 +82,73 @@ const Sidebar = () => {
     Settings: { path: "/settings" },
   };
 
+
+
+  useEffect(()=>{
+    async function fetchBrandProfile(){
+      const response = await fetch(`${host}/brand/profile`,
+        {
+          credentials: "include"
+        }
+      );
+
+      const data = await response.json()
+
+      if (response.status !== 200){
+        console.error(data ? data.message: "Error: could not fetch the brand profile");
+      }
+
+      await setBrandProfile({...data, ['image_url']: `${host}${data.image_url}`});
+    }
+
+    fetchBrandProfile();
+  }, [])
+
+
+  async function uploadBrandImage() {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    console.log(fileInput)
+    fileInput.click();
+
+    fileInput.onchange = async (event) => {
+      const file = event.target.files[0];
+
+      if (!file) return;
+
+      try {
+        const response = await fetch(`${host}/brand/profile/image`, {
+          method: "PUT",
+          headers: {
+            "X-CSRF-Token": csrfToken,
+            "Content-Type": "application/octet-stream",
+            "X-Filename": file.name
+          },
+          credentials: "include",
+          body: file
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) showToast(data? data: "Failed to upload image", "red");
+
+        const imageUrl = URL.createObjectURL(file);
+
+        setBrandProfile((prev) => ({
+          ...prev,
+          ['image_url']: imageUrl
+        }));
+
+        showToast(data.message, "green");
+      }
+      catch (e) {
+        showToast("Failed to upload image", "red");
+      }
+    }
+  }
+
+
   return (
     <aside
       ref={sidebarRef}
@@ -85,9 +165,14 @@ const Sidebar = () => {
 
       {/* Header */}
       <div className={styles.sidebarHeader}>
-        <div className={styles.icon}></div>
+        <div className={styles.icon} style={{"backgroundImage": `url(${brandProfile.image_url})`}}>
+          <div className={styles.brandProfileEditContainer} onClick={uploadBrandImage}>
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+            </svg>
+          </div>
+        </div>
         {!collapsed && (
-          <span className={styles.sidebarTitle}>Style Myntra</span>
+          <span className={styles.sidebarTitle}>{brandProfile.brand_name}</span>
         )}
       </div>
 
@@ -118,6 +203,8 @@ const Sidebar = () => {
                         : styles.inactiveIndicator,
                     )}
                   ></div>
+
+                  <div className={styles.navMenu}>
                   <span
                     className={clsx(
                       styles.itemIcons,
@@ -136,6 +223,7 @@ const Sidebar = () => {
                       {item}
                     </span>
                   )}
+                  </div>
                 </NavLink>
               );
             }
@@ -165,32 +253,34 @@ const Sidebar = () => {
                         : styles.inactiveIndicator,
                     )}
                   />
-                  <span
-                    className={clsx(
-                      styles.itemIcons,
-                      indicator === items[item].path ||
-                        Object.values(items[item].children).some(
-                          (child) => child.path === indicator,
-                        )
-                        ? styles.acitveItemIcons
-                        : "",
-                    )}
-                  />
-                  {!collapsed && (
+                  <div className={styles.navMenu}>
                     <span
                       className={clsx(
-                        styles.sidebarLabel,
+                        styles.itemIcons,
                         indicator === items[item].path ||
                           Object.values(items[item].children).some(
                             (child) => child.path === indicator,
                           )
-                          ? styles.activeText
+                          ? styles.acitveItemIcons
                           : "",
                       )}
-                    >
-                      {item}
-                    </span>
-                  )}
+                    />
+                    {!collapsed && (
+                      <span
+                        className={clsx(
+                          styles.sidebarLabel,
+                          indicator === items[item].path ||
+                            Object.values(items[item].children).some(
+                              (child) => child.path === indicator,
+                            )
+                            ? styles.activeText
+                            : "",
+                        )}
+                      >
+                        {item}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Inline submenu — expanded sidebar */}
@@ -282,7 +372,7 @@ const Sidebar = () => {
 
       {/* <div className={clsx(styles.sidebarUnderline, styles.bottom)} /> */}
       <div className={styles.sidebarFooterContainer}>
-        <div className={styles.sidebarFooterIcon}></div>
+        {/* <div className={styles.sidebarFooterIcon}></div> */}
         {!collapsed && (
           <div className={styles.sidebarFooter}>© Powered by Hooter</div>
         )}
