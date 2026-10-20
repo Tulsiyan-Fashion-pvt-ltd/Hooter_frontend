@@ -21,34 +21,6 @@ src/
 
 ---
 
-
-
-## Quick Start
-
-```jsx
-import useToast  from '../hooks/useToast';
-import Toast     from '../components/Toast';
-
-export default function MyPage() {
-  const { toast, showToast } = useToast();
-
-  return (
-    <div>
-      <button onClick={() => showToast("Saved successfully!", "green")}>
-        Save
-      </button>
-
-      {/* Place once, at the bottom of the JSX tree */}
-      <Toast toast={toast} />
-    </div>
-  );
-}
-```
-
----
-
-
-
 ## API Reference
 
 ### `useToast(duration?)` — Hook
