@@ -1,7 +1,9 @@
 import { Routes, Route, Navigate, useLocation} from "react-router-dom";
 import { useContext } from 'react'
-import { SpinnerContext } from "./appContext";
+import { SpinnerContext, toastContext } from "./appContext";
 import { Spinner } from "./components/spinner";
+import useToast from "./hooks/useToast";
+import Toast from "./components/Toast";
 import { useState } from "react";
 import './App.css'
 import Login from "./pages/login";
@@ -26,6 +28,8 @@ import ProductDetails from "./pages/product-details";
 function App() {
   const location = useLocation();
   const [showSpinner, setShowSpinner] = useState(false);
+  const [toast, showToast] = useToast();
+  
 
   
   // Removing the leading / prefix from the path
@@ -39,7 +43,11 @@ function App() {
   
   return (
     <SpinnerContext.Provider value={setShowSpinner}>
+      <toastContext.Provider value={showToast}>
       {showSpinner && <Spinner/>}
+      
+      {/* -- TOAST ---------------------------------------------------------- */}
+      <Toast toast={toast} />
       <Routes>
         <Route
           element={
@@ -97,6 +105,7 @@ function App() {
         />
         <Route path="/*" element={<>404</>} />
       </Routes>
+      </toastContext.Provider>
     </SpinnerContext.Provider>
   );
 }

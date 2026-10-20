@@ -1,9 +1,31 @@
 # Toast Notification System
 
-A lightweight, reusable toast notification system for the Hooter frontend. Consists of a **`useToast`** hook that manages state and a **`Toast`** component that handles rendering. Together they can be dropped into any page with two lines of setup.
-
+A lightweight, reusable toast notification system for the Hooter frontend. Consists of a global `toastContext` context that manages `showToast` state which takes string message and enum type values e.i "green", "red", "yellow"
+to display success, error and notifications respectively.
 ---
 
+
+## Quick Start
+
+```jsx
+import toastContext  from '../appContext';
+import {useContext} from 'react';
+
+export default function MyPage() {
+  const showToast = useContext(toastContext);
+
+  return (
+    <div>
+      <button onClick={() => showToast("Saved successfully!", "green")}>
+        Save
+      </button>
+
+    </div>
+  );
+}
+```
+
+---
 
 
 ## File Structure
@@ -21,31 +43,6 @@ src/
 
 ---
 
-
-
-## Quick Start
-
-```jsx
-import useToast  from '../hooks/useToast';
-import Toast     from '../components/Toast';
-
-export default function MyPage() {
-  const { toast, showToast } = useToast();
-
-  return (
-    <div>
-      <button onClick={() => showToast("Saved successfully!", "green")}>
-        Save
-      </button>
-
-      {/* Place once, at the bottom of the JSX tree */}
-      <Toast toast={toast} />
-    </div>
-  );
-}
-```
-
----
 
 
 
@@ -158,24 +155,6 @@ const { toast, showToast } = useToast(7000); // stays visible for 7 seconds
 
 
 
-## Styling
-
-Styles live in `src/css/components/Toast.module.css`.
-
-| Class          | Applied to         | Description                              |
-|----------------|--------------------|------------------------------------------|
-| `.toast`       | Root wrapper `div` | Base layout, positioning, and animation. |
-| `.toastIcon`   | Icon `span`        | Icon sizing and alignment.               |
-| `.toastGreen`  | Root wrapper `div` | Green background for success variant.    |
-| `.toastYellow` | Root wrapper `div` | Amber background for warning variant.    |
-| `.toastRed`    | Root wrapper `div` | Crimson background for error variant.    |
-
-To adjust colours or position, edit `Toast.module.css` — all pages using the component will update automatically.
-
----
-
-
-
 ## Where It Is Currently Used
 
 | Page / Component   | File                            |
@@ -213,28 +192,4 @@ const icon =
                             '✕';
 ```
 
-### Changing the dismiss duration globally
 
-Edit the default parameter in `useToast.js`:
-```js
-export default function useToast(duration = 6000) { // was 4000
-```
-
-### Changing the dismiss duration per page
-
-Pass a custom value when calling the hook:
-```js
-const { toast, showToast } = useToast(8000); // 8 seconds for this page only
-```
-
----
-
-## Design Decisions
-
-| Decision | Rationale |
-|---|---|
-| **Hook + Component split** | Separates logic from rendering — the hook can be tested in isolation, and the component is a pure presentational layer. |
-| **`null` return when not visible** | Keeps the DOM clean; avoids using CSS `display: none` which would require extra specificity overrides. |
-| **Timer cancellation on rapid calls** | Prevents stale toasts from disappearing too early when multiple events fire in quick succession (e.g. image upload → validation error). |
-| **`pointer-events: none`** | The toast never intercepts clicks, so it is safe to render even when it overlaps action buttons. |
-| **Isolated state per hook call** | No global store needed. Avoids cross-page state leakage and keeps the system simple. |

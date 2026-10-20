@@ -8,8 +8,7 @@ import {
   updateProduct,
   uploadProductImages,
   getProductImages,
-  deleteProductImages,
-  markComplete,
+  deleteProductImages
 } from "../services/catalogService";
 
 export default function EditInventory() {
@@ -240,8 +239,6 @@ export default function EditInventory() {
       if (Object.keys(editImage).length > 0) {
         await uploadProductImages(uskuId, editImage);
       }
-
-      await markComplete(uskuId);
 
       setSuccess(true);
 

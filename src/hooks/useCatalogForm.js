@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import {
   getAttributeFields,
   createCatalog,
-  uploadProductImages,
-  markComplete,
+  uploadProductImages
 } from '../services/catalogService';
+import Toast from '../components/Toast';
 
 /**
  * Converts any user-entered string into snake_case.
@@ -101,7 +101,7 @@ export default function useCatalogForm() {
   // ─── UI State ────────────────────────────────────────────────────────────
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const [categorySelectorError, setCategorySelectorError] = useState('');
   const [success, setSuccess] = useState(false);
 
   // ─── Custom Attributes ───────────────────────────────────────────────────
@@ -129,6 +129,7 @@ export default function useCatalogForm() {
       return;
     }
 
+    setCategorySelectorError('')  // going back to default error for category selector
     const fetchAttributeFields = async () => {
       try {
         setLoading(true);
@@ -193,11 +194,9 @@ export default function useCatalogForm() {
 
         setPreview({});
         setDynamicValues({});
-
-        setError('');
       } catch (err) {
         console.error('Error fetching attribute fields:', err);
-        setError('Failed to load product attributes.');
+        setCategorySelectorError('Failed to load product attributes.', "red");
       } finally {
         setLoading(false);
       }
@@ -205,8 +204,6 @@ export default function useCatalogForm() {
 
     fetchAttributeFields();
   }, [selectedType]);
-
-
 
 
 
@@ -218,9 +215,6 @@ export default function useCatalogForm() {
   const handleTypeChange = (value) => {
     setSelectedType(value);
   };
-
-
-
 
 
   /**
@@ -238,9 +232,6 @@ export default function useCatalogForm() {
   };
 
 
-
-
-
   /**
    * Updates a dynamic category attribute value.
    * Stores null for empty strings to keep the payload clean.
@@ -254,9 +245,6 @@ export default function useCatalogForm() {
       [key]: value === '' ? null : value,
     }));
   };
-
-
-
 
 
   // ─── Custom Attribute Handlers ────────────────────────────────────────────
@@ -282,9 +270,6 @@ export default function useCatalogForm() {
       },
     ]);
   };
-
-
-
 
 
   /**
@@ -338,9 +323,6 @@ export default function useCatalogForm() {
   };
 
 
-
-
-
   /**
    * Removes a custom attribute row by its unique identifier.
    *
@@ -350,9 +332,6 @@ export default function useCatalogForm() {
   const removeCustomAttribute = (id) => {
     setCustomAttributes((prev) => prev.filter((attr) => attr.id !== id));
   };
-
-
-
 
 
   /**
@@ -382,9 +361,6 @@ export default function useCatalogForm() {
       },
     ]);
   };
-
-
-
 
 
   /**
@@ -452,9 +428,6 @@ export default function useCatalogForm() {
   };
 
 
-
-
-
   /**
    * Removes a custom image attribute card and deletes any associated image file.
    *
@@ -480,9 +453,6 @@ export default function useCatalogForm() {
   };
 
 
-
-
-
   /**
    * Registers an uploaded image file against its attribute key and display order.
    * Called after the user selects a file via the image upload input.
@@ -499,9 +469,6 @@ export default function useCatalogForm() {
   };
 
 
-
-
-
   /**
    * Validates the form and submits the catalog to the backend.
    *
@@ -512,27 +479,28 @@ export default function useCatalogForm() {
    *   4. Uploads any attached images.
    *   5. Marks the catalog as complete and redirects to /catalog.
    */
-  const handleSubmit = async () => {
+  const handleSubmit = async (showToast) => {
     try {
       setSubmitting(true);
-      setError('');
+      // setError('');
 
       if (!selectedType) {
-        setError('Please select a product type');
+        showToast('Please select a product type', "red");
         return;
       }
 
+      // checking the required payload
       for (const attr of listingAttributes) {
         const key = attr.field || attr.key;
-        if (attr.required && key !== 'discount' && !fixedValues[key]) {
-          setError(`Please fill in the ${attr.name || key} field`);
+        if (attr.required && !fixedValues[key]) {
+          showToast(`Please fill in the ${attr.name || key} field`, "red");
           return;
         }
       }
 
       for (const attr of categoryAttributes) {
         if (attr.required && !dynamicValues[attr.field]) {
-          setError(`Please fill in the ${attr.name || attr.field} field`);
+          showToast(`Please fill in the ${attr.name || attr.field} field`, "red");
           return;
         }
       }
@@ -555,6 +523,10 @@ export default function useCatalogForm() {
           listingAttributesPayload,
           categoryAttributesPayload,
         );
+
+        // clearing the state
+        setFixedValues({});
+        setDynamicValues({});
       } catch (err) {
         throw new Error(err.message || 'Failed to add catalog');
       }
@@ -564,9 +536,11 @@ export default function useCatalogForm() {
       if (Object.keys(images).length > 0) {
         try {
           await uploadProductImages(uskuId, images);
+
+          setImages({})
         } catch {
-          setError("image upload failed");
-          navigate("#error");
+          showToast("image upload failed", Toast);
+          // navigate("#error");
           setTimeout(() => {
             navigate("/catalog");
           }, 5000);
@@ -574,14 +548,10 @@ export default function useCatalogForm() {
         }
       }
 
-      await markComplete(uskuId);
-      setSuccess(true);
-      setTimeout(() => {
-        navigate("/catalog");
-      }, 5000);
+      showToast("Product uploaded", "green")
     } catch (err) {
       console.error('Submission error:', err);
-      setError(err.message || 'An error occurred while submitting');
+      showToast(err.message || 'An error occurred while submitting', "red");
     } finally {
       setSubmitting(false);
     }
@@ -627,7 +597,7 @@ export default function useCatalogForm() {
     // ── UI / Submission State ─────────────────────────
     loading,
     submitting,
-    error,
+    categorySelectorError,
     success,
     handleSubmit,
   };

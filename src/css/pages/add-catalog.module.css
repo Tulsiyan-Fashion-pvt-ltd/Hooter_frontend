@@ -174,7 +174,7 @@
   padding: 20px 28px;
   border: 1px solid #e2e8f0;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  width: 693px;
+  width: 850px;
 }
 
 /*
@@ -280,12 +280,14 @@
    the same X position regardless of label text length.
 */
 
-.line {
+.line, .discountSection{
   display: grid;
-  grid-template-columns: 170px 1fr;
+  grid-template-columns: 1fr 2fr;
+  grid-template-areas: "box1 box2" "box3 box4";
   align-items: center;
-  gap: 28px;
-  margin-bottom: 16px;
+  column-gap: 28px;
+  row-gap: 4px;
+  margin-bottom: 1.5rem;
 }
 
 /*
@@ -294,6 +296,7 @@
    sits flush against the input for a tidy two-column read.
 */
 .pill {
+  grid-area: box1;
   font-size: 0.9em;
   font-weight: 600;
   color: #1e293b;
@@ -333,11 +336,66 @@
   color: #999;
 }
 
+.pill_inputSizeLimit{
+  margin-left: auto;
+  grid-area: box4;
+  font-size: 10px;
+  color: var(--second-color-100);
+  margin-bottom: -10px; /* DOING IT TO EXCLUDE THEIR SIZE IN THE ROW GAP */
+}
+
+
+.pillDescription{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 200;
+  font-size: 9px;
+  border: 1px solid var(--second-color-100);
+  border-radius: 100%;
+  width: 12px;
+  height: 12px;
+  text-align: center;
+  /* padding:; */
+  margin: auto 5px;
+  /* opacity: 60%; */
+  cursor: pointer;
+  anchor-name: --desc;
+}
+
+
+.descriptionText{
+    position: absolute;
+    position-anchor: --desc;
+    position-area: center;
+    left: anchor(
+ right);
+    text-align: start;
+    width: 21rem;
+    background-color: var(--main-color);
+    padding: 1rem;
+    border: 1px solid var(--second-color-100);
+    font-size: 12px;
+    display: none;
+    border-radius: 8px;
+}
+
+.pillDescription:hover .descriptionText{
+  display: block;
+}
+
+/* .discountSection{
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  column-gap: 28px;
+} */
+
 /*
    Rounded-border input — replaces the underline style.
    Matches the reference screenshot's outlined input appearance.
 */
 .line input {
+  grid-area: box2;
   width: 100%;
   border: 1px solid #d1d5db;
   border-radius: 8px;

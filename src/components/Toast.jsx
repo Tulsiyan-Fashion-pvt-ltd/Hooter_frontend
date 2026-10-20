@@ -13,7 +13,7 @@ import styles from '../css/components/Toast.module.css';
  *   import useToast from '../hooks/useToast';
  *   import Toast from '../components/Toast';
  *
- *   const { toast, showToast } = useToast();
+ *   const [toast, showToast]  = useToast();
  *   showToast("Upload successful!", "green");
  *
  *   // in JSX:
