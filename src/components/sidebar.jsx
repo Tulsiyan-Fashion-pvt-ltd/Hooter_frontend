@@ -98,7 +98,7 @@ const Sidebar = () => {
         console.error(data ? data.message: "Error: could not fetch the brand profile");
       }
 
-      await setBrandProfile({...data, ['image_url']: `${host}${data.image_url}`});
+      await setBrandProfile({...data, ['image_url']: `${data.image_url? `${host}${data.image_url}`: null}`});
     }
 
     fetchBrandProfile();

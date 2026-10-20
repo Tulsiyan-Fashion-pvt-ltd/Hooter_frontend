@@ -194,6 +194,7 @@ export default function useCatalogForm() {
 
         setPreview({});
         setDynamicValues({});
+
       } catch (err) {
         console.error('Error fetching attribute fields:', err);
         setCategorySelectorError('Failed to load product attributes.', "red");
@@ -537,7 +538,8 @@ export default function useCatalogForm() {
         try {
           await uploadProductImages(uskuId, images);
 
-          setImages({})
+          setImages({});
+          setPreview({});
         } catch {
           showToast("image upload failed", Toast);
           // navigate("#error");

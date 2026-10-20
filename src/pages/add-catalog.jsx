@@ -710,7 +710,7 @@ export default function AddCatalog() {
                 <div className={styles["image-grid"]} ref={imageContainerRef}>
                   {imageAttributes.map((attr, index) => {
                     /* Only the first image slot is required — marked with * */
-                    const isRequired = index === 0;
+                    const isRequired = attr.required;
                     const isCustom = attr.custom;
 
                     // Display actual description received from API, falling back to name or formatted field

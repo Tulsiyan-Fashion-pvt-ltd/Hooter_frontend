@@ -248,6 +248,9 @@ export const deleteProduct = async (uskuId) => {
   const response = await fetch(`${BASE_URL}/catalog/products/${encodeURIComponent(uskuId)}`, {
     method: "DELETE",
     credentials: "include",
+    headers:{
+      "X-CSRF-Token": await getCSRFToken()
+    }
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
