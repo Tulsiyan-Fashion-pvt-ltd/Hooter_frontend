@@ -31,7 +31,6 @@ const Login = () => {
 
   const login = async () => {
     setErrorMessage("");
-    console.log(csrfToken)
     // 🔹 Validation
     if (!email.trim() || !password.trim()) {
       setErrorMessage("All fields are required");
