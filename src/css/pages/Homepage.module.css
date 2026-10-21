@@ -1,595 +1,1122 @@
-/* ================= Page Wrapper ================= */
+/* ═══════════════════════════════════════════════════════════
+   Homepage.module.css
+   Follows the same conventions as Catalog.module.css:
+   - CSS custom properties at the top for easy theming
+   - Sections clearly separated with ═══ headers
+   - Spacing uses a consistent 4px base unit
+   - Typography: Inter, -apple-system stack
+═══════════════════════════════════════════════════════════ */
+
+/* ─── Design tokens ─────────────────────────────────────── */
+:root {
+  --hp-blue:        #0040D6;
+  --hp-blue-light:  #E3E8FF;
+  --hp-red:         #E51300;
+  --hp-green:       #00AF55;
+  --hp-border:      #e2e8f0;
+  --hp-surface:     #ffffff;
+  --hp-bg:          #f8fafc;
+  --hp-text-dark:   #0f172a;
+  --hp-text-mid:    #334155;
+  --hp-text-muted:  #64748b;
+  --hp-radius-sm:   6px;
+  --hp-radius-md:   10px;
+  --hp-radius-lg:   12px;
+  --hp-shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --hp-shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PAGE WRAPPER
+   Full-height container with the light grey background.
+═══════════════════════════════════════════════════════════ */
 .pageContent {
-  min-height: 100vh;
-  background-color: #FAFAFA;
-  font-family: 'Inter', sans-serif;
-  font-weight: 400;
-  padding: 24px 32px;
-  box-sizing: border-box;
+  min-height:       100vh;
+  background-color: var(--hp-bg);
+  font-family:      -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, Helvetica, Arial, sans-serif;
+  font-weight:      400;
+  color:            var(--hp-text-dark);
+  padding:          28px 32px 40px;
+  box-sizing:       border-box;
 }
 
-/* inner container */
+/* Constrains the dashboard content width and stacks sections vertically */
 .pageContainer {
-  max-width: 100%;
-  box-sizing: border-box;
+  max-width:      100%;
+  box-sizing:     border-box;
+  display:        flex;
+  flex-direction: column;
+  gap:            20px; /* consistent vertical rhythm between all sections */
 }
 
-/* vertical layout */
-.dashboardGrid {
+/* Shared loading state shown while data is being fetched */
+.loadingState {
+  text-align:  center;
+  padding:     60px 24px;
+  color:       var(--hp-text-muted);
+  font-size:   15px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BASE CARD
+   White card with subtle border + shadow — used by Business
+   Insights and any future card-shaped sections.
+═══════════════════════════════════════════════════════════ */
+.card {
+  background:    var(--hp-surface);
+  border:        1px solid var(--hp-border);
+  border-radius: var(--hp-radius-lg);
+  box-shadow:    var(--hp-shadow-sm);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECTION 1 — OVERVIEW TAB NAVIGATION
+   Horizontal tab bar at the very top of the dashboard.
+   Active tab is underlined with a 2.5 px blue bar.
+═══════════════════════════════════════════════════════════ */
+.overviewTabNav {
+  display:         flex;
+  align-items:     center;
+  gap:             0;
+  background:      var(--hp-surface);
+  border:          1px solid var(--hp-border);
+  border-radius:   var(--hp-radius-md);
+  padding:         0 8px;
+  box-shadow:      var(--hp-shadow-sm);
+  overflow-x:      auto;
+  scrollbar-width: none; /* Firefox */
+}
+
+.overviewTabNav::-webkit-scrollbar {
+  display: none; /* Chrome / Safari */
+}
+
+.overviewTab {
+  position:    relative;
+  height:      48px;
+  padding:     0 18px;
+  background:  none;
+  border:      none;
+  font-size:   14px;
+  font-weight: 500;
+  color:       var(--hp-text-muted);
+  cursor:      pointer;
+  white-space: nowrap;
+  transition:  color 0.15s ease;
+}
+
+.overviewTab:hover {
+  color: var(--hp-text-dark);
+}
+
+/* Active tab: dark text + blue underline */
+.overviewTabActive {
+  color:       var(--hp-text-dark);
+  font-weight: 600;
+}
+
+.overviewTabActive::after {
+  content:          "";
+  position:         absolute;
+  bottom:           0;
+  left:             12px;  /* inset slightly from the button edge */
+  right:            12px;
+  height:           2.5px;
+  background-color: var(--hp-blue);
+  border-radius:    2px 2px 0 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECTION 2 — FILTER BAR
+   Two-row-safe flex container:
+   Left  — date range, marketplace, warehouse filter buttons
+   Right — Refresh, Export, + Create report action buttons
+═══════════════════════════════════════════════════════════ */
+.filterBar {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  flex-wrap:       wrap;
+  gap:             12px;
+  background:      var(--hp-surface);
+  border:          1px solid var(--hp-border);
+  border-radius:   var(--hp-radius-md);
+  padding:         10px 16px;
+  box-shadow:      var(--hp-shadow-sm);
+}
+
+/* Left cluster: contextual filter pills */
+.filterGroup {
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+  flex-wrap:   wrap;
+}
+
+/* Each filter button — pill-shaped, light border */
+.filterBtn {
+  display:       inline-flex;
+  align-items:   center;
+  gap:           6px;
+  height:        34px;
+  padding:       0 12px;
+  background:    var(--hp-surface);
+  border:        1px solid var(--hp-border);
+  border-radius: var(--hp-radius-sm);
+  font-size:     13px;
+  font-weight:   500;
+  color:         var(--hp-text-mid);
+  cursor:        pointer;
+  white-space:   nowrap;
+  transition:    all 0.15s ease;
+  box-shadow:    0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.filterBtn:hover {
+  border-color: #94a3b8;
+  background:   #f8fafc;
+  color:        var(--hp-text-dark);
+}
+
+/* Right cluster: utility action buttons */
+.actionGroup {
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+  flex-wrap:   wrap;
+}
+
+/* Outline-style action button (Refresh, Export) */
+.actionBtnOutline {
+  display:       inline-flex;
+  align-items:   center;
+  gap:           6px;
+  height:        34px;
+  padding:       0 14px;
+  background:    var(--hp-surface);
+  border:        1px solid var(--hp-border);
+  border-radius: var(--hp-radius-sm);
+  font-size:     13px;
+  font-weight:   500;
+  color:         var(--hp-text-mid);
+  cursor:        pointer;
+  white-space:   nowrap;
+  transition:    all 0.15s ease;
+  box-shadow:    0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.actionBtnOutline:hover {
+  background:   #f8fafc;
+  border-color: #94a3b8;
+  color:        var(--hp-text-dark);
+}
+
+/* Filled primary action button (+ Create report) */
+.actionBtnPrimary {
+  display:       inline-flex;
+  align-items:   center;
+  gap:           6px;
+  height:        34px;
+  padding:       0 16px;
+  background:    var(--hp-text-dark);
+  border:        1px solid var(--hp-text-dark);
+  border-radius: var(--hp-radius-sm);
+  font-size:     13px;
+  font-weight:   500;
+  color:         #ffffff;
+  cursor:        pointer;
+  white-space:   nowrap;
+  transition:    all 0.15s ease;
+  box-shadow:    0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.actionBtnPrimary:hover {
+  background:   #1e293b;
+  border-color: #1e293b;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECTION 3 — KPI SUMMARY CARDS
+   Six individually-bordered white cards in a responsive CSS grid,
+   separated by visible 12px gaps — matching the design reference.
+   Each card shows: label / large value / colour-coded trend badge.
+═══════════════════════════════════════════════════════════ */
+.kpiGrid {
+  display:               grid;
+  /* 6 equal columns on wide screens; collapses at breakpoints below */
+  grid-template-columns: repeat(6, 1fr);
+  gap:                   12px;     /* visible space between every card */
+}
+
+/* Individual KPI card — own border, shadow and rounded corners */
+.kpiCard {
+  display:        flex;
+  flex-direction: column;
+  gap:            10px;            /* breathing room between label / value / badge */
+  padding:        18px 20px 16px;
+  background:     var(--hp-surface);
+  border:         1px solid var(--hp-border);
+  border-radius:  var(--hp-radius-lg);
+  box-shadow:     var(--hp-shadow-sm);
+}
+
+/* Muted label sitting above the main value */
+.kpiLabel {
+  font-size:   12.5px;
+  font-weight: 500;
+  color:       var(--hp-text-muted);
+  line-height: 1.2;
+}
+
+/* Large KPI number */
+.kpiValue {
+  font-size:      22px;
+  font-weight:    700;
+  color:          var(--hp-text-dark);
+  line-height:    1.15;
+  letter-spacing: -0.01em;
+}
+
+/* Trend badge: pill-shaped light-grey box with coloured text (green / red via inline style).
+   The neutral grey background reads cleanly behind both colour variants. */
+.kpiBadge {
+  display:       inline-flex;
+  align-items:   center;
+  gap:           3px;
+  padding:       3px 8px;
+  background:    #f1f5f9;          /* light grey pill */
+  border-radius: 999px;            /* fully rounded ends */
+  font-size:     12px;
+  font-weight:   600;
+  line-height:   1;
+  width:         fit-content;      /* shrink-wraps to text width */
+}
+
+/* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+   SECTION 4 \u2014 ANALYTICS ROW
+   Two side-by-side panels:
+     Left  (\u224865%) \u2014 Revenue Trend line chart
+     Right (\u224835%) \u2014 Fulfillment Funnel horizontal bars
+\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */
+
+/* Outer flex row that holds both panels side by side */
+.analyticsRow {
+  display: flex;
+  gap:     16px;
+  align-items: stretch;   /* both panels grow to the same height */
+}
+
+/* ── Revenue Trend panel (left) ─────────────────────────── */
+/* Takes ~65% of the row width */
+.trendPanel {
+  flex:    2;              /* 2 parts out of 3 total \u2248 66% */
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 0;
-}
-
-/* base card */
-.card {
-  background: #FFFFFF;
-  box-shadow: 0px 4px 8px 0px #00000040;
-  border-radius: 12px;
-}
-
-/* ================= Platforms Section ================= */
-.platforms {
-  min-height: 80px;
-  padding: 16px 20px;
-  display: flex;
-  align-items: center;
-}
-
-.platformsRow {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.platformsRow::-webkit-scrollbar {
-  display: none;
-}
-
-.platformBtn {
-  position: relative;
-  height: 48px;
-  padding: 0 12px 0 18px;
-  background: none;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  flex: 1 1 auto;
+  gap:     16px;
   min-width: 0;
+}
+
+/* Header row: title block on the left, legend on the right */
+.trendHeader {
+  display:         flex;
+  align-items:     flex-start;
+  justify-content: space-between;
+  flex-wrap:       wrap;
+  gap:             12px;
+}
+
+.trendHeaderLeft {
+  display:        flex;
+  flex-direction: column;
+  gap:            3px;
+}
+
+/* "Revenue trend" heading */
+.trendTitle {
+  font-size:   15px;
+  font-weight: 600;
+  color:       var(--hp-text-dark);
+  margin:      0;
+}
+
+/* "Across all connected marketplaces" sub-label */
+.trendSubtitle {
+  font-size: 12px;
+  color:     var(--hp-text-muted);
+  margin:    0;
+}
+
+/* Legend: two coloured dot + label pairs */
+.trendLegend {
+  display:     flex;
+  align-items: center;
+  gap:         16px;
+  flex-shrink: 0;
+}
+
+.legendItem {
+  display:     flex;
+  align-items: center;
+  gap:         6px;
+  font-size:   12px;
+  color:       var(--hp-text-muted);
+  font-weight: 500;
+}
+
+/* Small circular dot used as the legend colour swatch */
+.legendDotBlue {
+  width:         8px;
+  height:        8px;
+  border-radius: 50%;
+  background:    #0040D6;
+  flex-shrink:   0;
+}
+
+.legendDotGrey {
+  width:         8px;
+  height:        8px;
+  border-radius: 50%;
+  background:    #cbd5e1;
+  flex-shrink:   0;
+}
+
+/* Recharts wrapper — fills remaining vertical space */
+.trendChartWrap {
+  flex: 1;
+}
+
+/* ── Fulfillment Funnel panel (right) ───────────────────── */
+/* Takes ~35% of the row width */
+.funnelPanel {
+  flex:    1;              /* 1 part out of 3 total \u2248 33% */
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap:     20px;
+  min-width: 0;
+}
+
+/* "Fulfillment funnel" heading */
+.funnelTitle {
+  font-size:   15px;
+  font-weight: 600;
+  color:       var(--hp-text-dark);
+  margin:      0;
+}
+
+/* Vertical stack of stage rows */
+.funnelList {
+  display:        flex;
+  flex-direction: column;
+  gap:            12px;      /* space between each stage row */
+}
+
+/* One stage row: label | bar track | count */
+.funnelRow {
+  display:     grid;
+  /* label is fixed-width; bar fills the middle; count is fixed */
+  grid-template-columns: 70px 1fr 48px;
+  align-items: center;
+  gap:         10px;
+}
+
+/* Stage name (e.g. "Placed", "Shipped") */
+.funnelLabel {
+  font-size:   12.5px;
+  color:       var(--hp-text-muted);
+  font-weight: 400;
   white-space: nowrap;
 }
 
-.platformBtn::before {
-  content: "";
-  position: absolute;
-  left: 5px;
-  top: 8px;
-  bottom: 8px;
-  width: 4px;
-  background: #0040D6;
+/* Grey track that the fill bar sits inside */
+.funnelBarTrack {
+  height:        8px;
   border-radius: 999px;
-  opacity: 0;
-  transform: scaleY(0.6);
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  background:    #e2e8f0;     /* light grey track */
+  overflow:      hidden;
 }
 
-.platformBtn.active::before {
-  opacity: 1;
-  transform: scaleY(1);
+/* Coloured fill bar — width and background-color are set inline from JS */
+.funnelBarFill {
+  height:        100%;
+  border-radius: 999px;
+  transition:    width 0.4s ease;  /* smooth width animation on data change */
 }
 
-.platformBtnText {
-  font-size: clamp(11px, 1.1vw, 14px);
-  font-weight: 400;
-  font-family: 'Inter', sans-serif;
-  color: #3A3D40;
+/* Numeric count to the right of the bar */
+.funnelCount {
+  font-size:   12.5px;
+  font-weight: 600;
+  color:       var(--hp-text-dark);
+  text-align:  right;
+  white-space: nowrap;
+}
+
+/* Three-dot menu button (kept for card headers elsewhere) */
+.menuBtn {
+  background:    none;
+  border:        none;
+  font-size:     20px;
+  color:         var(--hp-text-muted);
+  cursor:        pointer;
+  padding:       2px 6px;
+  line-height:   1;
+  flex-shrink:   0;
+  border-radius: 4px;
+  transition:    background 0.15s ease;
+}
+
+.menuBtn:hover {
+  background: #f1f5f9;
+  color:      var(--hp-text-dark);
+}
+
+/* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+   RESPONSIVE BREAKPOINTS
+\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */
+
+/* KPI grid 6-col \u2192 3 columns; analytics row stacks vertically */
+@media (max-width: 1280px) {
+  .kpiGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Stack trend + funnel panels on top of each other */
+  .analyticsRow {
+    flex-direction: column;
+  }
+
+  /* Funnel label column widens slightly when the panel is full-width */
+  .funnelRow {
+    grid-template-columns: 80px 1fr 56px;
+  }
+}
+
+/* KPI grid 3-col \u2192 2 columns on tablets */
+@media (max-width: 900px) {
+  .pageContent {
+    padding: 20px 20px 32px;
+  }
+
+  .kpiGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* KPI grid 2-col on phones; filter bar stacks */
+@media (max-width: 640px) {
+  .pageContent {
+    padding: 14px 14px 24px;
+  }
+
+  .kpiGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .filterBar {
+    flex-direction: column;
+    align-items:    flex-start;
+    gap:            10px;
+  }
+
+  .actionGroup {
+    width:     100%;
+    flex-wrap: wrap;
+    gap:       8px;
+  }
+
+  .kpiCard {
+    padding: 14px 16px 12px;
+  }
+
+  .kpiValue {
+    font-size: 19px;
+  }
+
+  /* Tighten funnel label on very small screens */
+  .funnelRow {
+    grid-template-columns: 60px 1fr 42px;
+    gap: 6px;
+  }
+
+  .funnelLabel,
+  .funnelCount {
+    font-size: 11.5px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SHARED UTILITIES
+   Styles used across multiple new sections below.
+═══════════════════════════════════════════════════════════ */
+
+/* Blue "View all …" / "Manage stock" links in card headers */
+.linkAction {
+  font-size:   13px;
+  font-weight: 500;
+  color:       var(--hp-blue);
+  text-decoration: none;
+  white-space: nowrap;
+  transition:  opacity 0.15s ease;
+}
+
+.linkAction:hover {
+  opacity: 0.75;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECTION 5 — MARKETPLACE PERFORMANCE TABLE
+   Full-width card with a header row + one data row per channel.
+   Grid: MARKETPLACE (flexible) | ORDERS | REVENUE | RETURNS |
+         GROWTH | STATUS — all share equal remaining width.
+═══════════════════════════════════════════════════════════ */
+.mpCard {
+  padding: 0;          /* rows carry their own padding */
+  overflow: hidden;    /* keeps border-radius clipping on child rows */
+}
+
+/* Title + "View all channels" link */
+.mpHeader {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  padding:         18px 24px 14px;
+  border-bottom:   1px solid var(--hp-border);
+}
+
+.mpTitle {
+  font-size:   15px;
+  font-weight: 600;
+  color:       var(--hp-text-dark);
+}
+
+/* Column-header row — all-caps, muted, small */
+.mpTableHead {
+  display:               grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+  padding:               10px 24px;
+  background:            #f8fafc;
+  border-bottom:         1px solid var(--hp-border);
+  gap:                   12px;
+  font-size:             11px;
+  font-weight:           600;
+  color:                 var(--hp-text-muted);
+  letter-spacing:        0.05em;
+}
+
+/* One data row per marketplace */
+.mpRow {
+  display:               grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+  align-items:           center;
+  padding:               13px 24px;
+  gap:                   12px;
+  border-bottom:         1px solid var(--hp-border);
+  transition:            background 0.12s ease;
+}
+
+.mpRow:last-child {
+  border-bottom: none;
+}
+
+.mpRow:hover {
+  background: #f8fafc;
+}
+
+/* Marketplace name cell — dot + label */
+.mpName {
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+  font-size:   13.5px;
+  font-weight: 500;
+  color:       var(--hp-text-dark);
+}
+
+/* Coloured identity dot beside the marketplace name */
+.mpDot {
+  width:         8px;
+  height:        8px;
+  border-radius: 50%;
+  flex-shrink:   0;
+}
+
+/* Generic data cell — plain numbers / percentages */
+.mpCell {
+  font-size: 13.5px;
+  color:     var(--hp-text-mid);
+}
+
+/* Growth % — colour is set inline (green / red) */
+.mpGrowth {
+  font-size:   13.5px;
+  font-weight: 600;
+}
+
+/* Status badge pill — colours set inline from marketplaceStatusStyle() */
+.mpStatusBadge {
+  display:       inline-flex;
+  align-items:   center;
+  justify-content: center;
+  padding:       3px 10px;
+  border-radius: 999px;
+  font-size:     12px;
+  font-weight:   600;
+  width:         fit-content;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECTION 6 — BOTTOM ROW
+   Two cards side by side:
+     Left  (~62%) — Recent orders table
+     Right (~38%) — Inventory alerts list
+═══════════════════════════════════════════════════════════ */
+
+/* Outer flex row holding both bottom cards */
+.bottomRow {
+  display:     flex;
+  gap:         16px;
+  align-items: stretch;
+}
+
+/* ── Recent Orders card (left) ────────────────────────── */
+.ordersCard {
+  flex:     3;           /* ~62% */
+  padding:  0;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* "Recent orders" title + "View all orders" link */
+.ordersHeader {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  padding:         18px 24px 14px;
+  border-bottom:   1px solid var(--hp-border);
+}
+
+.ordersTitle {
+  font-size:   15px;
+  font-weight: 600;
+  color:       var(--hp-text-dark);
+}
+
+/* Column-header row for the orders table */
+.ordersTableHead {
+  display:               grid;
+  grid-template-columns: 1.2fr 1.2fr 1fr 1fr 1fr;
+  padding:               10px 24px;
+  background:            #f8fafc;
+  border-bottom:         1px solid var(--hp-border);
+  gap:                   12px;
+  font-size:             11px;
+  font-weight:           600;
+  color:                 var(--hp-text-muted);
+  letter-spacing:        0.05em;
+}
+
+/* One data row per order */
+.ordersRow {
+  display:               grid;
+  grid-template-columns: 1.2fr 1.2fr 1fr 1fr 1fr;
+  align-items:           center;
+  padding:               13px 24px;
+  gap:                   12px;
+  border-bottom:         1px solid var(--hp-border);
+  transition:            background 0.12s ease;
+}
+
+.ordersRow:last-child {
+  border-bottom: none;
+}
+
+.ordersRow:hover {
+  background: #f8fafc;
+}
+
+/* Order ID — slightly bolder, dark text */
+.ordersId {
+  font-size:   13px;
+  font-weight: 500;
+  color:       var(--hp-text-dark);
+  white-space: nowrap;
+}
+
+/* Generic data cell for customer, channel, amount */
+.ordersCell {
+  font-size: 13px;
+  color:     var(--hp-text-mid);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.platformBtn.active .platformBtnText {
-  color: #0040D6;
+/* Status badge — colours injected inline */
+.ordersBadge {
+  display:         inline-flex;
+  align-items:     center;
+  justify-content: center;
+  padding:         3px 10px;
+  border-radius:   999px;
+  font-size:       12px;
+  font-weight:     600;
+  width:           fit-content;
+  white-space:     nowrap;
 }
 
-/* vertical gaps */
-.gap29 { height: 24px; }
-.gap32 { height: 28px; }
-
-/* ================= Metric Cards ================= */
-.middleRow {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
-  gap: 20px;
-}
-
-.metricCard {
-  min-height: 200px;
-  height: auto;
-  display: flex;
-  flex-direction: column;
+/* ── Inventory Alerts card (right) ────────────────────── */
+.alertsCard {
+  flex:     2;           /* ~38% */
+  padding:  0;
   overflow: hidden;
-  min-width: 0; 
-}
-
-.metricHeader {
-  display: flex;
-  align-items: flex-start;
-  padding: 16px 16px 12px 16px;
-  gap: 10px;
-  min-height: 68px;
-}
-
-.iconBox {
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  padding: 8px;
-}
-
-.iconImage {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.metricTitle {
-  font-size: clamp(13px, 1.1vw, 16px);
-  font-weight: 500;
-  color: #333;
-  flex: 1;
-  line-height: 1.3;
   min-width: 0;
 }
 
-.menuBtn {
-  background: none;
-  border: none;
-  font-size: 20px;
-  color: #000000;
-  cursor: pointer;
-  padding: 2px 6px;
-  line-height: 1;
-  flex-shrink: 0;
-}
-
-.headerUnderline {
-  height: 1px;
-  background: #000000;
-  margin: 0 16px 8px 16px;
-}
-
-.metricBody {
-  flex: 1;
-  display: flex;
-  padding: 0 16px 16px 16px;
-  gap: 12px;
-  align-items: center;
-  min-width: 0;
-}
-
-.metricLeft {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  min-width: 0;
-}
-
-.metricValue {
-  font-family: 'Inter', sans-serif;
-  font-size: clamp(16px, 1.5vw, 20px);
-  font-weight: 400;
-  line-height: 1.2;
-  color: #333;
-}
-
-.metricChange {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  flex-wrap: wrap;
-}
-
-.percentageContainer {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  border-radius: 6px;
-  flex-shrink: 0;
-}
-
-.changeLabel {
-  color: #999;
-  font-weight: 400;
-  font-size: clamp(10px, 0.9vw, 13px);
-}
-
-.metricChart {
-  width: clamp(80px, 8vw, 110px);
-  max-width: 110px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.pieChartText {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 13px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  white-space: nowrap;
-}
-
-/* ================= Business Insights ================= */
-.businessInsights {
-  min-height: 400px;
-  padding-bottom: 24px;
-}
-
-.insightsHeader {
-  padding: 20px 20px 16px 20px;
-  display: flex;
-  align-items: center;
+/* "Inventory alerts" title + "Manage stock" link */
+.alertsHeader {
+  display:         flex;
+  align-items:     center;
   justify-content: space-between;
+  padding:         18px 24px 14px;
+  border-bottom:   1px solid var(--hp-border);
 }
 
-.insightsTitle {
-  font-size: 18px;
+.alertsTitle {
+  font-size:   15px;
   font-weight: 600;
-  color: #333;
-  display: flex;
-  align-items: center;
+  color:       var(--hp-text-dark);
 }
 
-.insightsTabsWrapper {
-  padding: 0 20px;
-  border-bottom: 0.67px solid #f0f0f0;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.insightsTabsWrapper::-webkit-scrollbar {
-  display: none;
-}
-
-.insightsTabs {
-  display: inline-flex;
-  gap: 0;
-  position: relative;
-  min-width: max-content;
-}
-
-.insightsTab {
-  background: none;
-  border: none;
-  padding: 12px 20px;
-  font-size: 14px;
-  font-weight: 400;
-  font-family: 'Inter', sans-serif;
-  color: #666;
-  cursor: pointer;
-  position: relative;
-  border-bottom: 0.67px solid #f0f0f0;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-
-.insightsTab:hover { color: #0040D6; }
-
-.activeInsightsTab {
-  color: #0040D6;
-  border-bottom: 3px solid #0040D6;
-}
-
-.insightsContent {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  padding: 24px;
-}
-
-/* ================= Best Seller Section ================= */
-.bestSellerSection {
-  display: flex;
+/* Vertical stack of alert items */
+.alertsList {
+  display:        flex;
   flex-direction: column;
-  gap: 16px;
 }
 
-.sectionTitle {
-  font-size: 18px;
-  font-weight: 400;
-  font-family: 'Inter', sans-serif;
-  color: #333;
-  margin: 0;
-}
-
-.bestSellerContainer {
-  display: flex;
-  gap: 20px;
-}
-
-.productImageSection {
-  flex-shrink: 0;
-  width: clamp(200px, 30%, 380px);
-}
-
-.productImage {
-  position: relative;
-  width: 100%;
-  height: clamp(300px, 40vw, 480px);
-  background: #f5f5f5;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.productImage img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.viewMoreBtn {
-  position: absolute;
-  bottom: 16px;
-  right: 16px;
-  background: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #333;
-  cursor: pointer;
-  display: flex;
+/* One alert item row: thumbnail | info | badge */
+.alertRow {
+  display:     flex;
   align-items: center;
-  gap: 6px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  gap:         12px;
+  padding:     14px 24px;
+  border-bottom: 1px solid var(--hp-border);
+  transition:  background 0.12s ease;
 }
 
-.productDetailsSection {
-  flex: 1;
-  display: flex;
+.alertRow:last-child {
+  border-bottom: none;
+}
+
+.alertRow:hover {
+  background: #f8fafc;
+}
+
+/* Grey square placeholder representing a product thumbnail */
+.alertThumb {
+  width:         40px;
+  height:        40px;
+  border-radius: var(--hp-radius-sm);
+  background:    #e2e8f0;
+  flex-shrink:   0;
+}
+
+/* Name + stock-detail stacked vertically */
+.alertInfo {
+  display:        flex;
   flex-direction: column;
-  gap: 20px;
+  gap:            3px;
+  flex:           1;
+  min-width:      0;   /* allows text-overflow to work inside flex child */
+}
+
+.alertName {
+  font-size:     13.5px;
+  font-weight:   500;
+  color:         var(--hp-text-dark);
+  white-space:   nowrap;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+}
+
+.alertDetail {
+  font-size: 12px;
+  color:     var(--hp-text-muted);
+}
+
+/* Severity badge — colours injected inline */
+.alertBadge {
+  display:         inline-flex;
+  align-items:     center;
+  justify-content: center;
+  padding:         3px 10px;
+  border-radius:   999px;
+  font-size:       12px;
+  font-weight:     600;
+  white-space:     nowrap;
+  flex-shrink:     0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE — Sections 5 & 6
+═══════════════════════════════════════════════════════════ */
+
+/* Stack the bottom row and collapse marketplace columns on medium screens */
+@media (max-width: 1280px) {
+  .mpTableHead,
+  .mpRow {
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  }
+
+  /* Hide the Returns column at medium width to save space */
+  .mpTableHead span:nth-child(4),
+  .mpRow span:nth-child(4) {
+    display: none;
+  }
+}
+
+/* Stack bottom row on tablets */
+@media (max-width: 960px) {
+  .bottomRow {
+    flex-direction: column;
+  }
+
+  .ordersCard,
+  .alertsCard {
+    flex: none;
+    width: 100%;
+  }
+}
+
+/* Simplify table columns on phones */
+@media (max-width: 640px) {
+  .mpTableHead,
+  .mpRow {
+    grid-template-columns: 2fr 1fr 1fr;
+  }
+
+  /* Keep only Marketplace, Revenue, Status on very small screens */
+  .mpTableHead span:nth-child(2),
+  .mpTableHead span:nth-child(4),
+  .mpTableHead span:nth-child(5),
+  .mpRow span:nth-child(2),
+  .mpRow span:nth-child(4),
+  .mpRow span:nth-child(5) {
+    display: none;
+  }
+
+  .ordersTableHead,
+  .ordersRow {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  /* On phones show only Order, Amount, Status */
+  .ordersTableHead span:nth-child(2),
+  .ordersTableHead span:nth-child(3),
+  .ordersRow span:nth-child(2),
+  .ordersRow span:nth-child(3) {
+    display: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECTION 7 — LAST ROW
+   Two panels side by side:
+     Left  (~65%) — Top products table
+     Right (~35%) — Activity feed
+═══════════════════════════════════════════════════════════ */
+
+/* Outer flex row — mirrors .bottomRow above */
+.lastRow {
+  display:     flex;
+  gap:         16px;
+  align-items: stretch;
+}
+
+/* ── Top products card (left) ─────────────────────────── */
+.topProductsCard {
+  flex:      2;          /* ~65% */
+  padding:   0;
+  overflow:  hidden;
   min-width: 0;
 }
 
-.productDetailsGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px 32px;
+/* "Top products" title + "View catalog" link */
+.topProductsHeader {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  padding:         18px 24px 14px;
+  border-bottom:   1px solid var(--hp-border);
 }
 
-.productDetailItem {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #E0E0E0;
-}
-
-.detailLabel {
-  font-size: 12px;
-  color: #666;
-  font-weight: 400;
-}
-
-.detailValue {
-  font-size: clamp(14px, 1.4vw, 18px);
+.topProductsTitle {
+  font-size:   15px;
   font-weight: 600;
-  color: #333;
+  color:       var(--hp-text-dark);
 }
 
-.productBarChart {
-  flex: 1;
-  display: flex;
-  align-items: flex-end;
+/* Column-header row — all-caps, muted */
+.topProductsHead {
+  display:               grid;
+  /* Product name column is widest; remaining cols share equal space */
+  grid-template-columns: 2.5fr 1fr 0.8fr 0.8fr 1fr;
+  padding:               10px 24px;
+  background:            #f8fafc;
+  border-bottom:         1px solid var(--hp-border);
+  gap:                   12px;
+  font-size:             11px;
+  font-weight:           600;
+  color:                 var(--hp-text-muted);
+  letter-spacing:        0.05em;
 }
 
-/* ================= Statistics Section ================= */
-.statisticsSection {
-  border: 2px solid #0040D6;
-  border-radius: 12px;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: visible;
+/* One data row per product */
+.topProductsRow {
+  display:               grid;
+  grid-template-columns: 2.5fr 1fr 0.8fr 0.8fr 1fr;
+  align-items:           center;
+  padding:               13px 24px;
+  gap:                   12px;
+  border-bottom:         1px solid var(--hp-border);
+  transition:            background 0.12s ease;
 }
 
-.statsHeader {
-  display: flex;
+.topProductsRow:last-child {
+  border-bottom: none;
+}
+
+.topProductsRow:hover {
+  background: #f8fafc;
+}
+
+/* Product name cell: small grey thumbnail + text */
+.topProductName {
+  display:     flex;
   align-items: center;
-  gap: 12px;
-  padding: 16px 20px;
-  border-bottom: 1px solid #E0E0E0;
-}
-
-.statsIconBox {
-  width: 44px;
-  height: 44px;
-  background: #0040D6;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.statsIconImage { width: 24px; height: 24px; }
-
-.statsTitle {
-  font-size: 16px;
-  font-weight: 400;
-  font-family: 'Inter', sans-serif;
-  color: #333;
-}
-
-.statsChartArea {
-  position: relative;
-  padding: 20px;
-}
-
-.productThumbnail {
-  position: absolute;
-  bottom: 55px;
-  left: 90px;
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  background: white;
-}
-
-.productThumbnail img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.returnsOverlay {
-  position: absolute;
-  top: 20px;
-  right: -40px;
-  width: 300px;
-  background: white;
-  border: 2px solid #0040D6;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  z-index: 10;
-}
-
-.returnsHeader {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px 20px;
-}
-
-.returnsIcon { width: 20px; height: 20px; }
-
-.returnsTitle {
-  font-size: 16px;
-  font-weight: 400;
-  font-family: 'Inter', sans-serif;
-  color: #333;
-}
-
-.returnsContent { padding: 20px; }
-
-.returnsCharts {
-  display: flex;
-  gap: 20px;
-  align-items: center;
-}
-
-.returnsBarChart { flex: 1; }
-.returnsPieChart { flex-shrink: 0; }
-
-/* ================= Icon helpers ================= */
-.noteIcon { width: 20px; height: 20px; margin-right: 8px; }
-.ordersIconBox { background: #0040D6; }
-.shippingIconBox { background: #D32F2F; }
-.usersIconBox { background: #0040D6; }
-.returnsIconBox { background: #D32F2F; }
-.pieChartContainer { position: relative; }
-.returnsPieText { font-size: 18px; font-weight: 600; font-family: 'Inter', sans-serif; }
-.returnsLabel {
-  background: #E3E8FF;
-  color: #0040D6;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 12px;
+  gap:         10px;
+  font-size:   13.5px;
   font-weight: 500;
+  color:       var(--hp-text-dark);
+  min-width:   0;
 }
 
-/* ================= Responsive Breakpoints ================= */
+/* Grey square placeholder for the product image */
+.topProductThumb {
+  width:         34px;
+  height:        34px;
+  border-radius: var(--hp-radius-sm);
+  background:    #e2e8f0;
+  flex-shrink:   0;
+}
 
-@media (max-width: 1300px) {
-  .insightsContent {
-    grid-template-columns: 1fr;
-  }
-  .bestSellerContainer {
+/* Generic data cell: channel, sold count, stock, price */
+.topProductCell {
+  font-size: 13.5px;
+  color:     var(--hp-text-mid);
+}
+
+/* ── Activity feed card (right) ───────────────────────── */
+.activityCard {
+  flex:      1;          /* ~35% */
+  padding:   0;
+  overflow:  hidden;
+  min-width: 0;
+}
+
+/* "Activity" title row — no action link */
+.activityHeader {
+  padding:       18px 24px 14px;
+  border-bottom: 1px solid var(--hp-border);
+}
+
+.activityTitle {
+  font-size:   15px;
+  font-weight: 600;
+  color:       var(--hp-text-dark);
+}
+
+/* Vertical stack of activity items */
+.activityList {
+  display:        flex;
+  flex-direction: column;
+}
+
+/* One event: dot | text block */
+.activityItem {
+  display:     flex;
+  align-items: flex-start;
+  gap:         12px;
+  padding:     14px 24px;
+  border-bottom: 1px solid var(--hp-border);
+  transition:  background 0.12s ease;
+}
+
+.activityItem:last-child {
+  border-bottom: none;
+}
+
+.activityItem:hover {
+  background: #f8fafc;
+}
+
+/* Coloured dot — colour is set inline per item */
+.activityDot {
+  width:         8px;
+  height:        8px;
+  border-radius: 50%;
+  flex-shrink:   0;
+  margin-top:    4px;   /* align dot with the first line of text */
+}
+
+/* Stacks event text on top of the timestamp */
+.activityInfo {
+  display:        flex;
+  flex-direction: column;
+  gap:            3px;
+  min-width:      0;
+}
+
+.activityText {
+  font-size:   13.5px;
+  font-weight: 500;
+  color:       var(--hp-text-dark);
+  line-height: 1.4;
+}
+
+.activityTime {
+  font-size: 12px;
+  color:     var(--hp-text-muted);
+}
+
+/* ── Responsive: Section 7 ────────────────────────────── */
+
+/* Stack the last row on tablets */
+@media (max-width: 960px) {
+  .lastRow {
     flex-direction: column;
   }
-  .productImageSection {
-    width: 100%;
-  }
-  .returnsOverlay {
-    position: relative;
-    top: 0;
-    right: 0;
-    margin-top: 20px;
+
+  .topProductsCard,
+  .activityCard {
+    flex: none;
     width: 100%;
   }
 }
 
-@media (max-width: 900px) {
-  .pageContainer {
-    padding: 16px;
-  }
-  .metricCard {
-    min-height: 180px;
-  }
-  .productDetailsGrid {
-    grid-template-columns: 1fr;
-  }
-  .productThumbnail {
-    width: 60px;
-    height: 60px;
-    bottom: 40px;
-    left: 70px;
-  }
-}
-
+/* Simplify top-products columns on phones */
 @media (max-width: 640px) {
-  .pageContainer {
-    padding: 12px;
+  .topProductsHead,
+  .topProductsRow {
+    /* Keep Product, Sold, Price — hide Channel and Stock */
+    grid-template-columns: 2fr 1fr 1fr;
   }
-  .gap29 { height: 14px; }
-  .gap32 { height: 16px; }
-  .metricBody {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .metricChart {
-    width: 100%;
-    max-width: 100%;
-  }
-  .insightsTab {
-    padding: 10px 14px;
-    font-size: 13px;
-  }
-  .productImage {
-    height: 260px;
-  }
-  .returnsCharts {
-    flex-direction: column;
-    gap: 16px;
-  }
-  .productThumbnail {
+
+  .topProductsHead span:nth-child(2),
+  .topProductsHead span:nth-child(4),
+  .topProductsRow span:nth-child(2),
+  .topProductsRow span:nth-child(4) {
     display: none;
   }
 }
