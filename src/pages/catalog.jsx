@@ -570,7 +570,7 @@ export default function Catalog() {
         </div>
 
         {error && <div className={styles.errorState}>{error}</div>}
-
+            
         {/* Table Area */}
         <div className={styles.tableWrapper}>
           {/* Selection Action Bar */}

@@ -446,16 +446,21 @@
 
 /* Table Card Wrapper */
 :root {
-  --table-grid: 44px minmax(260px, 2fr) minmax(140px, 1fr) minmax(120px, 0.9fr) minmax(130px, 1fr) minmax(110px, 0.9fr) minmax(140px, 1fr) minmax(125px, 0.9fr) minmax(125px, 0.9fr) 85px;
+  --table-grid: 44px minmax(240px, 2fr) minmax(150px, 1fr) minmax(120px, 1fr) minmax(130px, 1fr) minmax(110px, 0.9fr) minmax(140px, 1fr) minmax(125px, 0.9fr) minmax(125px, 0.9fr) 85px;
+}
+
+.table{
+  width: 100%;
 }
 
 .tableWrapper {
-  --table-grid: 44px 260px 140px 120px 130px 110px 140px 125px 125px 85px;
+  /* --table-grid: var(--table-grid); */
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
   overflow-x: auto;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  /* width: minmax(100%, fit-content); */
 }
 
 .listHeader {
@@ -475,6 +480,7 @@
   position: sticky;
   top: 0;
   z-index: 2;
+  gap: 10px;
 }
 
 .listHeaderWithSelection {
@@ -648,7 +654,7 @@
   gap: 6px;
   padding: 4px 10px;
   border-radius: 9999px;
-  font-size: 14px;
+  font-size: 10px;
   font-weight: 500;
   font-family: 'inter-semi-bold';
 }
