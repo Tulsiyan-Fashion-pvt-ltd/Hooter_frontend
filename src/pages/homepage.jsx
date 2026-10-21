@@ -1,6 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useContext } from "react";
 import styles from "../css/pages/Homepage.module.css";
 import clsx from "clsx";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { toastContext } from "../appContext";
 
 import {
   LineChart,
@@ -12,32 +14,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-<<<<<<< HEAD
-//import { checkCatalogExists } from "../services/catalogService";
-import NoCatalogModal from "../components/NoCatalogModal";
-import OrdersIcon from "../assets/icons/sidebar/orders-active.svg";
-import ShippingIcon from "../assets/icons/sidebar/shipping-active.svg";
-import UsersIcon from "../assets/icons/users.svg";
-import ReturnsIcon from "../assets/icons/returns.svg";
-import NoteIcon from "../assets/icons/note.svg";
-import StatsIcon from "../assets/icons/sidebar/stats-active.svg";
-
-
-
-
-const Homepage = () => {
-  const [activePlatform, setActivePlatform] = useState(0);
-  const [activeTab, setActiveTab] = useState(0);
-=======
-
-
-// Global reusable components
-import { Spinner } from "../components/spinner";          // Full-page loading overlay
-import Toast from "../components/Toast";              // Bottom-right notification toast
-import useToast from "../hooks/useToast";                // Hook that drives <Toast />
 // import { checkCatalogExists } from "../services/catalogService";
 // import NoCatalogModal from "../components/NoCatalogModal"; // TODO: re-enable when backend catalog check is ready
->>>>>>> darsh
 
 
 
@@ -97,22 +75,8 @@ const PlusIcon = () => (
 
 const OVERVIEW_TABS = [
   "Overview",
-  "Sales",
-  "Fulfillment",
-  "Customers",
-  "Marketing",
 ];
 
-/* ─────────────────────────────────────────────────────────────
-   Sub-tabs inside the Business Insights card.
-───────────────────────────────────────────────────────────── */
-const INSIGHTS_TABS = [
-  "All ( 26 )",
-  "Top Rated",
-  "Best Seller",
-  "New Listings",
-  "Out Of Stocks",
-];
 
 /* ─────────────────────────────────────────────────────────────
    Mock KPI data keyed by overview tab index (0–4).
@@ -262,8 +226,6 @@ function buildFulfillmentFunnelData(tabKpi) {
     { label: "Returned", ratio: null, isReturn: true },
   ];
 
-<<<<<<< HEAD
-=======
   const deliveredCount = Math.round(totalOrders * 0.859);
 
   return stages.map((stage) => ({
@@ -430,7 +392,7 @@ const Homepage = () => {
   // No loading state — all data is available from first render.
 
   /* ── Toast for user-triggered actions (e.g. Refresh) ─── */
-  const { toast, showToast } = useToast();
+  const showToast = useContext(toastContext);
 
   // const [showNoCatalogModal, setShowNoCatalogModal] = useState(false);
 
@@ -485,7 +447,6 @@ const Homepage = () => {
 
     sendShopifyRedirect();
   }, [searchParams, setSearchParams, navigate]);
->>>>>>> darsh
 
   /* ── Catalog check (re-enable when backend is ready) ─────
   useEffect(() => {
@@ -646,9 +607,6 @@ const Homepage = () => {
   ─────────────────────────────────────────────────────────*/
   return (
     <>
-      {/* Toast — renders in bottom-right corner when visible */}
-      <Toast toast={toast} />
-
       {/* TODO: uncomment when catalog check endpoint is ready */}
       {/* {showNoCatalogModal && <NoCatalogModal />} */}
 
@@ -660,7 +618,7 @@ const Homepage = () => {
               Tabs: Overview | Sales | Fulfillment | Customers | Marketing
               Selecting a tab refreshes all KPI data below.
           ═══════════════════════════════════════════════ */}
-          <nav className={styles.overviewTabNav} aria-label="Dashboard sections">
+          {/* <nav className={styles.overviewTabNav} aria-label="Dashboard sections">
             {OVERVIEW_TABS.map((tab, idx) => (
               <button
                 key={tab}
@@ -675,35 +633,11 @@ const Homepage = () => {
                 {tab}
               </button>
             ))}
-          </nav>
-
-          {/* ═══════════════════════════════════════════════
-              SECTION 2 — Filter controls + action buttons
-              Left  : date-range selector | marketplace dropdown | warehouse dropdown
-              Right : Refresh | Export | + Create report
-          ═══════════════════════════════════════════════ */}
-          <div className={styles.filterBar}>
-
-            {/* Left group: contextual filters */}
-            <div className={styles.filterGroup}>
-
-              {/* Date range — stub; hook up a real date-picker component later */}
-              <button className={styles.filterBtn} id="btn-date-range">
-                <CalendarIcon />
-                <span>Last 30 days</span>
-              </button>
-
-              {/* Marketplace multi-select — stub */}
-              <button className={styles.filterBtn} id="btn-marketplaces">
-                <span>All marketplaces (7)</span>
-                <ChevronDownIcon />
-              </button>
-
-              {/* Warehouse select — stub */}
-              <button className={styles.filterBtn} id="btn-warehouses">
-                <span>All warehouses</span>
-                <ChevronDownIcon />
-              </button>
+          </nav> */}
+          <div className={`${styles.pageHeader}`}>
+            <div className="heading">
+              <h1 className="main-heading">Overview</h1>
+              <p className="heading-message">Welcome Sarah, here is your overall overview of the panel.</p>
             </div>
 
             {/* Right group: utility actions */}
@@ -736,9 +670,9 @@ const Homepage = () => {
               </button>
             </div>
           </div>
-
+              
           {/* ═══════════════════════════════════════════════
-              SECTION 3 — KPI summary cards
+              SECTION 2 — KPI summary cards
               Six cards in a responsive CSS grid:
               Revenue | Orders | Avg. order value |
               Conversion rate | Active listings | Return rate
@@ -772,6 +706,37 @@ const Homepage = () => {
                 </div>
               );
             })}
+          </div>
+
+
+          {/* ═══════════════════════════════════════════════
+              SECTION 3 — Filter controls + action buttons
+              Left  : date-range selector | marketplace dropdown | warehouse dropdown
+              Right : Refresh | Export | + Create report
+          ═══════════════════════════════════════════════ */}
+          <div className={styles.filterBar}>
+
+            {/* Left group: contextual filters */}
+            <div className={styles.filterGroup}>
+
+              {/* Date range — stub; hook up a real date-picker component later */}
+              <button className={styles.filterBtn} id="btn-date-range">
+                <CalendarIcon />
+                <span>Last 30 days</span>
+              </button>
+
+              {/* Marketplace multi-select — stub */}
+              <button className={styles.filterBtn} id="btn-marketplaces">
+                <span>All marketplaces (7)</span>
+                <ChevronDownIcon />
+              </button>
+
+              {/* Warehouse select — stub */}
+              <button className={styles.filterBtn} id="btn-warehouses">
+                <span>All warehouses</span>
+                <ChevronDownIcon />
+              </button>
+            </div>
           </div>
 
           {/* ═══════════════════════════════════════════════

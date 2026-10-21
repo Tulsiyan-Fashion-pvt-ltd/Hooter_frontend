@@ -27,7 +27,7 @@
 eg. Add bulk catalog
 Add the product details through an Excel file and we will process them for you
 */
-.heading{
+.header{
     margin-bottom: var(--heading-margin);
 }
 

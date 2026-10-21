@@ -251,7 +251,7 @@ export default function AddBulkCatalog() {
         {/* ── TOP HEADER ── */}
         <header>
           <div className={styles.topContainer}>
-            <div className="heading">
+            <div className="header">
               <h1 className={`main-heading`}>Add bulk catalog</h1>
 
               <p className={`heading-message`}>

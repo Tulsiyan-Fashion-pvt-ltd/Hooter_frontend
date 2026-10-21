@@ -36,7 +36,7 @@
   font-family:      -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, Helvetica, Arial, sans-serif;
   font-weight:      400;
   color:            var(--hp-text-dark);
-  padding:          28px 32px 40px;
+  /* padding:          28px 32px 40px; */
   box-sizing:       border-box;
 }
 
@@ -69,80 +69,21 @@
   box-shadow:    var(--hp-shadow-sm);
 }
 
-/* ═══════════════════════════════════════════════════════════
-   SECTION 1 — OVERVIEW TAB NAVIGATION
-   Horizontal tab bar at the very top of the dashboard.
-   Active tab is underlined with a 2.5 px blue bar.
-═══════════════════════════════════════════════════════════ */
-.overviewTabNav {
-  display:         flex;
-  align-items:     center;
-  gap:             0;
-  background:      var(--hp-surface);
-  border:          1px solid var(--hp-border);
-  border-radius:   var(--hp-radius-md);
-  padding:         0 8px;
-  box-shadow:      var(--hp-shadow-sm);
-  overflow-x:      auto;
-  scrollbar-width: none; /* Firefox */
+
+
+.pageHeader{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.overviewTabNav::-webkit-scrollbar {
-  display: none; /* Chrome / Safari */
-}
 
-.overviewTab {
-  position:    relative;
-  height:      48px;
-  padding:     0 18px;
-  background:  none;
-  border:      none;
-  font-size:   14px;
-  font-weight: 500;
-  color:       var(--hp-text-muted);
-  cursor:      pointer;
-  white-space: nowrap;
-  transition:  color 0.15s ease;
-}
-
-.overviewTab:hover {
-  color: var(--hp-text-dark);
-}
-
-/* Active tab: dark text + blue underline */
-.overviewTabActive {
-  color:       var(--hp-text-dark);
-  font-weight: 600;
-}
-
-.overviewTabActive::after {
-  content:          "";
-  position:         absolute;
-  bottom:           0;
-  left:             12px;  /* inset slightly from the button edge */
-  right:            12px;
-  height:           2.5px;
-  background-color: var(--hp-blue);
-  border-radius:    2px 2px 0 0;
-}
-
-/* ═══════════════════════════════════════════════════════════
-   SECTION 2 — FILTER BAR
-   Two-row-safe flex container:
-   Left  — date range, marketplace, warehouse filter buttons
-   Right — Refresh, Export, + Create report action buttons
-═══════════════════════════════════════════════════════════ */
 .filterBar {
   display:         flex;
   align-items:     center;
   justify-content: space-between;
   flex-wrap:       wrap;
   gap:             12px;
-  background:      var(--hp-surface);
-  border:          1px solid var(--hp-border);
-  border-radius:   var(--hp-radius-md);
-  padding:         10px 16px;
-  box-shadow:      var(--hp-shadow-sm);
 }
 
 /* Left cluster: contextual filter pills */
@@ -162,7 +103,7 @@
   padding:       0 12px;
   background:    var(--hp-surface);
   border:        1px solid var(--hp-border);
-  border-radius: var(--hp-radius-sm);
+  border-radius: 1000px;
   font-size:     13px;
   font-weight:   500;
   color:         var(--hp-text-mid);

@@ -43,12 +43,9 @@ src/
 
 ---
 
-<<<<<<< HEAD
 
 
 
-=======
->>>>>>> darsh
 ## API Reference
 
 ### `useToast(duration?)` — Hook

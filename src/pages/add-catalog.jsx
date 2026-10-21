@@ -341,7 +341,7 @@ export default function AddCatalog() {
       <div className={styles.step1Container}>
         {/* ── TOP HEADER ── */}
         <div className={styles.top}>
-          <div className="heading">
+          <div className="header">
             <h1 className="main-heading">Add single catalog</h1>
             <p className="heading-message">Let&#39;s set up your catalog &mdash; Enter your catalog details</p>
           </div>

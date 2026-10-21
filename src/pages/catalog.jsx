@@ -759,21 +759,21 @@ export default function Catalog() {
                       </span>
                     </div>
 
-                    <div className={styles.cellPrice}>
+                    <div className={styles.cellText}>
                       ₹
                       {p.compared_price
                         ? parseInt(p.compared_price).toLocaleString("en-IN")
                         : "-"}
                     </div>
 
-                    <div className={styles.cellPrice}>
+                    <div className={styles.cellText}>
                       ₹
                       {p.price
                         ? parseInt(p.price).toLocaleString("en-IN")
                         : "1,299"}
                     </div>
 
-                    <div className={styles.cellPrice}>
+                    <div className={styles.cellText}>
                       ₹
                       {p.purchasing_cost
                         ? parseInt(p.purchasing_cost).toLocaleString("en-IN")
