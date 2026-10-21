@@ -445,18 +445,17 @@
 }
 
 /* Table Card Wrapper */
+:root {
+  --table-grid: 44px minmax(260px, 2fr) minmax(140px, 1fr) minmax(120px, 0.9fr) minmax(130px, 1fr) minmax(110px, 0.9fr) minmax(140px, 1fr) minmax(125px, 0.9fr) minmax(125px, 0.9fr) 85px;
+}
+
 .tableWrapper {
+  --table-grid: 44px 260px 140px 120px 130px 110px 140px 125px 125px 85px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
-  overflow: auto;
   overflow-x: auto;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-}
-
-/* Grid Definition: Checkbox (44px), Product (2.8fr), Category (1.2fr), MRP (1fr), Marketplaces (1.3fr), Status (1.4fr), Updated (1.5fr), Actions (70px) */
-:root {
-  --table-grid: 44px minmax(220px, 2.5fr) minmax(180px, 1.2fr) minmax(120px, 1.2fr) minmax(120px, 1.2fr) minmax(120px, 1.2fr) minmax(110px, 1.2fr) minmax(90px, 1fr) 70px;
 }
 
 .listHeader {
@@ -470,7 +469,12 @@
   font-weight: 600;
   color: #64748b;
   letter-spacing: 0.04em;
-  min-width: max-content;
+  min-width: 1179px;
+  width: 100%;
+  box-sizing: border-box;
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
 .listHeaderWithSelection {
@@ -496,11 +500,15 @@
   border-bottom: 1px solid #f1f5f9;
   transition: background-color 0.1s ease;
   font-size: 14px;
-  min-width: max-content;
+  min-width: 1179px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .list {
-  min-width: max-content;
+  min-width: 1179px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .card{
@@ -602,9 +610,14 @@
   background: #f1f5f9;
   color: #475569;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   font-family: 'inter-semi-bold';
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
 }
 
 /* MRP Price */

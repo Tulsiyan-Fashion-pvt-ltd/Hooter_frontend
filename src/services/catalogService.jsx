@@ -47,12 +47,24 @@ export const getErrorSheet = async (jobId) => {
  *
  * @returns {Promise<{level0: Array}>} Top-level category options.
  */
+let topCategoriesCache = null;
+let topCategoriesPromise = null;
+
 export const getTopCategories = async () => {
-  const response = await fetch(`${BASE_URL}/catalog/categories/top`, {
-    credentials: "include",
-  });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  return response.json(); // { level0: [ { id, name, full_name, vertical }, ... ] }
+  if (topCategoriesCache) return topCategoriesCache;
+  if (topCategoriesPromise) return topCategoriesPromise;
+
+  topCategoriesPromise = (async () => {
+    const response = await fetch(`${BASE_URL}/catalog/categories/top`, {
+      credentials: "include",
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    topCategoriesCache = data;
+    return data;
+  })();
+
+  return topCategoriesPromise;
 };
 
 /**
@@ -80,13 +92,21 @@ export const getNextCategories = async (categoryId, vertical) => {
  * @returns {Promise<Object>} Listing, category, and image attributes.
  */
 export const getAttributeFields = async (typeId, vertical) => {
-  const response = await fetch(
-    `${BASE_URL}/catalog/categories/attributes/${encodeURIComponent(typeId)}?vertical=${vertical}`,
-    { credentials: "include" },
-  );
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  return response.json();
-  // { listing_attributes: [...], category_attributes: [...], image_attributes: [...] }
+  const url = vertical !== undefined && vertical !== null && vertical !== ""
+    ? `${BASE_URL}/catalog/categories/attributes/${encodeURIComponent(typeId)}?vertical=${vertical}`
+    : `${BASE_URL}/catalog/categories/attributes/${encodeURIComponent(typeId)}`;
+
+  const response = await fetch(url, {
+    credentials: "include",
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok || data?.status === "failed") {
+    throw new Error(data?.message || `HTTP ${response.status}: Failed to get category attributes`);
+  }
+
+  return data;
 };
 
 // ── Create catalog (payload restructured) ────────────────

@@ -610,6 +610,7 @@ export default function Catalog() {
             </div>
             <div>PRODUCT</div>
             <div>CATEGORY</div>
+            <div>STATUS</div>
             <div>COMPARED PRICE</div>
             <div>PRICE</div>
             <div>PURCHASING COST</div>
@@ -735,10 +736,26 @@ export default function Catalog() {
                     </div>
 
                     <div className={styles.cellText}>
-                      <span className={styles.categoryTag}>
+                      <span
+                        className={styles.categoryTag}
+                        title={
+                          p.type_name ||
+                          snakeToPlainText(p.product_type) ||
+                          "Kurta"
+                        }
+                      >
                         {p.type_name ||
                           snakeToPlainText(p.product_type) ||
                           "Kurta"}
+                      </span>
+                    </div>
+
+                    <div>
+                      <span
+                        className={`${styles.statusBadge} ${statusInfo.className}`}
+                      >
+                        <span className={styles.statusDot}></span>
+                        {statusInfo.text}
                       </span>
                     </div>
 

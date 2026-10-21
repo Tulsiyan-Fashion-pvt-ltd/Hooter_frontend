@@ -5,7 +5,9 @@ import {
   getProductImages,
   updateProduct,
   uploadProductImages,
+  getAttributeFields,
 } from "../services/catalogService";
+import { getFieldPlaceholder } from "../services/fieldPlaceholders";
 import useToast from "../hooks/useToast";
 import Toast from "../components/Toast";
 import styles from "../css/pages/ProductDetails.module.css";
@@ -145,7 +147,9 @@ export default function ProductDetails() {
   const [newImageFiles, setNewImageFiles] = useState({});
   const [isDescExpanded, setIsDescExpanded] = useState(false);
 
-  const { toast, showToast } = useToast();
+  const [toast, showToast] = useToast();
+  const [categoryAttributes, setCategoryAttributes] = useState([]);
+  const [attributesLoading, setAttributesLoading] = useState(false);
 
   const uskuId = searchParams.get("usku-id") || searchParams.get("id");
 
@@ -228,6 +232,36 @@ export default function ProductDetails() {
 
     fetchImages();
   }, [uskuId, product?.usku_id, product?.sku_id, product?.image_url]);
+
+  const fetchAttributes = async (targetProduct = product) => {
+    const activeTypeId =
+      targetProduct?.type_id ||
+      targetProduct?.category_id ||
+      targetProduct?.type ||
+      searchParams.get("type") ||
+      searchParams.get("type-id") ||
+      "";
+
+    if (!activeTypeId) return;
+
+    try {
+      setAttributesLoading(true);
+      const data = await getAttributeFields(activeTypeId);
+      if (data?.category_attributes) {
+        setCategoryAttributes(data.category_attributes);
+      }
+    } catch (err) {
+      console.warn("Failed to fetch category attributes:", err);
+    } finally {
+      setAttributesLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isEditing && product) {
+      fetchAttributes(product);
+    }
+  }, [isEditing, product?.type_id, product?.category_id, product?.type]);
 
   const handleStartEdit = () => {
     setIsEditing(true);
@@ -536,16 +570,69 @@ export default function ProductDetails() {
     "category_attributes",
   ]);
 
+  const categoryAttributesMap = categoryAttributes.reduce((acc, attr) => {
+    if (attr.field) acc[attr.field] = attr;
+    return acc;
+  }, {});
+
+  const dynamicCategoryFieldKeys = new Set(categoryAttributes.map((a) => a.field).filter(Boolean));
+
   const extraAttributeKeys = Object.keys(displayData).filter(
-    (key) => !KNOWN_KEYS.has(key) && typeof displayData[key] !== "object",
+    (key) =>
+      !KNOWN_KEYS.has(key) &&
+      !dynamicCategoryFieldKeys.has(key) &&
+      typeof displayData[key] !== "object",
   );
 
-  const renderSpecRow = (label, fieldKey, type = "text", unit = "") => {
+  const renderSpecRow = (
+    label,
+    fieldKey,
+    type = "text",
+    unit = "",
+    attrMeta = null,
+  ) => {
+    const isDropdown =
+      attrMeta &&
+      (attrMeta.type === "dropdown" || Array.isArray(attrMeta.options));
+    const options = isDropdown ? attrMeta.options || [] : [];
+    const isRequired = Boolean(attrMeta?.required);
+    const placeholder = attrMeta
+      ? getFieldPlaceholder(attrMeta)
+      : `Enter ${label.toLowerCase()}`;
+    const description = attrMeta?.description;
+
     return (
       <div className={styles.specRow} key={fieldKey}>
-        <span className={styles.specLabel}>{label}</span>
+        <span className={styles.specLabel}>
+          <span className={styles.specLabelWrap}>
+            {label}
+            {isRequired && <span className={styles.requiredStar}>*</span>}
+            {description && (
+              <span className={styles.pillDescription}>
+                ?
+                <span className={styles.descriptionTooltip}>
+                  {description}
+                </span>
+              </span>
+            )}
+          </span>
+        </span>
         {isEditing ? (
-          fieldKey === "blouse_piece_included" ? (
+          isDropdown ? (
+            <select
+              className={styles.editSpecSelect}
+              value={formData[fieldKey] || ""}
+              onChange={(e) => handleInputChange(fieldKey, e.target.value)}
+              required={isRequired}
+            >
+              <option value="">Select...</option>
+              {options.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+          ) : fieldKey === "blouse_piece_included" ? (
             <select
               className={styles.editSpecSelect}
               value={formData[fieldKey] || ""}
@@ -558,12 +645,21 @@ export default function ProductDetails() {
           ) : (
             <div className={styles.specInputWrap}>
               <input
-                type={type}
+                type={
+                  attrMeta?.type === "decimal" ||
+                  attrMeta?.type === "integer" ||
+                  attrMeta?.type === "number" ||
+                  type === "number"
+                    ? "number"
+                    : "text"
+                }
                 step={type === "number" ? "0.01" : undefined}
+                maxLength={attrMeta?.max_length}
+                required={isRequired}
                 className={styles.editSpecInput}
                 value={formData[fieldKey] ?? ""}
                 onChange={(e) => handleInputChange(fieldKey, e.target.value)}
-                placeholder={`Enter ${label.toLowerCase()}`}
+                placeholder={placeholder}
               />
               {unit && <span className={styles.unitBadge}>{unit}</span>}
             </div>
@@ -1022,12 +1118,6 @@ export default function ProductDetails() {
                 )}
               </div>
               <div>
-                <div className={styles.label}>Status</div>
-                <div className={styles.valueStatus}>
-                  <span className={styles.statusDotGreen}></span> {stock_status}
-                </div>
-              </div>
-              <div>
                 <div className={styles.label}>Collection</div>
                 {isEditing ? (
                   <input
@@ -1058,12 +1148,6 @@ export default function ProductDetails() {
                 ) : (
                   <div className={styles.value}>{vendor || "-"}</div>
                 )}
-              </div>
-              <div>
-                <div className={styles.label}>Availability</div>
-                <div className={styles.valueStatus}>
-                  <span className={styles.statusDotGreen}></span> {availability}
-                </div>
               </div>
             </div>
           </div>
@@ -1132,43 +1216,128 @@ export default function ProductDetails() {
             {/* Specifications Box */}
             <div className={styles.specsBox}>
               <h2 className={styles.sectionTitle}>Product Specifications</h2>
+
+              {attributesLoading && (
+                <div className={styles.attributesLoading}>
+                  <span className={styles.buttonSpinner}></span>
+                  Loading category attributes & descriptions...
+                </div>
+              )}
+
               <div className={styles.specsGrid}>
                 {/* Column 1 */}
                 <div className={styles.specsCol}>
-                  {renderSpecRow("Age Group", "age_group")}
-                  {renderSpecRow("Fabric", "fabric")}
-                  {renderSpecRow("Blouse Fabric", "blouse_fabric")}
+                  {renderSpecRow(
+                    "Age Group",
+                    "age_group",
+                    "text",
+                    "",
+                    categoryAttributesMap["age_group"],
+                  )}
+                  {renderSpecRow(
+                    "Fabric",
+                    "fabric",
+                    "text",
+                    "",
+                    categoryAttributesMap["fabric"],
+                  )}
+                  {renderSpecRow(
+                    "Blouse Fabric",
+                    "blouse_fabric",
+                    "text",
+                    "",
+                    categoryAttributesMap["blouse_fabric"],
+                  )}
                   {renderSpecRow(
                     "Blouse Piece Included",
                     "blouse_piece_included",
+                    "text",
+                    "",
+                    categoryAttributesMap["blouse_piece_included"],
                   )}
                   {renderSpecRow(
                     "Saree Length",
                     "saree_length_meters",
                     "number",
                     "m",
+                    categoryAttributesMap["saree_length_meters"],
                   )}
                   {renderSpecRow(
                     "Blouse Length",
                     "blouse_length_meters",
                     "number",
                     "m",
+                    categoryAttributesMap["blouse_length_meters"],
                   )}
                 </div>
                 {/* Column 2 */}
                 <div className={styles.specsCol}>
-                  {renderSpecRow("Border Type", "border_type")}
-                  {renderSpecRow("Pallu Type", "pallu_type")}
-                  {renderSpecRow("Pattern", "pattern")}
-                  {renderSpecRow("Work", "work")}
-                  {renderSpecRow("Occasion", "occasion")}
-                  {renderSpecRow("Style", "style")}
+                  {renderSpecRow(
+                    "Border Type",
+                    "border_type",
+                    "text",
+                    "",
+                    categoryAttributesMap["border_type"],
+                  )}
+                  {renderSpecRow(
+                    "Pallu Type",
+                    "pallu_type",
+                    "text",
+                    "",
+                    categoryAttributesMap["pallu_type"],
+                  )}
+                  {renderSpecRow(
+                    "Pattern",
+                    "pattern",
+                    "text",
+                    "",
+                    categoryAttributesMap["pattern"],
+                  )}
+                  {renderSpecRow(
+                    "Work",
+                    "work",
+                    "text",
+                    "",
+                    categoryAttributesMap["work"],
+                  )}
+                  {renderSpecRow(
+                    "Occasion",
+                    "occasion",
+                    "text",
+                    "",
+                    categoryAttributesMap["occasion"],
+                  )}
+                  {renderSpecRow(
+                    "Style",
+                    "style",
+                    "text",
+                    "",
+                    categoryAttributesMap["style"],
+                  )}
                 </div>
                 {/* Column 3 */}
                 <div className={styles.specsCol}>
-                  {renderSpecRow("Stitch", "stitch")}
-                  {renderSpecRow("Set Items", "set_items_included")}
-                  {renderSpecRow("Care", "care")}
+                  {renderSpecRow(
+                    "Stitch",
+                    "stitch",
+                    "text",
+                    "",
+                    categoryAttributesMap["stitch"],
+                  )}
+                  {renderSpecRow(
+                    "Set Items",
+                    "set_items_included",
+                    "text",
+                    "",
+                    categoryAttributesMap["set_items_included"],
+                  )}
+                  {renderSpecRow(
+                    "Care",
+                    "care",
+                    "text",
+                    "",
+                    categoryAttributesMap["care"],
+                  )}
                   {renderSpecRow("EAN", "ean")}
                   {renderSpecRow("HSN", "hsn")}
                   {renderSpecRow(
@@ -1185,7 +1354,27 @@ export default function ProductDetails() {
                     "kg",
                   )}
 
-                  {/* Render any additional dynamic fields */}
+                  {/* Dynamic Category Attributes returned by the API */}
+                  {categoryAttributes
+                    .filter((attr) => attr.field && !KNOWN_KEYS.has(attr.field) && attr.field !== "niche_id")
+                    .map((attr) =>
+                      renderSpecRow(
+                        attr.name ||
+                          attr.field
+                            .replace(/_/g, " ")
+                            .replace(/\b\w/g, (c) => c.toUpperCase()),
+                        attr.field,
+                        attr.type === "decimal" ||
+                          attr.type === "integer" ||
+                          attr.type === "number"
+                          ? "number"
+                          : "text",
+                        "",
+                        attr,
+                      ),
+                    )}
+
+                  {/* Render any additional product fields */}
                   {extraAttributeKeys.map((key) =>
                     renderSpecRow(
                       key
