@@ -159,8 +159,8 @@
   gap:           6px;
   height:        34px;
   padding:       0 16px;
-  background:    var(--hp-text-dark);
-  border:        1px solid var(--hp-text-dark);
+  background:    var(--accent-color);
+  border:        none;
   border-radius: var(--hp-radius-sm);
   font-size:     13px;
   font-weight:   500;
@@ -172,7 +172,7 @@
 }
 
 .actionBtnPrimary:hover {
-  background:   #1e293b;
+  background:   var(--accent-color-100);
   border-color: #1e293b;
 }
 

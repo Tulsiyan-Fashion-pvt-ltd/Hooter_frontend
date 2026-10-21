@@ -33,9 +33,10 @@
     --second-color: #000000;
     --second-color-100: #616161;
     --accent-color: #2563eb;
+    --accent-color-100: #1d4ed4;
     --accent-color-950: #0a0f1f;
     --accent-color-1000: #01040b;
-    --accent--color-100: #e8edfd;
+    --main-color-100: #e8edfd;
     --side-layout-padding: 50px;
     --top-bottom-layout-padding: 20px;
     --heading-margin: 24px;
