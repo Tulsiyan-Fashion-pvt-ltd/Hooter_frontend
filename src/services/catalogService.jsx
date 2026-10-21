@@ -31,14 +31,15 @@ export const checkCatalogExists = async () => {
 };
 
 export const getErrorSheet = async (jobId) => {
-  const response = await fetch(`${BASE_URL}/catalog/products/error_sheet/${jobId}`, {
-    credentials: "include",
-  });
+  const response = await fetch(
+    `${BASE_URL}/catalog/products/error_sheet/${jobId}`,
+    {
+      credentials: "include",
+    },
+  );
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response.blob();
 };
-
-
 
 /**
  * Fetches the top-level taxonomy categories used to start category selection.
@@ -46,16 +47,25 @@ export const getErrorSheet = async (jobId) => {
  *
  * @returns {Promise<{level0: Array}>} Top-level category options.
  */
+let topCategoriesCache = null;
+let topCategoriesPromise = null;
+
 export const getTopCategories = async () => {
-  const response = await fetch(`${BASE_URL}/catalog/categories/top`, {
-    credentials: "include",
-  });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  return response.json(); // { level0: [ { id, name, full_name, vertical }, ... ] }
+  if (topCategoriesCache) return topCategoriesCache;
+  if (topCategoriesPromise) return topCategoriesPromise;
+
+  topCategoriesPromise = (async () => {
+    const response = await fetch(`${BASE_URL}/catalog/categories/top`, {
+      credentials: "include",
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    topCategoriesCache = data;
+    return data;
+  })();
+
+  return topCategoriesPromise;
 };
-
-
-
 
 /**
  * Fetches the child categories for the selected taxonomy category.
@@ -74,9 +84,6 @@ export const getNextCategories = async (categoryId, vertical) => {
   return response.json(); // { next: [ { id, name, full_name, level }, ... ] }
 };
 
-
-
-
 /**
  * Fetches the fields required to create a product for the final category.
  *
@@ -85,17 +92,22 @@ export const getNextCategories = async (categoryId, vertical) => {
  * @returns {Promise<Object>} Listing, category, and image attributes.
  */
 export const getAttributeFields = async (typeId, vertical) => {
-  const response = await fetch(
-    `${BASE_URL}/catalog/categories/attributes/${encodeURIComponent(typeId)}?vertical=${vertical}`,
-    { credentials: "include" },
-  );
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  return response.json();
-  // { listing_attributes: [...], category_attributes: [...], image_attributes: [...] }
+  const url = vertical !== undefined && vertical !== null && vertical !== ""
+    ? `${BASE_URL}/catalog/categories/attributes/${encodeURIComponent(typeId)}?vertical=${vertical}`
+    : `${BASE_URL}/catalog/categories/attributes/${encodeURIComponent(typeId)}`;
+
+  const response = await fetch(url, {
+    credentials: "include",
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok || data?.status === "failed") {
+    throw new Error(data?.message || `HTTP ${response.status}: Failed to get category attributes`);
+  }
+
+  return data;
 };
-
-
-
 
 // ── Create catalog (payload restructured) ────────────────
 export const createCatalog = async (
@@ -121,9 +133,6 @@ export const createCatalog = async (
   return response.json(); // { Status: "successful", message: "..." }
 };
 
-
-
-
 // ── Bulk excel sheet (template download) ──────────────────
 // Returns a Blob (.xlsx) — caller is responsible for turning it into a
 // download (e.g. via URL.createObjectURL) since there's no JSON body here.
@@ -135,8 +144,6 @@ export const getBulkExcelSheet = async (typeId, vertical) => {
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response.blob();
 };
-
-
 
 // ── Bulk catalog upload ────────────────────────────────────
 // NOTE: the API's success/failure responses aren't uniformly JSON:
@@ -180,9 +187,6 @@ export const uploadBulkCatalog = async (typeId, file) => {
   return data; // { status: "ok" } or { status: "successful" }
 };
 
-
-
-
 // ── Download error sheet ──────────────────────────────────
 export const downloadErrorSheet = async (downloadLink) => {
   const response = await fetch(`${BASE_URL}${downloadLink}`, {
@@ -192,13 +196,14 @@ export const downloadErrorSheet = async (downloadLink) => {
   return response.blob();
 };
 
-
-
 // ── Products list / detail / lifecycle ─────────────────────
 export const getUploadedCategories = async () => {
-  const response = await fetch(`${BASE_URL}/catalog/products/uploaded-categories`, {
-    credentials: "include",
-  });
+  const response = await fetch(
+    `${BASE_URL}/catalog/products/uploaded-categories`,
+    {
+      credentials: "include",
+    },
+  );
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response.json(); // { categories: [ { category, id } ], status: "successful" }
 };
@@ -210,8 +215,6 @@ export const getProductCounts = async () => {
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response.json();
 };
-
-
 
 export const getProducts = async (params = {}) => {
   const url = new URL(`${BASE_URL}/catalog/products`);
@@ -230,8 +233,6 @@ export const getProducts = async (params = {}) => {
   }
   return data;
 };
-
-
 
 export const getProduct = async (uskuId) => {
   const response = await fetch(`${BASE_URL}/catalog/products/${uskuId}`, {
@@ -258,8 +259,6 @@ export const deleteProduct = async (uskuId) => {
   }
   return data; // { "message": "Product deleted successfully", "status": "success" }
 };
-
-
 
 /**
  * PUT /catalog/products/{usku_id}?type-id={typeId}
@@ -318,9 +317,6 @@ export const updateProduct = async (
   }
   return data; // { "message": "successfully updated the catalog product", "status": "successful" }
 };
-
-
-
 
 // ── Images ───────────────────────────────────────────────
 
@@ -433,9 +429,6 @@ export const uploadProductImages = async (uskuId, imagesData) => {
   return data;
 };
 
-
-
-
 /**
  * GET /catalog/images/{usku_id}
  * Retrieves product image URLs for a given USKU ID.
@@ -474,7 +467,9 @@ export const uploadProductImages = async (uskuId, imagesData) => {
  */
 export const getProductImages = async (uskuId, imageType = null) => {
   /* Build the URL — append image-type query param only when provided */
-  const url = new URL(`${BASE_URL}/catalog/images/${encodeURIComponent(uskuId)}`);
+  const url = new URL(
+    `${BASE_URL}/catalog/images/${encodeURIComponent(uskuId)}`,
+  );
   if (imageType) {
     url.searchParams.set("image-type", imageType);
   }
@@ -487,7 +482,9 @@ export const getProductImages = async (uskuId, imageType = null) => {
 
   /* 409 → image not found or invalid image-type (API-level business error) */
   if (response.status === 409) {
-    throw new Error(data.message || "Invalid image type or image does not exist");
+    throw new Error(
+      data.message || "Invalid image type or image does not exist",
+    );
   }
 
   /* Any other non-2xx status → surface as a generic HTTP error */
@@ -509,9 +506,6 @@ export const getProductImages = async (uskuId, imageType = null) => {
    */
   return data;
 };
-
-
-
 
 /**
  * DELETE /catalog/images/{usku_id}
@@ -542,7 +536,9 @@ export const getProductImages = async (uskuId, imageType = null) => {
  */
 export const deleteProductImages = async (uskuId, imageType = null) => {
   /* Build the URL — append image-type query param only when provided */
-  const url = new URL(`${BASE_URL}/catalog/images/${encodeURIComponent(uskuId)}`);
+  const url = new URL(
+    `${BASE_URL}/catalog/images/${encodeURIComponent(uskuId)}`,
+  );
   if (imageType) {
     url.searchParams.set("image-type", imageType);
   }

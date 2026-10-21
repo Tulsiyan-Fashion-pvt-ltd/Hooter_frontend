@@ -570,7 +570,7 @@ export default function Catalog() {
         </div>
 
         {error && <div className={styles.errorState}>{error}</div>}
-
+            
         {/* Table Area */}
         <div className={styles.tableWrapper}>
           {/* Selection Action Bar */}
@@ -610,6 +610,7 @@ export default function Catalog() {
             </div>
             <div>PRODUCT</div>
             <div>CATEGORY</div>
+            <div>STATUS</div>
             <div>COMPARED PRICE</div>
             <div>PRICE</div>
             <div>PURCHASING COST</div>
@@ -719,7 +720,7 @@ export default function Catalog() {
                       </div>
                       <div className={styles.productDetails}>
                         <Link
-                          to={`/catalog/product?usku-id=${p.usku_id}`}
+                          to={`/catalog/product?usku-id=${p.usku_id}${p.type_id ? `&type=${encodeURIComponent(p.type_id)}` : ""}${p.vertical ? `&vertical=${encodeURIComponent(p.vertical)}` : ""}`}
                           className={styles.productSku}
                           style={{
                             textDecoration: "none",
@@ -735,10 +736,26 @@ export default function Catalog() {
                     </div>
 
                     <div className={styles.cellText}>
-                      <span className={styles.categoryTag}>
+                      <span
+                        className={styles.categoryTag}
+                        title={
+                          p.type_name ||
+                          snakeToPlainText(p.product_type) ||
+                          "Kurta"
+                        }
+                      >
                         {p.type_name ||
                           snakeToPlainText(p.product_type) ||
                           "Kurta"}
+                      </span>
+                    </div>
+
+                    <div>
+                      <span
+                        className={`${styles.statusBadge} ${statusInfo.className}`}
+                      >
+                        <span className={styles.statusDot}></span>
+                        {statusInfo.text}
                       </span>
                     </div>
 
@@ -785,7 +802,7 @@ export default function Catalog() {
 
                     <div className={styles.actionsCell}>
                       <Link
-                        to={`/catalog/edit?id=${p.usku_id}&type=${p.type_id}&vertical=${p.vertical}`}
+                        to={`/catalog/product?usku-id=${p.usku_id}${p.type_id ? `&type=${encodeURIComponent(p.type_id)}` : ""}${p.vertical ? `&vertical=${encodeURIComponent(p.vertical)}` : ""}&edit=true`}
                         className={styles.iconBtn}
                         title="Edit"
                       >

@@ -20,7 +20,7 @@ import styles from '../css/components/Toast.module.css';
  *   <Toast toast={toast} />
  */
 export default function Toast({ toast }) {
-  if (!toast.visible) return null;
+  if (!toast?.visible) return null;
 
   const colorClass =
     toast.type === 'green'

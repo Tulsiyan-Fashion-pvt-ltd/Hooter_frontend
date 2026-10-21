@@ -262,16 +262,19 @@
 .pricingRow {
   display: flex;
   align-items: center;
-  gap: 24px;
+  flex-wrap: nowrap;
+  gap: 16px;
   margin-bottom: 24px;
   padding-bottom: 24px;
   border-bottom: 1px solid #e2e8f0;
+  overflow-x: auto;
 }
 
 .label {
   font-size: 12px;
   color: #64748b;
   margin-bottom: 4px;
+  white-space: nowrap;
 }
 
 .valueLarge {
@@ -542,3 +545,492 @@
   border-radius: 50%;
   background-color: #cbd5e1;
 }
+
+/* Edit Mode Styles */
+.titleInput {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  padding: 6px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  outline: none;
+  background: #ffffff;
+  width: 100%;
+  max-width: 420px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.titleInput:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.statusSelect {
+  background-color: #fef3c7;
+  color: #b45309;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #f59e0b;
+  outline: none;
+  cursor: pointer;
+}
+
+.skuInput {
+  background-color: #f8fafc;
+  color: #334155;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #cbd5e1;
+  outline: none;
+  width: 140px;
+}
+
+.skuInput:focus {
+  border-color: #3b82f6;
+  background-color: #ffffff;
+}
+
+.saveBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #10b981;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.saveBtn:hover:not(:disabled) {
+  background-color: #059669;
+}
+
+.saveBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.cancelBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.cancelBtn:hover:not(:disabled) {
+  background-color: #e2e8f0;
+  color: #1e293b;
+}
+
+.cancelBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.editingBanner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-top: 14px;
+}
+
+.editingBanner svg {
+  flex-shrink: 0;
+  color: #3b82f6;
+}
+
+.currencyInputWrap {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 4px 8px;
+  gap: 4px;
+  width: 120px;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.currencyInputWrap:focus-within {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.currencySymbol {
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.editInputPrice {
+  border: none;
+  outline: none;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  width: 100%;
+  background: transparent;
+  -moz-appearance: textfield;
+}
+
+.editInputPrice::-webkit-outer-spin-button,
+.editInputPrice::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.editInputCompared {
+  border: none;
+  outline: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  width: 100%;
+  background: transparent;
+  -moz-appearance: textfield;
+}
+
+.editInputCompared::-webkit-outer-spin-button,
+.editInputCompared::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.editInlineGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.colorPicker {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+}
+
+.editInputSmall {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 13px;
+  color: #1e293b;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.editInputSmall:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.editSelectSmall {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 13px;
+  color: #1e293b;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.editSelectSmall:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.specInputWrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  max-width: 170px;
+}
+
+.editSpecInput {
+  width: 100%;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: #1e293b;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.editSpecInput:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.editSpecSelect {
+  width: 100%;
+  max-width: 170px;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: #1e293b;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.editSpecSelect:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.unitBadge {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.editInputCard {
+  width: 110px;
+  padding: 3px 8px;
+  font-size: 12px;
+  color: #0f172a;
+  font-weight: 600;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  outline: none;
+  text-align: right;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.editInputCard:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.replaceImageBtn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #cbd5e1;
+  color: #1e293b;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.replaceImageBtn:hover {
+  background: #ffffff;
+  color: #2563eb;
+  border-color: #3b82f6;
+}
+
+.buttonSpinner {
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: buttonSpin 0.6s linear infinite;
+  display: inline-block;
+}
+
+@keyframes buttonSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Product Description Box */
+.descriptionBox {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.descriptionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 14px 0;
+}
+
+.descriptionText {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #475569;
+  white-space: pre-line;
+  margin: 0;
+  word-break: break-word;
+}
+
+.readMoreBtn {
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.15s ease;
+}
+
+.readMoreBtn:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.editDescTextarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.5;
+  color: #1e293b;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.editDescTextarea:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.specLabelWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.requiredStar {
+  color: #ef4444;
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+.pillDescription {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 500;
+  font-size: 10px;
+  border: 1px solid #94a3b8;
+  color: #64748b;
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+  line-height: 1;
+}
+
+.pillDescription:hover {
+  background-color: #f1f5f9;
+  color: #1e293b;
+  border-color: #64748b;
+}
+
+.descriptionTooltip {
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  background-color: #0f172a;
+  color: #f8fafc;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  line-height: 1.4;
+  font-weight: 400;
+  display: none;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+  white-space: normal;
+  text-align: left;
+}
+
+.descriptionTooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: #0f172a transparent transparent transparent;
+}
+
+.pillDescription:hover .descriptionTooltip {
+  display: block;
+}
+
+.attributesLoading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #64748b;
+  padding: 12px 0;
+}
+
+
