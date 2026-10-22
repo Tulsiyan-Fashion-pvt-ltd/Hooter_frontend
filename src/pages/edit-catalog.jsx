@@ -32,7 +32,17 @@ export default function EditInventory() {
     { key: "brand_name", label: "Brand Name", required: true },
   ];
 
+  const numericFields = new Set([
+    "price",
+    "compared_price",
+    "purchasing_cost",
+    "net_weight_kg",
+    "dead_weight_kg",
+    "volumetric_weight_kg",
+  ]);
+
   const [field, setField] = useState({});
+  const [listingAttributes, setListingAttributes] = useState([]);
   const [categoryAttributes, setCategoryAttributes] = useState([]);
   const [imageAttributes, setImageAttributes] = useState([]);
   const [imageField, setImageField] = useState({});
@@ -182,21 +192,120 @@ export default function EditInventory() {
         "volumetric_weight_kg",
       ]);
 
-      const fixedKeys = new Set(fixedFields.map((f) => f.key));
-      const listingAttributes = {};
-      const categoryAttributesPayload = {};
+      const activeListingAttrs =
+        listingAttributes.length > 0
+          ? listingAttributes
+          : fixedFields.map((f) => ({
+              field: f.key,
+              name: f.label,
+              required: f.required,
+            }));
 
-      fixedFields.forEach(({ key }) => {
-        if (key === "discount") return; // calculated, not part of payload
-        const val = field[key];
-        if (val !== undefined && val !== "") {
-          if (numericFields.has(key) && !isNaN(Number(val))) {
-            listingAttributes[key] = Number(val);
-          } else {
-            listingAttributes[key] = val;
+      // Validation
+      for (const attr of activeListingAttrs) {
+        if (attr.field === "discount") continue;
+        const val = field[attr.field];
+        if (
+          attr.required &&
+          (val === undefined || val === null || String(val).trim() === "")
+        ) {
+          throw new Error(`${attr.name || attr.field} is required.`);
+        }
+        if (val !== undefined && val !== null && String(val).trim() !== "") {
+          if (attr.max_length && String(val).length > attr.max_length) {
+            throw new Error(
+              `${attr.name || attr.field} cannot exceed ${attr.max_length} characters.`,
+            );
+          }
+          if (
+            numericFields.has(attr.field) ||
+            attr.type === "decimal" ||
+            attr.type === "integer" ||
+            attr.type === "number"
+          ) {
+            const num = Number(val);
+            if (isNaN(num)) {
+              throw new Error(
+                `${attr.name || attr.field} must be a valid number.`,
+              );
+            }
+            if (num < 0) {
+              throw new Error(
+                `${attr.name || attr.field} cannot be negative.`,
+              );
+            }
+            if (
+              (attr.field === "price" || attr.field === "compared_price") &&
+              num <= 0
+            ) {
+              throw new Error(
+                `${attr.name || attr.field} must be greater than 0.`,
+              );
+            }
+          }
+          if (attr.field === "upc" && !/^\d{1,12}$/.test(String(val).trim())) {
+            throw new Error("UPC must be up to 12 numeric digits.");
+          }
+          if (attr.field === "ean" && !/^\d{1,13}$/.test(String(val).trim())) {
+            throw new Error("EAN must be up to 13 numeric digits.");
+          }
+          if (attr.field === "gtin" && !/^\d{1,14}$/.test(String(val).trim())) {
+            throw new Error("GTIN must be up to 14 numeric digits.");
+          }
+          if (
+            (attr.field === "hsn_code" || attr.field === "hsn") &&
+            !/^\d{2,8}$/.test(String(val).trim())
+          ) {
+            throw new Error("HSN Code must be 2 to 8 numeric digits.");
           }
         }
-      });
+      }
+
+      for (const attr of categoryAttributes) {
+        if (attr.field === "niche_id") continue;
+        const val = field[attr.field];
+        if (
+          attr.required &&
+          (val === undefined || val === null || String(val).trim() === "")
+        ) {
+          throw new Error(`${attr.name || attr.field} is required.`);
+        }
+        if (val !== undefined && val !== null && String(val).trim() !== "") {
+          if (attr.max_length && String(val).length > attr.max_length) {
+            throw new Error(
+              `${attr.name || attr.field} cannot exceed ${attr.max_length} characters.`,
+            );
+          }
+        }
+      }
+
+      const listingAttributesPayload = {};
+      const categoryAttributesPayload = {};
+
+      if (listingAttributes.length > 0) {
+        listingAttributes.forEach((attr) => {
+          const val = field[attr.field];
+          if (val !== undefined && val !== "") {
+            if (numericFields.has(attr.field) && !isNaN(Number(val))) {
+              listingAttributesPayload[attr.field] = Number(val);
+            } else {
+              listingAttributesPayload[attr.field] = val;
+            }
+          }
+        });
+      } else {
+        fixedFields.forEach(({ key }) => {
+          if (key === "discount") return;
+          const val = field[key];
+          if (val !== undefined && val !== "") {
+            if (numericFields.has(key) && !isNaN(Number(val))) {
+              listingAttributesPayload[key] = Number(val);
+            } else {
+              listingAttributesPayload[key] = val;
+            }
+          }
+        });
+      }
 
       categoryAttributes.forEach((attr) => {
         const val = field[attr.field];
@@ -207,7 +316,8 @@ export default function EditInventory() {
 
       // Include any other non-metadata fields as category attributes
       const ignoredKeys = new Set([
-        ...fixedKeys,
+        ...Object.keys(listingAttributesPayload),
+        ...Object.keys(categoryAttributesPayload),
         "discount",
         "category_id",
         "type_id",
@@ -231,7 +341,7 @@ export default function EditInventory() {
       await updateProduct(
         uskuId,
         activeTypeId,
-        listingAttributes,
+        listingAttributesPayload,
         categoryAttributesPayload,
       );
 
@@ -261,6 +371,7 @@ export default function EditInventory() {
       try {
         const data = await getAttributeFields(activeType, vertical);
 
+        setListingAttributes(data.listing_attributes || []);
         setCategoryAttributes(data.category_attributes || []);
         setImageAttributes(data.image_attributes || []);
       } catch (e) {
@@ -370,19 +481,39 @@ export default function EditInventory() {
             <h3 style={{ marginBottom: "10px" }}>Listing Information</h3>
 
             <ul className={styles.productAttributeList}>
-              {fixedFields.map(({ key, label, required }) => {
+              {(listingAttributes.length > 0
+                ? listingAttributes
+                : fixedFields.map((f) => ({
+                    field: f.key,
+                    name: f.label,
+                    required: f.required,
+                  }))
+              ).map((attr) => {
+                const key = attr.field;
+                const label = attr.name || key;
+                const required = Boolean(attr.required);
                 return (
                   <li className={styles.productAttribute} key={key}>
                     <div
                       className={styles.title}
                       style={required ? { color: "red" } : { color: "black" }}
+                      title={attr.description || ""}
                     >
                       {label} {required ? "*" : ""}
                     </div>
 
                     <input
-                      type="text"
-                      placeholder="Type Here..."
+                      type={
+                        attr.type === "decimal" ||
+                        attr.type === "integer" ||
+                        attr.type === "number" ||
+                        numericFields.has(key)
+                          ? "number"
+                          : "text"
+                      }
+                      step={attr.type === "integer" ? "1" : "0.01"}
+                      maxLength={attr.max_length}
+                      placeholder={attr.description || "Type Here..."}
                       className={styles.attributeInputField}
                       value={
                         key === "discount"
@@ -398,14 +529,14 @@ export default function EditInventory() {
                                 ) / factor
                               }%`;
                             })()
-                          : field[key]
+                          : field[key] !== undefined && field[key] !== null
                             ? field[key]
                             : ""
                       }
                       onChange={(e) => {
                         handleEntryInput(key, e.target.value);
                       }}
-                      disabled={key === "discount" ? true : false}
+                      disabled={key === "discount"}
                     />
                   </li>
                 );

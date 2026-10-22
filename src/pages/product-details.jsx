@@ -148,10 +148,153 @@ export default function ProductDetails() {
   const [isDescExpanded, setIsDescExpanded] = useState(false);
 
   const [toast, showToast] = useToast();
+  const [listingAttributes, setListingAttributes] = useState([]);
   const [categoryAttributes, setCategoryAttributes] = useState([]);
   const [attributesLoading, setAttributesLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const uskuId = searchParams.get("usku-id") || searchParams.get("id");
+
+  const formatFieldName = (key) =>
+    key ? key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "";
+
+  const validateField = (key, value, attrMeta = null) => {
+    const isRequired = Boolean(
+      attrMeta?.required ||
+      key === "sku_id" ||
+      key === "product_title" ||
+      key === "price" ||
+      key === "compared_price" ||
+      key === "brand_name"
+    );
+
+    const strVal = value !== undefined && value !== null ? String(value).trim() : "";
+
+    // 1. Required Check
+    if (isRequired && strVal === "") {
+      const label = attrMeta?.name || formatFieldName(key);
+      return `${label} is required.`;
+    }
+
+    if (strVal === "") {
+      return null;
+    }
+
+    // 2. Max length check
+    const maxLen = attrMeta?.max_length || (
+      key === "sku_id" ? 100 :
+      key === "product_title" ? 200 :
+      key === "product_desc" || key === "description" ? 5000 :
+      key === "brand_name" || key === "vendor" ? 255 :
+      key === "tags" ? 500 :
+      key === "upc" ? 12 :
+      key === "ean" || key === "isbn" ? 13 :
+      key === "gtin" ? 14 :
+      key === "hsn_code" || key === "hsn" ? 8 :
+      null
+    );
+
+    if (maxLen && strVal.length > maxLen) {
+      const label = attrMeta?.name || formatFieldName(key);
+      return `${label} cannot exceed ${maxLen} characters (currently ${strVal.length}).`;
+    }
+
+    // 3. Numeric / Decimal check
+    const isNumeric =
+      attrMeta?.type === "decimal" ||
+      attrMeta?.type === "integer" ||
+      attrMeta?.type === "number" ||
+      [
+        "price",
+        "compared_price",
+        "purchasing_cost",
+        "net_weight_kg",
+        "dead_weight_kg",
+        "volumetric_weight_kg",
+      ].includes(key);
+
+    if (isNumeric) {
+      const num = Number(strVal);
+      const label = attrMeta?.name || formatFieldName(key);
+      if (isNaN(num)) {
+        return `${label} must be a valid number.`;
+      }
+      if (num < 0) {
+        return `${label} cannot be negative.`;
+      }
+      if (attrMeta?.type === "integer" && !Number.isInteger(num)) {
+        return `${label} must be a whole number (integer).`;
+      }
+      if ((key === "price" || key === "compared_price") && num <= 0) {
+        return `${label} must be greater than 0.`;
+      }
+    }
+
+    // 4. Identifier specific checks
+    if (key === "upc") {
+      if (!/^\d{1,12}$/.test(strVal)) {
+        return "UPC must be up to 12 numeric digits.";
+      }
+    }
+
+    if (key === "ean") {
+      if (!/^\d{1,13}$/.test(strVal)) {
+        return "EAN must be up to 13 numeric digits.";
+      }
+    }
+
+    if (key === "gtin") {
+      if (!/^\d{1,14}$/.test(strVal)) {
+        return "GTIN must be up to 14 numeric digits.";
+      }
+    }
+
+    if (key === "isbn") {
+      if (!/^[\d-]{10,17}$/.test(strVal)) {
+        return "ISBN must be a valid 10 or 13-digit code.";
+      }
+    }
+
+    if (key === "hsn_code" || key === "hsn") {
+      if (!/^\d{2,8}$/.test(strVal)) {
+        return "HSN Code must be 2 to 8 numeric digits.";
+      }
+    }
+
+    return null;
+  };
+
+  const fetchAttributes = async (targetProduct = product) => {
+    const activeTypeId =
+      targetProduct?.type_id ||
+      targetProduct?.category_id ||
+      targetProduct?.type ||
+      searchParams.get("type") ||
+      searchParams.get("type-id") ||
+      "";
+
+    const vertical =
+      targetProduct?.vertical !== undefined && targetProduct?.vertical !== null
+        ? targetProduct.vertical
+        : searchParams.get("vertical") || "";
+
+    if (!activeTypeId) return;
+
+    try {
+      setAttributesLoading(true);
+      const data = await getAttributeFields(activeTypeId, vertical);
+      if (data?.listing_attributes) {
+        setListingAttributes(data.listing_attributes);
+      }
+      if (data?.category_attributes) {
+        setCategoryAttributes(data.category_attributes);
+      }
+    } catch (err) {
+      console.warn("Failed to fetch attributes:", err);
+    } finally {
+      setAttributesLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -175,8 +318,14 @@ export default function ProductDetails() {
           if (prod.category_attributes) {
             Object.assign(flat, prod.category_attributes);
           }
+          if (flat.hsn && !flat.hsn_code) flat.hsn_code = flat.hsn;
+          if (flat.hsn_code && !flat.hsn) flat.hsn = flat.hsn_code;
+          if (flat.description && !flat.product_desc) flat.product_desc = flat.description;
+          if (flat.product_desc && !flat.description) flat.description = flat.product_desc;
+
           setProduct(flat);
           setFormData(flat);
+          fetchAttributes(flat);
         }
       } catch (err) {
         console.error("Failed to fetch product:", err);
@@ -233,30 +382,6 @@ export default function ProductDetails() {
     fetchImages();
   }, [uskuId, product?.usku_id, product?.sku_id, product?.image_url]);
 
-  const fetchAttributes = async (targetProduct = product) => {
-    const activeTypeId =
-      targetProduct?.type_id ||
-      targetProduct?.category_id ||
-      targetProduct?.type ||
-      searchParams.get("type") ||
-      searchParams.get("type-id") ||
-      "";
-
-    if (!activeTypeId) return;
-
-    try {
-      setAttributesLoading(true);
-      const data = await getAttributeFields(activeTypeId);
-      if (data?.category_attributes) {
-        setCategoryAttributes(data.category_attributes);
-      }
-    } catch (err) {
-      console.warn("Failed to fetch category attributes:", err);
-    } finally {
-      setAttributesLoading(false);
-    }
-  };
-
   useEffect(() => {
     if (isEditing && product) {
       fetchAttributes(product);
@@ -266,20 +391,48 @@ export default function ProductDetails() {
   const handleStartEdit = () => {
     setIsEditing(true);
     setFormData({ ...product });
+    setErrors({});
     setNewImageFiles({});
   };
 
   const handleCancelEdit = () => {
     setIsEditing(false);
     setFormData({ ...product });
+    setErrors({});
     setNewImageFiles({});
   };
 
   const handleInputChange = (key, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+    setFormData((prev) => {
+      const next = {
+        ...prev,
+        [key]: value,
+      };
+      if (key === "product_desc") next.description = value;
+      if (key === "description") next.product_desc = value;
+      if (key === "hsn_code") next.hsn = value;
+      if (key === "hsn") next.hsn_code = value;
+      return next;
+    });
+
+    const meta =
+      categoryAttributes.find((a) => a.field === key) ||
+      listingAttributes.find((a) => a.field === key);
+    const err = validateField(key, value, meta);
+
+    setErrors((prev) => {
+      const next = { ...prev };
+      if (err) {
+        next[key] = err;
+      } else {
+        delete next[key];
+        if (key === "product_desc") delete next.description;
+        if (key === "description") delete next.product_desc;
+        if (key === "hsn_code") delete next.hsn;
+        if (key === "hsn") delete next.hsn_code;
+      }
+      return next;
+    });
   };
 
   const handleImageUpload = (e) => {
@@ -323,6 +476,56 @@ export default function ProductDetails() {
   const handleSave = async () => {
     if (saving) return;
 
+    // Validate ALL fields across listing_attributes, category_attributes, and core keys
+    const newErrors = {};
+
+    if (listingAttributes.length > 0) {
+      listingAttributes.forEach((attr) => {
+        const val = formData[attr.field];
+        const err = validateField(attr.field, val, attr);
+        if (err) newErrors[attr.field] = err;
+      });
+    }
+
+    if (categoryAttributes.length > 0) {
+      categoryAttributes.forEach((attr) => {
+        if (attr.field === "niche_id") return;
+        const val = formData[attr.field];
+        const err = validateField(attr.field, val, attr);
+        if (err) newErrors[attr.field] = err;
+      });
+    }
+
+    const essentialFields = [
+      { key: "sku_id", label: "SKU ID", max: 100 },
+      { key: "product_title", label: "Product Title", max: 200 },
+      { key: "price", label: "Price", numeric: true },
+      { key: "compared_price", label: "Compared Price", numeric: true },
+      { key: "brand_name", label: "Brand Name", max: 255 },
+    ];
+
+    essentialFields.forEach(({ key, label, max, numeric }) => {
+      if (!newErrors[key]) {
+        const val = formData[key];
+        const err = validateField(key, val, {
+          name: label,
+          required: true,
+          max_length: max,
+          type: numeric ? "decimal" : "string",
+        });
+        if (err) newErrors[key] = err;
+      }
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      const firstMsg = Object.values(newErrors)[0];
+      showToast(firstMsg, "red");
+      return;
+    }
+
+    setErrors({});
+
     try {
       setSaving(true);
 
@@ -353,39 +556,83 @@ export default function ProductDetails() {
         "blouse_length_meters",
       ]);
 
-      const fixedKeys = new Set([
-        "sku_id",
-        "product_title",
-        "product_desc",
-        "description",
-        "price",
-        "compared_price",
-        "purchasing_cost",
-        "vendor",
-        "ean",
-        "hsn",
-        "net_weight_kg",
-        "dead_weight_kg",
-        "volumetric_weight_kg",
-        "brand_name",
-      ]);
-
-      const listingAttributes = {};
+      const listingAttributesPayload = {};
       const categoryAttributesPayload = {};
 
-      fixedKeys.forEach((key) => {
-        const val = formData[key];
-        if (val !== undefined && val !== null && val !== "") {
-          if (numericFields.has(key) && !isNaN(Number(val))) {
-            listingAttributes[key] = Number(val);
-          } else {
-            listingAttributes[key] = val;
+      if (listingAttributes.length > 0) {
+        listingAttributes.forEach((attr) => {
+          const val = formData[attr.field];
+          if (val !== undefined && val !== null && val !== "") {
+            if (
+              (attr.type === "decimal" ||
+                attr.type === "integer" ||
+                attr.type === "number" ||
+                numericFields.has(attr.field)) &&
+              !isNaN(Number(val))
+            ) {
+              listingAttributesPayload[attr.field] = Number(val);
+            } else {
+              listingAttributesPayload[attr.field] = val;
+            }
           }
-        }
-      });
+        });
+      } else {
+        const fallbackFixedKeys = [
+          "sku_id",
+          "product_title",
+          "product_desc",
+          "description",
+          "price",
+          "compared_price",
+          "purchasing_cost",
+          "vendor",
+          "brand_name",
+          "tags",
+          "upc",
+          "ean",
+          "gtin",
+          "isbn",
+          "hsn_code",
+          "hsn",
+          "net_weight_kg",
+          "dead_weight_kg",
+          "volumetric_weight_kg",
+        ];
+        fallbackFixedKeys.forEach((key) => {
+          const val = formData[key];
+          if (val !== undefined && val !== null && val !== "") {
+            if (numericFields.has(key) && !isNaN(Number(val))) {
+              listingAttributesPayload[key] = Number(val);
+            } else {
+              listingAttributesPayload[key] = val;
+            }
+          }
+        });
+      }
+
+      if (categoryAttributes.length > 0) {
+        categoryAttributes.forEach((attr) => {
+          if (attr.field === "niche_id") return;
+          const val = formData[attr.field];
+          if (val !== undefined && val !== null && val !== "") {
+            if (
+              (attr.type === "decimal" ||
+                attr.type === "integer" ||
+                attr.type === "number" ||
+                numericFields.has(attr.field)) &&
+              !isNaN(Number(val))
+            ) {
+              categoryAttributesPayload[attr.field] = Number(val);
+            } else {
+              categoryAttributesPayload[attr.field] = val;
+            }
+          }
+        });
+      }
 
       const ignoredKeys = new Set([
-        ...fixedKeys,
+        ...Object.keys(listingAttributesPayload),
+        ...Object.keys(categoryAttributesPayload),
         "discount",
         "category_id",
         "type_id",
@@ -421,7 +668,7 @@ export default function ProductDetails() {
       await updateProduct(
         activeUskuId,
         activeTypeId,
-        listingAttributes,
+        listingAttributesPayload,
         categoryAttributesPayload,
       );
 
@@ -575,14 +822,179 @@ export default function ProductDetails() {
     return acc;
   }, {});
 
-  const dynamicCategoryFieldKeys = new Set(categoryAttributes.map((a) => a.field).filter(Boolean));
+  const listingAttributesMap = listingAttributes.reduce((acc, attr) => {
+    if (attr.field) acc[attr.field] = attr;
+    return acc;
+  }, {});
 
-  const extraAttributeKeys = Object.keys(displayData).filter(
-    (key) =>
-      !KNOWN_KEYS.has(key) &&
-      !dynamicCategoryFieldKeys.has(key) &&
-      typeof displayData[key] !== "object",
-  );
+  const getUnit = (key) => {
+    if (!key) return "";
+    if (key.endsWith("_kg")) return "kg";
+    if (key.endsWith("_meters") || key.endsWith("_meter")) return "m";
+    if (key.endsWith("_cm")) return "cm";
+    if (key.endsWith("_mm")) return "mm";
+    if (key.endsWith("_in") || key.endsWith("_inches")) return "in";
+    return "";
+  };
+
+  const formatLabel = (str) =>
+    str ? str.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "";
+
+  // 1. Dynamic Category Attributes
+  let categoryItems = [];
+  if (categoryAttributes.length > 0) {
+    categoryItems = categoryAttributes
+      .filter((attr) => attr.field && attr.field !== "niche_id")
+      .map((attr) => ({
+        label: attr.name || formatLabel(attr.field),
+        fieldKey: attr.field,
+        type:
+          attr.type === "decimal" ||
+          attr.type === "integer" ||
+          attr.type === "number"
+            ? "number"
+            : "text",
+        unit: getUnit(attr.field),
+        attrMeta: attr,
+      }));
+  } else {
+    const fallbackCategoryKeys = [
+      "age_group",
+      "fabric",
+      "blouse_fabric",
+      "blouse_piece_included",
+      "saree_length_meters",
+      "blouse_length_meters",
+      "border_type",
+      "pallu_type",
+      "pattern",
+      "work",
+      "occasion",
+      "style",
+      "stitch",
+      "set_items_included",
+      "care",
+    ];
+    categoryItems = fallbackCategoryKeys
+      .filter((key) => isEditing || (product && product[key] !== undefined && product[key] !== ""))
+      .map((key) => ({
+        label: formatLabel(key),
+        fieldKey: key,
+        type: key.endsWith("_meters") ? "number" : "text",
+        unit: getUnit(key),
+        attrMeta: null,
+      }));
+  }
+
+  // 2. Dynamic Listing Attributes (excluding fields featured in header / commercial summary)
+  const headerOrSummaryKeys = new Set([
+    "sku_id",
+    "product_title",
+    "product_desc",
+    "description",
+    "price",
+    "compared_price",
+    "purchasing_cost",
+    "brand_name",
+  ]);
+
+  let listingItems = [];
+  if (listingAttributes.length > 0) {
+    listingItems = listingAttributes
+      .filter((attr) => attr.field && !headerOrSummaryKeys.has(attr.field))
+      .map((attr) => ({
+        label: attr.name || formatLabel(attr.field),
+        fieldKey: attr.field,
+        type:
+          attr.type === "decimal" ||
+          attr.type === "integer" ||
+          attr.type === "number"
+            ? "number"
+            : "text",
+        unit: getUnit(attr.field),
+        attrMeta: attr,
+      }));
+  } else {
+    const fallbackListingKeys = [
+      "vendor",
+      "tags",
+      "upc",
+      "ean",
+      "gtin",
+      "isbn",
+      "hsn_code",
+      "hsn",
+      "dead_weight_kg",
+      "net_weight_kg",
+      "volumetric_weight_kg",
+    ];
+    listingItems = fallbackListingKeys
+      .filter((key) => isEditing || (product && product[key] !== undefined && product[key] !== ""))
+      .map((key) => ({
+        label: formatLabel(key === "hsn" ? "HSN" : key === "ean" ? "EAN" : key),
+        fieldKey: key,
+        type: key.endsWith("_kg") ? "number" : "text",
+        unit: getUnit(key),
+        attrMeta: null,
+      }));
+  }
+
+  // 3. Extra Attributes present on product
+  const allKnownFieldKeys = new Set([
+    ...headerOrSummaryKeys,
+    ...categoryItems.map((i) => i.fieldKey),
+    ...listingItems.map((i) => i.fieldKey),
+    "discount",
+    "category_id",
+    "type_id",
+    "type",
+    "id",
+    "usku_id",
+    "status",
+    "color",
+    "collection_id",
+    "vendor",
+    "created_at",
+    "updated_at",
+    "image_urls",
+    "image_url",
+    "images",
+    "vertical",
+    "channel_sync",
+    "stock_status",
+    "availability",
+    "count",
+    "catalog_list",
+    "catalog-list",
+    "listing_attributes",
+    "category_attributes",
+  ]);
+
+  const extraItems = Object.keys(displayData)
+    .filter(
+      (key) =>
+        !allKnownFieldKeys.has(key) &&
+        typeof displayData[key] !== "object",
+    )
+    .map((key) => ({
+      label: formatLabel(key),
+      fieldKey: key,
+      type: typeof displayData[key] === "number" ? "number" : "text",
+      unit: getUnit(key),
+      attrMeta: null,
+    }));
+
+  const chunkIntoCols = (list, numCols = 3) => {
+    const cols = Array.from({ length: numCols }, () => []);
+    list.forEach((item, index) => {
+      cols[index % numCols].push(item);
+    });
+    return cols;
+  };
+
+  const renderedCategoryCols = chunkIntoCols(categoryItems, 3);
+  const renderedListingCols = chunkIntoCols(listingItems, 3);
+  const renderedExtraCols = chunkIntoCols(extraItems, 3);
 
   const renderSpecRow = (
     label,
@@ -591,18 +1003,33 @@ export default function ProductDetails() {
     unit = "",
     attrMeta = null,
   ) => {
+    const meta =
+      attrMeta ||
+      categoryAttributesMap[fieldKey] ||
+      listingAttributesMap[fieldKey];
     const isDropdown =
-      attrMeta &&
-      (attrMeta.type === "dropdown" || Array.isArray(attrMeta.options));
-    const options = isDropdown ? attrMeta.options || [] : [];
-    const isRequired = Boolean(attrMeta?.required);
-    const placeholder = attrMeta
-      ? getFieldPlaceholder(attrMeta)
+      meta &&
+      (meta.type === "dropdown" || Array.isArray(meta.options));
+    const options = isDropdown ? meta.options || [] : [];
+    const isRequired = Boolean(meta?.required);
+    const placeholder = meta
+      ? getFieldPlaceholder(meta)
       : `Enter ${label.toLowerCase()}`;
-    const description = attrMeta?.description;
+    const description = meta?.description;
+    const maxLength = meta?.max_length;
+    const currentVal = formData[fieldKey] ?? "";
+    const hasError = Boolean(errors[fieldKey]);
+    const isNumeric =
+      meta?.type === "decimal" ||
+      meta?.type === "integer" ||
+      meta?.type === "number" ||
+      type === "number";
 
     return (
-      <div className={styles.specRow} key={fieldKey}>
+      <div
+        className={`${styles.specRow} ${hasError ? styles.specRowHasError : ""}`}
+        key={fieldKey}
+      >
         <span className={styles.specLabel}>
           <span className={styles.specLabelWrap}>
             {label}
@@ -618,52 +1045,61 @@ export default function ProductDetails() {
           </span>
         </span>
         {isEditing ? (
-          isDropdown ? (
-            <select
-              className={styles.editSpecSelect}
-              value={formData[fieldKey] || ""}
-              onChange={(e) => handleInputChange(fieldKey, e.target.value)}
-              required={isRequired}
-            >
-              <option value="">Select...</option>
-              {options.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
-          ) : fieldKey === "blouse_piece_included" ? (
-            <select
-              className={styles.editSpecSelect}
-              value={formData[fieldKey] || ""}
-              onChange={(e) => handleInputChange(fieldKey, e.target.value)}
-            >
-              <option value="">Select</option>
-              <option value="Yes">Yes</option>
-              <option value="No">No</option>
-            </select>
-          ) : (
-            <div className={styles.specInputWrap}>
-              <input
-                type={
-                  attrMeta?.type === "decimal" ||
-                  attrMeta?.type === "integer" ||
-                  attrMeta?.type === "number" ||
-                  type === "number"
-                    ? "number"
-                    : "text"
-                }
-                step={type === "number" ? "0.01" : undefined}
-                maxLength={attrMeta?.max_length}
-                required={isRequired}
-                className={styles.editSpecInput}
-                value={formData[fieldKey] ?? ""}
+          <div className={styles.specEditContainer}>
+            {isDropdown ? (
+              <select
+                className={`${styles.editSpecSelect} ${hasError ? styles.inputError : ""}`}
+                value={currentVal}
                 onChange={(e) => handleInputChange(fieldKey, e.target.value)}
-                placeholder={placeholder}
-              />
-              {unit && <span className={styles.unitBadge}>{unit}</span>}
-            </div>
-          )
+                required={isRequired}
+              >
+                <option value="">Select...</option>
+                {options.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+            ) : fieldKey === "blouse_piece_included" ? (
+              <select
+                className={`${styles.editSpecSelect} ${hasError ? styles.inputError : ""}`}
+                value={currentVal}
+                onChange={(e) => handleInputChange(fieldKey, e.target.value)}
+              >
+                <option value="">Select</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            ) : (
+              <div className={styles.specInputWrap}>
+                <input
+                  type={isNumeric ? "number" : "text"}
+                  step={
+                    meta?.type === "integer"
+                      ? "1"
+                      : isNumeric
+                        ? "0.01"
+                        : undefined
+                  }
+                  maxLength={maxLength}
+                  required={isRequired}
+                  className={`${styles.editSpecInput} ${hasError ? styles.inputError : ""}`}
+                  value={currentVal}
+                  onChange={(e) => handleInputChange(fieldKey, e.target.value)}
+                  placeholder={placeholder}
+                />
+                {unit && <span className={styles.unitBadge}>{unit}</span>}
+              </div>
+            )}
+            {maxLength && !isNumeric && !isDropdown && (
+              <div className={styles.charCount}>
+                {String(currentVal).length} / {maxLength}
+              </div>
+            )}
+            {hasError && (
+              <div className={styles.fieldErrorText}>⚠ {errors[fieldKey]}</div>
+            )}
+          </div>
         ) : (
           <span className={styles.specValue}>
             {product[fieldKey] !== undefined &&
@@ -684,15 +1120,23 @@ export default function ProductDetails() {
         <div className={styles.titleSection}>
           <div className={styles.titleLeft}>
             {isEditing ? (
-              <input
-                type="text"
-                className={styles.titleInput}
-                value={formData.product_title || ""}
-                onChange={(e) =>
-                  handleInputChange("product_title", e.target.value)
-                }
-                placeholder="Product Title"
-              />
+              <div className={styles.titleInputWrap}>
+                <input
+                  type="text"
+                  className={`${styles.titleInput} ${errors.product_title ? styles.inputError : ""}`}
+                  value={formData.product_title || ""}
+                  maxLength={200}
+                  onChange={(e) =>
+                    handleInputChange("product_title", e.target.value)
+                  }
+                  placeholder="Product Title *"
+                />
+                {errors.product_title && (
+                  <div className={styles.headerErrorText}>
+                    ⚠ {errors.product_title}
+                  </div>
+                )}
+              </div>
             ) : (
               <h1 className={styles.title}>
                 {product_title || "Untitled Product"}
@@ -702,14 +1146,20 @@ export default function ProductDetails() {
             <span className={styles.statusBadge}>{status}</span>
 
             {isEditing ? (
-              <input
-                type="text"
-                className={styles.skuInput}
-                value={formData.sku_id || ""}
-                onChange={(e) => handleInputChange("sku_id", e.target.value)}
-                placeholder="SKU ID"
-                title="SKU ID"
-              />
+              <div className={styles.skuInputWrap}>
+                <input
+                  type="text"
+                  className={`${styles.skuInput} ${errors.sku_id ? styles.inputError : ""}`}
+                  value={formData.sku_id || ""}
+                  maxLength={100}
+                  onChange={(e) => handleInputChange("sku_id", e.target.value)}
+                  placeholder="SKU ID *"
+                  title="SKU ID"
+                />
+                {errors.sku_id && (
+                  <div className={styles.headerErrorText}>⚠ {errors.sku_id}</div>
+                )}
+              </div>
             ) : (
               <span className={styles.skuBadge}>{prodSkuId}</span>
             )}
@@ -797,29 +1247,6 @@ export default function ProductDetails() {
           </div>
         </div>
 
-        {isEditing && (
-          <div className={styles.editingBanner}>
-            <svg
-              width="16"
-              height="16"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-              />
-            </svg>
-            <span>
-              <strong>Edit Mode:</strong> Modify any product fields directly.
-              Click <strong>Save changes</strong> to update the catalog without
-              leaving the page.
-            </span>
-          </div>
-        )}
       </div>
 
       <div className={styles.content}>
@@ -972,19 +1399,31 @@ export default function ProductDetails() {
             <h2 className={styles.sectionTitle}>Commercial Summary</h2>
             <div className={styles.pricingRow}>
               <div>
-                <div className={styles.label}>Current Price</div>
+                <div className={styles.label}>
+                  Current Price <span className={styles.requiredStar}>*</span>
+                </div>
                 {isEditing ? (
-                  <div className={styles.currencyInputWrap}>
-                    <span className={styles.currencySymbol}>₹</span>
-                    <input
-                      type="number"
-                      className={styles.editInputPrice}
-                      value={formData.price ?? ""}
-                      onChange={(e) =>
-                        handleInputChange("price", e.target.value)
-                      }
-                      placeholder="0"
-                    />
+                  <div className={styles.currencyInputWrapContainer}>
+                    <div
+                      className={`${styles.currencyInputWrap} ${errors.price ? styles.inputErrorWrap : ""}`}
+                    >
+                      <span className={styles.currencySymbol}>₹</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        className={styles.editInputPrice}
+                        value={formData.price ?? ""}
+                        onChange={(e) =>
+                          handleInputChange("price", e.target.value)
+                        }
+                        placeholder="0.00"
+                      />
+                    </div>
+                    {errors.price && (
+                      <div className={styles.fieldErrorText}>
+                        ⚠ {errors.price}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className={styles.valueLarge}>
@@ -993,19 +1432,31 @@ export default function ProductDetails() {
                 )}
               </div>
               <div>
-                <div className={styles.label}>Compared Price</div>
+                <div className={styles.label}>
+                  Compared Price <span className={styles.requiredStar}>*</span>
+                </div>
                 {isEditing ? (
-                  <div className={styles.currencyInputWrap}>
-                    <span className={styles.currencySymbol}>₹</span>
-                    <input
-                      type="number"
-                      className={styles.editInputCompared}
-                      value={formData.compared_price ?? ""}
-                      onChange={(e) =>
-                        handleInputChange("compared_price", e.target.value)
-                      }
-                      placeholder="0"
-                    />
+                  <div className={styles.currencyInputWrapContainer}>
+                    <div
+                      className={`${styles.currencyInputWrap} ${errors.compared_price ? styles.inputErrorWrap : ""}`}
+                    >
+                      <span className={styles.currencySymbol}>₹</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        className={styles.editInputCompared}
+                        value={formData.compared_price ?? ""}
+                        onChange={(e) =>
+                          handleInputChange("compared_price", e.target.value)
+                        }
+                        placeholder="0.00"
+                      />
+                    </div>
+                    {errors.compared_price && (
+                      <div className={styles.fieldErrorText}>
+                        ⚠ {errors.compared_price}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className={styles.valueStrikethrough}>
@@ -1025,17 +1476,27 @@ export default function ProductDetails() {
               <div>
                 <div className={styles.label}>Purchasing Cost</div>
                 {isEditing ? (
-                  <div className={styles.currencyInputWrap}>
-                    <span className={styles.currencySymbol}>₹</span>
-                    <input
-                      type="number"
-                      className={styles.editInputCompared}
-                      value={formData.purchasing_cost ?? ""}
-                      onChange={(e) =>
-                        handleInputChange("purchasing_cost", e.target.value)
-                      }
-                      placeholder="0"
-                    />
+                  <div className={styles.currencyInputWrapContainer}>
+                    <div
+                      className={`${styles.currencyInputWrap} ${errors.purchasing_cost ? styles.inputErrorWrap : ""}`}
+                    >
+                      <span className={styles.currencySymbol}>₹</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        className={styles.editInputCompared}
+                        value={formData.purchasing_cost ?? ""}
+                        onChange={(e) =>
+                          handleInputChange("purchasing_cost", e.target.value)
+                        }
+                        placeholder="0.00"
+                      />
+                    </div>
+                    {errors.purchasing_cost && (
+                      <div className={styles.fieldErrorText}>
+                        ⚠ {errors.purchasing_cost}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className={styles.valueMedium}>
@@ -1058,32 +1519,53 @@ export default function ProductDetails() {
 
             <div className={styles.attributesGrid}>
               <div>
-                <div className={styles.label}>Color</div>
+                <div className={styles.label}>
+                  Color
+                  {categoryAttributesMap["color"]?.required && (
+                    <span className={styles.requiredStar}>*</span>
+                  )}
+                  {categoryAttributesMap["color"]?.description && (
+                    <span className={styles.pillDescription}>
+                      ?
+                      <span className={styles.descriptionTooltip}>
+                        {categoryAttributesMap["color"].description}
+                      </span>
+                    </span>
+                  )}
+                </div>
                 {isEditing ? (
-                  <div className={styles.editInlineGroup}>
-                    <input
-                      type="color"
-                      className={styles.colorPicker}
-                      value={
-                        formData.color &&
-                        /^#[0-9A-Fa-f]{6}$/.test(formData.color)
-                          ? formData.color
-                          : "#ffbfa8"
-                      }
-                      onChange={(e) =>
-                        handleInputChange("color", e.target.value)
-                      }
-                      title="Pick color"
-                    />
-                    <input
-                      type="text"
-                      className={styles.editInputSmall}
-                      value={formData.color || ""}
-                      onChange={(e) =>
-                        handleInputChange("color", e.target.value)
-                      }
-                      placeholder="Color name"
-                    />
+                  <div className={styles.editInputGroup}>
+                    <div className={styles.editInlineGroup}>
+                      <input
+                        type="color"
+                        className={styles.colorPicker}
+                        value={
+                          formData.color &&
+                          /^#[0-9A-Fa-f]{6}$/.test(formData.color)
+                            ? formData.color
+                            : "#ffbfa8"
+                        }
+                        onChange={(e) =>
+                          handleInputChange("color", e.target.value)
+                        }
+                        title="Pick color"
+                      />
+                      <input
+                        type="text"
+                        className={`${styles.editInputSmall} ${errors.color ? styles.inputError : ""}`}
+                        value={formData.color || ""}
+                        maxLength={categoryAttributesMap["color"]?.max_length}
+                        onChange={(e) =>
+                          handleInputChange("color", e.target.value)
+                        }
+                        placeholder="Color name"
+                      />
+                    </div>
+                    {errors.color && (
+                      <div className={styles.fieldErrorText}>
+                        ⚠ {errors.color}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className={styles.valueWithIcon}>
@@ -1102,17 +1584,27 @@ export default function ProductDetails() {
                 )}
               </div>
               <div>
-                <div className={styles.label}>Brand</div>
+                <div className={styles.label}>
+                  Brand <span className={styles.requiredStar}>*</span>
+                </div>
                 {isEditing ? (
-                  <input
-                    type="text"
-                    className={styles.editInputSmall}
-                    value={formData.brand_name || ""}
-                    onChange={(e) =>
-                      handleInputChange("brand_name", e.target.value)
-                    }
-                    placeholder="Brand name"
-                  />
+                  <div className={styles.editInputGroup}>
+                    <input
+                      type="text"
+                      className={`${styles.editInputSmall} ${errors.brand_name ? styles.inputError : ""}`}
+                      value={formData.brand_name || ""}
+                      maxLength={255}
+                      onChange={(e) =>
+                        handleInputChange("brand_name", e.target.value)
+                      }
+                      placeholder="Brand name *"
+                    />
+                    {errors.brand_name && (
+                      <div className={styles.fieldErrorText}>
+                        ⚠ {errors.brand_name}
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <div className={styles.value}>{brand_name || "-"}</div>
                 )}
@@ -1136,15 +1628,23 @@ export default function ProductDetails() {
               <div>
                 <div className={styles.label}>Vendor</div>
                 {isEditing ? (
-                  <input
-                    type="text"
-                    className={styles.editInputSmall}
-                    value={formData.vendor || ""}
-                    onChange={(e) =>
-                      handleInputChange("vendor", e.target.value)
-                    }
-                    placeholder="Vendor"
-                  />
+                  <div className={styles.editInputGroup}>
+                    <input
+                      type="text"
+                      className={`${styles.editInputSmall} ${errors.vendor ? styles.inputError : ""}`}
+                      value={formData.vendor || ""}
+                      maxLength={255}
+                      onChange={(e) =>
+                        handleInputChange("vendor", e.target.value)
+                      }
+                      placeholder="Vendor"
+                    />
+                    {errors.vendor && (
+                      <div className={styles.fieldErrorText}>
+                        ⚠ {errors.vendor}
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <div className={styles.value}>{vendor || "-"}</div>
                 )}
@@ -1170,18 +1670,34 @@ export default function ProductDetails() {
           <>
             {/* Product Description */}
             <div className={styles.descriptionBox}>
-              <h2 className={styles.descriptionTitle}>Product Description</h2>
+              <h2 className={styles.descriptionTitle}>
+                Product Description
+                {isEditing && <span className={styles.requiredStar}>*</span>}
+              </h2>
               {isEditing ? (
-                <textarea
-                  className={styles.editDescTextarea}
-                  rows={4}
-                  value={formData.product_desc ?? formData.description ?? ""}
-                  onChange={(e) => {
-                    handleInputChange("product_desc", e.target.value);
-                    handleInputChange("description", e.target.value);
-                  }}
-                  placeholder="Enter product description"
-                />
+                <div className={styles.descInputWrap}>
+                  <textarea
+                    className={`${styles.editDescTextarea} ${errors.product_desc || errors.description ? styles.inputError : ""}`}
+                    rows={4}
+                    maxLength={5000}
+                    value={formData.product_desc ?? formData.description ?? ""}
+                    onChange={(e) => {
+                      handleInputChange("product_desc", e.target.value);
+                      handleInputChange("description", e.target.value);
+                    }}
+                    placeholder="Enter product description *"
+                  />
+                  <div className={styles.descMetaRow}>
+                    <span className={styles.charCount}>
+                      {String(formData.product_desc ?? formData.description ?? "").length} / 5000
+                    </span>
+                    {(errors.product_desc || errors.description) && (
+                      <span className={styles.fieldErrorText}>
+                        ⚠ {errors.product_desc || errors.description}
+                      </span>
+                    )}
+                  </div>
+                </div>
               ) : (
                 (() => {
                   const descText =
@@ -1213,9 +1729,18 @@ export default function ProductDetails() {
               )}
             </div>
 
-            {/* Specifications Box */}
+            {/* Category Specifications Box */}
             <div className={styles.specsBox}>
-              <h2 className={styles.sectionTitle}>Product Specifications</h2>
+              <h2 className={styles.sectionTitle}>
+                {categoryAttributes.length > 0
+                  ? "Category Specifications"
+                  : "Product Specifications"}
+              </h2>
+              <p className={styles.sectionSubhead}>
+                {categoryAttributes.length > 0
+                  ? "Category-specific attributes for this product type"
+                  : "Specifications and technical details"}
+              </p>
 
               {attributesLoading && (
                 <div className={styles.attributesLoading}>
@@ -1225,167 +1750,69 @@ export default function ProductDetails() {
               )}
 
               <div className={styles.specsGrid}>
-                {/* Column 1 */}
-                <div className={styles.specsCol}>
-                  {renderSpecRow(
-                    "Age Group",
-                    "age_group",
-                    "text",
-                    "",
-                    categoryAttributesMap["age_group"],
-                  )}
-                  {renderSpecRow(
-                    "Fabric",
-                    "fabric",
-                    "text",
-                    "",
-                    categoryAttributesMap["fabric"],
-                  )}
-                  {renderSpecRow(
-                    "Blouse Fabric",
-                    "blouse_fabric",
-                    "text",
-                    "",
-                    categoryAttributesMap["blouse_fabric"],
-                  )}
-                  {renderSpecRow(
-                    "Blouse Piece Included",
-                    "blouse_piece_included",
-                    "text",
-                    "",
-                    categoryAttributesMap["blouse_piece_included"],
-                  )}
-                  {renderSpecRow(
-                    "Saree Length",
-                    "saree_length_meters",
-                    "number",
-                    "m",
-                    categoryAttributesMap["saree_length_meters"],
-                  )}
-                  {renderSpecRow(
-                    "Blouse Length",
-                    "blouse_length_meters",
-                    "number",
-                    "m",
-                    categoryAttributesMap["blouse_length_meters"],
-                  )}
-                </div>
-                {/* Column 2 */}
-                <div className={styles.specsCol}>
-                  {renderSpecRow(
-                    "Border Type",
-                    "border_type",
-                    "text",
-                    "",
-                    categoryAttributesMap["border_type"],
-                  )}
-                  {renderSpecRow(
-                    "Pallu Type",
-                    "pallu_type",
-                    "text",
-                    "",
-                    categoryAttributesMap["pallu_type"],
-                  )}
-                  {renderSpecRow(
-                    "Pattern",
-                    "pattern",
-                    "text",
-                    "",
-                    categoryAttributesMap["pattern"],
-                  )}
-                  {renderSpecRow(
-                    "Work",
-                    "work",
-                    "text",
-                    "",
-                    categoryAttributesMap["work"],
-                  )}
-                  {renderSpecRow(
-                    "Occasion",
-                    "occasion",
-                    "text",
-                    "",
-                    categoryAttributesMap["occasion"],
-                  )}
-                  {renderSpecRow(
-                    "Style",
-                    "style",
-                    "text",
-                    "",
-                    categoryAttributesMap["style"],
-                  )}
-                </div>
-                {/* Column 3 */}
-                <div className={styles.specsCol}>
-                  {renderSpecRow(
-                    "Stitch",
-                    "stitch",
-                    "text",
-                    "",
-                    categoryAttributesMap["stitch"],
-                  )}
-                  {renderSpecRow(
-                    "Set Items",
-                    "set_items_included",
-                    "text",
-                    "",
-                    categoryAttributesMap["set_items_included"],
-                  )}
-                  {renderSpecRow(
-                    "Care",
-                    "care",
-                    "text",
-                    "",
-                    categoryAttributesMap["care"],
-                  )}
-                  {renderSpecRow("EAN", "ean")}
-                  {renderSpecRow("HSN", "hsn")}
-                  {renderSpecRow(
-                    "Dead Weight",
-                    "dead_weight_kg",
-                    "number",
-                    "kg",
-                  )}
-                  {renderSpecRow("Net Weight", "net_weight_kg", "number", "kg")}
-                  {renderSpecRow(
-                    "Volumetric Weight",
-                    "volumetric_weight_kg",
-                    "number",
-                    "kg",
-                  )}
-
-                  {/* Dynamic Category Attributes returned by the API */}
-                  {categoryAttributes
-                    .filter((attr) => attr.field && !KNOWN_KEYS.has(attr.field) && attr.field !== "niche_id")
-                    .map((attr) =>
+                {renderedCategoryCols.map((colItems, colIdx) => (
+                  <div className={styles.specsCol} key={`cat-col-${colIdx}`}>
+                    {colItems.map((item) =>
                       renderSpecRow(
-                        attr.name ||
-                          attr.field
-                            .replace(/_/g, " ")
-                            .replace(/\b\w/g, (c) => c.toUpperCase()),
-                        attr.field,
-                        attr.type === "decimal" ||
-                          attr.type === "integer" ||
-                          attr.type === "number"
-                          ? "number"
-                          : "text",
-                        "",
-                        attr,
+                        item.label,
+                        item.fieldKey,
+                        item.type,
+                        item.unit,
+                        item.attrMeta,
                       ),
                     )}
-
-                  {/* Render any additional product fields */}
-                  {extraAttributeKeys.map((key) =>
-                    renderSpecRow(
-                      key
-                        .replace(/_/g, " ")
-                        .replace(/\b\w/g, (c) => c.toUpperCase()),
-                      key,
-                    ),
-                  )}
-                </div>
+                  </div>
+                ))}
               </div>
             </div>
+
+            {/* Listing Information Box */}
+            {listingItems.length > 0 && (
+              <div className={styles.specsBox} style={{ marginTop: "24px" }}>
+                <h2 className={styles.sectionTitle}>Listing Information</h2>
+                <p className={styles.sectionSubhead}>
+                  Marketplace identifiers, packaging weights, and listing properties
+                </p>
+
+                <div className={styles.specsGrid}>
+                  {renderedListingCols.map((colItems, colIdx) => (
+                    <div className={styles.specsCol} key={`list-col-${colIdx}`}>
+                      {colItems.map((item) =>
+                        renderSpecRow(
+                          item.label,
+                          item.fieldKey,
+                          item.type,
+                          item.unit,
+                          item.attrMeta,
+                        ),
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Additional Attributes Box */}
+            {extraItems.length > 0 && (
+              <div className={styles.specsBox} style={{ marginTop: "24px" }}>
+                <h2 className={styles.sectionTitle}>Additional Details</h2>
+                <div className={styles.specsGrid}>
+                  {renderedExtraCols.map((colItems, colIdx) => (
+                    <div className={styles.specsCol} key={`extra-col-${colIdx}`}>
+                      {colItems.map((item) =>
+                        renderSpecRow(
+                          item.label,
+                          item.fieldKey,
+                          item.type,
+                          item.unit,
+                          item.attrMeta,
+                        ),
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Bottom Cards */}
             <div className={styles.bottomCardsGrid}>
