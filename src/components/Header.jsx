@@ -1,5 +1,5 @@
 import { useLocation, Link , useSearchParams} from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { clearSession } from "../store/slices/authSlice";
@@ -9,7 +9,8 @@ import profileStyles from "../css/components/ProfileDropDownMenu.module.css"
 import pathTree from "../pathTree.json";
 import { fetchCsrf } from "../store/slices/csrfSlice";
 import { useContext } from "react";
-import { SpinnerContext } from "../appContext";
+import { SpinnerContext, toastContext } from "../appContext";
+const route = import.meta.env.VITE_BASEAPI;
 
 
 
@@ -85,7 +86,45 @@ export default function Header() {
   const [searchParams] = useSearchParams();
   const path = getBreadcrumbs(location.pathname);     // header path section
   const [showProfileDropdown, setShowProfilDropdown] = useState(false);
+  const [userProfile, setUserProfile] = useState({});
+  const [imagePlaceholder, setImagePlaceholder] = useState('');
 
+  useEffect(()=>{
+    async function fetchUserProfile(){
+      try{
+        const response = await fetch(`${route}/users/profile`, {
+          credentials: "include"
+        })
+
+        const data = await response.json()
+
+        setUserProfile(data?.user_data);
+        if (!response.ok) showToast(data?.message?? "Could not file user profile", "red");
+      }
+      catch(e){
+        console.error(e)
+        showToast("Error in user profile");
+      }        
+    }
+
+    fetchUserProfile();
+  }, [])
+
+
+  /**
+   * Profile name placeholder
+   */
+  useEffect(()=> {
+    const name = userProfile?.name;
+    let imagePlaceholder = ""
+    if (!name) return;
+
+    name.split(' ').map(text => {
+      imagePlaceholder += text.charAt(0).toUpperCase();
+    });
+
+    setImagePlaceholder(imagePlaceholder);
+  }, [userProfile?.name])
 
   // console.log(showProfileDropdown)
   return (
@@ -122,10 +161,10 @@ export default function Header() {
 
           {/* User Avatar Initials */}
           <div className={styles.avatar} title="User Profile" onClick={() => setShowProfilDropdown(prev => !prev)}>
-            AK
+            {imagePlaceholder}
           </div>
 
-          {showProfileDropdown && <ProfileDropDownMenu/>}
+          {showProfileDropdown && <ProfileDropDownMenu userProfile={userProfile} imagePlaceholder={imagePlaceholder}/>}
         </div>
       </div>
     </header>
@@ -135,17 +174,16 @@ export default function Header() {
 
 
 
-function ProfileDropDownMenu(){
+function ProfileDropDownMenu({userProfile, imagePlaceholder}){
   const csrfToken = useSelector((state) => state.csrf.csrf);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const setShowSpinner = useContext(SpinnerContext);
-
+  // const showToast = useContext(toastContext);
 
 
   const handleLogout = async () => {
     try {
-      const route = import.meta.env.VITE_BASEAPI;
       let counter = 0;
       let response;
 
@@ -179,6 +217,7 @@ function ProfileDropDownMenu(){
 
 
 
+
   return (
     <div
       className={`${profileStyles.menu} ${profileStyles.open}`}
@@ -186,13 +225,13 @@ function ProfileDropDownMenu(){
       role="menu"
     >
       <div className={profileStyles.mh}>
-        <div className={profileStyles.big}>AK</div>
+        <div className={profileStyles.big}>{imagePlaceholder}</div>
 
         <div>
-          <b>Aarav Khanna</b>
-          <span>accounts@stylemyntra.in</span>
+          <b>{userProfile?.name}</b>
+          <span>{userProfile?.email}</span>
           <br />
-          <span>Owner · Style Myntra Pvt Ltd</span>
+          <span>{userProfile?.designation}</span>
         </div>
       </div>
 

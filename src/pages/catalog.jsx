@@ -352,7 +352,7 @@ export default function Catalog() {
       {/* Top Banner / Actions Header (Simple, no dark background) */}
       <div className={styles.pageHeaderBanner}>
         <div className={styles.pageHeaderLeft}>
-          <h1 className={styles.pageBannerTitle}>Upload catalog</h1>
+          <h1 className={styles.pageBannerTitle}>Catalog</h1>
           <p className={styles.pageBannerSubtitle}>
             Welcome back, Sarah. Here's a snapshot of your catalog activity
             across all marketplaces.

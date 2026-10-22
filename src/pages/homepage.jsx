@@ -618,26 +618,10 @@ const Homepage = () => {
               Tabs: Overview | Sales | Fulfillment | Customers | Marketing
               Selecting a tab refreshes all KPI data below.
           ═══════════════════════════════════════════════ */}
-          {/* <nav className={styles.overviewTabNav} aria-label="Dashboard sections">
-            {OVERVIEW_TABS.map((tab, idx) => (
-              <button
-                key={tab}
-                id={`overview-tab-${idx}`}
-                className={clsx(
-                  styles.overviewTab,
-                  activeOverviewTab === idx && styles.overviewTabActive
-                )}
-                onClick={() => setActiveOverviewTab(idx)}
-                aria-current={activeOverviewTab === idx ? "page" : undefined}
-              >
-                {tab}
-              </button>
-            ))}
-          </nav> */}
           <div className={`${styles.pageHeader}`}>
             <div className="heading">
               <h1 className="main-heading">Overview</h1>
-              <p className="heading-message">Welcome Sarah, here is your overall overview of the panel.</p>
+              <p className="heading-message">Welcome back, Sarah. here is your overall overview of the panel.</p>
             </div>
 
             {/* Right group: utility actions */}
