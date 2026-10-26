@@ -749,28 +749,8 @@ export default function ProductDetails() {
     brand_name,
     collection_id,
     vendor,
-    age_group,
-    fabric,
-    blouse_fabric,
-    blouse_piece_included,
-    saree_length_meters,
-    blouse_length_meters,
-    border_type,
-    pallu_type,
-    pattern,
-    work,
-    occasion,
-    style,
-    stitch,
-    set_items_included,
-    care,
     ean,
     hsn,
-    dead_weight_kg,
-    net_weight_kg,
-    volumetric_weight_kg,
-    stock_status = "In Stock",
-    availability = "Available",
     product_desc,
     description,
   } = displayData;
@@ -786,7 +766,7 @@ export default function ProductDetails() {
     "";
 
   const currentImage = images[selectedImageIndex] || images[0] || null;
-
+  console.log(images);
   const currentPriceNum = price ? Number(price) : 0;
   const purchasingCostNum = purchasing_cost ? Number(purchasing_cost) : 0;
   const comparedPriceNum = compared_price ? Number(compared_price) : 0;
@@ -805,60 +785,6 @@ export default function ProductDetails() {
         )
       : 0;
 
-  const KNOWN_KEYS = new Set([
-    "product_title",
-    "product_desc",
-    "description",
-    "sku_id",
-    "usku_id",
-    "status",
-    "compared_price",
-    "price",
-    "purchasing_cost",
-    "discount",
-    "color",
-    "brand_name",
-    "collection_id",
-    "vendor",
-    "age_group",
-    "fabric",
-    "blouse_fabric",
-    "blouse_piece_included",
-    "saree_length_meters",
-    "blouse_length_meters",
-    "border_type",
-    "pallu_type",
-    "pattern",
-    "work",
-    "occasion",
-    "style",
-    "stitch",
-    "set_items_included",
-    "care",
-    "ean",
-    "hsn",
-    "dead_weight_kg",
-    "net_weight_kg",
-    "volumetric_weight_kg",
-    "stock_status",
-    "availability",
-    "id",
-    "type_id",
-    "type",
-    "category_id",
-    "vertical",
-    "image_url",
-    "image_urls",
-    "images",
-    "created_at",
-    "updated_at",
-    "count",
-    "catalog_list",
-    "catalog-list",
-    "channel_sync",
-    "listing_attributes",
-    "category_attributes",
-  ]);
 
   const categoryAttributesMap = categoryAttributes.reduce((acc, attr) => {
     if (attr.field) acc[attr.field] = attr;
