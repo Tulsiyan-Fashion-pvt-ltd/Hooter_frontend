@@ -10,6 +10,7 @@ import {
 import { getFieldPlaceholder } from "../services/fieldPlaceholders";
 import useToast from "../hooks/useToast";
 import Toast from "../components/Toast";
+import imageNA from "../assets/icons/imagena.png";
 import styles from "../css/pages/ProductDetails.module.css";
 
 const route = import.meta.env.VITE_BASEAPI;
@@ -150,6 +151,7 @@ export default function ProductDetails() {
   const [toast, showToast] = useToast();
   const [listingAttributes, setListingAttributes] = useState([]);
   const [categoryAttributes, setCategoryAttributes] = useState([]);
+  const [imageAttributes, setImageAttributes] = useState([]);
   const [attributesLoading, setAttributesLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -288,6 +290,9 @@ export default function ProductDetails() {
       }
       if (data?.category_attributes) {
         setCategoryAttributes(data.category_attributes);
+      }
+      if (data?.image_attributes) {
+        setImageAttributes(data.image_attributes);
       }
     } catch (err) {
       console.warn("Failed to fetch attributes:", err);
@@ -517,6 +522,34 @@ export default function ProductDetails() {
       }
     });
 
+    if (imageAttributes.length > 0) {
+      const existingImageTypes = new Set(
+        images
+          .filter((img) => img.mainUrl || img.thumbUrl)
+          .map((img) => String(img.type || "").toLowerCase())
+      );
+      const newUploadedTypes = new Set(
+        Object.keys(newImageFiles).map((k) => k.toLowerCase())
+      );
+
+      const missingRequired = imageAttributes.filter((attr) => {
+        if (!attr.required) return false;
+        const attrKey = String(attr.type || attr.field || "").toLowerCase();
+        return (
+          !existingImageTypes.has(attrKey) &&
+          !newUploadedTypes.has(attrKey) &&
+          images.length === 0
+        );
+      });
+
+      if (missingRequired.length > 0) {
+        const missingLabels = missingRequired
+          .map((a) => a.name || formatFieldName(a.type || a.field))
+          .join(", ");
+        newErrors.images = `Required images missing: ${missingLabels}`;
+      }
+    }
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       const firstMsg = Object.values(newErrors)[0];
@@ -742,6 +775,16 @@ export default function ProductDetails() {
     description,
   } = displayData;
 
+  const productTypeName =
+    displayData.type_name ||
+    displayData.product_type ||
+    displayData.category_name ||
+    displayData.type ||
+    displayData.category ||
+    searchParams.get("type-name") ||
+    searchParams.get("type") ||
+    "";
+
   const currentImage = images[selectedImageIndex] || images[0] || null;
 
   const currentPriceNum = price ? Number(price) : 0;
@@ -948,6 +991,9 @@ export default function ProductDetails() {
     "category_id",
     "type_id",
     "type",
+    "type_name",
+    "product_type",
+    "category_name",
     "id",
     "usku_id",
     "status",
@@ -1027,7 +1073,7 @@ export default function ProductDetails() {
 
     return (
       <div
-        className={`${styles.specRow} ${hasError ? styles.specRowHasError : ""}`}
+        className={`${styles.specRow} ${isEditing ? styles.specRowEditing : ""} ${hasError ? styles.specRowHasError : ""}`}
         key={fieldKey}
       >
         <span className={styles.specLabel}>
@@ -1083,7 +1129,22 @@ export default function ProductDetails() {
                   }
                   maxLength={maxLength}
                   required={isRequired}
-                  className={`${styles.editSpecInput} ${hasError ? styles.inputError : ""}`}
+                  disabled={
+                    fieldKey === "type_name" ||
+                    fieldKey === "product_type" ||
+                    fieldKey === "type" ||
+                    fieldKey === "category_name" ||
+                    fieldKey === "type_id"
+                  }
+                  className={`${styles.editSpecInput} ${
+                    fieldKey === "type_name" ||
+                    fieldKey === "product_type" ||
+                    fieldKey === "type" ||
+                    fieldKey === "category_name" ||
+                    fieldKey === "type_id"
+                      ? styles.editSpecInputDisabled
+                      : ""
+                  } ${hasError ? styles.inputError : ""}`}
                   value={currentVal}
                   onChange={(e) => handleInputChange(fieldKey, e.target.value)}
                   placeholder={placeholder}
@@ -1121,6 +1182,9 @@ export default function ProductDetails() {
           <div className={styles.titleLeft}>
             {isEditing ? (
               <div className={styles.titleInputWrap}>
+                <label className={styles.headerFieldLabel}>
+                  Product Title <span className={styles.requiredStar}>*</span>
+                </label>
                 <input
                   type="text"
                   className={`${styles.titleInput} ${errors.product_title ? styles.inputError : ""}`}
@@ -1129,7 +1193,7 @@ export default function ProductDetails() {
                   onChange={(e) =>
                     handleInputChange("product_title", e.target.value)
                   }
-                  placeholder="Product Title *"
+                  placeholder="Enter product title *"
                 />
                 {errors.product_title && (
                   <div className={styles.headerErrorText}>
@@ -1143,10 +1207,33 @@ export default function ProductDetails() {
               </h1>
             )}
 
-            <span className={styles.statusBadge}>{status}</span>
+            {/* Non-editable Type Name */}
+            {productTypeName && (
+              <div className={styles.typeWrap}>
+                {isEditing && (
+                  <span className={styles.headerFieldLabel}>Type</span>
+                )}
+                <span
+                  className={styles.typeBadge}
+                  title={`Type: ${productTypeName} (Non-editable)`}
+                >
+                  {productTypeName}
+                </span>
+              </div>
+            )}
+
+            <div className={styles.statusWrap}>
+              {isEditing && (
+                <span className={styles.headerFieldLabel}>Status</span>
+              )}
+              <span className={styles.statusBadge}>{status}</span>
+            </div>
 
             {isEditing ? (
               <div className={styles.skuInputWrap}>
+                <label className={styles.headerFieldLabel}>
+                  SKU ID <span className={styles.requiredStar}>*</span>
+                </label>
                 <input
                   type="text"
                   className={`${styles.skuInput} ${errors.sku_id ? styles.inputError : ""}`}
@@ -1279,8 +1366,12 @@ export default function ProductDetails() {
                       }
                     >
                       <img
-                        src={img.thumbUrl || img.mainUrl}
+                        src={img.thumbUrl || img.mainUrl || imageNA}
                         alt={img.type || `Thumbnail ${idx + 1}`}
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = imageNA;
+                        }}
                       />
                     </div>
                   ))}
@@ -1289,9 +1380,31 @@ export default function ProductDetails() {
 
               <div className={styles.mainImage}>
                 <img
-                  src={currentImage.mainUrl}
+                  src={currentImage.mainUrl || imageNA}
                   alt={currentImage.type || product_title}
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = imageNA;
+                  }}
                 />
+
+                {isEditing && (
+                  <div className={styles.imageTypeBadge}>
+                    <span>{currentImage.type || `Image ${selectedImageIndex + 1}`}</span>
+                    {(() => {
+                      const matchedMeta = imageAttributes.find(
+                        (a) =>
+                          (a.type || a.field || "").toLowerCase() ===
+                          (currentImage.type || "").toLowerCase()
+                      );
+                      return matchedMeta?.required ? (
+                        <span className={styles.imageRequiredBadge}>Required</span>
+                      ) : (
+                        <span className={styles.imageOptionalBadge}>Optional</span>
+                      );
+                    })()}
+                  </div>
+                )}
 
                 {isEditing && (
                   <label
@@ -1320,6 +1433,12 @@ export default function ProductDetails() {
                     </svg>
                     Replace Image
                   </label>
+                )}
+
+                {isEditing && errors.images && (
+                  <div className={styles.imageErrorBadge}>
+                    <span>⚠ {errors.images}</span>
+                  </div>
                 )}
 
                 {currentImage.originalUrl && !isEditing && (
@@ -1357,28 +1476,19 @@ export default function ProductDetails() {
           ) : (
             <div className={styles.gallery}>
               <div className={styles.noImagePlaceholder}>
-                <svg
-                  width="48"
-                  height="48"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="#94a3b8"
-                  strokeWidth="1.5"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-                <span>No images available</span>
+                <img
+                  src={imageNA}
+                  alt="No image available"
+                  className={styles.placeholderImg}
+                />
+                <span className={styles.noImageText}>No image available</span>
                 {isEditing && (
                   <label
                     className={styles.saveBtn}
                     style={{
                       fontSize: "12px",
-                      padding: "6px 12px",
-                      marginTop: "8px",
+                      padding: "6px 14px",
+                      marginTop: "10px",
                     }}
                   >
                     <input
@@ -1387,6 +1497,20 @@ export default function ProductDetails() {
                       style={{ display: "none" }}
                       onChange={handleImageUpload}
                     />
+                    <svg
+                      width="14"
+                      height="14"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                      />
+                    </svg>
                     Upload Image
                   </label>
                 )}

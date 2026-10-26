@@ -38,8 +38,9 @@
 
 .titleLeft {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  align-items: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
 }
 
 .title {
@@ -56,6 +57,25 @@
   border-radius: 12px;
   font-size: 12px;
   font-weight: 600;
+}
+
+.typeBadge {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: default;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.typeWrap {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 .skuBadge {
@@ -232,15 +252,27 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  padding: 32px;
-  color: #94a3b8;
+  padding: 40px 24px;
+  color: #64748b;
   font-size: 13px;
   text-align: center;
+  width: 100%;
+  min-height: 380px;
 }
 
-.noImagePlaceholder img {
-  max-width: 90px;
-  opacity: 0.5;
+.placeholderImg {
+  max-width: 140px;
+  max-height: 140px;
+  object-fit: contain;
+  opacity: 0.75;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.05));
+  transition: opacity 0.2s ease;
+}
+
+.noImageText {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
 }
 
 /* Commercial Summary */
@@ -419,11 +451,27 @@
   justify-content: space-between;
   align-items: flex-start;
   font-size: 13px;
+  gap: 12px;
+}
+
+.specRowEditing {
+  align-items: flex-start;
+  margin-bottom: 4px;
 }
 
 .specLabel {
-  color: #64748b;
+  color: #475569;
+  flex: 0 0 135px;
+  max-width: 150px;
+  padding-top: 6px;
+  word-break: break-word;
+}
+
+.specRow:not(.specRowEditing) .specLabel {
   flex: 1;
+  max-width: none;
+  padding-top: 0;
+  color: #64748b;
 }
 
 .specValue {
@@ -776,44 +824,56 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  flex: 1;
-  max-width: 170px;
+  width: 100%;
 }
 
 .editSpecInput {
+  flex: 1;
+  min-width: 0;
   width: 100%;
-  padding: 4px 8px;
-  font-size: 12px;
+  padding: 6px 10px;
+  font-size: 13px;
   color: #1e293b;
   background-color: #ffffff;
   border: 1px solid #cbd5e1;
-  border-radius: 5px;
+  border-radius: 6px;
   outline: none;
+  box-sizing: border-box;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .editSpecInput:focus {
   border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.editSpecInputDisabled,
+.editSpecInput:disabled {
+  background-color: #f1f5f9 !important;
+  color: #64748b !important;
+  border-color: #cbd5e1 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  user-select: none;
 }
 
 .editSpecSelect {
   width: 100%;
-  max-width: 170px;
-  padding: 4px 8px;
-  font-size: 12px;
+  padding: 6px 10px;
+  font-size: 13px;
   color: #1e293b;
   background-color: #ffffff;
   border: 1px solid #cbd5e1;
-  border-radius: 5px;
+  border-radius: 6px;
   outline: none;
   cursor: pointer;
+  box-sizing: border-box;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .editSpecSelect:focus {
   border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
 }
 
 .unitBadge {
@@ -821,10 +881,11 @@
   font-weight: 600;
   color: #64748b;
   background: #f1f5f9;
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 5px 8px;
+  border-radius: 6px;
   border: 1px solid #e2e8f0;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .editInputCard {
@@ -870,6 +931,67 @@
   background: #ffffff;
   color: #2563eb;
   border-color: #3b82f6;
+}
+
+.imageTypeBadge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: rgba(15, 23, 42, 0.78);
+  color: #f8fafc;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  backdrop-filter: blur(4px);
+  z-index: 10;
+  text-transform: capitalize;
+}
+
+.imageRequiredBadge {
+  background-color: #ef4444;
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.imageOptionalBadge {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #cbd5e1;
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.imageErrorBadge {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  right: 14px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+  z-index: 10;
+}
+
+.thumbWrapHasError {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.3) !important;
 }
 
 .buttonSpinner {
@@ -955,7 +1077,9 @@
 .specLabelWrap {
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 4px;
+  line-height: 1.4;
 }
 
 .requiredStar {
@@ -968,24 +1092,31 @@
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 10px;
   border: 1px solid #94a3b8;
   color: #64748b;
   border-radius: 50%;
-  width: 14px;
-  height: 14px;
+  width: 15px;
+  height: 15px;
+  min-width: 15px;
+  min-height: 15px;
   text-align: center;
   cursor: pointer;
   position: relative;
   user-select: none;
   line-height: 1;
+  flex-shrink: 0;
+  vertical-align: middle;
+  background-color: #ffffff;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
 }
 
 .pillDescription:hover {
   background-color: #f1f5f9;
   color: #1e293b;
-  border-color: #64748b;
+  border-color: #475569;
 }
 
 .descriptionTooltip {
@@ -1090,6 +1221,8 @@
 .specEditContainer {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 0;
   width: 100%;
   gap: 3px;
 }
@@ -1126,6 +1259,24 @@
   color: #ef4444;
   font-weight: 500;
   margin-top: 3px;
+}
+
+.headerFieldLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.statusWrap {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 .titleInputWrap {
@@ -1170,6 +1321,7 @@
   color: #94a3b8;
   text-align: right;
   margin-top: 2px;
+  font-variant-numeric: tabular-nums;
 }
 
 .sectionSubhead {
