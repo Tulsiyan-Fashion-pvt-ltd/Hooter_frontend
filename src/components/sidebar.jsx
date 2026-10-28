@@ -14,7 +14,7 @@ const host = import.meta.env.VITE_BASEAPI;
 const Sidebar = () => {
   const [brandProfile, setBrandProfile] = useState({});  // brand data to show the sidebar
   const csrfToken = useSelector(state => state.csrf.csrf);
-
+  console.log(brandProfile)
   // notification toast
   const showToast = useContext(toastContext);
 
@@ -93,7 +93,6 @@ const Sidebar = () => {
       );
 
       const data = await response.json()
-
       if (response.status !== 200){
         console.error(data ? data.message: "Error: could not fetch the brand profile");
       }

@@ -129,8 +129,10 @@ export const createCatalog = async (
       }),
     },
   );
-  if (!response.ok) throw new Error(`HTTP ${response.status} ${response.message?? ""}`);
-  return response.json(); // { Status: "successful", message: "..." }
+
+  const data = await response.json()
+  if (!response.ok) throw new Error(data.message?? `HTTP ${response.status}`);
+  return data; // { Status: "successful", message: "..." }
 };
 
 // ── Bulk excel sheet (template download) ──────────────────
@@ -141,7 +143,8 @@ export const getBulkExcelSheet = async (typeId, vertical) => {
     `${BASE_URL}/catalog/categories/bulk-excel-sheet/${encodeURIComponent(typeId)}?vertical=${vertical}`,
     { credentials: "include" },
   );
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const data = await response.json()
+  if (!response.ok) throw new Error(data.message?? `HTTP ${response.status}`);
   return response.blob();
 };
 

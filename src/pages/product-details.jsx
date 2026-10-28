@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useSearchParams } from "react-router-dom";
+import camera from '../assets/icons/upload_photo.svg';
 import {
   getProduct,
   getProductImages,
@@ -9,11 +10,10 @@ import {
   getAttributeFields,
 } from "../services/catalogService";
 import { getFieldPlaceholder } from "../services/fieldPlaceholders";
-import useToast from "../hooks/useToast";
-import Toast from "../components/Toast";
 import imageNA from "../assets/icons/imagena.png";
 import { toSnakeCase, toPascalCase } from "../hooks/useCatalogForm";
 import styles from "../css/pages/ProductDetails.module.css";
+import { toastContext } from "../appContext";
 
 const route = import.meta.env.VITE_BASEAPI;
 
@@ -169,7 +169,7 @@ export default function ProductDetails() {
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("Overview");
   const [images, setImages] = useState([]);
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [selectedImageType, setSelectedImageType] = useState(0);
   const [imagesLoading, setImagesLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(
     searchParams.get("edit") === "true",
@@ -179,13 +179,14 @@ export default function ProductDetails() {
   const [isDescExpanded, setIsDescExpanded] = useState(false);
 
   const [customAttributes, setCustomAttributes] = useState([]);
-  const [toast, showToast] = useToast();
+  const showToast = useContext(toastContext);
   const [listingAttributes, setListingAttributes] = useState([]);
   const [categoryAttributes, setCategoryAttributes] = useState([]);
   const [imageAttributes, setImageAttributes] = useState([]);
   const [attributesLoading, setAttributesLoading] = useState(false);
   const [errors, setErrors] = useState({});
-
+  console.log(imageAttributes)
+  console.log(images)
   const addCustomAttribute = () => {
     setCustomAttributes((prev) => [
       ...prev,
@@ -434,29 +435,28 @@ export default function ProductDetails() {
         try {
           data = await getProductImages(uskuId);
         } catch (err) {
-          try {
-            data = await getProductImages(uskuId, "front");
-          } catch {
-            data = null;
-          }
+          showToast(err, "red");
         }
 
-        let parsed = normalizeProductImages(data, imageAttributes);
+        setImages(data)
 
-        // Fallback to product.image_url if endpoint had no images
-        if (parsed.length === 0 && product?.image_url) {
-          parsed = normalizeProductImages(product.image_url, imageAttributes);
-        }
+      //   let parsed = normalizeProductImages(data, imageAttributes);
 
-        setImages(parsed);
-        setSelectedImageIndex(0);
-      } catch (err) {
-        console.error("Failed to load product images:", err);
-        if (product?.image_url) {
-          setImages(normalizeProductImages(product.image_url, imageAttributes));
-        } else {
-          setImages([]);
-        }
+      //   // Fallback to product.image_url if endpoint had no images
+      //   if (parsed.length === 0 && product?.image_url) {
+      //     parsed = normalizeProductImages(product.image_url, imageAttributes);
+      //   }
+
+      //   setImages(parsed);
+      //   setSelectedImageType(0);
+      // } catch (err) {
+      //   console.error("Failed to load product images:", err);
+      //   if (product?.image_url) {
+      //     setImages(normalizeProductImages(product.image_url, imageAttributes));
+      //   } else {
+      //     setImages([]);
+      //   }
+
       } finally {
         setImagesLoading(false);
       }
@@ -465,6 +465,8 @@ export default function ProductDetails() {
     fetchImages();
   }, [uskuId, product?.usku_id, product?.sku_id, product?.image_url, imageAttributes]);
 
+
+  //WHY??
   // When imageAttributes are loaded, re-sort images according to image_attributes order
   useEffect(() => {
     if (images.length > 0 && imageAttributes.length > 0) {
@@ -551,48 +553,48 @@ export default function ProductDetails() {
   };
 
   const handleImageUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    // const file = e.target.files?.[0];
+    // if (!file) return;
 
-    const url = URL.createObjectURL(file);
-    const currentImg = images[selectedImageIndex];
-    let imageType = currentImg?.type;
+    // const url = URL.createObjectURL(file);
+    // const currentImg = images[selectedImageType];
+    // let imageType = currentImg?.type;
 
-    if (!imageType) {
-      const matchedAttr = imageAttributes[selectedImageIndex];
-      imageType = matchedAttr?.field || matchedAttr?.type || `image_${selectedImageIndex + 1}`;
-    }
+    // if (!imageType) {
+    //   const matchedAttr = imageAttributes[selectedImageType];
+    //   imageType = matchedAttr?.field || matchedAttr?.type || `image_${selectedImageType + 1}`;
+    // }
 
-    const assignedOrder = currentImg?.order || (imageAttributes[selectedImageIndex]?.order ?? (selectedImageIndex + 1));
+    // const assignedOrder = currentImg?.order || (imageAttributes[selectedImageType]?.order ?? (selectedImageType + 1));
 
-    setNewImageFiles((prev) => ({
-      ...prev,
-      [imageType]: { image: file, order: assignedOrder },
-    }));
+    // setNewImageFiles((prev) => ({
+    //   ...prev,
+    //   [imageType]: { image: file, order: assignedOrder },
+    // }));
 
-    setImages((prev) => {
-      const updated = [...prev];
-      if (updated[selectedImageIndex]) {
-        updated[selectedImageIndex] = {
-          ...updated[selectedImageIndex],
-          mainUrl: url,
-          thumbUrl: url,
-          originalUrl: url,
-        };
-      } else {
-        updated.push({
-          id: imageType,
-          type: imageType,
-          order: assignedOrder,
-          mainUrl: url,
-          thumbUrl: url,
-          originalUrl: url,
-        });
-      }
-      return updated;
-    });
+    // setImages((prev) => {
+    //   const updated = [...prev];
+    //   if (updated[selectedImageType]) {
+    //     updated[selectedImageType] = {
+    //       ...updated[selectedImageType],
+    //       mainUrl: url,
+    //       thumbUrl: url,
+    //       originalUrl: url,
+    //     };
+    //   } else {
+    //     updated.push({
+    //       id: imageType,
+    //       type: imageType,
+    //       order: assignedOrder,
+    //       mainUrl: url,
+    //       thumbUrl: url,
+    //       originalUrl: url,
+    //     });
+    //   }
+    //   return updated;
+    // });
 
-    showToast("Image updated. Click 'Save changes' to save.", "green");
+    // showToast("Image updated. Click 'Save changes' to save.", "green");
   };
 
   const handleAddMoreImages = (e) => {
@@ -638,7 +640,7 @@ export default function ProductDetails() {
         ...newFilesObj,
       }));
 
-      setSelectedImageIndex(updated.length - 1);
+      setSelectedImageType(updated.length - 1);
       return updated;
     });
 
@@ -957,8 +959,8 @@ export default function ProductDetails() {
     searchParams.get("type") ||
     "";
 
-  const currentImage = images[selectedImageIndex] || images[0] || null;
-  console.log(images);
+  const currentImage = images[selectedImageType] || images.main || null;
+  console.log(images[selectedImageType]?.image_urls.high_resol_webp )
   const currentPriceNum = price ? Number(price) : 0;
   const purchasingCostNum = purchasing_cost ? Number(purchasing_cost) : 0;
   const comparedPriceNum = compared_price ? Number(compared_price) : 0;
@@ -1457,23 +1459,23 @@ export default function ProductDetails() {
       <div className={styles.content}>
         <div className={styles.topSection}>
           {/* Image Gallery */}
-          {images.length > 0 && currentImage ? (
+          {imageAttributes.length > 0 && currentImage ? (
             <div className={styles.gallery}>
               <div className={styles.thumbnails}>
-                {images.map((img, idx) => (
+                {/* {images.map((img, idx) => (
                   <div
                     key={img.id || idx}
                     className={
-                      selectedImageIndex === idx
+                      selectedImageType === idx
                         ? styles.thumbWrapActive
                         : styles.thumbWrap
                     }
-                    onClick={() => setSelectedImageIndex(idx)}
+                    onClick={() => setSelectedImageType(idx)}
                     role="button"
                     tabIndex={0}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
-                        setSelectedImageIndex(idx);
+                        setSelectedImageType(idx);
                       }
                     }}
                     title={
@@ -1482,6 +1484,7 @@ export default function ProductDetails() {
                         : `View image ${idx + 1}`
                     }
                   >
+                    <p>{img.type}</p>
                     <img
                       src={img.thumbUrl || img.mainUrl || imageNA}
                       alt={img.type || `Thumbnail ${idx + 1}`}
@@ -1491,7 +1494,50 @@ export default function ProductDetails() {
                       }}
                     />
                   </div>
-                ))}
+                ))} */}
+
+                {
+                  imageAttributes.map((attribute, idx) => {
+                    console.log(attribute)
+                    const imageURL = images[attribute.field]? `${route}/${images[attribute.field]?.image_urls?.webp_card}`: camera;
+                    return (
+                      <div
+                        key={attribute.id || idx}
+                        className={
+                          selectedImageType === attribute.field
+                            ? styles.thumbWrapActive
+                            : styles.thumbWrap
+                        }
+                        onClick={() => setSelectedImageType(attribute.field)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            setSelectedImageType(attribute.field);
+                          }
+                        }}
+                        title={
+                          attribute.handle
+                            ? `View ${attribute.handle} image`
+                            : `View image ${attribute.order}`
+                        }
+                      >
+                        <p className={styles.imageTab}>{attribute.name}{attribute.required == true?<span style={{"color": "red"}}>*</span>: ""}</p>
+                        <div className={styles.thumbnailPreviewContainer}>
+                          <img
+                            src={imageURL}
+                            alt={attribute.field || `Thumbnail ${idx + 1}`}
+                            className={images[attribute.field]? styles.imageThumbnailPreview: styles.noImageCamera}
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = imageNA;
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )
+                  })
+                }
 
                 {isEditing && (
                   <label
@@ -1512,8 +1558,9 @@ export default function ProductDetails() {
               </div>
 
               <div className={styles.mainImage}>
+                {/* {()=>{console.log(images[selectedImageType]?.image_urls.high_resol_webp)}} */}
                 <img
-                  src={currentImage.mainUrl || imageNA}
+                  src={images[selectedImageType] ? `${route}/${images[selectedImageType]?.image_urls.high_resol_webp }`: camera}
                   alt={currentImage.type || product_title}
                   onError={(e) => {
                     e.currentTarget.onerror = null;
@@ -1523,7 +1570,7 @@ export default function ProductDetails() {
 
                 {isEditing && (
                   <div className={styles.imageTypeBadge}>
-                    <span>{currentImage.type || `Image ${selectedImageIndex + 1}`}</span>
+                    <span>{currentImage.type || `Image ${selectedImageType + 1}`}</span>
                     {(() => {
                       const matchedMeta = imageAttributes.find(
                         (a) =>
@@ -2413,8 +2460,6 @@ export default function ProductDetails() {
           </>
         )}
       </div>
-
-      <Toast toast={toast} />
     </div>
   );
 }
