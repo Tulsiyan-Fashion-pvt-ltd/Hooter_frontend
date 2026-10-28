@@ -1334,5 +1334,188 @@
   font-weight: 400;
 }
 
+/* Custom Attributes Box & Button Styles */
+.customAttrBox {
+  margin-top: 24px;
+}
+
+.customAttrsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.customAttrRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.customAttrNameInput {
+  flex: 0 0 200px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-sizing: border-box;
+}
+
+.customAttrNameInput:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.customAttrValueWrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.customAttrValueInput {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #1e293b;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-sizing: border-box;
+}
+
+.customAttrValueInput:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.removeAttrBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  font-size: 1.1em;
+  padding: 4px 8px;
+  line-height: 1;
+  flex-shrink: 0;
+  border-radius: 4px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.removeAttrBtn:hover {
+  color: #d32f2f;
+  background-color: #fee2e2;
+}
+
+.addCustomAttrBtn {
+  margin-top: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px dashed #0040d6;
+  color: #0040d6;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.9em;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.addCustomAttrBtn:hover {
+  background: #f0f4ff;
+}
+
+.addBtnIcon {
+  font-size: 1.1em;
+  line-height: 1;
+}
+
+/* Add Image Thumbnail & Actions */
+.addThumbWrap {
+  width: 100%;
+  aspect-ratio: 3/4;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  background-color: #f8fafc;
+  border: 1px dashed #3b82f6;
+  color: #2563eb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.addThumbWrap:hover {
+  background-color: #eff6ff;
+  border-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.addThumbIcon {
+  font-size: 18px;
+  line-height: 1;
+  font-weight: bold;
+}
+
+.galleryActions {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
+}
+
+.galleryActionBtn {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #cbd5e1;
+  color: #1e293b;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+}
+
+.galleryActionBtn:hover {
+  background: #ffffff;
+  color: #2563eb;
+  border-color: #3b82f6;
+}
+
+.galleryActionBtnPrimary {
+  background: #2563eb;
+  border-color: #1d4ed8;
+  color: #ffffff;
+}
+
+.galleryActionBtnPrimary:hover {
+  background: #1d4ed8;
+  color: #ffffff;
+}
+
+
+
 
 

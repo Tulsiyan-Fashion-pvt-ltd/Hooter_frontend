@@ -430,6 +430,59 @@ export const uploadProductImages = async (uskuId, imagesData) => {
 };
 
 /**
+
+ * PUT /catalog/images/{usku_id}
+ * Update the product images, including all image quality variants.
+ *
+ * @param {string} uskuId - Universally unique Stock Keeping Unit ID.
+ * @param {{ [imageType: string]: { image: File, order?: number } | File }} imagesData - Map of imageType -> File or { image: File, order: number }
+ * @returns {Promise<any>}
+ */
+export const updateProductImages = async (uskuId, imagesData) => {
+  const formData = new FormData();
+  const meta = {};
+
+  Object.entries(imagesData).forEach(([imageType, item]) => {
+    const file = item?.image || item;
+    const order = item?.order;
+    if (file instanceof Blob || file instanceof File) {
+      formData.append(imageType, file);
+      if (order !== undefined) {
+        meta[imageType] = order;
+      }
+    }
+  });
+
+  if (Object.keys(meta).length > 0) {
+    formData.append("meta", JSON.stringify(meta));
+  }
+
+  const response = await fetch(
+    `${BASE_URL}/catalog/images/${encodeURIComponent(uskuId)}`,
+    {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "X-CSRF-Token": await getCSRFToken(),
+      },
+      body: formData,
+    },
+  );
+
+  const data = await response.json().catch(() => ({}));
+
+  if (response.status === 401) {
+    throw new Error(data.message || "User is not logged in");
+  }
+  if (!response.ok) {
+    throw new Error(data.message || `HTTP ${response.status}`);
+  }
+
+  return data;
+};
+
+/**
+
  * GET /catalog/images/{usku_id}
  * Retrieves product image URLs for a given USKU ID.
  *

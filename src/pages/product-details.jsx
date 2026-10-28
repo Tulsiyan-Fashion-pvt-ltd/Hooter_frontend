@@ -5,12 +5,14 @@ import {
   getProductImages,
   updateProduct,
   uploadProductImages,
+  updateProductImages,
   getAttributeFields,
 } from "../services/catalogService";
 import { getFieldPlaceholder } from "../services/fieldPlaceholders";
 import useToast from "../hooks/useToast";
 import Toast from "../components/Toast";
 import imageNA from "../assets/icons/imagena.png";
+import { toSnakeCase, toPascalCase } from "../hooks/useCatalogForm";
 import styles from "../css/pages/ProductDetails.module.css";
 
 const route = import.meta.env.VITE_BASEAPI;
@@ -30,25 +32,47 @@ const resolveImageUrl = (path) => {
   return cleanBase ? `${cleanBase}/${cleanPath}` : `/${cleanPath}`;
 };
 
-const normalizeProductImages = (data) => {
+const normalizeProductImages = (data, imageAttributes = []) => {
   if (!data) return [];
+
+  // Create lookup map for attribute order: type/field/handle -> order
+  const attrOrderMap = new Map();
+  if (Array.isArray(imageAttributes) && imageAttributes.length > 0) {
+    imageAttributes.forEach((attr, idx) => {
+      const order = Number(attr.order ?? idx + 1);
+      if (attr.field) attrOrderMap.set(String(attr.field).toLowerCase(), order);
+      if (attr.handle) attrOrderMap.set(String(attr.handle).toLowerCase(), order);
+      if (attr.type) attrOrderMap.set(String(attr.type).toLowerCase(), order);
+      if (attr.name) attrOrderMap.set(String(attr.name).toLowerCase(), order);
+    });
+  }
+
+  const getImageOrder = (entry, key) => {
+    const rawType = String(entry?.image_type || key || "").toLowerCase();
+    if (attrOrderMap.has(rawType)) {
+      return attrOrderMap.get(rawType);
+    }
+    const orderNum = Number(entry?.image_order ?? entry?.order ?? 0);
+    return orderNum > 0 ? orderNum : 999;
+  };
 
   const processImageEntry = (entry, key = "") => {
     if (!entry) return null;
+
+    const assignedOrder = getImageOrder(entry, key);
 
     if (typeof entry === "string") {
       const full = resolveImageUrl(entry);
       return {
         id: key || full,
         type: key,
-        order: 0,
+        order: assignedOrder,
         mainUrl: full,
         thumbUrl: full,
         originalUrl: full,
       };
     }
 
-    const order = Number(entry.image_order ?? entry.order ?? 0);
     const urls = entry.image_urls || entry;
 
     if (typeof urls === "string") {
@@ -56,7 +80,7 @@ const normalizeProductImages = (data) => {
       return {
         id: key || full,
         type: entry.image_type || key,
-        order,
+        order: assignedOrder,
         mainUrl: full,
         thumbUrl: full,
         originalUrl: full,
@@ -80,7 +104,7 @@ const normalizeProductImages = (data) => {
       return {
         id: entry.id || key || mainUrl,
         type: entry.image_type || key || "image",
-        order,
+        order: assignedOrder,
         mainUrl,
         thumbUrl,
         originalUrl,
@@ -127,9 +151,15 @@ const normalizeProductImages = (data) => {
     }
   }
 
-  results.sort((a, b) => a.order - b.order);
+  // Sort strictly by the assigned image_attributes order first, then order, then index
+  results.sort((a, b) => {
+    if (a.order !== b.order) return a.order - b.order;
+    return String(a.type).localeCompare(String(b.type));
+  });
+
   return results;
 };
+
 
 export default function ProductDetails() {
   const [searchParams] = useSearchParams();
@@ -148,12 +178,60 @@ export default function ProductDetails() {
   const [newImageFiles, setNewImageFiles] = useState({});
   const [isDescExpanded, setIsDescExpanded] = useState(false);
 
+  const [customAttributes, setCustomAttributes] = useState([]);
   const [toast, showToast] = useToast();
   const [listingAttributes, setListingAttributes] = useState([]);
   const [categoryAttributes, setCategoryAttributes] = useState([]);
   const [imageAttributes, setImageAttributes] = useState([]);
   const [attributesLoading, setAttributesLoading] = useState(false);
   const [errors, setErrors] = useState({});
+
+  const addCustomAttribute = () => {
+    setCustomAttributes((prev) => [
+      ...prev,
+      {
+        id: `ca_${Date.now()}`,
+        name: "",
+        key: "",
+        value: "",
+      },
+    ]);
+  };
+
+  const handleCustomAttributeChange = (id, field, val) => {
+    setCustomAttributes((prev) =>
+      prev.map((attr) => {
+        if (attr.id !== id) return attr;
+
+        if (field === "name") {
+          const raw = typeof val === "string" ? val : String(val ?? "");
+          const pascalName = toPascalCase(raw.slice(0, 100));
+          const displayName = raw.endsWith(" ")
+            ? raw.slice(0, 100)
+            : pascalName || raw.slice(0, 100);
+
+          return {
+            ...attr,
+            name: displayName,
+            key: toSnakeCase(raw.slice(0, 100)),
+          };
+        }
+
+        if (field === "value") {
+          return {
+            ...attr,
+            value: typeof val === "string" ? val : String(val ?? ""),
+          };
+        }
+
+        return { ...attr, [field]: val };
+      })
+    );
+  };
+
+  const removeCustomAttribute = (id) => {
+    setCustomAttributes((prev) => prev.filter((attr) => attr.id !== id));
+  };
 
   const uskuId = searchParams.get("usku-id") || searchParams.get("id");
 
@@ -363,11 +441,11 @@ export default function ProductDetails() {
           }
         }
 
-        let parsed = normalizeProductImages(data);
+        let parsed = normalizeProductImages(data, imageAttributes);
 
         // Fallback to product.image_url if endpoint had no images
         if (parsed.length === 0 && product?.image_url) {
-          parsed = normalizeProductImages(product.image_url);
+          parsed = normalizeProductImages(product.image_url, imageAttributes);
         }
 
         setImages(parsed);
@@ -375,7 +453,7 @@ export default function ProductDetails() {
       } catch (err) {
         console.error("Failed to load product images:", err);
         if (product?.image_url) {
-          setImages(normalizeProductImages(product.image_url));
+          setImages(normalizeProductImages(product.image_url, imageAttributes));
         } else {
           setImages([]);
         }
@@ -385,7 +463,38 @@ export default function ProductDetails() {
     };
 
     fetchImages();
-  }, [uskuId, product?.usku_id, product?.sku_id, product?.image_url]);
+  }, [uskuId, product?.usku_id, product?.sku_id, product?.image_url, imageAttributes]);
+
+  // When imageAttributes are loaded, re-sort images according to image_attributes order
+  useEffect(() => {
+    if (images.length > 0 && imageAttributes.length > 0) {
+      setImages((prevImages) => {
+        const resorted = [...prevImages].sort((a, b) => {
+          const getAttrOrder = (img) => {
+            const rawType = String(img.type || img.id || "").toLowerCase();
+            const matched = imageAttributes.find((attr) => {
+              const field = String(attr.field || "").toLowerCase();
+              const handle = String(attr.handle || "").toLowerCase();
+              const type = String(attr.type || "").toLowerCase();
+              const name = String(attr.name || "").toLowerCase();
+              return rawType === field || rawType === handle || rawType === type || rawType === name;
+            });
+            if (matched) return Number(matched.order ?? 1);
+            return Number(img.order ?? 999);
+          };
+
+          const orderA = getAttrOrder(a);
+          const orderB = getAttrOrder(b);
+          if (orderA !== orderB) return orderA - orderB;
+          return (Number(a.order) || 0) - (Number(b.order) || 0);
+        });
+
+        // Only update if order actually changed
+        const hasChanged = resorted.some((img, idx) => img.id !== prevImages[idx]?.id);
+        return hasChanged ? resorted : prevImages;
+      });
+    }
+  }, [imageAttributes]);
 
   useEffect(() => {
     if (isEditing && product) {
@@ -403,6 +512,7 @@ export default function ProductDetails() {
   const handleCancelEdit = () => {
     setIsEditing(false);
     setFormData({ ...product });
+    setCustomAttributes([]);
     setErrors({});
     setNewImageFiles({});
   };
@@ -445,12 +555,19 @@ export default function ProductDetails() {
     if (!file) return;
 
     const url = URL.createObjectURL(file);
-    const imageType =
-      images[selectedImageIndex]?.type || `image_${selectedImageIndex || 1}`;
+    const currentImg = images[selectedImageIndex];
+    let imageType = currentImg?.type;
+
+    if (!imageType) {
+      const matchedAttr = imageAttributes[selectedImageIndex];
+      imageType = matchedAttr?.field || matchedAttr?.type || `image_${selectedImageIndex + 1}`;
+    }
+
+    const assignedOrder = currentImg?.order || (imageAttributes[selectedImageIndex]?.order ?? (selectedImageIndex + 1));
 
     setNewImageFiles((prev) => ({
       ...prev,
-      [imageType]: { image: file, order: selectedImageIndex + 1 || 1 },
+      [imageType]: { image: file, order: assignedOrder },
     }));
 
     setImages((prev) => {
@@ -466,7 +583,7 @@ export default function ProductDetails() {
         updated.push({
           id: imageType,
           type: imageType,
-          order: 1,
+          order: assignedOrder,
           mainUrl: url,
           thumbUrl: url,
           originalUrl: url,
@@ -475,8 +592,60 @@ export default function ProductDetails() {
       return updated;
     });
 
-    showToast("Image selected. Click 'Save changes' to update.", "green");
+    showToast("Image updated. Click 'Save changes' to save.", "green");
   };
+
+  const handleAddMoreImages = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    setImages((prev) => {
+      const updated = [...prev];
+      const newFilesObj = {};
+
+      files.forEach((file, idx) => {
+        // Find if any imageAttribute is not yet covered
+        const existingTypes = new Set(updated.map((img) => String(img.type || "").toLowerCase()));
+        const unfilledAttr = imageAttributes.find(
+          (attr) => !existingTypes.has(String(attr.field || attr.type || attr.handle || "").toLowerCase())
+        );
+
+        let newType = unfilledAttr ? (unfilledAttr.field || unfilledAttr.type || unfilledAttr.handle) : null;
+        let nextOrder = unfilledAttr ? Number(unfilledAttr.order ?? (updated.length + 1)) : (updated.length + 1);
+
+        if (!newType) {
+          newType = `image_${Date.now()}_${idx + 1}`;
+        }
+
+        const url = URL.createObjectURL(file);
+        newFilesObj[newType] = { image: file, order: nextOrder };
+
+        updated.push({
+          id: newType,
+          type: newType,
+          order: nextOrder,
+          mainUrl: url,
+          thumbUrl: url,
+          originalUrl: url,
+        });
+      });
+
+      // Sort according to imageAttributes order
+      updated.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
+
+      setNewImageFiles((prevNew) => ({
+        ...prevNew,
+        ...newFilesObj,
+      }));
+
+      setSelectedImageIndex(updated.length - 1);
+      return updated;
+    });
+
+    showToast(`${files.length} new image(s) added. Click 'Save changes' to save.`, "green");
+    e.target.value = "";
+  };
+
 
   const handleSave = async () => {
     if (saving) return;
@@ -698,6 +867,17 @@ export default function ProductDetails() {
         }
       });
 
+      // Merge user-defined custom attributes into the category attributes payload (like in add single product).
+      // Keys are normalized in snake_case and values are stored as trimmed strings.
+      const customAttributesObj = {};
+      customAttributes.forEach(({ key, name, value }) => {
+        const snakeKey = toSnakeCase(key || name);
+        if (!snakeKey || value === undefined || value === "") return;
+        const trimmedVal = String(value).trim();
+        categoryAttributesPayload[snakeKey] = trimmedVal;
+        customAttributesObj[snakeKey] = trimmedVal;
+      });
+
       await updateProduct(
         activeUskuId,
         activeTypeId,
@@ -707,7 +887,13 @@ export default function ProductDetails() {
 
       if (Object.keys(newImageFiles).length > 0) {
         try {
-          await uploadProductImages(activeUskuId, newImageFiles);
+          // Use PUT /catalog/images/{usku_id} to update product images, with fallback to POST
+          try {
+            await updateProductImages(activeUskuId, newImageFiles);
+          } catch (putErr) {
+            console.warn("PUT /catalog/images failed, attempting POST fallback:", putErr);
+            await uploadProductImages(activeUskuId, newImageFiles);
+          }
         } catch (imgErr) {
           console.warn("Image upload warning:", imgErr);
         }
@@ -716,7 +902,13 @@ export default function ProductDetails() {
       setProduct((prev) => ({
         ...prev,
         ...formData,
+        ...customAttributesObj,
       }));
+      setFormData((prev) => ({
+        ...prev,
+        ...customAttributesObj,
+      }));
+      setCustomAttributes([]);
       setNewImageFiles({});
       setIsEditing(false);
       showToast("Product details updated successfully!", "green");
@@ -1267,42 +1459,57 @@ export default function ProductDetails() {
           {/* Image Gallery */}
           {images.length > 0 && currentImage ? (
             <div className={styles.gallery}>
-              {images.length > 1 && (
-                <div className={styles.thumbnails}>
-                  {images.map((img, idx) => (
-                    <div
-                      key={img.id || idx}
-                      className={
-                        selectedImageIndex === idx
-                          ? styles.thumbWrapActive
-                          : styles.thumbWrap
+              <div className={styles.thumbnails}>
+                {images.map((img, idx) => (
+                  <div
+                    key={img.id || idx}
+                    className={
+                      selectedImageIndex === idx
+                        ? styles.thumbWrapActive
+                        : styles.thumbWrap
+                    }
+                    onClick={() => setSelectedImageIndex(idx)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        setSelectedImageIndex(idx);
                       }
-                      onClick={() => setSelectedImageIndex(idx)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          setSelectedImageIndex(idx);
-                        }
+                    }}
+                    title={
+                      img.type
+                        ? `View ${img.type} image`
+                        : `View image ${idx + 1}`
+                    }
+                  >
+                    <img
+                      src={img.thumbUrl || img.mainUrl || imageNA}
+                      alt={img.type || `Thumbnail ${idx + 1}`}
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = imageNA;
                       }}
-                      title={
-                        img.type
-                          ? `View ${img.type} image`
-                          : `View image ${idx + 1}`
-                      }
-                    >
-                      <img
-                        src={img.thumbUrl || img.mainUrl || imageNA}
-                        alt={img.type || `Thumbnail ${idx + 1}`}
-                        onError={(e) => {
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.src = imageNA;
-                        }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
+                    />
+                  </div>
+                ))}
+
+                {isEditing && (
+                  <label
+                    className={styles.addThumbWrap}
+                    title="Add more product images"
+                  >
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      style={{ display: "none" }}
+                      onChange={handleAddMoreImages}
+                    />
+                    <span className={styles.addThumbIcon}>+</span>
+                    <span>Add</span>
+                  </label>
+                )}
+              </div>
 
               <div className={styles.mainImage}>
                 <img
@@ -1333,32 +1540,62 @@ export default function ProductDetails() {
                 )}
 
                 {isEditing && (
-                  <label
-                    className={styles.replaceImageBtn}
-                    title="Upload replacement image"
-                  >
-                    <input
-                      type="file"
-                      accept="image/*"
-                      style={{ display: "none" }}
-                      onChange={handleImageUpload}
-                    />
-                    <svg
-                      width="14"
-                      height="14"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth="2"
+                  <div className={styles.galleryActions}>
+                    <label
+                      className={styles.galleryActionBtn}
+                      title="Upload replacement for this image"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: "none" }}
+                        onChange={handleImageUpload}
                       />
-                    </svg>
-                    Replace Image
-                  </label>
+                      <svg
+                        width="14"
+                        height="14"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                        />
+                      </svg>
+                      Replace
+                    </label>
+
+                    <label
+                      className={`${styles.galleryActionBtn} ${styles.galleryActionBtnPrimary}`}
+                      title="Add more images to this product"
+                    >
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        style={{ display: "none" }}
+                        onChange={handleAddMoreImages}
+                      />
+                      <svg
+                        width="14"
+                        height="14"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M12 4v16m8-8H4"
+                        />
+                      </svg>
+                      Add Images
+                    </label>
+                  </div>
                 )}
 
                 {isEditing && errors.images && (
@@ -1420,8 +1657,9 @@ export default function ProductDetails() {
                     <input
                       type="file"
                       accept="image/*"
+                      multiple
                       style={{ display: "none" }}
-                      onChange={handleImageUpload}
+                      onChange={handleAddMoreImages}
                     />
                     <svg
                       width="14"
@@ -1842,25 +2080,96 @@ export default function ProductDetails() {
               </div>
             )}
 
-            {/* Additional Attributes Box */}
-            {extraItems.length > 0 && (
+            {/* Additional Attributes Box (includes Custom Attributes in Edit Mode) */}
+            {(extraItems.length > 0 || isEditing) && (
               <div className={styles.specsBox} style={{ marginTop: "24px" }}>
                 <h2 className={styles.sectionTitle}>Additional Details</h2>
-                <div className={styles.specsGrid}>
-                  {renderedExtraCols.map((colItems, colIdx) => (
-                    <div className={styles.specsCol} key={`extra-col-${colIdx}`}>
-                      {colItems.map((item) =>
-                        renderSpecRow(
-                          item.label,
-                          item.fieldKey,
-                          item.type,
-                          item.unit,
-                          item.attrMeta,
-                        ),
-                      )}
-                    </div>
-                  ))}
-                </div>
+                <p className={styles.sectionSubhead}>
+                  Custom and supplemental product specifications
+                </p>
+
+                {extraItems.length > 0 && (
+                  <div className={styles.specsGrid}>
+                    {renderedExtraCols.map((colItems, colIdx) => (
+                      <div className={styles.specsCol} key={`extra-col-${colIdx}`}>
+                        {colItems.map((item) =>
+                          renderSpecRow(
+                            item.label,
+                            item.fieldKey,
+                            item.type,
+                            item.unit,
+                            item.attrMeta,
+                          ),
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Custom Attributes inside Additional Details */}
+                {isEditing && (
+                  <>
+                    {customAttributes.length > 0 && (
+                      <div
+                        className={styles.customAttrsContainer}
+                        style={{ marginTop: extraItems.length > 0 ? "20px" : "0" }}
+                      >
+                        {customAttributes.map((attr) => (
+                          <div className={styles.customAttrRow} key={attr.id}>
+                            <input
+                              type="text"
+                              placeholder="Attribute name"
+                              value={attr.name}
+                              maxLength={100}
+                              onChange={(e) =>
+                                handleCustomAttributeChange(
+                                  attr.id,
+                                  "name",
+                                  e.target.value,
+                                )
+                              }
+                              className={styles.customAttrNameInput}
+                            />
+
+                            <div className={styles.customAttrValueWrap}>
+                              <input
+                                type="text"
+                                placeholder="Enter the attribute description"
+                                value={attr.value || ""}
+                                onChange={(e) =>
+                                  handleCustomAttributeChange(
+                                    attr.id,
+                                    "value",
+                                    e.target.value,
+                                  )
+                                }
+                                className={styles.customAttrValueInput}
+                              />
+
+                              <button
+                                type="button"
+                                onClick={() => removeCustomAttribute(attr.id)}
+                                title="Remove attribute"
+                                className={styles.removeAttrBtn}
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={addCustomAttribute}
+                      className={styles.addCustomAttrBtn}
+                    >
+                      <span className={styles.addBtnIcon}>+</span>
+                      Add Custom Attribute
+                    </button>
+                  </>
+                )}
               </div>
             )}
 
