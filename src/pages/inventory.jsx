@@ -1,93 +1,72 @@
-import { useState, useEffect } from "react";
+/**
+ * Inventory Page
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Top-level route component for /inventory/*
+ *
+ * Responsibilities:
+ *  • Renders the page header (title + live-sync subtitle)
+ *  • Owns the Inventory / Inward / GRN tab strip
+ *  • Delegates content to <StockInventory> or <Inward> based on active tab
+ *
+ * Props:
+ *  tab  "inventory" | "inward" | "grn"   initial active tab (set by router)
+ */
+
+import { useState } from "react";
+import { Link } from "react-router-dom";
+
 import styles from "../css/pages/inventory.Inventory.module.css";
-import Counter from "../components/Counter";
 import StockInventory from "../components/stockInventory";
 import Inward from "../components/inwardInventory";
-import { Link } from "react-router-dom";
-const url = import.meta.env.VITE_BASEAPI;
+import GrnInventory from "../components/grnInventory";
 
-export default function Inventory({tab}) {
-  const [activeTab, setActiveTab] = useState(tab);
+/* ─── Tab configuration ──────────────────────────────────────────────────── */
+const TABS = [
+  { id: "inventory", label: "Inventory", to: "/inventory/stock" },
+  { id: "inward", label: "Inward", to: "/inventory/inward" },
+  { id: "grn", label: "GRN", to: "/inventory/grn" },
+];
+
+/* ─── Component ──────────────────────────────────────────────────────────── */
+export default function Inventory({ tab }) {
+  const [activeTab, setActiveTab] = useState(tab ?? "inventory");
 
   return (
-    <div className={styles.InventoryGlobalContainer}>
-      <div className={styles.pageWrapper}>
-        <div className={styles.customBox}>
-          {/* <img
-            src="/src/assets/icons/hero.svg"
-            className={styles.heroBg}
-            alt=""
-          /> */}
-          <div className={styles.leftCustom}>
-            <h1>Manage Inventory</h1>
-            <p>
-              Welcome back, Sarah! Here's a snapshot of your platform's
-              performance.
-            </p>
-          </div>
+    <div className={styles.pageRoot}>
 
-          {/* <div className={styles.buttonCustom}>
-            <button className={styles.downRep}>Download Report</button>
-          </div> */}
+      {/* ── Page Header ─────────────────────────────────────────────────── */}
+      <header className={styles.pageHeader}>
+        <div className={styles.pageHeaderText}>
+          <h1 className={styles.pageTitle}>Inventory</h1>
+          <p className={styles.pageSubtitle}>
+            Live stock across 3 warehouses&nbsp;·&nbsp;Synced 4 minutes ago
+          </p>
         </div>
+      </header>
 
-        {/* tabs Section */}
-        <div className={styles.inventorySection}>
-          <div className={styles.tabsRow}>
-            <ul className={styles.tabs}>
-              <li
-                className={`${styles.tab} ${activeTab === "inventory" ? styles.active : ""}`}
-                onClick={() => setActiveTab("inventory")}
-              >
-                <Link className={styles.navigationLink} to={"/inventory/stock"}>Inventory</Link>
-              </li>
-              <li
-                className={`${styles.tab} ${activeTab === "inward" ? styles.active : ""}`}
-                onClick={() => setActiveTab("inward")}
-              >
-                <Link className={styles.navigationLink} to={"/inventory/inward"}>Inward</Link>
-              </li>
-              <li
-                className={`${styles.tab} ${activeTab === "grn" ? styles.active : ""}`}
-                onClick={() => setActiveTab("grn")}
-              >
-                <Link className={styles.navigationLink} to={"/inventory/grn"}>GRN</Link>
-              </li>
-            </ul>
-          </div>
-
-          <hr />
-
-          <div className={styles.filterSearchRow}>
-            <div className={styles.filterArea}>
-              <label htmlFor="category">Filter By</label>
-              <select id="category">
-                <option>Select Category</option>
-                <option>Category 1</option>
-                <option>Category 2</option>
-              </select>
-            </div>
-
-            <div className={styles.searchArea}>
-              <input
-                type="text"
-                placeholder="Search by File Name"
-                className={styles.searchInput}
-              />
-              <button type="button" className={styles.searchBtn}>
-                <img
-                  src="/src/assets/icons/search.svg"
-                  className={styles.searchIcon}
-                  alt="search"
-                />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {activeTab==="inventory"? <StockInventory />: 
-          activeTab==="inward"? <Inward/>: null}
+      {/* ── Tab Strip ───────────────────────────────────────────────────── */}
+      <div className={styles.tabStrip}>
+        <nav className={styles.tabList} aria-label="Inventory sections">
+          {TABS.map(({ id, label, to }) => (
+            <Link
+              key={id}
+              to={to}
+              className={`${styles.tabItem} ${activeTab === id ? styles.tabItemActive : ""}`}
+              onClick={() => setActiveTab(id)}
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
       </div>
+
+      {/* ── Tab Content ─────────────────────────────────────────────────── */}
+      <main className={styles.tabContent}>
+        {activeTab === "inventory" && <StockInventory />}
+        {activeTab === "inward" && <Inward />}
+        {activeTab === "grn" && <GrnInventory />}
+      </main>
+
     </div>
   );
 }
