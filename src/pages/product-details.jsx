@@ -15,150 +15,10 @@ import { toSnakeCase, toPascalCase } from "../hooks/useCatalogForm";
 import styles from "../css/pages/ProductDetails.module.css";
 import { toastContext } from "../appContext";
 
-const route = import.meta.env.VITE_BASEAPI;
+const route = import.meta.env.VITE_BASEAPI
 
-const resolveImageUrl = (path) => {
-  if (!path || typeof path !== "string") return "";
-  if (
-    path.startsWith("http://") ||
-    path.startsWith("https://") ||
-    path.startsWith("data:") ||
-    path.startsWith("blob:")
-  ) {
-    return path;
-  }
-  const cleanBase = (route || "").replace(/\/+$/, "");
-  const cleanPath = path.replace(/^\/+/, "");
-  return cleanBase ? `${cleanBase}/${cleanPath}` : `/${cleanPath}`;
-};
 
-const normalizeProductImages = (data, imageAttributes = []) => {
-  if (!data) return [];
 
-  // Create lookup map for attribute order: type/field/handle -> order
-  const attrOrderMap = new Map();
-  if (Array.isArray(imageAttributes) && imageAttributes.length > 0) {
-    imageAttributes.forEach((attr, idx) => {
-      const order = Number(attr.order ?? idx + 1);
-      if (attr.field) attrOrderMap.set(String(attr.field).toLowerCase(), order);
-      if (attr.handle) attrOrderMap.set(String(attr.handle).toLowerCase(), order);
-      if (attr.type) attrOrderMap.set(String(attr.type).toLowerCase(), order);
-      if (attr.name) attrOrderMap.set(String(attr.name).toLowerCase(), order);
-    });
-  }
-
-  const getImageOrder = (entry, key) => {
-    const rawType = String(entry?.image_type || key || "").toLowerCase();
-    if (attrOrderMap.has(rawType)) {
-      return attrOrderMap.get(rawType);
-    }
-    const orderNum = Number(entry?.image_order ?? entry?.order ?? 0);
-    return orderNum > 0 ? orderNum : 999;
-  };
-
-  const processImageEntry = (entry, key = "") => {
-    if (!entry) return null;
-
-    const assignedOrder = getImageOrder(entry, key);
-
-    if (typeof entry === "string") {
-      const full = resolveImageUrl(entry);
-      return {
-        id: key || full,
-        type: key,
-        order: assignedOrder,
-        mainUrl: full,
-        thumbUrl: full,
-        originalUrl: full,
-      };
-    }
-
-    const urls = entry.image_urls || entry;
-
-    if (typeof urls === "string") {
-      const full = resolveImageUrl(urls);
-      return {
-        id: key || full,
-        type: entry.image_type || key,
-        order: assignedOrder,
-        mainUrl: full,
-        thumbUrl: full,
-        originalUrl: full,
-      };
-    }
-
-    if (urls && typeof urls === "object") {
-      const highResol = resolveImageUrl(
-        urls.high_resol_webp || urls.high_resol,
-      );
-      const lowResol = resolveImageUrl(urls.low_resol_webp || urls.low_resol);
-      const original = resolveImageUrl(urls.original);
-      const webpCard = resolveImageUrl(urls.webp_card);
-
-      const mainUrl = highResol || webpCard || original || lowResol;
-      const thumbUrl = lowResol || webpCard || highResol || original;
-      const originalUrl = original || highResol || webpCard || mainUrl;
-
-      if (!mainUrl && !thumbUrl) return null;
-
-      return {
-        id: entry.id || key || mainUrl,
-        type: entry.image_type || key || "image",
-        order: assignedOrder,
-        mainUrl,
-        thumbUrl,
-        originalUrl,
-      };
-    }
-
-    return null;
-  };
-
-  const results = [];
-
-  if (Array.isArray(data)) {
-    data.forEach((item, idx) => {
-      const parsed = processImageEntry(item, item.image_type || `image_${idx}`);
-      if (parsed) results.push(parsed);
-    });
-  } else if (data && typeof data === "object") {
-    if (data.image_urls && !Array.isArray(data.image_urls)) {
-      const parsed = processImageEntry(data, data.image_type || "default");
-      if (parsed) results.push(parsed);
-    } else if (Array.isArray(data.images)) {
-      data.images.forEach((item, idx) => {
-        const parsed = processImageEntry(
-          item,
-          item.image_type || `image_${idx}`,
-        );
-        if (parsed) results.push(parsed);
-      });
-    } else if (Array.isArray(data.image_urls)) {
-      data.image_urls.forEach((item, idx) => {
-        const parsed = processImageEntry(
-          item,
-          item.image_type || `image_${idx}`,
-        );
-        if (parsed) results.push(parsed);
-      });
-    } else {
-      Object.entries(data).forEach(([key, val]) => {
-        if (val && typeof val === "object") {
-          const parsed = processImageEntry(val, key);
-          if (parsed) results.push(parsed);
-        }
-      });
-    }
-  }
-
-  // Sort strictly by the assigned image_attributes order first, then order, then index
-  results.sort((a, b) => {
-    if (a.order !== b.order) return a.order - b.order;
-    return String(a.type).localeCompare(String(b.type));
-  });
-
-  return results;
-};
 
 
 export default function ProductDetails() {
@@ -169,7 +29,7 @@ export default function ProductDetails() {
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("Overview");
   const [images, setImages] = useState([]);
-  const [selectedImageType, setSelectedImageType] = useState(0);
+  const [selectedImageType, setSelectedImageType] = useState();
   const [imagesLoading, setImagesLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(
     searchParams.get("edit") === "true",
@@ -179,14 +39,120 @@ export default function ProductDetails() {
   const [isDescExpanded, setIsDescExpanded] = useState(false);
 
   const [customAttributes, setCustomAttributes] = useState([]);
-  const showToast = useContext(toastContext);
   const [listingAttributes, setListingAttributes] = useState([]);
   const [categoryAttributes, setCategoryAttributes] = useState([]);
   const [imageAttributes, setImageAttributes] = useState([]);
   const [attributesLoading, setAttributesLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  console.log(imageAttributes)
-  console.log(images)
+  const showToast = useContext(toastContext);
+  const uskuId = searchParams.get("usku-id") || searchParams.get("id");
+  // console.log(formData)
+  // console.log(product)
+
+  /**
+   * SETTING THE DEFAULT SELECTED IMAGE AS THE FIRST IMAGE OF THE ATTRIBUTE 
+   */
+  useEffect(()=> {
+    setSelectedImageType(imageAttributes[0]?.field);
+  }, [imageAttributes])
+
+
+
+  /**
+   * Fetch product attributes which gets listing_attributes, category_attributes and image_attributes
+   * @param {object} targetProduct 
+   * @returns null
+   */
+  const fetchAttributes = async (targetProduct) => {
+    const activeTypeId =
+      targetProduct?.type_id ||
+      targetProduct?.category_id ||
+      targetProduct?.type ||
+      searchParams.get("type") ||
+      searchParams.get("type-id") ||
+      "";
+
+    const vertical =
+      targetProduct?.vertical !== undefined && targetProduct?.vertical !== null
+        ? targetProduct.vertical
+        : searchParams.get("vertical") || "";
+
+    if (!activeTypeId) return;
+
+    try {
+      setAttributesLoading(true);
+      const data = await getAttributeFields(activeTypeId, vertical);
+      if (data?.listing_attributes) {
+        setListingAttributes(data.listing_attributes);
+      } 
+      if (data?.category_attributes) {
+        setCategoryAttributes(data.category_attributes);
+      }
+      if (data?.image_attributes) {
+        setImageAttributes(data.image_attributes);
+      }
+    } catch (err) {
+      console.warn("Failed to fetch attributes:", err);
+    } finally {
+      setAttributesLoading(false);
+    }
+  };
+
+
+
+  /**
+   * SETTING PRODUCT DATA, `listing_attributes`, `category_attributes`
+   */
+  useEffect(() => {
+    const fetchProductDetails = async () => {
+      try {
+        setLoading(true);
+        const data = await getProduct(uskuId);
+
+        if (data) {
+          setProduct(data);
+          fetchAttributes(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch product:", err);
+        setError("Failed to load product details.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (uskuId) {
+      fetchProductDetails();
+    }
+  }, [uskuId]);
+
+
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      if (!uskuId) return;
+
+      try {
+        setImagesLoading(true);
+        let data = null;
+
+        try {
+          data = await getProductImages(uskuId);
+        } catch (err) {
+          showToast(err, "red");
+        }
+
+        setImages(data)
+      } finally {
+        setImagesLoading(false);
+      }
+    };
+
+    fetchImages();
+  }, [uskuId, product?.usku_id, product?.sku_id, product?.image_url, imageAttributes]);
+
+
+
   const addCustomAttribute = () => {
     setCustomAttributes((prev) => [
       ...prev,
@@ -198,6 +164,7 @@ export default function ProductDetails() {
       },
     ]);
   };
+
 
   const handleCustomAttributeChange = (id, field, val) => {
     setCustomAttributes((prev) =>
@@ -230,11 +197,10 @@ export default function ProductDetails() {
     );
   };
 
+
   const removeCustomAttribute = (id) => {
     setCustomAttributes((prev) => prev.filter((attr) => attr.id !== id));
   };
-
-  const uskuId = searchParams.get("usku-id") || searchParams.get("id");
 
   const formatFieldName = (key) =>
     key ? key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "";
@@ -345,190 +311,34 @@ export default function ProductDetails() {
     return null;
   };
 
-  const fetchAttributes = async (targetProduct = product) => {
-    const activeTypeId =
-      targetProduct?.type_id ||
-      targetProduct?.category_id ||
-      targetProduct?.type ||
-      searchParams.get("type") ||
-      searchParams.get("type-id") ||
-      "";
-
-    const vertical =
-      targetProduct?.vertical !== undefined && targetProduct?.vertical !== null
-        ? targetProduct.vertical
-        : searchParams.get("vertical") || "";
-
-    if (!activeTypeId) return;
-
-    try {
-      setAttributesLoading(true);
-      const data = await getAttributeFields(activeTypeId, vertical);
-      if (data?.listing_attributes) {
-        setListingAttributes(data.listing_attributes);
-      }
-      if (data?.category_attributes) {
-        setCategoryAttributes(data.category_attributes);
-      }
-      if (data?.image_attributes) {
-        setImageAttributes(data.image_attributes);
-      }
-    } catch (err) {
-      console.warn("Failed to fetch attributes:", err);
-    } finally {
-      setAttributesLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    const fetchProductDetails = async () => {
-      try {
-        setLoading(true);
-        const data = await getProduct(uskuId);
-        let prod = null;
-        if (data && data["catalog-list"] && data["catalog-list"].length > 0) {
-          prod = data["catalog-list"][0];
-        } else if (data && data.catalog_list && data.catalog_list.length > 0) {
-          prod = data.catalog_list[0];
-        } else {
-          prod = data;
-        }
-
-        if (prod) {
-          const flat = { ...prod };
-          if (prod.listing_attributes) {
-            Object.assign(flat, prod.listing_attributes);
-          }
-          if (prod.category_attributes) {
-            Object.assign(flat, prod.category_attributes);
-          }
-          if (flat.hsn && !flat.hsn_code) flat.hsn_code = flat.hsn;
-          if (flat.hsn_code && !flat.hsn) flat.hsn = flat.hsn_code;
-          if (flat.description && !flat.product_desc) flat.product_desc = flat.description;
-          if (flat.product_desc && !flat.description) flat.description = flat.product_desc;
-
-          setProduct(flat);
-          setFormData(flat);
-          fetchAttributes(flat);
-        }
-      } catch (err) {
-        console.error("Failed to fetch product:", err);
-        setError("Failed to load product details.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (uskuId) {
-      fetchProductDetails();
-    }
-  }, [uskuId]);
-
-  useEffect(() => {
-    const fetchImages = async () => {
-      if (!uskuId) return;
-
-      try {
-        setImagesLoading(true);
-        let data = null;
-
-        try {
-          data = await getProductImages(uskuId);
-        } catch (err) {
-          showToast(err, "red");
-        }
-
-        setImages(data)
-
-      //   let parsed = normalizeProductImages(data, imageAttributes);
-
-      //   // Fallback to product.image_url if endpoint had no images
-      //   if (parsed.length === 0 && product?.image_url) {
-      //     parsed = normalizeProductImages(product.image_url, imageAttributes);
-      //   }
-
-      //   setImages(parsed);
-      //   setSelectedImageType(0);
-      // } catch (err) {
-      //   console.error("Failed to load product images:", err);
-      //   if (product?.image_url) {
-      //     setImages(normalizeProductImages(product.image_url, imageAttributes));
-      //   } else {
-      //     setImages([]);
-      //   }
-
-      } finally {
-        setImagesLoading(false);
-      }
-    };
-
-    fetchImages();
-  }, [uskuId, product?.usku_id, product?.sku_id, product?.image_url, imageAttributes]);
-
-
-  //WHY??
-  // When imageAttributes are loaded, re-sort images according to image_attributes order
-  useEffect(() => {
-    if (images.length > 0 && imageAttributes.length > 0) {
-      setImages((prevImages) => {
-        const resorted = [...prevImages].sort((a, b) => {
-          const getAttrOrder = (img) => {
-            const rawType = String(img.type || img.id || "").toLowerCase();
-            const matched = imageAttributes.find((attr) => {
-              const field = String(attr.field || "").toLowerCase();
-              const handle = String(attr.handle || "").toLowerCase();
-              const type = String(attr.type || "").toLowerCase();
-              const name = String(attr.name || "").toLowerCase();
-              return rawType === field || rawType === handle || rawType === type || rawType === name;
-            });
-            if (matched) return Number(matched.order ?? 1);
-            return Number(img.order ?? 999);
-          };
-
-          const orderA = getAttrOrder(a);
-          const orderB = getAttrOrder(b);
-          if (orderA !== orderB) return orderA - orderB;
-          return (Number(a.order) || 0) - (Number(b.order) || 0);
-        });
-
-        // Only update if order actually changed
-        const hasChanged = resorted.some((img, idx) => img.id !== prevImages[idx]?.id);
-        return hasChanged ? resorted : prevImages;
-      });
-    }
-  }, [imageAttributes]);
-
-  useEffect(() => {
-    if (isEditing && product) {
-      fetchAttributes(product);
-    }
-  }, [isEditing, product?.type_id, product?.category_id, product?.type]);
-
   const handleStartEdit = () => {
     setIsEditing(true);
-    setFormData({ ...product });
     setErrors({});
     setNewImageFiles({});
   };
 
+
   const handleCancelEdit = () => {
     setIsEditing(false);
-    setFormData({ ...product });
+    setFormData({});
     setCustomAttributes([]);
     setErrors({});
     setNewImageFiles({});
   };
 
-  const handleInputChange = (key, value) => {
+
+  /**
+   * Set form data to update the product details for listing_attributes and category_attributes
+   * @param {string} attType - listing_attributes or category_attributes
+   * @param {string} key - attribute
+   * @param {string| value} value - data
+   */
+  const handleInputChange = (attType, key, value) => {
     setFormData((prev) => {
       const next = {
         ...prev,
-        [key]: value,
+        [attType]: {...prev[attType], [key]: value}
       };
-      if (key === "product_desc") next.description = value;
-      if (key === "description") next.product_desc = value;
-      if (key === "hsn_code") next.hsn = value;
-      if (key === "hsn") next.hsn_code = value;
       return next;
     });
 
@@ -597,6 +407,7 @@ export default function ProductDetails() {
     // showToast("Image updated. Click 'Save changes' to save.", "green");
   };
 
+
   const handleAddMoreImages = (e) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
@@ -647,6 +458,7 @@ export default function ProductDetails() {
     showToast(`${files.length} new image(s) added. Click 'Save changes' to save.`, "green");
     e.target.value = "";
   };
+
 
 
   const handleSave = async () => {
@@ -901,15 +713,14 @@ export default function ProductDetails() {
         }
       }
 
-      setProduct((prev) => ({
-        ...prev,
-        ...formData,
-        ...customAttributesObj,
-      }));
-      setFormData((prev) => ({
-        ...prev,
-        ...customAttributesObj,
-      }));
+      // setProduct((prev) => ({
+      //   ...prev,
+      //   ...customAttributesObj,
+      // }));
+      // setFormData((prev) => ({
+      //   ...prev,
+      //   ...customAttributesObj,
+      // }));
       setCustomAttributes([]);
       setNewImageFiles({});
       setIsEditing(false);
@@ -922,15 +733,20 @@ export default function ProductDetails() {
     }
   };
 
+
   if (loading) {
     return <div className={styles.loading}>Loading product details...</div>;
   }
+
 
   if (error || !product) {
     return <div className={styles.error}>{error || "Product not found"}</div>;
   }
 
-  const displayData = isEditing ? formData : product;
+  /**
+   * FINDING CUSTOM ATTRIBUTE
+   */
+  const displayData =  product;
 
   const {
     product_title,
@@ -955,12 +771,13 @@ export default function ProductDetails() {
     displayData.category_name ||
     displayData.type ||
     displayData.category ||
+    displayData.type_name||
     searchParams.get("type-name") ||
     searchParams.get("type") ||
     "";
 
+
   const currentImage = images[selectedImageType] || images.main || null;
-  console.log(images[selectedImageType]?.image_urls.high_resol_webp )
   const currentPriceNum = price ? Number(price) : 0;
   const purchasingCostNum = purchasing_cost ? Number(purchasing_cost) : 0;
   const comparedPriceNum = compared_price ? Number(compared_price) : 0;
@@ -1009,6 +826,7 @@ export default function ProductDetails() {
     categoryItems = categoryAttributes
       .filter((attr) => attr.field && attr.field !== "niche_id")
       .map((attr) => ({
+        attType: "category_attributes",
         label: attr.name || formatLabel(attr.field),
         fieldKey: attr.field,
         type:
@@ -1020,34 +838,8 @@ export default function ProductDetails() {
         unit: getUnit(attr.field),
         attrMeta: attr,
       }));
-  } else {
-    const fallbackCategoryKeys = [
-      "age_group",
-      "fabric",
-      "blouse_fabric",
-      "blouse_piece_included",
-      "saree_length_meters",
-      "blouse_length_meters",
-      "border_type",
-      "pallu_type",
-      "pattern",
-      "work",
-      "occasion",
-      "style",
-      "stitch",
-      "set_items_included",
-      "care",
-    ];
-    categoryItems = fallbackCategoryKeys
-      .filter((key) => isEditing || (product && product[key] !== undefined && product[key] !== ""))
-      .map((key) => ({
-        label: formatLabel(key),
-        fieldKey: key,
-        type: key.endsWith("_meters") ? "number" : "text",
-        unit: getUnit(key),
-        attrMeta: null,
-      }));
-  }
+  } 
+
 
   // 2. Dynamic Listing Attributes (excluding fields featured in header / commercial summary)
   const headerOrSummaryKeys = new Set([
@@ -1066,6 +858,7 @@ export default function ProductDetails() {
     listingItems = listingAttributes
       .filter((attr) => attr.field && !headerOrSummaryKeys.has(attr.field))
       .map((attr) => ({
+        attType: "listing_attributes",
         label: attr.name || formatLabel(attr.field),
         fieldKey: attr.field,
         type:
@@ -1076,29 +869,6 @@ export default function ProductDetails() {
             : "text",
         unit: getUnit(attr.field),
         attrMeta: attr,
-      }));
-  } else {
-    const fallbackListingKeys = [
-      "vendor",
-      "tags",
-      "upc",
-      "ean",
-      "gtin",
-      "isbn",
-      "hsn_code",
-      "hsn",
-      "dead_weight_kg",
-      "net_weight_kg",
-      "volumetric_weight_kg",
-    ];
-    listingItems = fallbackListingKeys
-      .filter((key) => isEditing || (product && product[key] !== undefined && product[key] !== ""))
-      .map((key) => ({
-        label: formatLabel(key === "hsn" ? "HSN" : key === "ean" ? "EAN" : key),
-        fieldKey: key,
-        type: key.endsWith("_kg") ? "number" : "text",
-        unit: getUnit(key),
-        attrMeta: null,
       }));
   }
 
@@ -1136,6 +906,7 @@ export default function ProductDetails() {
     "category_attributes",
   ]);
 
+  // 
   const extraItems = Object.keys(displayData)
     .filter(
       (key) =>
@@ -1161,13 +932,13 @@ export default function ProductDetails() {
   const renderedCategoryCols = chunkIntoCols(categoryItems, 3);
   const renderedListingCols = chunkIntoCols(listingItems, 3);
   const renderedExtraCols = chunkIntoCols(extraItems, 3);
-
   const renderSpecRow = (
     label,
     fieldKey,
     type = "text",
     unit = "",
-    attrMeta = null,
+    attType = null,
+    attrMeta = null
   ) => {
     const meta =
       attrMeta ||
@@ -1183,7 +954,7 @@ export default function ProductDetails() {
       : `Enter ${label.toLowerCase()}`;
     const description = meta?.description;
     const maxLength = meta?.max_length;
-    const currentVal = formData[fieldKey] ?? "";
+    const currentVal = formData[attType]?.[fieldKey] ?? product[fieldKey];
     const hasError = Boolean(errors[fieldKey]);
     const isNumeric =
       meta?.type === "decimal" ||
@@ -1216,7 +987,7 @@ export default function ProductDetails() {
               <select
                 className={`${styles.editSpecSelect} ${hasError ? styles.inputError : ""}`}
                 value={currentVal}
-                onChange={(e) => handleInputChange(fieldKey, e.target.value)}
+                onChange={(e) => handleInputChange(attType, fieldKey, e.target.value)}
                 required={isRequired}
               >
                 <option value="">Select...</option>
@@ -1225,16 +996,6 @@ export default function ProductDetails() {
                     {opt}
                   </option>
                 ))}
-              </select>
-            ) : fieldKey === "blouse_piece_included" ? (
-              <select
-                className={`${styles.editSpecSelect} ${hasError ? styles.inputError : ""}`}
-                value={currentVal}
-                onChange={(e) => handleInputChange(fieldKey, e.target.value)}
-              >
-                <option value="">Select</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
               </select>
             ) : (
               <div className={styles.specInputWrap}>
@@ -1266,7 +1027,7 @@ export default function ProductDetails() {
                       : ""
                   } ${hasError ? styles.inputError : ""}`}
                   value={currentVal}
-                  onChange={(e) => handleInputChange(fieldKey, e.target.value)}
+                  onChange={(e) => handleInputChange(attType, fieldKey, e.target.value)}
                   placeholder={placeholder}
                 />
                 {unit && <span className={styles.unitBadge}>{unit}</span>}
@@ -1294,6 +1055,8 @@ export default function ProductDetails() {
     );
   };
 
+
+
   return (
     <div className={styles.container}>
       {/* Header */}
@@ -1308,10 +1071,10 @@ export default function ProductDetails() {
                 <input
                   type="text"
                   className={`${styles.titleInput} ${errors.product_title ? styles.inputError : ""}`}
-                  value={formData.product_title || ""}
+                  value={formData.listing_attributes?.product_title || product.product_title}
                   maxLength={200}
                   onChange={(e) =>
-                    handleInputChange("product_title", e.target.value)
+                    handleInputChange("listing_attributes", "product_title", e.target.value)
                   }
                   placeholder="Enter product title *"
                 />
@@ -1357,9 +1120,9 @@ export default function ProductDetails() {
                 <input
                   type="text"
                   className={`${styles.skuInput} ${errors.sku_id ? styles.inputError : ""}`}
-                  value={formData.sku_id || ""}
+                  value={formData.listing_attributes?.sku_id || product.sku_id || ""}
                   maxLength={100}
-                  onChange={(e) => handleInputChange("sku_id", e.target.value)}
+                  onChange={(e) => handleInputChange("listing_attributes", "sku_id", e.target.value)}
                   placeholder="SKU ID *"
                   title="SKU ID"
                 />
@@ -1498,7 +1261,7 @@ export default function ProductDetails() {
 
                 {
                   imageAttributes.map((attribute, idx) => {
-                    console.log(attribute)
+                    // console.log(attribute)
                     const imageURL = images[attribute.field]? `${route}/${images[attribute.field]?.image_urls?.webp_card}`: camera;
                     return (
                       <div
@@ -1745,11 +1508,11 @@ export default function ProductDetails() {
                       <span className={styles.currencySymbol}>₹</span>
                       <input
                         type="number"
-                        step="0.01"
+                        step="1.00"
                         className={styles.editInputPrice}
-                        value={formData.price ?? ""}
+                        value={formData.listing_attributes?.price ?? product.price}
                         onChange={(e) =>
-                          handleInputChange("price", e.target.value)
+                          handleInputChange("listing_attributes", "price", e.target.value)
                         }
                         placeholder="0.00"
                       />
@@ -1780,9 +1543,9 @@ export default function ProductDetails() {
                         type="number"
                         step="0.01"
                         className={styles.editInputCompared}
-                        value={formData.compared_price ?? ""}
+                        value={formData.listing_attributes?.compared_price ?? product.compared_price}
                         onChange={(e) =>
-                          handleInputChange("compared_price", e.target.value)
+                          handleInputChange("listing_attributes", "compared_price", e.target.value)
                         }
                         placeholder="0.00"
                       />
@@ -1820,9 +1583,9 @@ export default function ProductDetails() {
                         type="number"
                         step="0.01"
                         className={styles.editInputCompared}
-                        value={formData.purchasing_cost ?? ""}
+                        value={formData.listing_attributes?.purchasing_cost ?? product.purchasing_cost}
                         onChange={(e) =>
-                          handleInputChange("purchasing_cost", e.target.value)
+                          handleInputChange("listing_attributes", "purchasing_cost", e.target.value)
                         }
                         placeholder="0.00"
                       />
@@ -1855,71 +1618,6 @@ export default function ProductDetails() {
             <div className={styles.attributesGrid}>
               <div>
                 <div className={styles.label}>
-                  Color
-                  {categoryAttributesMap["color"]?.required && (
-                    <span className={styles.requiredStar}>*</span>
-                  )}
-                  {categoryAttributesMap["color"]?.description && (
-                    <span className={styles.pillDescription}>
-                      ?
-                      <span className={styles.descriptionTooltip}>
-                        {categoryAttributesMap["color"].description}
-                      </span>
-                    </span>
-                  )}
-                </div>
-                {isEditing ? (
-                  <div className={styles.editInputGroup}>
-                    <div className={styles.editInlineGroup}>
-                      <input
-                        type="color"
-                        className={styles.colorPicker}
-                        value={
-                          formData.color &&
-                          /^#[0-9A-Fa-f]{6}$/.test(formData.color)
-                            ? formData.color
-                            : "#ffbfa8"
-                        }
-                        onChange={(e) =>
-                          handleInputChange("color", e.target.value)
-                        }
-                        title="Pick color"
-                      />
-                      <input
-                        type="text"
-                        className={`${styles.editInputSmall} ${errors.color ? styles.inputError : ""}`}
-                        value={formData.color || ""}
-                        maxLength={categoryAttributesMap["color"]?.max_length}
-                        onChange={(e) =>
-                          handleInputChange("color", e.target.value)
-                        }
-                        placeholder="Color name"
-                      />
-                    </div>
-                    {errors.color && (
-                      <div className={styles.fieldErrorText}>
-                        ⚠ {errors.color}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className={styles.valueWithIcon}>
-                    <span
-                      className={styles.colorSwatch}
-                      style={{
-                        backgroundColor:
-                          color &&
-                          (color.startsWith("#") || color.startsWith("rgb"))
-                            ? color
-                            : "#ffbfa8",
-                      }}
-                    ></span>
-                    {color || "-"}
-                  </div>
-                )}
-              </div>
-              <div>
-                <div className={styles.label}>
                   Brand <span className={styles.requiredStar}>*</span>
                 </div>
                 {isEditing ? (
@@ -1927,10 +1625,10 @@ export default function ProductDetails() {
                     <input
                       type="text"
                       className={`${styles.editInputSmall} ${errors.brand_name ? styles.inputError : ""}`}
-                      value={formData.brand_name || ""}
+                      value={formData.listing_attributes?.brand_name || product.brand_name}
                       maxLength={255}
                       onChange={(e) =>
-                        handleInputChange("brand_name", e.target.value)
+                        handleInputChange("listing_attributes", "brand_name", e.target.value)
                       }
                       placeholder="Brand name *"
                     />
@@ -1944,22 +1642,22 @@ export default function ProductDetails() {
                   <div className={styles.value}>{brand_name || "-"}</div>
                 )}
               </div>
-              <div>
+              {/* <div>
                 <div className={styles.label}>Collection</div>
                 {isEditing ? (
                   <input
                     type="text"
                     className={styles.editInputSmall}
-                    value={formData.collection_id || ""}
+                    value={formData.listing_attributes?.collection_id || ""}
                     onChange={(e) =>
-                      handleInputChange("collection_id", e.target.value)
+                      handleInputChange("listing_attributes", "collection_id", e.target.value)
                     }
                     placeholder="Collection ID"
                   />
                 ) : (
                   <div className={styles.value}>{collection_id || "-"}</div>
                 )}
-              </div>
+              </div> */}
               <div>
                 <div className={styles.label}>Vendor</div>
                 {isEditing ? (
@@ -1967,10 +1665,10 @@ export default function ProductDetails() {
                     <input
                       type="text"
                       className={`${styles.editInputSmall} ${errors.vendor ? styles.inputError : ""}`}
-                      value={formData.vendor || ""}
+                      value={formData.listing_attributes?.vendor || product.vendor}
                       maxLength={255}
                       onChange={(e) =>
-                        handleInputChange("vendor", e.target.value)
+                        handleInputChange("listing_attributes", "vendor", e.target.value)
                       }
                       placeholder="Vendor"
                     />
@@ -2015,16 +1713,16 @@ export default function ProductDetails() {
                     className={`${styles.editDescTextarea} ${errors.product_desc || errors.description ? styles.inputError : ""}`}
                     rows={4}
                     maxLength={5000}
-                    value={formData.product_desc ?? formData.description ?? ""}
+                    value={formData.listing_attributes?.product_desc ?? product.product_desc ?? ""}
                     onChange={(e) => {
-                      handleInputChange("product_desc", e.target.value);
-                      handleInputChange("description", e.target.value);
+                      handleInputChange("listing_attributes", "product_desc", e.target.value);
+                      handleInputChange("listing_attributes", "description", e.target.value);
                     }}
                     placeholder="Enter product description *"
                   />
                   <div className={styles.descMetaRow}>
                     <span className={styles.charCount}>
-                      {String(formData.product_desc ?? formData.description ?? "").length} / 5000
+                      {String(formData.listing_attributes?.product_desc ?? formData.description ?? "").length} / 5000
                     </span>
                     {(errors.product_desc || errors.description) && (
                       <span className={styles.fieldErrorText}>
@@ -2093,7 +1791,8 @@ export default function ProductDetails() {
                         item.fieldKey,
                         item.type,
                         item.unit,
-                        item.attrMeta,
+                        item.attType,
+                        item.attrMeta
                       ),
                     )}
                   </div>
@@ -2118,7 +1817,8 @@ export default function ProductDetails() {
                           item.fieldKey,
                           item.type,
                           item.unit,
-                          item.attrMeta,
+                          item.attType,
+                          item.attrMeta
                         ),
                       )}
                     </div>
@@ -2145,7 +1845,8 @@ export default function ProductDetails() {
                             item.fieldKey,
                             item.type,
                             item.unit,
-                            item.attrMeta,
+                            item.attType,
+                            item.attrMeta
                           ),
                         )}
                       </div>
@@ -2222,7 +1923,7 @@ export default function ProductDetails() {
 
             {/* Bottom Cards */}
             <div className={styles.bottomCardsGrid}>
-              <div className={styles.card}>
+              {/* <div className={styles.card}>
                 <h3 className={styles.cardTitle}>
                   <svg
                     width="16"
@@ -2247,9 +1948,9 @@ export default function ProductDetails() {
                       <input
                         type="number"
                         className={styles.editInputCard}
-                        value={formData.price ?? ""}
+                        value={formData.listing_attributes?.price ?? product.price}
                         onChange={(e) =>
-                          handleInputChange("price", e.target.value)
+                          handleInputChange("listing_attributes", "price", e.target.value)
                         }
                         placeholder="0"
                       />
@@ -2265,9 +1966,9 @@ export default function ProductDetails() {
                       <input
                         type="number"
                         className={styles.editInputCard}
-                        value={formData.compared_price ?? ""}
+                        value={formData.listing_attributes?.compared_price ?? ""}
                         onChange={(e) =>
-                          handleInputChange("compared_price", e.target.value)
+                          handleInputChange("listing_attributes", "compared_price", e.target.value)
                         }
                         placeholder="0"
                       />
@@ -2286,9 +1987,9 @@ export default function ProductDetails() {
                       <input
                         type="number"
                         className={styles.editInputCard}
-                        value={formData.purchasing_cost ?? ""}
+                        value={formData.listing_attributes?.purchasing_cost ?? ""}
                         onChange={(e) =>
-                          handleInputChange("purchasing_cost", e.target.value)
+                          handleInputChange("listing_attributes", "purchasing_cost", e.target.value)
                         }
                         placeholder="0"
                       />
@@ -2309,9 +2010,9 @@ export default function ProductDetails() {
                     </span>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
-              <div className={styles.card}>
+              {/* <div className={styles.card}>
                 <h3 className={styles.cardTitle}>
                   <svg
                     width="16"
@@ -2336,9 +2037,9 @@ export default function ProductDetails() {
                       <input
                         type="text"
                         className={styles.editInputCard}
-                        value={formData.sku_id || ""}
+                        value={formData.listing_attributes?.sku_id || ""}
                         onChange={(e) =>
-                          handleInputChange("sku_id", e.target.value)
+                          handleInputChange("listing_attributes", "sku_id", e.target.value)
                         }
                         placeholder="SKU"
                       />
@@ -2352,9 +2053,9 @@ export default function ProductDetails() {
                       <input
                         type="text"
                         className={styles.editInputCard}
-                        value={formData.ean || ""}
+                        value={formData.listing_attributes?.ean || ""}
                         onChange={(e) =>
-                          handleInputChange("ean", e.target.value)
+                          handleInputChange("listing_attributes", "ean", e.target.value)
                         }
                         placeholder="EAN"
                       />
@@ -2368,9 +2069,9 @@ export default function ProductDetails() {
                       <input
                         type="text"
                         className={styles.editInputCard}
-                        value={formData.hsn || ""}
+                        value={formData.listing_attributes?.hsn || ""}
                         onChange={(e) =>
-                          handleInputChange("hsn", e.target.value)
+                          handleInputChange("listing_attributes", "hsn", e.target.value)
                         }
                         placeholder="HSN"
                       />
@@ -2381,7 +2082,7 @@ export default function ProductDetails() {
                     )}
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               <div className={styles.cardSync}>
                 <h3 className={styles.cardTitle}>

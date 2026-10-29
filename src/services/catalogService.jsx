@@ -304,7 +304,7 @@ export const updateProduct = async (
   const response = await fetch(
     `${BASE_URL}/catalog/products/${encodeURIComponent(uskuId)}?type-id=${encodeURIComponent(typeId)}`,
     {
-      method: "PUT",
+      method: "PATCH",
       credentials: "include",
       headers,
       body: JSON.stringify({
