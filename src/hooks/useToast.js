@@ -37,5 +37,5 @@ export default function useToast(duration = 2000) {
     }, duration);
   };
 
-  return [ toast, showToast ];
+  return [toast, showToast];
 }
