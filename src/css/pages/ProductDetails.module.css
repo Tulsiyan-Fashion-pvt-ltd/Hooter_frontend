@@ -1465,7 +1465,7 @@
   width: 100%;
   aspect-ratio: 3/4;
   border-radius: 4px;
-  overflow: hidden;
+  /* overflow: hidden; */
   cursor: pointer;
   background-color: #f8fafc;
   border: 1px dashed #3b82f6;

@@ -11,7 +11,7 @@ import {
 } from "../services/catalogService";
 import { getFieldPlaceholder } from "../services/fieldPlaceholders";
 import imageNA from "../assets/icons/imagena.png";
-import { toSnakeCase, toPascalCase } from "../hooks/useCatalogForm";
+import { toSnakeCase, toPascalCase, toNameCase } from "../hooks/useCatalogForm";
 import styles from "../css/pages/ProductDetails.module.css";
 import { toastContext } from "../appContext";
 
@@ -46,8 +46,8 @@ export default function ProductDetails() {
   const [errors, setErrors] = useState({});
   const showToast = useContext(toastContext);
   const uskuId = searchParams.get("usku-id") || searchParams.get("id");
-  // console.log(formData)
-  // console.log(product)
+  console.log(formData)
+  console.log(customAttributes)
 
   /**
    * SETTING THE DEFAULT SELECTED IMAGE AS THE FIRST IMAGE OF THE ATTRIBUTE 
@@ -159,42 +159,54 @@ export default function ProductDetails() {
       {
         id: `ca_${Date.now()}`,
         name: "",
-        key: "",
+        key: "custom",
+        field: "",
         value: "",
       },
     ]);
+
+    setFormData((prev) => ({
+      ...prev,
+      "category_attributes": {...prev["category_attributes"], "": ""} // setting emtpy field and value
+    }))
   };
 
 
-  const handleCustomAttributeChange = (id, field, val) => {
+  const handleCustomAttributeChange = (id, val) => {
+    const raw = typeof val === "string" ? val : String(val ?? "");
+    const pascalName = toNameCase(raw.slice(0, 100));
+    const displayName = raw.endsWith(" ")
+      ? raw.slice(0, 100)
+      : pascalName || raw.slice(0, 100);
+    const newField = toSnakeCase(raw.slice(0, 100));
+
     setCustomAttributes((prev) =>
       prev.map((attr) => {
         if (attr.id !== id) return attr;
 
-        if (field === "name") {
-          const raw = typeof val === "string" ? val : String(val ?? "");
-          const pascalName = toPascalCase(raw.slice(0, 100));
-          const displayName = raw.endsWith(" ")
-            ? raw.slice(0, 100)
-            : pascalName || raw.slice(0, 100);
-
-          return {
-            ...attr,
-            name: displayName,
-            key: toSnakeCase(raw.slice(0, 100)),
-          };
-        }
-
-        if (field === "value") {
-          return {
-            ...attr,
-            value: typeof val === "string" ? val : String(val ?? ""),
-          };
-        }
-
-        return { ...attr, [field]: val };
+        return {
+          ...attr,
+          name: displayName,
+          field: newField,
+        };
       })
     );
+
+
+    // changing the field in the formdata aswell
+    setFormData((prev)=>{
+      let prevField;
+      for (let i = 0; i<customAttributes.length; i++){
+        if (customAttributes[i].id == id) prevField=customAttributes[i].field;
+      }
+
+      const {[prevField]: prevValue, ...remainingAttributes} = prev.category_attributes?? {};
+      console.log(prevValue)
+      return {
+        ...prev,
+        "category_attributes": {...remainingAttributes, [newField]: prevValue}
+      }
+    });
   };
 
 
@@ -545,158 +557,10 @@ export default function ProductDetails() {
     try {
       setSaving(true);
 
-      const activeUskuId = uskuId || formData.usku_id || formData.sku_id;
-      const activeTypeId =
-        formData.type_id ||
-        formData.category_id ||
-        formData.type ||
-        product?.type_id ||
-        product?.category_id ||
-        product?.type ||
-        searchParams.get("type") ||
-        searchParams.get("type-id") ||
-        "";
-
-      if (!activeUskuId) {
-        throw new Error("Universal SKU ID is missing.");
-      }
-
-      const numericFields = new Set([
-        "price",
-        "compared_price",
-        "purchasing_cost",
-        "net_weight_kg",
-        "dead_weight_kg",
-        "volumetric_weight_kg",
-        "saree_length_meters",
-        "blouse_length_meters",
-      ]);
-
-      const listingAttributesPayload = {};
-      const categoryAttributesPayload = {};
-
-      if (listingAttributes.length > 0) {
-        listingAttributes.forEach((attr) => {
-          const val = formData[attr.field];
-          if (val !== undefined && val !== null && val !== "") {
-            if (
-              (attr.type === "decimal" ||
-                attr.type === "integer" ||
-                attr.type === "number" ||
-                numericFields.has(attr.field)) &&
-              !isNaN(Number(val))
-            ) {
-              listingAttributesPayload[attr.field] = Number(val);
-            } else {
-              listingAttributesPayload[attr.field] = val;
-            }
-          }
-        });
-      } else {
-        const fallbackFixedKeys = [
-          "sku_id",
-          "product_title",
-          "product_desc",
-          "description",
-          "price",
-          "compared_price",
-          "purchasing_cost",
-          "vendor",
-          "brand_name",
-          "tags",
-          "upc",
-          "ean",
-          "gtin",
-          "isbn",
-          "hsn_code",
-          "hsn",
-          "net_weight_kg",
-          "dead_weight_kg",
-          "volumetric_weight_kg",
-        ];
-        fallbackFixedKeys.forEach((key) => {
-          const val = formData[key];
-          if (val !== undefined && val !== null && val !== "") {
-            if (numericFields.has(key) && !isNaN(Number(val))) {
-              listingAttributesPayload[key] = Number(val);
-            } else {
-              listingAttributesPayload[key] = val;
-            }
-          }
-        });
-      }
-
-      if (categoryAttributes.length > 0) {
-        categoryAttributes.forEach((attr) => {
-          if (attr.field === "niche_id") return;
-          const val = formData[attr.field];
-          if (val !== undefined && val !== null && val !== "") {
-            if (
-              (attr.type === "decimal" ||
-                attr.type === "integer" ||
-                attr.type === "number" ||
-                numericFields.has(attr.field)) &&
-              !isNaN(Number(val))
-            ) {
-              categoryAttributesPayload[attr.field] = Number(val);
-            } else {
-              categoryAttributesPayload[attr.field] = val;
-            }
-          }
-        });
-      }
-
-      const ignoredKeys = new Set([
-        ...Object.keys(listingAttributesPayload),
-        ...Object.keys(categoryAttributesPayload),
-        "discount",
-        "category_id",
-        "type_id",
-        "type",
-        "id",
-        "usku_id",
-        "created_at",
-        "updated_at",
-        "image_urls",
-        "image_url",
-        "images",
-        "vertical",
-        "channel_sync",
-        "stock_status",
-        "availability",
-        "count",
-        "catalog_list",
-        "catalog-list",
-        "listing_attributes",
-        "category_attributes",
-      ]);
-
-      Object.entries(formData).forEach(([k, v]) => {
-        if (!ignoredKeys.has(k) && v !== undefined && v !== null && v !== "") {
-          if (numericFields.has(k) && !isNaN(Number(v))) {
-            categoryAttributesPayload[k] = Number(v);
-          } else {
-            categoryAttributesPayload[k] = v;
-          }
-        }
-      });
-
-      // Merge user-defined custom attributes into the category attributes payload (like in add single product).
-      // Keys are normalized in snake_case and values are stored as trimmed strings.
-      const customAttributesObj = {};
-      customAttributes.forEach(({ key, name, value }) => {
-        const snakeKey = toSnakeCase(key || name);
-        if (!snakeKey || value === undefined || value === "") return;
-        const trimmedVal = String(value).trim();
-        categoryAttributesPayload[snakeKey] = trimmedVal;
-        customAttributesObj[snakeKey] = trimmedVal;
-      });
-
       await updateProduct(
         activeUskuId,
         activeTypeId,
-        listingAttributesPayload,
-        categoryAttributesPayload,
+        formData
       );
 
       if (Object.keys(newImageFiles).length > 0) {
@@ -1583,7 +1447,7 @@ export default function ProductDetails() {
                         type="number"
                         step="0.01"
                         className={styles.editInputCompared}
-                        value={formData.listing_attributes?.purchasing_cost ?? product.purchasing_cost}
+                        value={formData.listing_attributes?.purchasing_cost ?? product.purchasing_cost?? 0.00}
                         onChange={(e) =>
                           handleInputChange("listing_attributes", "purchasing_cost", e.target.value)
                         }
@@ -1872,7 +1736,6 @@ export default function ProductDetails() {
                               onChange={(e) =>
                                 handleCustomAttributeChange(
                                   attr.id,
-                                  "name",
                                   e.target.value,
                                 )
                               }
@@ -1883,11 +1746,11 @@ export default function ProductDetails() {
                               <input
                                 type="text"
                                 placeholder="Enter the attribute description"
-                                value={attr.value || ""}
+                                value={formData.category_attributes?.[attr.field]|| attr.value || ""}
                                 onChange={(e) =>
-                                  handleCustomAttributeChange(
-                                    attr.id,
-                                    "value",
+                                  handleInputChange(
+                                    "category_attributes",
+                                    attr.field,
                                     e.target.value,
                                   )
                                 }

@@ -276,23 +276,8 @@ export const deleteProduct = async (uskuId) => {
 export const updateProduct = async (
   uskuId,
   typeId,
-  listingAttributesOrPayload,
-  categoryAttributes = {},
+  payload
 ) => {
-  let listingAttributes = listingAttributesOrPayload || {};
-  let catAttributes = categoryAttributes || {};
-
-  // Support both (uskuId, typeId, listingAttributes, categoryAttributes)
-  // and (uskuId, typeId, { listing_attributes, category_attributes })
-  if (
-    listingAttributesOrPayload &&
-    (listingAttributesOrPayload.listing_attributes !== undefined ||
-      listingAttributesOrPayload.category_attributes !== undefined)
-  ) {
-    listingAttributes = listingAttributesOrPayload.listing_attributes || {};
-    catAttributes = listingAttributesOrPayload.category_attributes || {};
-  }
-
   const csrf = await getCSRFToken();
   const headers = {
     "Content-Type": "application/json",
@@ -307,10 +292,7 @@ export const updateProduct = async (
       method: "PATCH",
       credentials: "include",
       headers,
-      body: JSON.stringify({
-        category_attributes: catAttributes,
-        listing_attributes: listingAttributes,
-      }),
+      body: JSON.stringify(payload),
     },
   );
 
