@@ -1,4 +1,4 @@
-﻿/* ============================================================================
+/* ============================================================================
  * inventory.Inventory.module.css
  * ============================================================================
  * Design tokens and layout styles for the Inventory page and StockInventory
@@ -6,22 +6,22 @@
  * stockInventory.jsx.
  *
  * Sections
- *  1.  Page shell          (.pageRoot, .pageHeader, .pageTitle â€¦)
- *  2.  Tab strip           (.tabStrip, .tabList, .tabItem â€¦)
+ *  1.  Page shell          (.pageRoot, .pageHeader, .pageTitle …)
+ *  2.  Tab strip           (.tabStrip, .tabList, .tabItem …)
  *  3.  Stock overview      (.stockRoot)
- *  4.  Stats row           (.statsRow, .statCard â€¦)
- *  5.  Toolbar             (.toolbar, .pill, .toolbarSelect, .searchBox â€¦)
- *  6.  Selection banner    (.selectionBanner â€¦)
- *  7.  Data table          (.tableWrapper, .dataTable, .tableHead â€¦)
- *  8.  Status badges       (.statusBadge, .badgeInStock â€¦)
- *  9.  Stock level bar     (.stockBarTrack, .stockBarFill â€¦)
- * 10.  Pagination          (.pagination, .pageBtn â€¦)
- * 11.  Sidebar / profile   (.sidebarBody, .profileHeader â€¦) [shared with Inward]
+ *  4.  Stats row           (.statsRow, .statCard …)
+ *  5.  Toolbar             (.toolbar, .pill, .toolbarSelect, .searchBox …)
+ *  6.  Selection banner    (.selectionBanner …)
+ *  7.  Data table          (.tableWrapper, .dataTable, .tableHead …)
+ *  8.  Status badges       (.statusBadge, .badgeInStock …)
+ *  9.  Stock level bar     (.stockBarTrack, .stockBarFill …)
+ * 10.  Pagination          (.pagination, .pageBtn …)
+ * 11.  Sidebar / profile   (.sidebarBody, .profileHeader …) [shared with Inward]
  * 12.  Legacy / backward-compat (overview cards, filter row, legacy table)
  * 13.  Responsive          (@media)
  * ============================================================================ */
 
-/* â”€â”€ 1. Page Shell â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── 1. Page Shell ─────────────────────────────────────────────────────────── */
 
 .pageRoot {
   display: flex;
@@ -57,7 +57,7 @@
   color: #6b7280;
 }
 
-/* â”€â”€ 2. Tab Strip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── 2. Tab Strip ──────────────────────────────────────────────────────────── */
 
 .tabStrip {
   background: #ffffff;
@@ -85,11 +85,12 @@
   white-space: nowrap;
 }
 
-/* Active indicator â€” 2 px blue underline */
+/* Active indicator — 2 px blue underline */
 .tabItem::after {
   content: "";
   position: absolute;
-  bottom: -1px;       /* sits right on the border-bottom of .tabStrip */
+  bottom: -1px;
+  /* sits right on the border-bottom of .tabStrip */
   left: 0;
   right: 0;
   height: 2px;
@@ -111,7 +112,7 @@
   color: #0040D6;
 }
 
-/* â”€â”€ 3. Tab Content / Stock Root â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── 3. Tab Content / Stock Root ───────────────────────────────────────────── */
 
 .tabContent {
   flex: 1;
@@ -124,12 +125,12 @@
   gap: 16px;
 }
 
-/* â”€â”€ 4. Stats Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── 4. Stats Row ──────────────────────────────────────────────────────────── */
 
 .statsRow {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
+  gap: 30px;
   width: 100%;
   box-sizing: border-box;
   background: transparent;
@@ -173,10 +174,18 @@
 }
 
 /* Coloured sub-text variants */
-.subWarn   { color: #d97706; } /* amber  â€“ low stock   */
-.subDanger { color: #dc2626; } /* red    â€“ out of stock */
+.subWarn {
+  color: #d97706;
+}
 
-/* â”€â”€ 5. Toolbar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* amber  – low stock   */
+.subDanger {
+  color: #dc2626;
+}
+
+/* red    – out of stock */
+
+/* ── 5. Toolbar ────────────────────────────────────────────────────────────── */
 
 .toolbar {
   display: flex;
@@ -185,7 +194,8 @@
   gap: 10px;
   background: #ffffff;
   border: 1px solid #e5e7eb;
-  border-radius: 10px;        /* consistent with .statsRow */
+  border-radius: 10px;
+  /* consistent with .statsRow */
   padding: 10px 14px;
   width: 100%;
   box-sizing: border-box;
@@ -232,9 +242,9 @@
 .pillActive:hover,
 .pillActive:focus,
 .pillActive:active {
-  background:   #111827 !important;
+  background: #111827 !important;
   border-color: #111827 !important;
-  color:        #ffffff !important;
+  color: #ffffff !important;
 }
 
 /* Divider between pills and dropdowns */
@@ -311,7 +321,7 @@
   margin-left: auto;
 }
 
-/* Export button â€“ outlined */
+/* Export button – outlined */
 .btnExport {
   display: inline-flex;
   align-items: center;
@@ -332,7 +342,7 @@
   background: #f3f4f6;
 }
 
-/* Adjust stock button â€“ filled blue */
+/* Adjust stock button – filled blue */
 .btnAdjust {
   display: inline-flex;
   align-items: center;
@@ -354,7 +364,7 @@
   background: #0031a8;
 }
 
-/* â”€â”€ 6. Selection Banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── 6. Selection Banner ───────────────────────────────────────────────────── */
 
 .selectionBanner {
   display: flex;
@@ -364,7 +374,8 @@
   padding: 10px 16px;
   background: #eff6ff;
   border: 1px solid #bfdbfe;
-  border-radius: 10px;        /* consistent with all other row-level containers */
+  border-radius: 10px;
+  /* consistent with all other row-level containers */
   width: 100%;
   box-sizing: border-box;
 }
@@ -396,12 +407,13 @@
   color: #1e3a8a;
 }
 
-/* â”€â”€ 7. Data Table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── 7. Data Table ─────────────────────────────────────────────────────────── */
 
 .tableWrapper {
   background: #ffffff;
   border: 1px solid #e5e7eb;
-  border-radius: 10px;        /* consistent with .statsRow and .toolbar */
+  border-radius: 10px;
+  /* consistent with .statsRow and .toolbar */
   overflow-x: auto;
   width: 100%;
   box-sizing: border-box;
@@ -431,12 +443,32 @@
 }
 
 /* Column width helpers */
-.thCheck   { width: 40px;  text-align: center !important; }
-.thProduct { min-width: 220px; }
-.thCell    { min-width: 100px; }
-.thNum     { min-width: 80px;  text-align: right !important; }
-.thLevel   { min-width: 140px; }
-.thActions { width: 80px;  text-align: center !important; }
+.thCheck {
+  width: 40px;
+  text-align: center !important;
+}
+
+.thProduct {
+  min-width: 220px;
+}
+
+.thCell {
+  min-width: 100px;
+}
+
+.thNum {
+  min-width: 80px;
+  text-align: right !important;
+}
+
+.thLevel {
+  min-width: 140px;
+}
+
+.thActions {
+  width: 80px;
+  text-align: center !important;
+}
 
 /* Data rows */
 .tableRow {
@@ -474,7 +506,6 @@
   width: 40px;
 }
 
-.tdProduct { /* handled by .productCell */ }
 
 .tdCell {
   text-align: left;
@@ -504,7 +535,7 @@
   vertical-align: middle;
 }
 
-/* Product cell layout â€“ thumbnail + text stack */
+/* Product cell layout – thumbnail + text stack */
 .productCell {
   display: flex;
   align-items: center;
@@ -558,7 +589,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Category pill â€“ subtle grey chip */
+/* Category pill – subtle grey chip */
 .categoryPill {
   display: inline-block;
   padding: 3px 8px;
@@ -569,7 +600,7 @@
   white-space: nowrap;
 }
 
-/* Warehouse cell â€“ dot + name */
+/* Warehouse cell – dot + name */
 .warehouseCell {
   display: flex;
   align-items: center;
@@ -617,7 +648,7 @@
   font-size: 14px;
 }
 
-/* â”€â”€ 8. Status Badges â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── 8. Status Badges ──────────────────────────────────────────────────────── */
 
 .statusBadge {
   display: inline-flex;
@@ -637,35 +668,47 @@
   flex-shrink: 0;
 }
 
-/* In stock â€“ green */
+/* In stock – green */
 .badgeInStock {
   background: #dcfce7;
   color: #15803d;
 }
-.badgeInStock .statusDot { background: #16a34a; }
 
-/* Low stock â€“ amber */
+.badgeInStock .statusDot {
+  background: #16a34a;
+}
+
+/* Low stock – amber */
 .badgeLowStock {
   background: #fef3c7;
   color: #b45309;
 }
-.badgeLowStock .statusDot { background: #d97706; }
 
-/* Out of stock â€“ red */
+.badgeLowStock .statusDot {
+  background: #d97706;
+}
+
+/* Out of stock – red */
 .badgeOOS {
   background: #fee2e2;
   color: #b91c1c;
 }
-.badgeOOS .statusDot { background: #dc2626; }
 
-/* Overstocked â€“ blue */
+.badgeOOS .statusDot {
+  background: #dc2626;
+}
+
+/* Overstocked – blue */
 .badgeOverstock {
   background: #eff6ff;
   color: #1d4ed8;
 }
-.badgeOverstock .statusDot { background: #3b82f6; }
 
-/* â”€â”€ 9. Stock Level Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.badgeOverstock .statusDot {
+  background: #3b82f6;
+}
+
+/* ── 9. Stock Level Bar ────────────────────────────────────────────────────── */
 
 .levelCell {
   display: flex;
@@ -688,10 +731,22 @@
 }
 
 /* Fill colour variants */
-.barInStock  { background: #16a34a; }
-.barLow      { background: #d97706; }
-.barOOS      { background: #dc2626; width: 0 !important; }
-.barOver     { background: #3b82f6; }
+.barInStock {
+  background: #16a34a;
+}
+
+.barLow {
+  background: #d97706;
+}
+
+.barOOS {
+  background: #dc2626;
+  width: 0 !important;
+}
+
+.barOver {
+  background: #3b82f6;
+}
 
 .levelPct {
   font-size: 12px;
@@ -702,7 +757,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* â”€â”€ 10. Pagination â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── 10. Pagination ────────────────────────────────────────────────────────── */
 
 .pagination {
   display: flex;
@@ -781,7 +836,7 @@
   background: #0031a8 !important;
 }
 
-/* â”€â”€ 11. Sidebar / Profile Panel (shared with Inward module) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── 11. Sidebar / Profile Panel (shared with Inward module) ────────────────── */
 
 .sidebarBody {
   height: 100%;
@@ -857,7 +912,9 @@
   font-family: Inter, sans-serif;
 }
 
-.profileField:last-child { border-bottom: none; }
+.profileField:last-child {
+  border-bottom: none;
+}
 
 .profileLabel {
   font-size: 12px;
@@ -873,7 +930,7 @@
   color: #111827;
 }
 
-/* â”€â”€ 12. Legacy / Backward-Compat â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── 12. Legacy / Backward-Compat ──────────────────────────────────────────── */
 /*
  * These selectors are kept so the Inward and other sub-components that still
  * import this module do not break.  They are intentionally left unchanged.
@@ -904,7 +961,7 @@
   display: block;
 }
 
-/* Overview cards (legacy â€“ still used in inward) */
+/* Overview cards (legacy – still used in inward) */
 .overview {
   margin-top: 20px;
   background: #ffffff;
@@ -933,8 +990,14 @@
   flex-shrink: 0;
 }
 
-.firstRow  { display: flex; justify-content: space-between; }
-.secondRow { margin-top: 12px; }
+.firstRow {
+  display: flex;
+  justify-content: space-between;
+}
+
+.secondRow {
+  margin-top: 12px;
+}
 
 .overLeft {
   display: flex;
@@ -1056,8 +1119,14 @@
   transition: width 0.25s ease;
 }
 
-.active::after { width: 100%; }
-.active        { color: #0040D6; font-weight: 600; }
+.active::after {
+  width: 100%;
+}
+
+.active {
+  color: #0040D6;
+  font-weight: 600;
+}
 
 .filterSearchRow {
   display: flex;
@@ -1073,7 +1142,10 @@
   gap: 12px;
 }
 
-.filterArea label { font-size: 14px; color: #374151; }
+.filterArea label {
+  font-size: 14px;
+  color: #374151;
+}
 
 .searchArea {
   width: 220px;
@@ -1103,7 +1175,10 @@
   margin-top: 16px;
 }
 
-.list           { display: flex; flex-direction: column; }
+.list {
+  display: flex;
+  flex-direction: column;
+}
 
 .listItem {
   display: grid;
@@ -1117,8 +1192,13 @@
   column-gap: 24px;
 }
 
-.listItem:last-child { border-bottom: none; }
-.listItem:hover      { background: #f9fafb; }
+.listItem:last-child {
+  border-bottom: none;
+}
+
+.listItem:hover {
+  background: #f9fafb;
+}
 
 .listHeader {
   display: grid;
@@ -1135,7 +1215,9 @@
   column-gap: 32px;
 }
 
-.listHeader .listMain { justify-self: start; }
+.listHeader .listMain {
+  justify-self: start;
+}
 
 .listSkuHeader {
   font-size: 11px;
@@ -1173,9 +1255,23 @@
   text-overflow: ellipsis;
 }
 
-.listSku   { font-size: 12px; color: #9ca3af; }
-.listType  { font-size: 13px; color: #374151; text-align: center; }
-.listStock { font-size: 14px; font-weight: 600; color: #111827; text-align: center; }
+.listSku {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.listType {
+  font-size: 13px;
+  color: #374151;
+  text-align: center;
+}
+
+.listStock {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  text-align: center;
+}
 
 .statusBadge {
   display: inline-flex;
@@ -1187,10 +1283,27 @@
   font-weight: 600;
 }
 
-.status         { padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
-.activeStatus   { background: #dcfce7; color: #15803d; }
-.pauseStatus    { background: #fef3c7; color: #b45309; }
-.inactiveStatus { background: #fee2e2; color: #b91c1c; }
+.status {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.activeStatus {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.pauseStatus {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.inactiveStatus {
+  background: #fee2e2;
+  color: #b91c1c;
+}
 
 .listFooter {
   display: flex;
@@ -1214,7 +1327,10 @@
   float: right;
   transition: background 0.15s ease;
 }
-.uploadInwardBtn:hover { background: #0031a8; }
+
+.uploadInwardBtn:hover {
+  background: #0031a8;
+}
 
 .buttonContainer {
   display: flex;
@@ -1236,7 +1352,10 @@
   cursor: pointer;
   transition: background 0.2s;
 }
-.draftBtn:hover { background: #dbeafe; }
+
+.draftBtn:hover {
+  background: #dbeafe;
+}
 
 .submitBtn {
   width: 320px;
@@ -1250,14 +1369,27 @@
   cursor: pointer;
   transition: background 0.2s;
 }
-.submitBtn:hover { background: #0031a8; }
+
+.submitBtn:hover {
+  background: #0031a8;
+}
 
 /* Inventory table wrapper (legacy) */
-.inventoryTable { margin-top: 20px; }
+.inventoryTable {
+  margin-top: 20px;
+}
 
 /* Status box */
-.statusbox { display: flex; gap: 12px; }
-.statusbox p { padding: 10px; border-radius: 6px; font-weight: 600; }
+.statusbox {
+  display: flex;
+  gap: 12px;
+}
+
+.statusbox p {
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: 600;
+}
 
 /* Sidebar main section (legacy) */
 .mainSection {
@@ -1297,7 +1429,10 @@
   cursor: pointer;
   transition: background 0.2s;
 }
-.completeInwardBttn:hover { background: #0031a8; }
+
+.completeInwardBttn:hover {
+  background: #0031a8;
+}
 
 .bottomSection {
   position: sticky;
@@ -1310,7 +1445,7 @@
   width: 100%;
 }
 
-/* â”€â”€ 13. Inward-specific extensions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── 13. Inward-specific extensions ───────────────────────────────────────── */
 /*
  * These classes extend the shared inventory module for the Inward tab.
  * They follow the exact same naming/token conventions as the sections above.
@@ -1318,7 +1453,7 @@
 
 /**
  * Subtitle displayed just above the inward toolbar.
- * Matches the "47 total records across multiple suppliersâ€¦" line in the design.
+ * Matches the "47 total records across multiple suppliers…" line in the design.
  */
 .inwardSubtitle {
   margin: 0 0 4px;
@@ -1327,14 +1462,17 @@
 }
 
 /**
- * "Saved draft" badge â€“ amber/orange tone.
+ * "Saved draft" badge – amber/orange tone.
  * Mirrors the styling used for the Pending badge but with a warmer hue.
  */
 .badgeDraft {
   background: #fff7ed;
-  color:      #c2410c;
+  color: #c2410c;
 }
-.badgeDraft .statusDot { background: #ea580c; }
+
+.badgeDraft .statusDot {
+  background: #ea580c;
+}
 
 /**
  * Danger variant of the selection-banner action link (used for "Delete").
@@ -1343,41 +1481,81 @@
 .selActionDanger {
   color: #dc2626 !important;
 }
+
 .selActionDanger:hover {
   color: #991b1b !important;
 }
 
-/* â”€â”€ 14. Responsive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── 14. Responsive ────────────────────────────────────────────────────────── */
 
-/* Stats row: collapse to 2â€“3 columns on medium screens */
+/* Stats row: collapse to 2–3 columns on medium screens */
 @media (max-width: 1100px) {
-  .statsRow { grid-template-columns: repeat(3, 1fr); }
+  .statsRow {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 @media (max-width: 768px) {
-  .statsRow        { grid-template-columns: repeat(2, 1fr); }
-  .tabContent      { padding: 16px; }
-  .toolbar         { flex-direction: column; align-items: stretch; }
-  .actionGroup     { margin-left: 0; justify-content: flex-end; }
-  .pillGroup       { flex-wrap: wrap; }
+  .statsRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .tabContent {
+    padding: 16px;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .actionGroup {
+    margin-left: 0;
+    justify-content: flex-end;
+  }
+
+  .pillGroup {
+    flex-wrap: wrap;
+  }
 }
 
 @media (max-width: 480px) {
-  .statsRow        { grid-template-columns: 1fr; }
-  .pageHeader      { padding: 16px; }
-  .tabStrip        { padding: 0 16px; }
-  .tabContent      { padding: 12px; }
-  .pagination      { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .statsRow {
+    grid-template-columns: 1fr;
+  }
+
+  .pageHeader {
+    padding: 16px;
+  }
+
+  .tabStrip {
+    padding: 0 16px;
+  }
+
+  .tabContent {
+    padding: 12px;
+  }
+
+  .pagination {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
 }
 
 /* Hide less-critical columns on narrow tables */
 @media (max-width: 900px) {
-  .thNum, .tdNum,
-  .thLevel, .tdLevel { display: none; }
+
+  .thNum,
+  .tdNum,
+  .thLevel,
+  .tdLevel {
+    display: none;
+  }
 }
 
 
-/* â”€â”€ 16. Distribute Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── 16. Distribute Modal ──────────────────────────────────────────────────── */
 /*
  * Styles for the "Distribute stock to channels" popup that opens when the
  * user clicks a product name in the StockInventory table.
@@ -1408,7 +1586,7 @@
   gap: 20px;
 }
 
-/* Modal title â€“ "Distribute Â· Product name" */
+/* Modal title – "Distribute · Product name" */
 .distributeTitle {
   margin: 0;
   font-size: 16px;
@@ -1417,9 +1595,10 @@
   line-height: 1.3;
 }
 
-/* Subtitle â€“ "N units available at Warehouse" */
+/* Subtitle – "N units available at Warehouse" */
 .distributeSubtitle {
-  margin: -14px 0 0;      /* pull up tight under the title */
+  margin: -14px 0 0;
+  /* pull up tight under the title */
   font-size: 13px;
   color: #6b7280;
 }
@@ -1431,7 +1610,7 @@
   gap: 14px;
 }
 
-/* Single channel row: dot Â· name Â· qty input */
+/* Single channel row: dot · name · qty input */
 .distributeChannelRow {
   display: flex;
   align-items: center;
@@ -1469,11 +1648,15 @@
   transition: border-color 0.15s ease;
   /* Remove default number-input arrows on Firefox */
   -moz-appearance: textfield;
+  appearance: textfield;
 }
+
 .distributeQtyInput::-webkit-inner-spin-button,
 .distributeQtyInput::-webkit-outer-spin-button {
-  opacity: 1;             /* keep arrows visible for discoverability */
+  opacity: 1;
+  /* keep arrows visible for discoverability */
 }
+
 .distributeQtyInput:focus {
   border-color: #0040D6;
 }
@@ -1486,16 +1669,18 @@
   font-size: 13px;
   color: #6b7280;
 }
+
 .distributeRemaining strong {
   color: #111827;
   font-weight: 600;
 }
 
-/* Over-allocated state â€“ red tint */
+/* Over-allocated state – red tint */
 .distributeRemainingOver {
   background: #fee2e2;
   color: #b91c1c;
 }
+
 .distributeRemainingOver strong {
   color: #991b1b;
 }
@@ -1507,7 +1692,7 @@
   gap: 10px;
 }
 
-/* Cancel â€“ outlined */
+/* Cancel – outlined */
 .distributeCancelBtn {
   height: 36px;
   padding: 0 18px;
@@ -1520,11 +1705,12 @@
   cursor: pointer;
   transition: background 0.15s ease;
 }
+
 .distributeCancelBtn:hover {
   background: #f3f4f6;
 }
 
-/* Confirm â€“ filled blue */
+/* Confirm – filled blue */
 .distributeConfirmBtn {
   height: 36px;
   padding: 0 20px;
@@ -1538,15 +1724,17 @@
   transition: background 0.15s ease;
   white-space: nowrap;
 }
+
 .distributeConfirmBtn:hover:not(:disabled) {
   background: #0031a8;
 }
+
 .distributeConfirmBtn:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
 
-/* â”€â”€ 17. Product name button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── 17. Product name button ───────────────────────────────────────────────── */
 /*
  * Renders the product name as an invisible button (no border / background)
  * so it is keyboard-accessible while still looking like plain text.
@@ -1575,214 +1763,252 @@
   text-decoration: none;
   transition: color 0.15s ease;
 }
+
 .productNameBtn:hover {
   color: #0040D6;
   text-decoration: underline;
   text-underline-offset: 2px;
 }
+
 .productNameBtn:focus-visible {
   outline: 2px solid #0040D6;
   outline-offset: 2px;
   border-radius: 2px;
 }
 
-/* â”€â”€ 18. Inward Detail Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── 18. Inward Detail Modal ───────────────────────────────────────────────── */
 /*
- * Styles for InwardDetailModal â€“ the popup that opens when a user clicks
+ * Styles for InwardDetailModal – the popup that opens when a user clicks
  * an Inward ID in the Inward Records table.
  * Reuses .distributeOverlay for the backdrop (already defined in section 16).
  */
 
 /* Wider card than the Distribute modal to accommodate the SKU table */
 .inwardDetailCard {
-  background:    #ffffff;
+  background: #ffffff;
   border-radius: 12px;
-  box-shadow:    0 20px 40px rgba(0, 0, 0, 0.18);
-  padding:       0;
-  width:         100%;
-  max-width:     640px;
-  display:       flex;
-  flex-direction:column;
-  overflow:      hidden;          /* clips header bg cleanly */
-  max-height:    90vh;
-  overflow-y:    auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
+  padding: 0;
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* clips header bg cleanly */
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
-/* â”€â”€ Header bar â”€â”€ */
+/* ── Header bar ── */
 .inwardDetailHeader {
-  display:         flex;
-  align-items:     center;
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  gap:             12px;
-  padding:         20px 24px 16px;
-  border-bottom:   1px solid #e5e7eb;
-  background:      #f9fafb;
-  position:        sticky;
-  top:             0;
-  z-index:         1;
+  gap: 12px;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .inwardDetailHeadLeft {
-  display:     flex;
+  display: flex;
   align-items: center;
-  gap:         12px;
+  gap: 12px;
 }
 
 .inwardDetailTitle {
-  margin:      0;
-  font-size:   18px;
+  margin: 0;
+  font-size: 18px;
   font-weight: 700;
-  color:       #111827;
+  color: #111827;
 }
 
-/* Close (âœ•) button */
+/* Close (✕) button */
 .inwardDetailCloseBtn {
-  background:    none;
-  border:        none;
-  width:         30px;
-  height:        30px;
+  background: none;
+  border: none;
+  width: 30px;
+  height: 30px;
   border-radius: 6px;
-  font-size:     15px;
-  color:         #9ca3af;
-  cursor:        pointer;
-  display:       inline-flex;
-  align-items:   center;
-  justify-content:center;
-  transition:    background 0.15s ease, color 0.15s ease;
-  flex-shrink:   0;
+  font-size: 15px;
+  color: #9ca3af;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
 }
+
 .inwardDetailCloseBtn:hover {
   background: #f3f4f6;
-  color:      #111827;
+  color: #111827;
 }
 
-/* â”€â”€ Meta strip â€“ 4 info blocks â”€â”€ */
+/* ── Meta strip – 4 info blocks ── */
 .inwardDetailMeta {
-  display:        grid;
+  display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap:            0;
-  padding:        16px 24px;
-  border-bottom:  1px solid #e5e7eb;
+  gap: 0;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .inwardDetailMetaItem {
-  display:        flex;
+  display: flex;
   flex-direction: column;
-  gap:            6px;
-  padding-right:  16px;
-  border-right:   1px solid #e5e7eb;
+  gap: 6px;
+  padding-right: 16px;
+  border-right: 1px solid #e5e7eb;
 }
+
 .inwardDetailMetaItem:last-child {
   border-right: none;
   padding-right: 0;
-  padding-left:  16px;
+  padding-left: 16px;
 }
+
 .inwardDetailMetaItem:nth-child(2),
 .inwardDetailMetaItem:nth-child(3) {
   padding-left: 16px;
 }
 
 .inwardDetailMetaLabel {
-  font-size:      11px;
-  font-weight:    600;
-  color:          #9ca3af;
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
-/* â”€â”€ SKU line-items section â”€â”€ */
+/* ── SKU line-items section ── */
 .inwardSkuSection {
   padding: 16px 24px;
 }
 
 .inwardSkuSectionTitle {
-  margin:      0 0 12px;
-  font-size:   13px;
+  margin: 0 0 12px;
+  font-size: 13px;
   font-weight: 600;
-  color:       #374151;
+  color: #374151;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
 .inwardSkuEmpty {
   font-size: 13px;
-  color:     #9ca3af;
-  margin:    0;
-  padding:   12px 0;
+  color: #9ca3af;
+  margin: 0;
+  padding: 12px 0;
 }
 
 /* Scrollable wrapper so very long lists don't push the modal off-screen */
 .inwardSkuTableWrap {
-  border:        1px solid #e5e7eb;
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
-  overflow-x:    auto;
+  overflow-x: auto;
 }
 
 .inwardSkuTable {
-  width:           100%;
+  width: 100%;
   border-collapse: collapse;
-  min-width:       460px;
+  min-width: 460px;
 }
 
 .inwardSkuHead {
-  background:    #f9fafb;
+  background: #f9fafb;
   border-bottom: 1px solid #e5e7eb;
 }
 
 .inwardSkuHead th {
-  padding:        8px 12px;
-  font-size:      11px;
-  font-weight:    600;
-  color:          #6b7280;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  text-align:     left;
-  white-space:    nowrap;
+  text-align: left;
+  white-space: nowrap;
 }
 
-.inwardSkuThSku    { min-width: 130px; }
-.inwardSkuThName   { min-width: 180px; }
-.inwardSkuThNum    { min-width: 80px; text-align: right !important; }
-.inwardSkuThStatus { min-width: 90px; }
+.inwardSkuThSku {
+  min-width: 130px;
+}
+
+.inwardSkuThName {
+  min-width: 180px;
+}
+
+.inwardSkuThNum {
+  min-width: 80px;
+  text-align: right !important;
+}
+
+.inwardSkuThStatus {
+  min-width: 90px;
+}
 
 .inwardSkuRow {
   border-bottom: 1px solid #f3f4f6;
-  transition:    background 0.1s ease;
+  transition: background 0.1s ease;
 }
-.inwardSkuRow:last-child { border-bottom: none; }
-.inwardSkuRow:hover      { background: #f9fafb; }
+
+.inwardSkuRow:last-child {
+  border-bottom: none;
+}
+
+.inwardSkuRow:hover {
+  background: #f9fafb;
+}
 
 .inwardSkuTable td {
-  padding:        8px 12px;
-  font-size:      13px;
-  color:          #374151;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #374151;
   vertical-align: middle;
 }
 
-.inwardSkuTdSku  { font-family: monospace; font-size: 12px; color: #6b7280; }
-.inwardSkuTdName { color: #111827; font-weight: 500; }
-.inwardSkuTdNum  { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; color: #111827; }
+.inwardSkuTdSku {
+  font-family: monospace;
+  font-size: 12px;
+  color: #6b7280;
+}
 
-/* â”€â”€ Summary strip â”€â”€ */
+.inwardSkuTdName {
+  color: #111827;
+  font-weight: 500;
+}
+
+.inwardSkuTdNum {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* ── Summary strip ── */
 .inwardDetailSummary {
-  display:       flex;
-  align-items:   center;
-  gap:           10px;
-  padding:       12px 24px;
-  background:    #f9fafb;
-  border-top:    1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
   border-bottom: 1px solid #e5e7eb;
-  font-size:     13px;
-  color:         #6b7280;
+  font-size: 13px;
+  color: #6b7280;
 }
 
 .inwardDetailSummary strong {
-  color:       #111827;
+  color: #111827;
   font-weight: 700;
 }
 
 .inwardDetailSumDivider {
-  color:     #d1d5db;
+  color: #d1d5db;
   font-size: 16px;
 }
 
@@ -1791,34 +2017,36 @@
   padding: 16px 24px;
 }
 
-/* â”€â”€ 19. Inward ID button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── 19. Inward ID button ──────────────────────────────────────────────────── */
 /*
- * Renders the Inward ID (#47, #46â€¦) as a clickable button that looks like
- * the blue linked text shown in the design â€” but opens the detail modal
+ * Renders the Inward ID (#47, #46…) as a clickable button that looks like
+ * the blue linked text shown in the design — but opens the detail modal
  * instead of navigating away.
  */
 .inwardIdBtn {
-  background:      none;
-  border:          none;
-  padding:         0;
-  margin:          0;
-  font-family:     inherit;
-  font-size:       13px;
-  font-weight:     600;
-  color:           #0040D6;
-  cursor:          pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0040D6;
+  cursor: pointer;
   text-decoration: none;
-  transition:      color 0.15s ease;
+  transition: color 0.15s ease;
 }
+
 .inwardIdBtn:hover {
-  color:           #0031a8;
+  color: #0031a8;
   text-decoration: underline;
   text-underline-offset: 2px;
 }
+
 .inwardIdBtn:focus-visible {
-  outline:        2px solid #0040D6;
+  outline: 2px solid #0040D6;
   outline-offset: 2px;
-  border-radius:  2px;
+  border-radius: 2px;
 }
 
 /* Responsive: collapse meta strip to 2 columns on small modals */
@@ -1826,9 +2054,11 @@
   .inwardDetailMeta {
     grid-template-columns: repeat(2, 1fr);
   }
+
   .inwardDetailMetaItem:nth-child(2n) {
     border-right: none;
   }
+
   .inwardDetailMetaItem:nth-child(3),
   .inwardDetailMetaItem:nth-child(4) {
     border-top: 1px solid #e5e7eb;
@@ -1838,48 +2068,49 @@
 }
 
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ═══════════════════════════════════════════════════════════════════════════
    GRN-SPECIFIC ADDITIONS
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+   ═══════════════════════════════════════════════════════════════════════════ */
 
-/* â”€â”€ Missing condition badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Missing condition badge ─────────────────────────────────────────────── */
 .badgeMissing {
   background: #f3f4f6;
-  color:      #6b7280;
+  color: #6b7280;
 }
+
 .badgeMissing .statusDot {
   background: #9ca3af;
 }
 
-/* â”€â”€ QC Notes block â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── QC Notes block ──────────────────────────────────────────────────────── */
 .grnQcNote {
-  padding:       12px 16px;
-  background:    #fffbeb;
-  border-left:   3px solid #f59e0b;
+  padding: 12px 16px;
+  background: #fffbeb;
+  border-left: 3px solid #f59e0b;
   border-radius: 0 8px 8px 0;
-  font-size:     13px;
-  color:         #92400e;
-  font-style:    italic;
+  font-size: 13px;
+  color: #92400e;
+  font-style: italic;
 }
 
-/* â”€â”€ QC Notes label above the note block â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── QC Notes label above the note block ─────────────────────────────────── */
 .grnQcNoteLabel {
-  font-size:      11px;
-  font-weight:    600;
-  color:          #9ca3af;
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom:  6px;
+  margin-bottom: 6px;
 }
 
-/* â”€â”€ Acceptance-rate flex row in the summary strip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Acceptance-rate flex row in the summary strip ───────────────────────── */
 .grnAcceptRateRow {
-  display:     flex;
+  display: flex;
   align-items: center;
-  gap:         8px;
+  gap: 8px;
 }
 
-/* â”€â”€ Acceptance-rate bar (overrides stockBarTrack width) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Acceptance-rate bar (overrides stockBarTrack width) ─────────────────── */
 .grnAcceptRateBar {
   width: 80px;
 }
