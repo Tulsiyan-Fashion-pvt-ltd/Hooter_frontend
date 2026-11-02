@@ -1,4 +1,4 @@
-/* ============================================================================
+﻿/* ============================================================================
  * inventory.Inventory.module.css
  * ============================================================================
  * Design tokens and layout styles for the Inventory page and StockInventory
@@ -6,22 +6,22 @@
  * stockInventory.jsx.
  *
  * Sections
- *  1.  Page shell          (.pageRoot, .pageHeader, .pageTitle …)
- *  2.  Tab strip           (.tabStrip, .tabList, .tabItem …)
+ *  1.  Page shell          (.pageRoot, .pageHeader, .pageTitle â€¦)
+ *  2.  Tab strip           (.tabStrip, .tabList, .tabItem â€¦)
  *  3.  Stock overview      (.stockRoot)
- *  4.  Stats row           (.statsRow, .statCard …)
- *  5.  Toolbar             (.toolbar, .pill, .toolbarSelect, .searchBox …)
- *  6.  Selection banner    (.selectionBanner …)
- *  7.  Data table          (.tableWrapper, .dataTable, .tableHead …)
- *  8.  Status badges       (.statusBadge, .badgeInStock …)
- *  9.  Stock level bar     (.stockBarTrack, .stockBarFill …)
- * 10.  Pagination          (.pagination, .pageBtn …)
- * 11.  Sidebar / profile   (.sidebarBody, .profileHeader …) [shared with Inward]
+ *  4.  Stats row           (.statsRow, .statCard â€¦)
+ *  5.  Toolbar             (.toolbar, .pill, .toolbarSelect, .searchBox â€¦)
+ *  6.  Selection banner    (.selectionBanner â€¦)
+ *  7.  Data table          (.tableWrapper, .dataTable, .tableHead â€¦)
+ *  8.  Status badges       (.statusBadge, .badgeInStock â€¦)
+ *  9.  Stock level bar     (.stockBarTrack, .stockBarFill â€¦)
+ * 10.  Pagination          (.pagination, .pageBtn â€¦)
+ * 11.  Sidebar / profile   (.sidebarBody, .profileHeader â€¦) [shared with Inward]
  * 12.  Legacy / backward-compat (overview cards, filter row, legacy table)
  * 13.  Responsive          (@media)
  * ============================================================================ */
 
-/* ── 1. Page Shell ─────────────────────────────────────────────────────────── */
+/* â”€â”€ 1. Page Shell â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .pageRoot {
   display: flex;
@@ -57,7 +57,7 @@
   color: #6b7280;
 }
 
-/* ── 2. Tab Strip ──────────────────────────────────────────────────────────── */
+/* â”€â”€ 2. Tab Strip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .tabStrip {
   background: #ffffff;
@@ -85,7 +85,7 @@
   white-space: nowrap;
 }
 
-/* Active indicator — 2 px blue underline */
+/* Active indicator â€” 2 px blue underline */
 .tabItem::after {
   content: "";
   position: absolute;
@@ -111,7 +111,7 @@
   color: #0040D6;
 }
 
-/* ── 3. Tab Content / Stock Root ───────────────────────────────────────────── */
+/* â”€â”€ 3. Tab Content / Stock Root â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .tabContent {
   flex: 1;
@@ -124,36 +124,30 @@
   gap: 16px;
 }
 
-/* ── 4. Stats Row ──────────────────────────────────────────────────────────── */
+/* â”€â”€ 4. Stats Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .statsRow {
   display: grid;
-  /* 5 equal columns; shrinks gracefully on smaller screens */
   grid-template-columns: repeat(5, 1fr);
-  gap: 0;                     /* no gap — cards are flush inside a shared border */
+  gap: 12px;
   width: 100%;
   box-sizing: border-box;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;        /* matches toolbar and tableWrapper */
-  overflow: hidden;           /* clips child corner radii cleanly */
+  background: transparent;
 }
 
 .statCard {
   background: #ffffff;
-  /* Only draw separators between cards, not outer edges */
-  border-right: 1px solid #e5e7eb;
-  border-radius: 0;           /* corners handled by the parent .statsRow */
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
   padding: 18px 20px;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
 }
 
-/* Remove the trailing right-border on the last card */
-.statCard:last-child {
-  border-right: none;
+.statCard:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .statLabel {
@@ -179,10 +173,10 @@
 }
 
 /* Coloured sub-text variants */
-.subWarn   { color: #d97706; } /* amber  – low stock   */
-.subDanger { color: #dc2626; } /* red    – out of stock */
+.subWarn   { color: #d97706; } /* amber  â€“ low stock   */
+.subDanger { color: #dc2626; } /* red    â€“ out of stock */
 
-/* ── 5. Toolbar ────────────────────────────────────────────────────────────── */
+/* â”€â”€ 5. Toolbar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .toolbar {
   display: flex;
@@ -317,7 +311,7 @@
   margin-left: auto;
 }
 
-/* Export button – outlined */
+/* Export button â€“ outlined */
 .btnExport {
   display: inline-flex;
   align-items: center;
@@ -338,7 +332,7 @@
   background: #f3f4f6;
 }
 
-/* Adjust stock button – filled blue */
+/* Adjust stock button â€“ filled blue */
 .btnAdjust {
   display: inline-flex;
   align-items: center;
@@ -360,7 +354,7 @@
   background: #0031a8;
 }
 
-/* ── 6. Selection Banner ───────────────────────────────────────────────────── */
+/* â”€â”€ 6. Selection Banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .selectionBanner {
   display: flex;
@@ -402,7 +396,7 @@
   color: #1e3a8a;
 }
 
-/* ── 7. Data Table ─────────────────────────────────────────────────────────── */
+/* â”€â”€ 7. Data Table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .tableWrapper {
   background: #ffffff;
@@ -510,7 +504,7 @@
   vertical-align: middle;
 }
 
-/* Product cell layout – thumbnail + text stack */
+/* Product cell layout â€“ thumbnail + text stack */
 .productCell {
   display: flex;
   align-items: center;
@@ -564,7 +558,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Category pill – subtle grey chip */
+/* Category pill â€“ subtle grey chip */
 .categoryPill {
   display: inline-block;
   padding: 3px 8px;
@@ -575,7 +569,7 @@
   white-space: nowrap;
 }
 
-/* Warehouse cell – dot + name */
+/* Warehouse cell â€“ dot + name */
 .warehouseCell {
   display: flex;
   align-items: center;
@@ -623,7 +617,7 @@
   font-size: 14px;
 }
 
-/* ── 8. Status Badges ──────────────────────────────────────────────────────── */
+/* â”€â”€ 8. Status Badges â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .statusBadge {
   display: inline-flex;
@@ -643,35 +637,35 @@
   flex-shrink: 0;
 }
 
-/* In stock – green */
+/* In stock â€“ green */
 .badgeInStock {
   background: #dcfce7;
   color: #15803d;
 }
 .badgeInStock .statusDot { background: #16a34a; }
 
-/* Low stock – amber */
+/* Low stock â€“ amber */
 .badgeLowStock {
   background: #fef3c7;
   color: #b45309;
 }
 .badgeLowStock .statusDot { background: #d97706; }
 
-/* Out of stock – red */
+/* Out of stock â€“ red */
 .badgeOOS {
   background: #fee2e2;
   color: #b91c1c;
 }
 .badgeOOS .statusDot { background: #dc2626; }
 
-/* Overstocked – blue */
+/* Overstocked â€“ blue */
 .badgeOverstock {
   background: #eff6ff;
   color: #1d4ed8;
 }
 .badgeOverstock .statusDot { background: #3b82f6; }
 
-/* ── 9. Stock Level Bar ────────────────────────────────────────────────────── */
+/* â”€â”€ 9. Stock Level Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .levelCell {
   display: flex;
@@ -708,7 +702,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ── 10. Pagination ────────────────────────────────────────────────────────── */
+/* â”€â”€ 10. Pagination â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .pagination {
   display: flex;
@@ -787,7 +781,7 @@
   background: #0031a8 !important;
 }
 
-/* ── 11. Sidebar / Profile Panel (shared with Inward module) ────────────────── */
+/* â”€â”€ 11. Sidebar / Profile Panel (shared with Inward module) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .sidebarBody {
   height: 100%;
@@ -879,7 +873,7 @@
   color: #111827;
 }
 
-/* ── 12. Legacy / Backward-Compat ──────────────────────────────────────────── */
+/* â”€â”€ 12. Legacy / Backward-Compat â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /*
  * These selectors are kept so the Inward and other sub-components that still
  * import this module do not break.  They are intentionally left unchanged.
@@ -910,7 +904,7 @@
   display: block;
 }
 
-/* Overview cards (legacy – still used in inward) */
+/* Overview cards (legacy â€“ still used in inward) */
 .overview {
   margin-top: 20px;
   background: #ffffff;
@@ -1316,7 +1310,7 @@
   width: 100%;
 }
 
-/* ── 13. Inward-specific extensions ───────────────────────────────────────── */
+/* â”€â”€ 13. Inward-specific extensions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /*
  * These classes extend the shared inventory module for the Inward tab.
  * They follow the exact same naming/token conventions as the sections above.
@@ -1324,7 +1318,7 @@
 
 /**
  * Subtitle displayed just above the inward toolbar.
- * Matches the "47 total records across multiple suppliers…" line in the design.
+ * Matches the "47 total records across multiple suppliersâ€¦" line in the design.
  */
 .inwardSubtitle {
   margin: 0 0 4px;
@@ -1333,7 +1327,7 @@
 }
 
 /**
- * "Saved draft" badge – amber/orange tone.
+ * "Saved draft" badge â€“ amber/orange tone.
  * Mirrors the styling used for the Pending badge but with a warmer hue.
  */
 .badgeDraft {
@@ -1353,22 +1347,15 @@
   color: #991b1b !important;
 }
 
-/* ── 14. Responsive ────────────────────────────────────────────────────────── */
+/* â”€â”€ 14. Responsive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-/* Stats row: collapse to 2–3 columns on medium screens */
+/* Stats row: collapse to 2â€“3 columns on medium screens */
 @media (max-width: 1100px) {
   .statsRow { grid-template-columns: repeat(3, 1fr); }
-  /* Re-add a bottom separator for wrapped cards */
-  .statCard { border-bottom: 1px solid #e5e7eb; }
-  .statCard:nth-child(3) { border-right: none; }
-  .statCard:nth-last-child(-n+2) { border-bottom: none; }
 }
 
 @media (max-width: 768px) {
   .statsRow        { grid-template-columns: repeat(2, 1fr); }
-  .statCard        { border-bottom: 1px solid #e5e7eb; }
-  .statCard:nth-child(2n) { border-right: none; }
-  .statCard:nth-last-child(-n+1) { border-bottom: none; }
   .tabContent      { padding: 16px; }
   .toolbar         { flex-direction: column; align-items: stretch; }
   .actionGroup     { margin-left: 0; justify-content: flex-end; }
@@ -1377,8 +1364,6 @@
 
 @media (max-width: 480px) {
   .statsRow        { grid-template-columns: 1fr; }
-  .statCard        { border-right: none; border-bottom: 1px solid #e5e7eb; }
-  .statCard:last-child { border-bottom: none; }
   .pageHeader      { padding: 16px; }
   .tabStrip        { padding: 0 16px; }
   .tabContent      { padding: 12px; }
@@ -1392,7 +1377,7 @@
 }
 
 
-/* ── 16. Distribute Modal ──────────────────────────────────────────────────── */
+/* â”€â”€ 16. Distribute Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /*
  * Styles for the "Distribute stock to channels" popup that opens when the
  * user clicks a product name in the StockInventory table.
@@ -1423,7 +1408,7 @@
   gap: 20px;
 }
 
-/* Modal title – "Distribute · Product name" */
+/* Modal title â€“ "Distribute Â· Product name" */
 .distributeTitle {
   margin: 0;
   font-size: 16px;
@@ -1432,7 +1417,7 @@
   line-height: 1.3;
 }
 
-/* Subtitle – "N units available at Warehouse" */
+/* Subtitle â€“ "N units available at Warehouse" */
 .distributeSubtitle {
   margin: -14px 0 0;      /* pull up tight under the title */
   font-size: 13px;
@@ -1446,7 +1431,7 @@
   gap: 14px;
 }
 
-/* Single channel row: dot · name · qty input */
+/* Single channel row: dot Â· name Â· qty input */
 .distributeChannelRow {
   display: flex;
   align-items: center;
@@ -1506,7 +1491,7 @@
   font-weight: 600;
 }
 
-/* Over-allocated state – red tint */
+/* Over-allocated state â€“ red tint */
 .distributeRemainingOver {
   background: #fee2e2;
   color: #b91c1c;
@@ -1522,7 +1507,7 @@
   gap: 10px;
 }
 
-/* Cancel – outlined */
+/* Cancel â€“ outlined */
 .distributeCancelBtn {
   height: 36px;
   padding: 0 18px;
@@ -1539,7 +1524,7 @@
   background: #f3f4f6;
 }
 
-/* Confirm – filled blue */
+/* Confirm â€“ filled blue */
 .distributeConfirmBtn {
   height: 36px;
   padding: 0 20px;
@@ -1561,7 +1546,7 @@
   cursor: not-allowed;
 }
 
-/* ── 17. Product name button ───────────────────────────────────────────────── */
+/* â”€â”€ 17. Product name button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /*
  * Renders the product name as an invisible button (no border / background)
  * so it is keyboard-accessible while still looking like plain text.
@@ -1601,9 +1586,9 @@
   border-radius: 2px;
 }
 
-/* ── 18. Inward Detail Modal ───────────────────────────────────────────────── */
+/* â”€â”€ 18. Inward Detail Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /*
- * Styles for InwardDetailModal – the popup that opens when a user clicks
+ * Styles for InwardDetailModal â€“ the popup that opens when a user clicks
  * an Inward ID in the Inward Records table.
  * Reuses .distributeOverlay for the backdrop (already defined in section 16).
  */
@@ -1623,7 +1608,7 @@
   overflow-y:    auto;
 }
 
-/* ── Header bar ── */
+/* â”€â”€ Header bar â”€â”€ */
 .inwardDetailHeader {
   display:         flex;
   align-items:     center;
@@ -1650,7 +1635,7 @@
   color:       #111827;
 }
 
-/* Close (✕) button */
+/* Close (âœ•) button */
 .inwardDetailCloseBtn {
   background:    none;
   border:        none;
@@ -1671,7 +1656,7 @@
   color:      #111827;
 }
 
-/* ── Meta strip – 4 info blocks ── */
+/* â”€â”€ Meta strip â€“ 4 info blocks â”€â”€ */
 .inwardDetailMeta {
   display:        grid;
   grid-template-columns: repeat(4, 1fr);
@@ -1705,7 +1690,7 @@
   letter-spacing: 0.05em;
 }
 
-/* ── SKU line-items section ── */
+/* â”€â”€ SKU line-items section â”€â”€ */
 .inwardSkuSection {
   padding: 16px 24px;
 }
@@ -1778,7 +1763,7 @@
 .inwardSkuTdName { color: #111827; font-weight: 500; }
 .inwardSkuTdNum  { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; color: #111827; }
 
-/* ── Summary strip ── */
+/* â”€â”€ Summary strip â”€â”€ */
 .inwardDetailSummary {
   display:       flex;
   align-items:   center;
@@ -1806,10 +1791,10 @@
   padding: 16px 24px;
 }
 
-/* ── 19. Inward ID button ──────────────────────────────────────────────────── */
+/* â”€â”€ 19. Inward ID button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 /*
- * Renders the Inward ID (#47, #46…) as a clickable button that looks like
- * the blue linked text shown in the design — but opens the detail modal
+ * Renders the Inward ID (#47, #46â€¦) as a clickable button that looks like
+ * the blue linked text shown in the design â€” but opens the detail modal
  * instead of navigating away.
  */
 .inwardIdBtn {
@@ -1853,11 +1838,11 @@
 }
 
 
-/* ═══════════════════════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    GRN-SPECIFIC ADDITIONS
-   ═══════════════════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-/* ── Missing condition badge ─────────────────────────────────────────────── */
+/* â”€â”€ Missing condition badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .badgeMissing {
   background: #f3f4f6;
   color:      #6b7280;
@@ -1866,7 +1851,7 @@
   background: #9ca3af;
 }
 
-/* ── QC Notes block ──────────────────────────────────────────────────────── */
+/* â”€â”€ QC Notes block â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .grnQcNote {
   padding:       12px 16px;
   background:    #fffbeb;
@@ -1877,7 +1862,7 @@
   font-style:    italic;
 }
 
-/* ── QC Notes label above the note block ─────────────────────────────────── */
+/* â”€â”€ QC Notes label above the note block â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .grnQcNoteLabel {
   font-size:      11px;
   font-weight:    600;
@@ -1887,14 +1872,14 @@
   margin-bottom:  6px;
 }
 
-/* ── Acceptance-rate flex row in the summary strip ───────────────────────── */
+/* â”€â”€ Acceptance-rate flex row in the summary strip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .grnAcceptRateRow {
   display:     flex;
   align-items: center;
   gap:         8px;
 }
 
-/* ── Acceptance-rate bar (overrides stockBarTrack width) ─────────────────── */
+/* â”€â”€ Acceptance-rate bar (overrides stockBarTrack width) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .grnAcceptRateBar {
   width: 80px;
 }

@@ -25,6 +25,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import styles from "../css/pages/inventory.Inventory.module.css";
+import StatCardsRow from "./StatCardsRow";
 
 /* ─── Base API URL ───────────────────────────────────────────────────────── */
 const BASE_URL = import.meta.env.VITE_BASEAPI;
@@ -426,28 +427,6 @@ function fmtDate(ts) {
 /* ═══════════════════════════════════════════════════════════════════════════
    SUB-COMPONENTS
    ═══════════════════════════════════════════════════════════════════════════ */
-
-/**
- * StatCard
- * One of the five summary cards across the top of the GRN view.
- *
- * Props:
- *  label      string   Card label (e.g. "Total GRNs")
- *  value      string   Large number or percentage to display
- *  sub        string   Smaller sub-text below the value
- *  subClass   string   Optional CSS class for coloured sub-text
- */
-function StatCard({ label, value, sub, subClass }) {
-  return (
-    <div className={styles.statCard}>
-      <p className={styles.statLabel}>{label}</p>
-      <h2 className={styles.statValue}>{value}</h2>
-      {sub && (
-        <p className={`${styles.statSub} ${subClass || ""}`}>{sub}</p>
-      )}
-    </div>
-  );
-}
 
 /* ═══════════════════════════════════════════════════════════════════════════
    GRN DETAIL MODAL
@@ -903,37 +882,13 @@ export default function GrnInventory() {
       {/* ════════════════════════════════════════════════════════════════════
           1. Stats Row
          ════════════════════════════════════════════════════════════════════ */}
-      <section className={styles.statsRow} aria-label="GRN summary">
-        <StatCard
-          label="Total GRNs"
-          value={counts.total}
-          sub="Across all suppliers"
-        />
-        <StatCard
-          label="Approved"
-          value={counts.approved}
-          sub="Stock updated"
-          subClass={styles.subWarn}
-        />
-        <StatCard
-          label="Pending QC"
-          value={counts.pendingQc}
-          sub="Awaiting review"
-          subClass={styles.subWarn}
-        />
-        <StatCard
-          label="Rejected"
-          value={counts.rejected}
-          sub="Being returned"
-          subClass={styles.subDanger}
-        />
-        <StatCard
-          label="Acceptance Rate"
-          value="96.8%"
-          sub="Units quality-passed"
-          subClass={styles.subWarn}
-        />
-      </section>
+      <StatCardsRow cards={[
+        { label: "Total GRNs",       value: counts.total,     sub: "Across all suppliers" },
+        { label: "Approved",         value: counts.approved,  sub: "Stock updated" },
+        { label: "Pending QC",       value: counts.pendingQc, sub: "Awaiting review",  subClass: styles.subWarn },
+        { label: "Rejected",         value: counts.rejected,  sub: "Being returned",   subClass: styles.subDanger },
+        { label: "Acceptance Rate",  value: "96.8%",          sub: "Units quality-passed" },
+      ]} />
 
       {/* ════════════════════════════════════════════════════════════════════
           2. Filter Toolbar

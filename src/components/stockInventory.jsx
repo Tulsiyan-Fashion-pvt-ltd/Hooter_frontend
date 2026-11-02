@@ -21,6 +21,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import styles from "../css/pages/inventory.Inventory.module.css";
+import StatCardsRow from "./StatCardsRow";
 
 const url = import.meta.env.VITE_BASEAPI;
 
@@ -183,28 +184,6 @@ function statusClass(status, s) {
 /* ═══════════════════════════════════════════════════════════════════════════
    SUB-COMPONENTS
    ═══════════════════════════════════════════════════════════════════════════ */
-
-/**
- * StatCard
- * One of the five summary cards across the top of the inventory view.
- *
- * Props:
- *  label      string   Card label (e.g. "Total SKUs")
- *  value      string   Large number / currency to display
- *  sub        string   Smaller sub-text below the value
- *  subClass   string   Optional CSS class for coloured sub-text
- */
-function StatCard({ label, value, sub, subClass }) {
-  return (
-    <div className={styles.statCard}>
-      <p className={styles.statLabel}>{label}</p>
-      <h2 className={styles.statValue}>{value}</h2>
-      {sub && (
-        <p className={`${styles.statSub} ${subClass || ""}`}>{sub}</p>
-      )}
-    </div>
-  );
-}
 
 /**
  * StockBar
@@ -497,35 +476,13 @@ export default function StockInventory() {
       {/* ════════════════════════════════════════════════════════════════════
           1. Stats Row
          ════════════════════════════════════════════════════════════════════ */}
-      <section className={styles.statsRow} aria-label="Inventory summary">
-        <StatCard
-          label="Total SKUs"
-          value={stocks.total}
-          sub="Across 3 warehouses"
-        />
-        <StatCard
-          label="In stock"
-          value={stocks.sellable}
-          sub="82.7% of catalog"
-        />
-        <StatCard
-          label="Low stock"
-          value={stocks.low}
-          sub="Below reorder level"
-          subClass={styles.subWarn}
-        />
-        <StatCard
-          label="Out of stock"
-          value={stocks.oos}
-          sub="Needs restock"
-          subClass={styles.subDanger}
-        />
-        <StatCard
-          label="Stock value"
-          value="₹1.86Cr"
-          sub="At cost price"
-        />
-      </section>
+      <StatCardsRow cards={[
+        { label: "Total SKUs",   value: stocks.total,    sub: "Across 3 warehouses" },
+        { label: "In Stock",     value: stocks.sellable, sub: "82.7% of catalog" },
+        { label: "Low Stock",    value: stocks.low,      sub: "Below reorder level", subClass: styles.subWarn },
+        { label: "Out of Stock", value: stocks.oos,      sub: "Needs restock",       subClass: styles.subDanger },
+        { label: "Stock Value",  value: "₹1.86Cr",       sub: "At cost price" },
+      ]} />
 
       {/* ════════════════════════════════════════════════════════════════════
           2. Filter Toolbar
