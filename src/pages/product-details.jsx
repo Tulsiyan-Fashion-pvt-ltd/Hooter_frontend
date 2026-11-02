@@ -36,13 +36,13 @@ export default function ProductDetails() {
   );
   const [saving, setSaving] = useState(false);
   const [newImageFiles, setNewImageFiles] = useState({});
-  const [imageMeta, setImageMeta] = useState("");
   const [isDescExpanded, setIsDescExpanded] = useState(false);
 
   const [customAttributes, setCustomAttributes] = useState([]);
   const [listingAttributes, setListingAttributes] = useState([]);
   const [categoryAttributes, setCategoryAttributes] = useState([]);
   const [imageAttributes, setImageAttributes] = useState([]);
+  const [customImageAttributes, setCustomImageAttributes] = useState([]);
   const [attributesLoading, setAttributesLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -50,7 +50,7 @@ export default function ProductDetails() {
   const showToast = useContext(toastContext);
   const uskuId = searchParams.get("usku-id") || searchParams.get("id");
   const typeId = searchParams.get("type") || searchParams.get("type-id");
-  // console.log(images)
+  // console.log(imageAttributes)
   // console.log(customAttributes)
 
   /**
@@ -60,6 +60,20 @@ export default function ProductDetails() {
     setSelectedImageType(imageAttributes[0]?.field);
   }, [imageAttributes])
 
+    /**
+   * SETTING PRODUCT DATA, `listing_attributes`, `category_attributes`
+   */
+  useEffect(() => {
+    if (uskuId) {
+      fetchProductDetails();
+      fetchImages();
+    }
+
+  }, [uskuId]);
+
+  useEffect(()=>{
+    listCustomImages();
+  }, [listingAttributes, images])
 
 
   /**
@@ -103,73 +117,70 @@ export default function ProductDetails() {
   };
 
 
-
-  /**
-   * SETTING PRODUCT DATA, `listing_attributes`, `category_attributes`
-   */
-  useEffect(() => {
-    const fetchProductDetails = async () => {
-      try {
-        setLoading(true);
-        const data = await getProduct(uskuId);
-
-        if (data) {
-          setProduct(data);
-          fetchAttributes(data);
-        }
-      } catch (err) {
-        console.error("Failed to fetch product:", err);
-        setError("Failed to load product details.");
-      } finally {
-        setLoading(false);
+  const fetchProductDetails = async () => {
+    try {
+      setLoading(true);
+      const data = await getProduct(uskuId);
+      if (data) {
+        setProduct(data);
+        fetchAttributes(data);
       }
-    };
-
-    if (uskuId) {
-      fetchProductDetails();
+    } catch (err) {
+      console.error("Failed to fetch product:", err);
+      setError("Failed to load product details.");
+    } finally {
+      setLoading(false);
     }
-  }, [uskuId]);
+  };
 
 
-
-  /**
-   * FETCHING IMAGES AND SETTING TO THE `setImages()` STATE
-   */
-  useEffect(() => {
-    const fetchImages = async () => {
-      if (!uskuId) return;
-
+  const fetchImages = async () => {
+    if (!uskuId) return;
+    try {
+      setImagesLoading(true);
+      let data = null;
       try {
-        setImagesLoading(true);
-        let data = null;
-
-        try {
-          data = await getProductImages(uskuId);
-        } catch (err) {
-          showToast(err, "red");
-        }
-
-        setImages(data)
-      } finally {
-        setImagesLoading(false);
+        data = await getProductImages(uskuId);
+      } catch (err) {
+        showToast(err, "red");
       }
-    };
+      setImages(data)
+    } finally {
+      setImagesLoading(false);
+    }
+  };
 
-    fetchImages();
-  }, [uskuId, product?.usku_id, product?.sku_id, product?.image_url, imageAttributes]);
 
 
   /**
-   * Managing image metadata
+   * Add custom images to the imageAttributes
    */
-  useEffect(()=>{
-    const imagesMeta = {};
-    imageAttributes.map(attr=>{
-      imagesMeta[attr.field] = attr.order
-    });
+  const listCustomImages = ()=>{
+     setImageAttributes((prev)=>{
+      // const unmatchedImages = Object.keys(images);
+      const customImages = []
+      const attributeFields = prev.map((attr)=>{
+        return attr.field;
+      })
 
-    setImageMeta(JSON.stringify(imagesMeta));
-  }, [imageAttributes])
+
+      Object.keys(images).map((key) => {
+        if (!attributeFields.includes(key)) customImages.push(key)
+      })
+
+      return [
+        ...prev,
+        ...customImages.map((image)=>({
+          description: `Custom ${image} image`,
+          field: image,
+          handle: image,
+          name: toNameCase(image),
+          order: images[image].image_order || prev.length+1,
+          required: false
+        }))
+      ]
+    })
+  }
 
 
 
@@ -428,29 +439,6 @@ export default function ProductDetails() {
       [imageType]: { image: file, order: imageOrder },
     }));
 
-    // setImages((prev) => {
-    //   const updated = {...prev};
-    //   if (updated[selectedImageType]) {
-    //     updated[selectedImageType] = {
-    //       ...updated[selectedImageType],
-    //       low_resol_webp: url,
-    //       high_resol_webp: url,
-    //       original_image: url,
-    //       webp_card: url
-    //     };
-    //   } 
-    //   else {
-    //     updated.push({
-    //       id: imageType,
-    //       type: imageType,
-    //       order: imageOrder,
-    //       mainUrl: url,
-    //       thumbUrl: url,
-    //       originalUrl: url,
-    //     });
-    //   }
-    //   return updated;
-    // });
 
     setImages((prev)=>({
       ...prev,
@@ -605,6 +593,22 @@ export default function ProductDetails() {
         formData
       );
 
+
+      if (Object.keys(newImageFiles).length > 0) {
+        console.log("Uploading the image");
+        try {
+          // Use PUT /catalog/images/{usku_id} to update product images, with fallback to POST
+          try {
+            await updateProductImages(uskuId, newImageFiles);
+          } catch (putErr) {
+            console.warn("PUT /catalog/images failed, attempting POST fallback:", putErr);
+            await uploadProductImages(uskuId, newImageFiles);
+          }
+        } catch (imgErr) {
+          console.warn("Image upload warning:", imgErr);
+        }
+      }
+
       // setting the updated data to the product so client won't have to refresh in order to get the latest data
       setProduct((prev) => {
         const newProduct = {};
@@ -623,31 +627,8 @@ export default function ProductDetails() {
         }
       })
 
-
-      // if (Object.keys(newImageFiles).length > 0) {
-      //   try {
-      //     // Use PUT /catalog/images/{usku_id} to update product images, with fallback to POST
-      //     try {
-      //       await updateProductImages(activeUskuId, newImageFiles);
-      //     } catch (putErr) {
-      //       console.warn("PUT /catalog/images failed, attempting POST fallback:", putErr);
-      //       await uploadProductImages(activeUskuId, newImageFiles);
-      //     }
-      //   } catch (imgErr) {
-      //     console.warn("Image upload warning:", imgErr);
-      //   }
-      // }
-
-      // setProduct((prev) => ({
-      //   ...prev,
-      //   ...customAttributesObj,
-      // }));
-      // setFormData((prev) => ({
-      //   ...prev,
-      //   ...customAttributesObj,
-      // }));
       setCustomAttributes([]);
-      // setNewImageFiles({});
+      setNewImageFiles({});
       setIsEditing(false);
       showToast("Product details updated successfully!", "green");
     } catch (err) {
@@ -1181,7 +1162,7 @@ export default function ProductDetails() {
                         }
                       >
                         {
-                          isCustom ?
+                          isCustom && isEditing ?
                           <input type="text"
                             title="Change the image key"
                             value={attribute.name ?? "Custom"}

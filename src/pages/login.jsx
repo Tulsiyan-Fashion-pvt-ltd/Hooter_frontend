@@ -79,12 +79,15 @@ const Login = () => {
           dispatch(setBrandConnection(brand));
 
           if (brand.connection === "connected") {
-            navigate(`/?${searchParams}`);    // sending search params for oauth flow or other authentications
-          } else if (brand.brands === null) {
-            navigate("/brand/register");
-          } else if (Array.isArray(brand.brands) || brand.brands) {
-            navigate("/select-brand");
-          } else {
+            navigate({pathname: "/", search: `?${searchParams.toString()}`});    // sending search params for oauth flow or other authentications
+          } 
+          else if (brand.brands === null) {
+            navigate(`/brand/register?${searchParams.toString()}`);
+          } 
+          else if (Array.isArray(brand.brands) || brand.brands) {
+            navigate(`/select-brand?${searchParams.toString()}`);
+          } 
+          else {
             setErrorMessage('Could not connect the brand session');
           }
         } 

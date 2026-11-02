@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowProceedBttn } from "../components/proceed-bttn";
 import styles from "../css/pages/Signup.module.css";
 import { validateEmail, validateInNumber } from "../modules/validate";
@@ -19,6 +19,7 @@ const Signup = () => {
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const submit = async () => {
     setErrorMsg("");
@@ -69,7 +70,7 @@ const Signup = () => {
       setLoading(false);
 
       if (data.status === "ok" && response.status === 200) {
-        navigate("/");
+        navigate({pathname: "/", search: `?${searchParams}`});
       } else if (response.status === 409) {
         setErrorMsg("User already registered");
       } else {

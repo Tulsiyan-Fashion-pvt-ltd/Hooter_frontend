@@ -454,7 +454,7 @@ export const updateProductImages = async (uskuId, imagesData) => {
     },
   );
 
-  const data = await response.json().catch(() => ({}));
+  const data = await response.json().catch((e) => {console.error(e)});
 
   if (response.status === 401) {
     throw new Error(data.message || "User is not logged in");

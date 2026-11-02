@@ -60,20 +60,22 @@ export function Protect({ children }) {
     return children;
   }
 
-  return <Navigate to={`/login?${searchParams}`} replace />;
+  return <Navigate to={`/login?${searchParams.toString()}`} replace />;
 }
+
 
 // Prevent authentication pages like login, signup, and register
 // from displaying if the user is already authenticated.
 export function PreventAuth({ children }) {
   const { isAuthenticated, loading } = useAuthSession();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   if (loading) {
     return null;
   }
 
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to={`/?${searchParams.toString()}`} replace />;
   }
 
   return children;
