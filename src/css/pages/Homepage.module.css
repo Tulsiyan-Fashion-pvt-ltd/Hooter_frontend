@@ -9,20 +9,20 @@
 
 /* ─── Design tokens ─────────────────────────────────────── */
 :root {
-  --hp-blue:        #0040D6;
-  --hp-blue-light:  #E3E8FF;
-  --hp-red:         #E51300;
-  --hp-green:       #00AF55;
-  --hp-border:      #e2e8f0;
-  --hp-surface:     #ffffff;
-  --hp-bg:          #f8fafc;
-  --hp-text-dark:   #0f172a;
-  --hp-text-mid:    #334155;
-  --hp-text-muted:  #64748b;
-  --hp-radius-sm:   6px;
-  --hp-radius-md:   10px;
-  --hp-radius-lg:   12px;
-  --hp-shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --hp-blue: #0040D6;
+  --hp-blue-light: #E3E8FF;
+  --hp-red: #E51300;
+  --hp-green: #00AF55;
+  --hp-border: #e2e8f0;
+  --hp-surface: #ffffff;
+  --hp-bg: #f8fafc;
+  --hp-text-dark: #0f172a;
+  --hp-text-mid: #334155;
+  --hp-text-muted: #64748b;
+  --hp-radius-sm: 6px;
+  --hp-radius-md: 10px;
+  --hp-radius-lg: 12px;
+  --hp-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
   --hp-shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
@@ -31,30 +31,31 @@
    Full-height container with the light grey background.
 ═══════════════════════════════════════════════════════════ */
 .pageContent {
-  min-height:       100vh;
+  min-height: 100vh;
   background-color: var(--hp-bg);
-  font-family:      -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, Helvetica, Arial, sans-serif;
-  font-weight:      400;
-  color:            var(--hp-text-dark);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  color: var(--hp-text-dark);
   /* padding:          28px 32px 40px; */
-  box-sizing:       border-box;
+  box-sizing: border-box;
 }
 
 /* Constrains the dashboard content width and stacks sections vertically */
 .pageContainer {
-  max-width:      100%;
-  box-sizing:     border-box;
-  display:        flex;
+  max-width: 100%;
+  box-sizing: border-box;
+  display: flex;
   flex-direction: column;
-  gap:            20px; /* consistent vertical rhythm between all sections */
+  gap: 20px;
+  /* consistent vertical rhythm between all sections */
 }
 
 /* Shared loading state shown while data is being fetched */
 .loadingState {
-  text-align:  center;
-  padding:     60px 24px;
-  color:       var(--hp-text-muted);
-  font-size:   15px;
+  text-align: center;
+  padding: 60px 24px;
+  color: var(--hp-text-muted);
+  font-size: 15px;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -63,116 +64,116 @@
    Insights and any future card-shaped sections.
 ═══════════════════════════════════════════════════════════ */
 .card {
-  background:    var(--hp-surface);
-  border:        1px solid var(--hp-border);
+  background: var(--hp-surface);
+  border: 1px solid var(--hp-border);
   border-radius: var(--hp-radius-lg);
-  box-shadow:    var(--hp-shadow-sm);
+  box-shadow: var(--hp-shadow-sm);
 }
 
 
 
-.pageHeader{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 
 .filterBar {
-  display:         flex;
-  align-items:     center;
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  flex-wrap:       wrap;
-  gap:             12px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 /* Left cluster: contextual filter pills */
 .filterGroup {
-  display:     flex;
+  display: flex;
   align-items: center;
-  gap:         8px;
-  flex-wrap:   wrap;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 /* Each filter button — pill-shaped, light border */
 .filterBtn {
-  display:       inline-flex;
-  align-items:   center;
-  gap:           6px;
-  height:        34px;
-  padding:       0 12px;
-  background:    var(--hp-surface);
-  border:        1px solid var(--hp-border);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 12px;
+  background: var(--hp-surface);
+  border: 1px solid var(--hp-border);
   border-radius: 1000px;
-  font-size:     13px;
-  font-weight:   500;
-  color:         var(--hp-text-mid);
-  cursor:        pointer;
-  white-space:   nowrap;
-  transition:    all 0.15s ease;
-  box-shadow:    0 1px 2px rgba(0, 0, 0, 0.04);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--hp-text-mid);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .filterBtn:hover {
   border-color: #94a3b8;
-  background:   #f8fafc;
-  color:        var(--hp-text-dark);
+  background: #f8fafc;
+  color: var(--hp-text-dark);
 }
 
 /* Right cluster: utility action buttons */
 .actionGroup {
-  display:     flex;
+  display: flex;
   align-items: center;
-  gap:         8px;
-  flex-wrap:   wrap;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 /* Outline-style action button (Refresh, Export) */
 .actionBtnOutline {
-  display:       inline-flex;
-  align-items:   center;
-  gap:           6px;
-  height:        34px;
-  padding:       0 14px;
-  background:    var(--hp-surface);
-  border:        1px solid var(--hp-border);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  background: var(--hp-surface);
+  border: 1px solid var(--hp-border);
   border-radius: var(--hp-radius-sm);
-  font-size:     13px;
-  font-weight:   500;
-  color:         var(--hp-text-mid);
-  cursor:        pointer;
-  white-space:   nowrap;
-  transition:    all 0.15s ease;
-  box-shadow:    0 1px 2px rgba(0, 0, 0, 0.04);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--hp-text-mid);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .actionBtnOutline:hover {
-  background:   #f8fafc;
+  background: #f8fafc;
   border-color: #94a3b8;
-  color:        var(--hp-text-dark);
+  color: var(--hp-text-dark);
 }
 
 /* Filled primary action button (+ Create report) */
 .actionBtnPrimary {
-  display:       inline-flex;
-  align-items:   center;
-  gap:           6px;
-  height:        34px;
-  padding:       0 16px;
-  background:    var(--accent-color);
-  border:        none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 16px;
+  background: var(--accent-color);
+  border: none;
   border-radius: var(--hp-radius-sm);
-  font-size:     13px;
-  font-weight:   500;
-  color:         #ffffff;
-  cursor:        pointer;
-  white-space:   nowrap;
-  transition:    all 0.15s ease;
-  box-shadow:    0 1px 3px rgba(0, 0, 0, 0.15);
+  font-size: 13px;
+  font-weight: 500;
+  color: #ffffff;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
 .actionBtnPrimary:hover {
-  background:   var(--accent-color-100);
+  background: var(--accent-color-100);
   border-color: #1e293b;
 }
 
@@ -183,143 +184,145 @@
    Each card shows: label / large value / colour-coded trend badge.
 ═══════════════════════════════════════════════════════════ */
 .kpiGrid {
-  display:               grid;
+  display: grid;
   /* 6 equal columns on wide screens; collapses at breakpoints below */
   grid-template-columns: repeat(6, 1fr);
-  gap:                   12px;     /* visible space between every card */
+  gap: 12px;
+  /* visible space between every card */
 }
 
 /* Individual KPI card — own border, shadow and rounded corners */
 .kpiCard {
-  display:        flex;
+  display: flex;
   flex-direction: column;
-  gap:            10px;            /* breathing room between label / value / badge */
-  padding:        18px 20px 16px;
-  background:     var(--hp-surface);
-  border:         1px solid var(--hp-border);
-  border-radius:  var(--hp-radius-lg);
-  box-shadow:     var(--hp-shadow-sm);
+  gap: 10px;
+  /* breathing room between label / value / badge */
+  padding: 18px 20px 16px;
+  background: var(--hp-surface);
+  border: 1px solid var(--hp-border);
+  border-radius: var(--hp-radius-lg);
+  box-shadow: var(--hp-shadow-sm);
 }
 
 /* Muted label sitting above the main value */
 .kpiLabel {
-  font-size:   12.5px;
+  font-size: 12.5px;
   font-weight: 500;
-  color:       var(--hp-text-muted);
+  color: var(--hp-text-muted);
   line-height: 1.2;
 }
 
 /* Large KPI number */
 .kpiValue {
-  font-size:      22px;
-  font-weight:    700;
-  color:          var(--hp-text-dark);
-  line-height:    1.15;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--hp-text-dark);
+  line-height: 1.15;
   letter-spacing: -0.01em;
 }
 
 /* Trend badge: pill-shaped light-grey box with coloured text (green / red via inline style).
    The neutral grey background reads cleanly behind both colour variants. */
 .kpiBadge {
-  display:       inline-flex;
-  align-items:   center;
-  gap:           3px;
-  padding:       3px 8px;
-  background:    #f1f5f9;          /* light grey pill */
-  border-radius: 999px;            /* fully rounded ends */
-  font-size:     12px;
-  font-weight:   600;
-  line-height:   1;
-  width:         fit-content;      /* shrink-wraps to text width */
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 8px;
+  background: #f1f5f9;
+  /* light grey pill */
+  border-radius: 999px;
+  /* fully rounded ends */
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  width: fit-content;
+  /* shrink-wraps to text width */
 }
 
-/* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
-   SECTION 4 \u2014 ANALYTICS ROW
-   Two side-by-side panels:
-     Left  (\u224865%) \u2014 Revenue Trend line chart
-     Right (\u224835%) \u2014 Fulfillment Funnel horizontal bars
-\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */
+/* SECTION 4 \u2014 ANALYTICS ROW */
 
 /* Outer flex row that holds both panels side by side */
 .analyticsRow {
   display: flex;
-  gap:     16px;
-  align-items: stretch;   /* both panels grow to the same height */
+  gap: 16px;
+  align-items: stretch;
+  /* both panels grow to the same height */
 }
 
 /* ── Revenue Trend panel (left) ─────────────────────────── */
 /* Takes ~65% of the row width */
 .trendPanel {
-  flex:    2;              /* 2 parts out of 3 total \u2248 66% */
+  flex: 2;
+  /* 2 parts out of 3 total \u2248 66% */
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap:     16px;
+  gap: 16px;
   min-width: 0;
 }
 
 /* Header row: title block on the left, legend on the right */
 .trendHeader {
-  display:         flex;
-  align-items:     flex-start;
+  display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  flex-wrap:       wrap;
-  gap:             12px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .trendHeaderLeft {
-  display:        flex;
+  display: flex;
   flex-direction: column;
-  gap:            3px;
+  gap: 3px;
 }
 
 /* "Revenue trend" heading */
 .trendTitle {
-  font-size:   15px;
+  font-size: 15px;
   font-weight: 600;
-  color:       var(--hp-text-dark);
-  margin:      0;
+  color: var(--hp-text-dark);
+  margin: 0;
 }
 
 /* "Across all connected marketplaces" sub-label */
 .trendSubtitle {
   font-size: 12px;
-  color:     var(--hp-text-muted);
-  margin:    0;
+  color: var(--hp-text-muted);
+  margin: 0;
 }
 
 /* Legend: two coloured dot + label pairs */
 .trendLegend {
-  display:     flex;
+  display: flex;
   align-items: center;
-  gap:         16px;
+  gap: 16px;
   flex-shrink: 0;
 }
 
 .legendItem {
-  display:     flex;
+  display: flex;
   align-items: center;
-  gap:         6px;
-  font-size:   12px;
-  color:       var(--hp-text-muted);
+  gap: 6px;
+  font-size: 12px;
+  color: var(--hp-text-muted);
   font-weight: 500;
 }
 
 /* Small circular dot used as the legend colour swatch */
 .legendDotBlue {
-  width:         8px;
-  height:        8px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background:    #0040D6;
-  flex-shrink:   0;
+  background: #0040D6;
+  flex-shrink: 0;
 }
 
 .legendDotGrey {
-  width:         8px;
-  height:        8px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background:    #cbd5e1;
-  flex-shrink:   0;
+  background: #cbd5e1;
+  flex-shrink: 0;
 }
 
 /* Recharts wrapper — fills remaining vertical space */
@@ -330,92 +333,94 @@
 /* ── Fulfillment Funnel panel (right) ───────────────────── */
 /* Takes ~35% of the row width */
 .funnelPanel {
-  flex:    1;              /* 1 part out of 3 total \u2248 33% */
+  flex: 1;
+  /* 1 part out of 3 total \u2248 33% */
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap:     20px;
+  gap: 20px;
   min-width: 0;
 }
 
 /* "Fulfillment funnel" heading */
 .funnelTitle {
-  font-size:   15px;
+  font-size: 15px;
   font-weight: 600;
-  color:       var(--hp-text-dark);
-  margin:      0;
+  color: var(--hp-text-dark);
+  margin: 0;
 }
 
 /* Vertical stack of stage rows */
 .funnelList {
-  display:        flex;
+  display: flex;
   flex-direction: column;
-  gap:            12px;      /* space between each stage row */
+  gap: 12px;
+  /* space between each stage row */
 }
 
 /* One stage row: label | bar track | count */
 .funnelRow {
-  display:     grid;
+  display: grid;
   /* label is fixed-width; bar fills the middle; count is fixed */
   grid-template-columns: 70px 1fr 48px;
   align-items: center;
-  gap:         10px;
+  gap: 10px;
 }
 
 /* Stage name (e.g. "Placed", "Shipped") */
 .funnelLabel {
-  font-size:   12.5px;
-  color:       var(--hp-text-muted);
+  font-size: 12.5px;
+  color: var(--hp-text-muted);
   font-weight: 400;
   white-space: nowrap;
 }
 
 /* Grey track that the fill bar sits inside */
 .funnelBarTrack {
-  height:        8px;
+  height: 8px;
   border-radius: 999px;
-  background:    #e2e8f0;     /* light grey track */
-  overflow:      hidden;
+  background: #e2e8f0;
+  /* light grey track */
+  overflow: hidden;
 }
 
 /* Coloured fill bar — width and background-color are set inline from JS */
 .funnelBarFill {
-  height:        100%;
+  height: 100%;
   border-radius: 999px;
-  transition:    width 0.4s ease;  /* smooth width animation on data change */
+  transition: width 0.4s ease;
+  /* smooth width animation on data change */
 }
 
 /* Numeric count to the right of the bar */
 .funnelCount {
-  font-size:   12.5px;
+  font-size: 12.5px;
   font-weight: 600;
-  color:       var(--hp-text-dark);
-  text-align:  right;
+  color: var(--hp-text-dark);
+  text-align: right;
   white-space: nowrap;
 }
 
 /* Three-dot menu button (kept for card headers elsewhere) */
 .menuBtn {
-  background:    none;
-  border:        none;
-  font-size:     20px;
-  color:         var(--hp-text-muted);
-  cursor:        pointer;
-  padding:       2px 6px;
-  line-height:   1;
-  flex-shrink:   0;
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: var(--hp-text-muted);
+  cursor: pointer;
+  padding: 2px 6px;
+  line-height: 1;
+  flex-shrink: 0;
   border-radius: 4px;
-  transition:    background 0.15s ease;
+  transition: background 0.15s ease;
 }
 
 .menuBtn:hover {
   background: #f1f5f9;
-  color:      var(--hp-text-dark);
+  color: var(--hp-text-dark);
 }
 
-/* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
-   RESPONSIVE BREAKPOINTS
-\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */
+/* RESPONSIVE BREAKPOINTS */
 
 /* KPI grid 6-col \u2192 3 columns; analytics row stacks vertically */
 @media (max-width: 1280px) {
@@ -457,14 +462,14 @@
 
   .filterBar {
     flex-direction: column;
-    align-items:    flex-start;
-    gap:            10px;
+    align-items: flex-start;
+    gap: 10px;
   }
 
   .actionGroup {
-    width:     100%;
+    width: 100%;
     flex-wrap: wrap;
-    gap:       8px;
+    gap: 8px;
   }
 
   .kpiCard {
@@ -494,12 +499,12 @@
 
 /* Blue "View all …" / "Manage stock" links in card headers */
 .linkAction {
-  font-size:   13px;
+  font-size: 13px;
   font-weight: 500;
-  color:       var(--hp-blue);
+  color: var(--hp-blue);
   text-decoration: none;
   white-space: nowrap;
-  transition:  opacity 0.15s ease;
+  transition: opacity 0.15s ease;
 }
 
 .linkAction:hover {
@@ -513,48 +518,50 @@
          GROWTH | STATUS — all share equal remaining width.
 ═══════════════════════════════════════════════════════════ */
 .mpCard {
-  padding: 0;          /* rows carry their own padding */
-  overflow: hidden;    /* keeps border-radius clipping on child rows */
+  padding: 0;
+  /* rows carry their own padding */
+  overflow: hidden;
+  /* keeps border-radius clipping on child rows */
 }
 
 /* Title + "View all channels" link */
 .mpHeader {
-  display:         flex;
-  align-items:     center;
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  padding:         18px 24px 14px;
-  border-bottom:   1px solid var(--hp-border);
+  padding: 18px 24px 14px;
+  border-bottom: 1px solid var(--hp-border);
 }
 
 .mpTitle {
-  font-size:   15px;
+  font-size: 15px;
   font-weight: 600;
-  color:       var(--hp-text-dark);
+  color: var(--hp-text-dark);
 }
 
 /* Column-header row — all-caps, muted, small */
 .mpTableHead {
-  display:               grid;
+  display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
-  padding:               10px 24px;
-  background:            #f8fafc;
-  border-bottom:         1px solid var(--hp-border);
-  gap:                   12px;
-  font-size:             11px;
-  font-weight:           600;
-  color:                 var(--hp-text-muted);
-  letter-spacing:        0.05em;
+  padding: 10px 24px;
+  background: #f8fafc;
+  border-bottom: 1px solid var(--hp-border);
+  gap: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--hp-text-muted);
+  letter-spacing: 0.05em;
 }
 
 /* One data row per marketplace */
 .mpRow {
-  display:               grid;
+  display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
-  align-items:           center;
-  padding:               13px 24px;
-  gap:                   12px;
-  border-bottom:         1px solid var(--hp-border);
-  transition:            background 0.12s ease;
+  align-items: center;
+  padding: 13px 24px;
+  gap: 12px;
+  border-bottom: 1px solid var(--hp-border);
+  transition: background 0.12s ease;
 }
 
 .mpRow:last-child {
@@ -567,44 +574,44 @@
 
 /* Marketplace name cell — dot + label */
 .mpName {
-  display:     flex;
+  display: flex;
   align-items: center;
-  gap:         8px;
-  font-size:   13.5px;
+  gap: 8px;
+  font-size: 13.5px;
   font-weight: 500;
-  color:       var(--hp-text-dark);
+  color: var(--hp-text-dark);
 }
 
 /* Coloured identity dot beside the marketplace name */
 .mpDot {
-  width:         8px;
-  height:        8px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  flex-shrink:   0;
+  flex-shrink: 0;
 }
 
 /* Generic data cell — plain numbers / percentages */
 .mpCell {
   font-size: 13.5px;
-  color:     var(--hp-text-mid);
+  color: var(--hp-text-mid);
 }
 
 /* Growth % — colour is set inline (green / red) */
 .mpGrowth {
-  font-size:   13.5px;
+  font-size: 13.5px;
   font-weight: 600;
 }
 
 /* Status badge pill — colours set inline from marketplaceStatusStyle() */
 .mpStatusBadge {
-  display:       inline-flex;
-  align-items:   center;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  padding:       3px 10px;
+  padding: 3px 10px;
   border-radius: 999px;
-  font-size:     12px;
-  font-weight:   600;
-  width:         fit-content;
+  font-size: 12px;
+  font-weight: 600;
+  width: fit-content;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -616,57 +623,57 @@
 
 /* Outer flex row holding both bottom cards */
 .bottomRow {
-  display:     flex;
-  gap:         16px;
+  display: flex;
+  gap: 16px;
   align-items: stretch;
 }
 
 /* ── Recent Orders card (left) ────────────────────────── */
 .ordersCard {
-  flex:     3;           /* ~62% */
-  padding:  0;
+  flex: 3;
+  padding: 0;
   overflow: hidden;
   min-width: 0;
 }
 
 /* "Recent orders" title + "View all orders" link */
 .ordersHeader {
-  display:         flex;
-  align-items:     center;
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  padding:         18px 24px 14px;
-  border-bottom:   1px solid var(--hp-border);
+  padding: 18px 24px 14px;
+  border-bottom: 1px solid var(--hp-border);
 }
 
 .ordersTitle {
-  font-size:   15px;
+  font-size: 15px;
   font-weight: 600;
-  color:       var(--hp-text-dark);
+  color: var(--hp-text-dark);
 }
 
 /* Column-header row for the orders table */
 .ordersTableHead {
-  display:               grid;
+  display: grid;
   grid-template-columns: 1.2fr 1.2fr 1fr 1fr 1fr;
-  padding:               10px 24px;
-  background:            #f8fafc;
-  border-bottom:         1px solid var(--hp-border);
-  gap:                   12px;
-  font-size:             11px;
-  font-weight:           600;
-  color:                 var(--hp-text-muted);
-  letter-spacing:        0.05em;
+  padding: 10px 24px;
+  background: #f8fafc;
+  border-bottom: 1px solid var(--hp-border);
+  gap: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--hp-text-muted);
+  letter-spacing: 0.05em;
 }
 
 /* One data row per order */
 .ordersRow {
-  display:               grid;
+  display: grid;
   grid-template-columns: 1.2fr 1.2fr 1fr 1fr 1fr;
-  align-items:           center;
-  padding:               13px 24px;
-  gap:                   12px;
-  border-bottom:         1px solid var(--hp-border);
-  transition:            background 0.12s ease;
+  align-items: center;
+  padding: 13px 24px;
+  gap: 12px;
+  border-bottom: 1px solid var(--hp-border);
+  transition: background 0.12s ease;
 }
 
 .ordersRow:last-child {
@@ -679,16 +686,16 @@
 
 /* Order ID — slightly bolder, dark text */
 .ordersId {
-  font-size:   13px;
+  font-size: 13px;
   font-weight: 500;
-  color:       var(--hp-text-dark);
+  color: var(--hp-text-dark);
   white-space: nowrap;
 }
 
 /* Generic data cell for customer, channel, amount */
 .ordersCell {
   font-size: 13px;
-  color:     var(--hp-text-mid);
+  color: var(--hp-text-mid);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -696,54 +703,55 @@
 
 /* Status badge — colours injected inline */
 .ordersBadge {
-  display:         inline-flex;
-  align-items:     center;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  padding:         3px 10px;
-  border-radius:   999px;
-  font-size:       12px;
-  font-weight:     600;
-  width:           fit-content;
-  white-space:     nowrap;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  width: fit-content;
+  white-space: nowrap;
 }
 
 /* ── Inventory Alerts card (right) ────────────────────── */
 .alertsCard {
-  flex:     2;           /* ~38% */
-  padding:  0;
+  flex: 2;
+  /* ~38% */
+  padding: 0;
   overflow: hidden;
   min-width: 0;
 }
 
 /* "Inventory alerts" title + "Manage stock" link */
 .alertsHeader {
-  display:         flex;
-  align-items:     center;
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  padding:         18px 24px 14px;
-  border-bottom:   1px solid var(--hp-border);
+  padding: 18px 24px 14px;
+  border-bottom: 1px solid var(--hp-border);
 }
 
 .alertsTitle {
-  font-size:   15px;
+  font-size: 15px;
   font-weight: 600;
-  color:       var(--hp-text-dark);
+  color: var(--hp-text-dark);
 }
 
 /* Vertical stack of alert items */
 .alertsList {
-  display:        flex;
+  display: flex;
   flex-direction: column;
 }
 
 /* One alert item row: thumbnail | info | badge */
 .alertRow {
-  display:     flex;
+  display: flex;
   align-items: center;
-  gap:         12px;
-  padding:     14px 24px;
+  gap: 12px;
+  padding: 14px 24px;
   border-bottom: 1px solid var(--hp-border);
-  transition:  background 0.12s ease;
+  transition: background 0.12s ease;
 }
 
 .alertRow:last-child {
@@ -756,47 +764,48 @@
 
 /* Grey square placeholder representing a product thumbnail */
 .alertThumb {
-  width:         40px;
-  height:        40px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--hp-radius-sm);
-  background:    #e2e8f0;
-  flex-shrink:   0;
+  background: #e2e8f0;
+  flex-shrink: 0;
 }
 
 /* Name + stock-detail stacked vertically */
 .alertInfo {
-  display:        flex;
+  display: flex;
   flex-direction: column;
-  gap:            3px;
-  flex:           1;
-  min-width:      0;   /* allows text-overflow to work inside flex child */
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+  /* allows text-overflow to work inside flex child */
 }
 
 .alertName {
-  font-size:     13.5px;
-  font-weight:   500;
-  color:         var(--hp-text-dark);
-  white-space:   nowrap;
-  overflow:      hidden;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--hp-text-dark);
+  white-space: nowrap;
+  overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .alertDetail {
   font-size: 12px;
-  color:     var(--hp-text-muted);
+  color: var(--hp-text-muted);
 }
 
 /* Severity badge — colours injected inline */
 .alertBadge {
-  display:         inline-flex;
-  align-items:     center;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  padding:         3px 10px;
-  border-radius:   999px;
-  font-size:       12px;
-  font-weight:     600;
-  white-space:     nowrap;
-  flex-shrink:     0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -805,6 +814,7 @@
 
 /* Stack the bottom row and collapse marketplace columns on medium screens */
 @media (max-width: 1280px) {
+
   .mpTableHead,
   .mpRow {
     grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
@@ -832,6 +842,7 @@
 
 /* Simplify table columns on phones */
 @media (max-width: 640px) {
+
   .mpTableHead,
   .mpRow {
     grid-template-columns: 2fr 1fr 1fr;
@@ -870,58 +881,59 @@
 
 /* Outer flex row — mirrors .bottomRow above */
 .lastRow {
-  display:     flex;
-  gap:         16px;
+  display: flex;
+  gap: 16px;
   align-items: stretch;
 }
 
 /* ── Top products card (left) ─────────────────────────── */
 .topProductsCard {
-  flex:      2;          /* ~65% */
-  padding:   0;
-  overflow:  hidden;
+  flex: 2;
+  /* ~65% */
+  padding: 0;
+  overflow: hidden;
   min-width: 0;
 }
 
 /* "Top products" title + "View catalog" link */
 .topProductsHeader {
-  display:         flex;
-  align-items:     center;
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  padding:         18px 24px 14px;
-  border-bottom:   1px solid var(--hp-border);
+  padding: 18px 24px 14px;
+  border-bottom: 1px solid var(--hp-border);
 }
 
 .topProductsTitle {
-  font-size:   15px;
+  font-size: 15px;
   font-weight: 600;
-  color:       var(--hp-text-dark);
+  color: var(--hp-text-dark);
 }
 
 /* Column-header row — all-caps, muted */
 .topProductsHead {
-  display:               grid;
+  display: grid;
   /* Product name column is widest; remaining cols share equal space */
   grid-template-columns: 2.5fr 1fr 0.8fr 0.8fr 1fr;
-  padding:               10px 24px;
-  background:            #f8fafc;
-  border-bottom:         1px solid var(--hp-border);
-  gap:                   12px;
-  font-size:             11px;
-  font-weight:           600;
-  color:                 var(--hp-text-muted);
-  letter-spacing:        0.05em;
+  padding: 10px 24px;
+  background: #f8fafc;
+  border-bottom: 1px solid var(--hp-border);
+  gap: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--hp-text-muted);
+  letter-spacing: 0.05em;
 }
 
 /* One data row per product */
 .topProductsRow {
-  display:               grid;
+  display: grid;
   grid-template-columns: 2.5fr 1fr 0.8fr 0.8fr 1fr;
-  align-items:           center;
-  padding:               13px 24px;
-  gap:                   12px;
-  border-bottom:         1px solid var(--hp-border);
-  transition:            background 0.12s ease;
+  align-items: center;
+  padding: 13px 24px;
+  gap: 12px;
+  border-bottom: 1px solid var(--hp-border);
+  transition: background 0.12s ease;
 }
 
 .topProductsRow:last-child {
@@ -934,64 +946,65 @@
 
 /* Product name cell: small grey thumbnail + text */
 .topProductName {
-  display:     flex;
+  display: flex;
   align-items: center;
-  gap:         10px;
-  font-size:   13.5px;
+  gap: 10px;
+  font-size: 13.5px;
   font-weight: 500;
-  color:       var(--hp-text-dark);
-  min-width:   0;
+  color: var(--hp-text-dark);
+  min-width: 0;
 }
 
 /* Grey square placeholder for the product image */
 .topProductThumb {
-  width:         34px;
-  height:        34px;
+  width: 34px;
+  height: 34px;
   border-radius: var(--hp-radius-sm);
-  background:    #e2e8f0;
-  flex-shrink:   0;
+  background: #e2e8f0;
+  flex-shrink: 0;
 }
 
 /* Generic data cell: channel, sold count, stock, price */
 .topProductCell {
   font-size: 13.5px;
-  color:     var(--hp-text-mid);
+  color: var(--hp-text-mid);
 }
 
 /* ── Activity feed card (right) ───────────────────────── */
 .activityCard {
-  flex:      1;          /* ~35% */
-  padding:   0;
-  overflow:  hidden;
+  flex: 1;
+  /* ~35% */
+  padding: 0;
+  overflow: hidden;
   min-width: 0;
 }
 
 /* "Activity" title row — no action link */
 .activityHeader {
-  padding:       18px 24px 14px;
+  padding: 18px 24px 14px;
   border-bottom: 1px solid var(--hp-border);
 }
 
 .activityTitle {
-  font-size:   15px;
+  font-size: 15px;
   font-weight: 600;
-  color:       var(--hp-text-dark);
+  color: var(--hp-text-dark);
 }
 
 /* Vertical stack of activity items */
 .activityList {
-  display:        flex;
+  display: flex;
   flex-direction: column;
 }
 
 /* One event: dot | text block */
 .activityItem {
-  display:     flex;
+  display: flex;
   align-items: flex-start;
-  gap:         12px;
-  padding:     14px 24px;
+  gap: 12px;
+  padding: 14px 24px;
   border-bottom: 1px solid var(--hp-border);
-  transition:  background 0.12s ease;
+  transition: background 0.12s ease;
 }
 
 .activityItem:last-child {
@@ -1004,31 +1017,32 @@
 
 /* Coloured dot — colour is set inline per item */
 .activityDot {
-  width:         8px;
-  height:        8px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  flex-shrink:   0;
-  margin-top:    4px;   /* align dot with the first line of text */
+  flex-shrink: 0;
+  margin-top: 4px;
+  /* align dot with the first line of text */
 }
 
 /* Stacks event text on top of the timestamp */
 .activityInfo {
-  display:        flex;
+  display: flex;
   flex-direction: column;
-  gap:            3px;
-  min-width:      0;
+  gap: 3px;
+  min-width: 0;
 }
 
 .activityText {
-  font-size:   13.5px;
+  font-size: 13.5px;
   font-weight: 500;
-  color:       var(--hp-text-dark);
+  color: var(--hp-text-dark);
   line-height: 1.4;
 }
 
 .activityTime {
   font-size: 12px;
-  color:     var(--hp-text-muted);
+  color: var(--hp-text-muted);
 }
 
 /* ── Responsive: Section 7 ────────────────────────────── */
@@ -1048,6 +1062,7 @@
 
 /* Simplify top-products columns on phones */
 @media (max-width: 640px) {
+
   .topProductsHead,
   .topProductsRow {
     /* Keep Product, Sold, Price — hide Channel and Stock */

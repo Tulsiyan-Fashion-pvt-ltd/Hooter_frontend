@@ -21,6 +21,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import styles from "../css/pages/inventory.Inventory.module.css";
+import StatCardsRow from "./StatCardsRow";
 
 const url = import.meta.env.VITE_BASEAPI;
 
@@ -183,28 +184,6 @@ function statusClass(status, s) {
 /* ═══════════════════════════════════════════════════════════════════════════
    SUB-COMPONENTS
    ═══════════════════════════════════════════════════════════════════════════ */
-
-/**
- * StatCard
- * One of the five summary cards across the top of the inventory view.
- *
- * Props:
- *  label      string   Card label (e.g. "Total SKUs")
- *  value      string   Large number / currency to display
- *  sub        string   Smaller sub-text below the value
- *  subClass   string   Optional CSS class for coloured sub-text
- */
-function StatCard({ label, value, sub, subClass }) {
-  return (
-    <div className={styles.statCard}>
-      <p className={styles.statLabel}>{label}</p>
-      <h2 className={styles.statValue}>{value}</h2>
-      {sub && (
-        <p className={`${styles.statSub} ${subClass || ""}`}>{sub}</p>
-      )}
-    </div>
-  );
-}
 
 /**
  * StockBar
@@ -416,17 +395,55 @@ export default function StockInventory() {
         low:      "?filter=low-stock",
       };
 
+      /**
+       * Apply the active quick-filter to a list of mock / API items so that
+       * the pills work even when the API is offline or returns an empty list.
+       */
+      function applyFilter(rows) {
+        const maxStock = 400;
+        switch (filter) {
+          case "sellable":
+            return rows.filter((item) => {
+              const pct = item._pct !== undefined
+                ? item._pct
+                : Math.round((Number(item.product_stock ?? 0) / maxStock) * 100);
+              return pct > 20 && pct <= 120; // "In stock"
+            });
+          case "low":
+            return rows.filter((item) => {
+              const pct = item._pct !== undefined
+                ? item._pct
+                : Math.round((Number(item.product_stock ?? 0) / maxStock) * 100);
+              return pct > 0 && pct <= 20; // "Low stock"
+            });
+          case "oos":
+            return rows.filter((item) => {
+              const pct = item._pct !== undefined
+                ? item._pct
+                : Math.round((Number(item.product_stock ?? 0) / maxStock) * 100);
+              return pct <= 0; // "Out of stock"
+            });
+          default:
+            return rows; // "total" – show everything
+        }
+      }
+
       try {
         const res  = await fetch(`${url}/inventory${filterMap[filter]}`, { credentials: "include" });
         const data = await res.json();
-        const rows = Array.isArray(data) && data.length > 0 ? data : MOCK_ITEMS;
+
+        // If the API returned real data, use it directly (server already filtered).
+        // If the API returned empty / failed, fall back to client-filtered mock data.
+        const rows = Array.isArray(data) && data.length > 0
+          ? data
+          : applyFilter(MOCK_ITEMS);
 
         setItems(rows);
         setPage(1);              // reset to first page on filter change
         setSelected(new Set()); // clear selection on filter change
       } catch (err) {
         console.warn("[StockInventory] /inventory request failed – using mock items.", err);
-        setItems(MOCK_ITEMS);
+        setItems(applyFilter(MOCK_ITEMS));
         setPage(1);
         setSelected(new Set());
       }
@@ -497,35 +514,13 @@ export default function StockInventory() {
       {/* ════════════════════════════════════════════════════════════════════
           1. Stats Row
          ════════════════════════════════════════════════════════════════════ */}
-      <section className={styles.statsRow} aria-label="Inventory summary">
-        <StatCard
-          label="Total SKUs"
-          value={stocks.total}
-          sub="Across 3 warehouses"
-        />
-        <StatCard
-          label="In stock"
-          value={stocks.sellable}
-          sub="82.7% of catalog"
-        />
-        <StatCard
-          label="Low stock"
-          value={stocks.low}
-          sub="Below reorder level"
-          subClass={styles.subWarn}
-        />
-        <StatCard
-          label="Out of stock"
-          value={stocks.oos}
-          sub="Needs restock"
-          subClass={styles.subDanger}
-        />
-        <StatCard
-          label="Stock value"
-          value="₹1.86Cr"
-          sub="At cost price"
-        />
-      </section>
+      <StatCardsRow cards={[
+        { label: "Total SKUs",   value: stocks.total,    sub: "Across 3 warehouses" },
+        { label: "In Stock",     value: stocks.sellable, sub: "82.7% of catalog" },
+        { label: "Low Stock",    value: stocks.low,      sub: "Below reorder level", subClass: styles.subWarn },
+        { label: "Out of Stock", value: stocks.oos,      sub: "Needs restock",       subClass: styles.subDanger },
+        { label: "Stock Value",  value: "₹1.86Cr",       sub: "At cost price" },
+      ]} />
 
       {/* ════════════════════════════════════════════════════════════════════
           2. Filter Toolbar
