@@ -294,7 +294,7 @@ letter-spacing: 0%;
 [data-item="Shipping"] .itemIcons { background-image: url("../../assets/icons/sidebar/shipping.svg"); }
 [data-item="Payments"] .itemIcons { background-image: url("../../assets/icons/sidebar/cl_payment.svg"); }
 [data-item="Stats"] .itemIcons { background-image: url("../../assets/icons/sidebar/stats.svg"); }
-[data-item="Settings"] .itemIcons { background-image: url("../../assets/icons/sidebar/settings.svg"); }
+[data-item="Integrations"] .itemIcons { background-image: url("../../assets/icons/sidebar/integration.svg"); }
 
 /* active icon mapping */
 [data-item="Home"] .acitveItemIcons { background-image: url("../../assets/icons/sidebar/home-active.svg"); }
@@ -304,7 +304,7 @@ letter-spacing: 0%;
 [data-item="Shipping"] .acitveItemIcons { background-image: url("../../assets/icons/sidebar/shipping-active.svg"); }
 [data-item="Payments"] .acitveItemIcons { background-image: url("../../assets/icons/sidebar/payment-active.svg"); }
 [data-item="Stats"] .acitveItemIcons { background-image: url("../../assets/icons/sidebar/stats-active.svg"); }
-[data-item="Settings"] .acitveItemIcons { background-image: url("../../assets/icons/sidebar/settings-active.svg"); }
+[data-item="Integrations"] .acitveItemIcons { background-image: url("../../assets/icons/sidebar/integration-active.svg"); }
 
 
 

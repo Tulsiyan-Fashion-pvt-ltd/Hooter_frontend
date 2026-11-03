@@ -70,7 +70,7 @@ const Sidebar = () => {
     Shipping: { path: "/shipping" },
     Payments: { path: "/payments" },
     Stats: { path: "/stats" },
-    Settings: { path: "/settings" },
+    Integrations: { path: "/integrations" },
   };
 
 
