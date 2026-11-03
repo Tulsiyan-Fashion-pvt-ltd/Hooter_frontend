@@ -42,7 +42,7 @@ export default function ProductDetails() {
   const [listingAttributes, setListingAttributes] = useState([]);
   const [categoryAttributes, setCategoryAttributes] = useState([]);
   const [imageAttributes, setImageAttributes] = useState([]);
-  const [customImageAttributes, setCustomImageAttributes] = useState([]);
+  const [attributeData, setAttributeData] = useState([]);
   const [attributesLoading, setAttributesLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -52,6 +52,27 @@ export default function ProductDetails() {
   const typeId = searchParams.get("type") || searchParams.get("type-id");
   // console.log(imageAttributes)
   // console.log(customAttributes)
+
+
+  /**
+   * Prevents the tab from closing by mistake
+   */
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+          if (isEditing && (Object.keys(newImageFiles).length != 0 || Object.keys(formData).length != 0)) return;
+
+          event.preventDefault();
+          event.returnValue = "";
+      };
+
+      window.addEventListener("beforeunload", handleBeforeUnload);
+
+      return () => {
+          window.removeEventListener("beforeunload", handleBeforeUnload);
+      };
+  }, [isEditing]);
+
+
 
   /**
    * SETTING THE DEFAULT SELECTED IMAGE AS THE FIRST IMAGE OF THE ATTRIBUTE 
@@ -100,6 +121,7 @@ export default function ProductDetails() {
     try {
       setAttributesLoading(true);
       const data = await getAttributeFields(activeTypeId, vertical);
+      setAttributeData(data);
       if (data?.listing_attributes) {
         setListingAttributes(data.listing_attributes);
       } 
@@ -201,6 +223,7 @@ export default function ProductDetails() {
       "category_attributes": {...prev["category_attributes"], "": ""} // setting emtpy field and value
     }))
   };
+
 
 
   const handleCustomAttributeChange = (id, val) => {
@@ -373,6 +396,7 @@ export default function ProductDetails() {
 
   const handleCancelEdit = () => {
     setIsEditing(false);
+    setImageAttributes(attributeData.image_attributes);
     setFormData({});
     setCustomAttributes([]);
     setErrors({});
