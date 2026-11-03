@@ -66,15 +66,7 @@ const Sidebar = () => {
     Home: { path: "/" },
     Catalog: { path: "/catalog" },
     Inventory: { path: "/inventory" },
-    Order: {
-      path: "/orders",
-      subMenuIndent: 70,
-      children: {
-        activeOrders: { path: "/orders/active-orders", label: "Active Orders" },
-        returns: { path: "/orders/returns", label: "Returns" },
-        cancellation: { path: "/orders/cancellation", label: "Cancellations" },
-      },
-    },
+    Order: { path: "/orders" },
     Shipping: { path: "/shipping" },
     Payments: { path: "/payments" },
     Stats: { path: "/stats" },

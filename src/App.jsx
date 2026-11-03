@@ -70,6 +70,7 @@ function App() {
           <Route path="/inventory/inward" element={<Inventory tab={"inward"} />} />
           <Route path="/inventory/grn" element={<Inventory tab={"grn"} />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/orders/active-orders" element={<Orders />} />
           <Route path="/orders/all-orders" element={<Orders />} />
         </Route>
         
@@ -111,3 +112,4 @@ function App() {
 }
 
 export default App;
+

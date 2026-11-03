@@ -57,14 +57,8 @@
         },
         {
             "path": "/orders",
-            "name": "Manage orders",
-            "children": [
-                {
-                    "path": "/all-orders",
-                    "name": "Manage all orders",
-                    "children": []
-                }
-            ]
+            "name": "Orders",
+            "children": []
         },
         {
             "path": "/login",
