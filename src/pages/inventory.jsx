@@ -4,7 +4,7 @@
  * Top-level route component for /inventory/*
  *
  * Responsibilities:
- *  • Renders the page header (title + live-sync subtitle)
+ *  • Renders the page header (title + subtitle + action buttons)
  *  • Owns the Inventory / Inward / GRN tab strip
  *  • Delegates content to <StockInventory> or <Inward> based on active tab
  *
@@ -35,14 +35,27 @@ export default function Inventory({ tab }) {
     <div className={styles.pageRoot}>
 
       {/* ── Page Header ─────────────────────────────────────────────────── */}
-      <header className={styles.pageHeader}>
-        <div className={styles.pageHeaderText}>
+      <div className={styles.pageHeaderBanner}>
+        <div className={styles.pageHeaderLeft}>
           <h1 className={styles.pageTitle}>Inventory</h1>
           <p className={styles.pageSubtitle}>
-            Live stock across 3 warehouses&nbsp;·&nbsp;Synced 4 minutes ago
+            Welcome back, Sarah. Here's a snapshot of your Inventory activity across all marketplaces.
           </p>
         </div>
-      </header>
+        <div className={styles.pageHeaderActions}>
+          <button className={styles.btnSecondaryOutline}>
+            <span className={styles.btnIcon}>+</span> Add stock entry
+          </button>
+          <button className={styles.btnPrimarySolid}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Adjust stock in bulk</span>
+          </button>
+        </div>
+      </div>
 
       {/* ── Tab Strip ───────────────────────────────────────────────────── */}
       <div className={styles.tabStrip}>

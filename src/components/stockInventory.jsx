@@ -1,17 +1,17 @@
 /**
  * StockInventory Component
- * ─────────────────────────────────────────────────────────────────────────────
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  * Renders the full Inventory tab content:
  *
- *  1. Stats Row        – Total SKUs / In stock / Low stock / Out of stock / Value
- *  2. Filter Toolbar   – Quick-filter pills, category & warehouse dropdowns,
+ *  1. Stats Row        â€“ Total SKUs / In stock / Low stock / Out of stock / Value
+ *  2. Filter Toolbar   â€“ Quick-filter pills, category & warehouse dropdowns,
  *                        search input, Export button, Adjust stock button
- *  3. Selection Banner – Contextual bulk-actions when rows are checked
- *  4. Data Table       – Scrollable grid with thumbnail, SKU, category,
+ *  3. Selection Banner â€“ Contextual bulk-actions when rows are checked
+ *  4. Data Table       â€“ Scrollable grid with thumbnail, SKU, category,
  *                        warehouse, available/reserved/incoming counts,
  *                        stock-level bar, status badge, and row action buttons
- *  5. Pagination       – Rows-per-page selector + page number controls
- *  6. DistributeModal  – Popup to allocate units to sales channels
+ *  5. Pagination       â€“ Rows-per-page selector + page number controls
+ *  6. DistributeModal  â€“ Popup to allocate units to sales channels
  *                        (opens when the product name is clicked)
  *
  * Mock data is used as a fallback whenever the API returns an empty list or
@@ -21,13 +21,14 @@
 
 import { useState, useEffect, useMemo } from "react";
 import styles from "../css/pages/inventory.Inventory.module.css";
-import StatCardsRow from "./StatCardsRow";
+import StatCardsRow        from "./StatCardsRow";
+import InventoryFilterBar  from "./InventoryFilterBar";
 
 const url = import.meta.env.VITE_BASEAPI;
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   MOCK DATA  –  shown when the API returns empty (offline / demo mode)
-   ═══════════════════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   MOCK DATA  â€“  shown when the API returns empty (offline / demo mode)
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 /**
  * MOCK_STOCKS
@@ -45,14 +46,14 @@ const MOCK_STOCKS = {
  * Seven SKUs covering every status tier (In stock / Low stock / Out of stock /
  * Overstocked) and all three warehouses.  Matches the design screenshot.
  *
- * _pct        – overrides the calculated stock-level percentage so the bar
+ * _pct        â€“ overrides the calculated stock-level percentage so the bar
  *               matches the screenshot exactly (real items use derived value).
- * _thumbColor – plain CSS colour used as the product thumbnail placeholder.
+ * _thumbColor â€“ plain CSS colour used as the product thumbnail placeholder.
  */
 const MOCK_ITEMS = [
   {
     usku_id:       "mock-1",
-    product_title: "Red casual kurta — M",
+    product_title: "Red casual kurta - M",
     sku_id:        "SKU-7741-RED-M",
     product_type:  "Kurta",
     warehouse:     "Bhiwandi WH-1",
@@ -65,7 +66,7 @@ const MOCK_ITEMS = [
   },
   {
     usku_id:       "mock-2",
-    product_title: "Forest green kurta — L",
+    product_title: "Forest green kurta - L",
     sku_id:        "SKU-7741-GRN-L",
     product_type:  "Kurta",
     warehouse:     "Bhiwandi WH-1",
@@ -78,7 +79,7 @@ const MOCK_ITEMS = [
   },
   {
     usku_id:       "mock-3",
-    product_title: "Sky blue linen kurta — S",
+    product_title: "Sky blue linen kurta - S",
     sku_id:        "SKU-7742-BLU-S",
     product_type:  "Kurta",
     warehouse:     "Gurugram WH-2",
@@ -91,7 +92,7 @@ const MOCK_ITEMS = [
   },
   {
     usku_id:       "mock-4",
-    product_title: "Classic zipper jacket — M",
+    product_title: "Classic zipper jacket - M",
     sku_id:        "SKU-6202-BLK-M",
     product_type:  "Jacket",
     warehouse:     "Bhiwandi WH-1",
@@ -104,7 +105,7 @@ const MOCK_ITEMS = [
   },
   {
     usku_id:       "mock-5",
-    product_title: "Slim fit denim jacket — L",
+    product_title: "Slim fit denim jacket - L",
     sku_id:        "SKU-6103-BLU-L",
     product_type:  "Jacket",
     warehouse:     "Gurugram WH-2",
@@ -117,7 +118,7 @@ const MOCK_ITEMS = [
   },
   {
     usku_id:       "mock-6",
-    product_title: "Cotton kurta set — beige, M",
+    product_title: "Cotton kurta set - beige, M",
     sku_id:        "SKU-7900-BEI-M",
     product_type:  "Kurta set",
     warehouse:     "Bengaluru WH-3",
@@ -130,7 +131,7 @@ const MOCK_ITEMS = [
   },
   {
     usku_id:       "mock-7",
-    product_title: "Navy running shoes — UK 9",
+    product_title: "Navy running shoes - UK 9",
     sku_id:        "SKU-9021-NVY-9",
     product_type:  "Footwear",
     warehouse:     "Bengaluru WH-3",
@@ -143,9 +144,9 @@ const MOCK_ITEMS = [
   },
 ];
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   DISTRIBUTION CHANNELS  –  used inside DistributeModal
-   ═══════════════════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   DISTRIBUTION CHANNELS  â€“  used inside DistributeModal
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 /**
  * Each channel has a unique id, a display name, and a coloured dot.
@@ -158,11 +159,11 @@ const CHANNELS = [
   { id: "nykaa",    name: "Nykaa Fashion", dot: "#7c3aed" },
 ];
 
-/* ═══════════════════════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    STATUS HELPERS
-   ═══════════════════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-/** Converts a stock-level percentage → one of our four status strings. */
+/** Converts a stock-level percentage â†’ one of our four status strings. */
 function deriveStatus(pct) {
   if (pct <= 0)   return "Out of stock";
   if (pct <= 20)  return "Low stock";
@@ -170,7 +171,7 @@ function deriveStatus(pct) {
   return "In stock";
 }
 
-/** Maps a status string → the CSS module class name for its badge colour. */
+/** Maps a status string â†’ the CSS module class name for its badge colour. */
 function statusClass(status, s) {
   switch (status) {
     case "In stock":     return s.badgeInStock;
@@ -181,9 +182,9 @@ function statusClass(status, s) {
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    SUB-COMPONENTS
-   ═══════════════════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 /**
  * StockBar
@@ -191,7 +192,7 @@ function statusClass(status, s) {
  * Colour tracks the same thresholds as `deriveStatus`.
  *
  * Props:
- *  pct   number   0–∞  (capped to 100 % visually)
+ *  pct   number   0â€“âˆž  (capped to 100 % visually)
  */
 function StockBar({ pct }) {
   const capped   = Math.min(pct, 100);
@@ -213,7 +214,7 @@ function StockBar({ pct }) {
 
 /**
  * DistributeModal
- * ─────────────────────────────────────────────────────────────────────────────
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  * Centred modal that lets the user split available stock across sales channels.
  * Opens when a product name is clicked.
  *
@@ -239,7 +240,7 @@ function DistributeModal({ item, onClose }) {
     setAllocations((prev) => ({ ...prev, [channelId]: val }));
   }
 
-  /** Confirm and close — hook up to real API when ready. */
+  /** Confirm and close â€” hook up to real API when ready. */
   function handleConfirm() {
     console.info("[DistributeModal] Confirmed allocations for", item.sku_id, allocations);
     onClose();
@@ -253,7 +254,7 @@ function DistributeModal({ item, onClose }) {
   }, [onClose]);
 
   return (
-    /* ── Backdrop ── */
+    /* â”€â”€ Backdrop â”€â”€ */
     <div
       className={styles.distributeOverlay}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
@@ -261,12 +262,12 @@ function DistributeModal({ item, onClose }) {
       aria-modal="true"
       aria-labelledby="dist-title"
     >
-      {/* ── Modal card ── */}
+      {/* â”€â”€ Modal card â”€â”€ */}
       <div className={styles.distributeCard}>
 
         {/* Header */}
         <h2 id="dist-title" className={styles.distributeTitle}>
-          Distribute&nbsp;·&nbsp;{item.product_title}
+          Distribute&nbsp;.&nbsp;{item.product_title}
         </h2>
         <p className={styles.distributeSubtitle}>
           {available.toLocaleString("en-IN")} units available at{" "}
@@ -335,27 +336,27 @@ function DistributeModal({ item, onClose }) {
   );
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    MAIN COMPONENT
-   ═══════════════════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 export default function StockInventory() {
 
-  /* ── State ──────────────────────────────────────────────────────────────── */
+  /* â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
   const [stocks, setStocks] = useState({
-    total: "—", sellable: "—", oos: "—", low: "—",
+    total: "â€”", sellable: "â€”", oos: "â€”", low: "â€”",
   });
 
   const [items,           setItems]           = useState([]);        // full fetched / mock data
-  const [filter,          setFilter]          = useState("total");   // active quick-filter pill
+  const [filter,          setFilter]          = useState("total");   // active filter tab id
   const [search,          setSearch]          = useState("");        // search input value
   const [selected,        setSelected]        = useState(new Set()); // checked row IDs
   const [distributeItem,  setDistributeItem]  = useState(null);      // product to distribute (popup)
   const [page,            setPage]            = useState(1);
   const [rowsPerPage,     setRowsPerPage]     = useState(7);
 
-  /* ── Data fetching ──────────────────────────────────────────────────────── */
+  /* â”€â”€ Data fetching â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
   /**
    * Fetch aggregate counts for the stat cards.
@@ -375,7 +376,7 @@ export default function StockInventory() {
           low:      data.low      ?? MOCK_STOCKS.low,
         });
       } catch (err) {
-        console.warn("[StockInventory] /stocks request failed – using mock counts.", err);
+        console.warn("[StockInventory] /stocks request failed â€“ using mock counts.", err);
         setStocks(MOCK_STOCKS);
       }
     }
@@ -424,7 +425,7 @@ export default function StockInventory() {
               return pct <= 0; // "Out of stock"
             });
           default:
-            return rows; // "total" – show everything
+            return rows; // "total" â€“ show everything
         }
       }
 
@@ -442,7 +443,7 @@ export default function StockInventory() {
         setPage(1);              // reset to first page on filter change
         setSelected(new Set()); // clear selection on filter change
       } catch (err) {
-        console.warn("[StockInventory] /inventory request failed – using mock items.", err);
+        console.warn("[StockInventory] /inventory request failed â€“ using mock items.", err);
         setItems(applyFilter(MOCK_ITEMS));
         setPage(1);
         setSelected(new Set());
@@ -451,7 +452,7 @@ export default function StockInventory() {
     fetchItems();
   }, [filter]);
 
-  /* ── Derived / memoised values ──────────────────────────────────────────── */
+  /* â”€â”€ Derived / memoised values â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
   /** Items after client-side search filtering. */
   const filtered = useMemo(() => {
@@ -472,7 +473,7 @@ export default function StockInventory() {
 
   const totalPages = Math.ceil(filtered.length / rowsPerPage) || 1;
 
-  /* ── Selection helpers ──────────────────────────────────────────────────── */
+  /* â”€â”€ Selection helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
   const allPageSelected =
     pageItems.length > 0 && pageItems.every((i) => selected.has(i.usku_id));
@@ -497,104 +498,123 @@ export default function StockInventory() {
     });
   }
 
-  /* ── Quick-filter pills ─────────────────────────────────────────────────── */
+  /* -- Filter tabs ï¿½ passed to the shared InventoryFilterBar component --- */
   const PILLS = [
-    { id: "total",    label: `All ${stocks.total}`          },
-    { id: "sellable", label: `In stock ${stocks.sellable}`  },
-    { id: "low",      label: `Low stock ${stocks.low}`      },
-    { id: "oos",      label: `Out of stock ${stocks.oos}`   },
+    { id: "total",    label: "All",          count: stocks.total    },
+    { id: "sellable", label: "In stock",     count: stocks.sellable },
+    { id: "low",      label: "Low stock",    count: stocks.low      },
+    { id: "oos",      label: "Out of stock", count: stocks.oos      },
   ];
 
-  /* ═══════════════════════════════════════════════════════════════════════════
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      Render
-     ═══════════════════════════════════════════════════════════════════════════ */
+     â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   return (
     <div className={styles.stockRoot}>
 
-      {/* ════════════════════════════════════════════════════════════════════
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+          Overview heading
+         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      <h2 className={styles.overviewHeading}>Overview</h2>
+
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           1. Stats Row
-         ════════════════════════════════════════════════════════════════════ */}
+         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <StatCardsRow cards={[
-        { label: "Total SKUs",   value: stocks.total,    sub: "Across 3 warehouses" },
-        { label: "In Stock",     value: stocks.sellable, sub: "82.7% of catalog" },
-        { label: "Low Stock",    value: stocks.low,      sub: "Below reorder level", subClass: styles.subWarn },
-        { label: "Out of Stock", value: stocks.oos,      sub: "Needs restock",       subClass: styles.subDanger },
-        { label: "Stock Value",  value: "₹1.86Cr",       sub: "At cost price" },
+        {
+          label: "Total SKUs",
+          value: stocks.total,
+          sub: "Across 3 warehouses",
+          iconClass: styles.iconBoxBlue,
+          icon: (
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+          ),
+        },
+        {
+          label: "In Stock",
+          value: stocks.sellable,
+          sub: "82.7% of catalog",
+          iconClass: styles.iconBoxGreen,
+          icon: (
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          ),
+        },
+        {
+          label: "Low Stock",
+          value: stocks.low,
+          sub: "Below reorder level",
+          subClass: styles.subWarn,
+          iconClass: styles.iconBoxAmber,
+          icon: (
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          ),
+        },
+        {
+          label: "Out of Stock",
+          value: stocks.oos,
+          sub: "Needs restock",
+          subClass: styles.subDanger,
+          iconClass: styles.iconBoxRed,
+          icon: (
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+          ),
+        },
+        {
+          label: "Stock Value",
+          value: "Rs. 1.86Cr",
+          sub: "At cost price",
+          iconClass: styles.iconBoxPurple,
+          icon: (
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="1" x2="12" y2="23"></line>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+          ),
+        },
       ]} />
 
-      {/* ════════════════════════════════════════════════════════════════════
+      {/* ───────────────────────────────────────────────────────────────────
           2. Filter Toolbar
-         ════════════════════════════════════════════════════════════════════ */}
-      <div className={styles.toolbar}>
+          Uses the shared <InventoryFilterBar> component so this toolbar can
+          be reused in InwardInventory and GrnInventory without duplicate code.
+         ─────────────────────────────────────────────────────────────────── */}
+      <InventoryFilterBar
+        tabs={PILLS}
+        activeTab={filter}
+        onTabChange={(id) => { setFilter(id); setPage(1); }}
+        dropdowns={[
+          {
+            label: "Warehouse",
+            options: [
+              { value: "wh1", label: "Bhiwandi WH-1"   },
+              { value: "wh2", label: "Gurugram WH-2"  },
+              { value: "wh3", label: "Bengaluru WH-3" },
+            ],
+          },
+        ]}
+        searchValue={search}
+        searchPlaceholder="Search by SKU ID"
+        onSearchChange={(val) => { setSearch(val); setPage(1); }}
+        onExport={() => console.info("[StockInventory] Export clicked")}
+      />
 
-        {/* Quick-filter pills */}
-        <div className={styles.pillGroup} role="group" aria-label="Quick filters">
-          {PILLS.map(({ id, label }) => (
-            <button
-              key={id}
-              className={`${styles.pill} ${filter === id ? styles.pillActive : ""}`}
-              onClick={() => setFilter(id)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-
-        {/* Category + Warehouse dropdowns */}
-        <div className={styles.dropdownGroup}>
-          <select className={styles.toolbarSelect} aria-label="Filter by category">
-            <option value="">Category</option>
-            <option value="kurta">Kurta</option>
-            <option value="jacket">Jacket</option>
-            <option value="kurta-set">Kurta set</option>
-            <option value="footwear">Footwear</option>
-          </select>
-
-          <select className={styles.toolbarSelect} aria-label="Filter by warehouse">
-            <option value="">Warehouse</option>
-            <option value="wh1">Bhiwandi WH-1</option>
-            <option value="wh2">Gurugram WH-2</option>
-            <option value="wh3">Bengaluru WH-3</option>
-          </select>
-        </div>
-
-        {/* Search */}
-        <div className={styles.searchBox}>
-          <svg className={styles.searchIcon} viewBox="0 0 20 20" fill="none" aria-hidden="true">
-            <circle cx="8.5" cy="8.5" r="5.75" stroke="#9CA3AF" strokeWidth="1.5" />
-            <path d="M13 13l3.5 3.5" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-          <input
-            type="text"
-            className={styles.searchInput}
-            placeholder="Search by SKU or product name"
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            aria-label="Search inventory"
-          />
-        </div>
-
-        {/* Action buttons */}
-        <div className={styles.actionGroup}>
-          <button className={styles.btnExport} title="Export inventory">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <path d="M7 1v8M4 7l3 3 3-3M2 11h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            Export
-          </button>
-
-          <button className={styles.btnAdjust}>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <path d="M7 2v10M2 7h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
-            Adjust stock
-          </button>
-        </div>
-      </div>
-
-      {/* ════════════════════════════════════════════════════════════════════
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           3. Selection Banner (visible only when rows are checked)
-         ════════════════════════════════════════════════════════════════════ */}
+         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       {selected.size > 0 && (
         <div className={styles.selectionBanner} role="status" aria-live="polite">
           <span className={styles.selectionCount}>
@@ -608,13 +628,13 @@ export default function StockInventory() {
         </div>
       )}
 
-      {/* ════════════════════════════════════════════════════════════════════
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           4. Data Table
-         ════════════════════════════════════════════════════════════════════ */}
+         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <div className={styles.tableWrapper} role="region" aria-label="Inventory table">
         <table className={styles.dataTable}>
 
-          {/* ── Column Headers ─────────────────────────────────────────── */}
+          {/* â”€â”€ Column Headers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           <thead>
             <tr className={styles.tableHead}>
               <th className={styles.thCheck}>
@@ -638,7 +658,7 @@ export default function StockInventory() {
             </tr>
           </thead>
 
-          {/* ── Table Body ─────────────────────────────────────────────── */}
+          {/* â”€â”€ Table Body â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           <tbody>
             {pageItems.length === 0 ? (
               /* Empty state */
@@ -655,8 +675,8 @@ export default function StockInventory() {
 
                 /*
                  * Stock percentage:
-                 *  – Real API items: derived from product_stock / 400 (approximate max).
-                 *  – Mock items:     use the pre-set _pct field for accuracy.
+                 *  â€“ Real API items: derived from product_stock / 400 (approximate max).
+                 *  â€“ Mock items:     use the pre-set _pct field for accuracy.
                  */
                 const maxStock  = 400;
                 const pct       = item._pct !== undefined
@@ -690,7 +710,7 @@ export default function StockInventory() {
                       />
                     </td>
 
-                    {/* Product – thumbnail + clickable title + SKU */}
+                    {/* Product â€“ thumbnail + clickable title + SKU */}
                     <td className={styles.tdProduct}>
                       <div className={styles.productCell}>
                         {/* Thumbnail: real image > colour swatch > grey placeholder */}
@@ -713,7 +733,7 @@ export default function StockInventory() {
 
                         <div className={styles.productInfo}>
                           {/*
-                           * Product name – rendered as a button so it is keyboard-
+                           * Product name â€“ rendered as a button so it is keyboard-
                            * accessible without interfering with the row checkbox.
                            * Clicking it opens the Distribute modal.
                            */}
@@ -732,7 +752,7 @@ export default function StockInventory() {
                     {/* Category */}
                     <td className={styles.tdCell}>
                       <span className={styles.categoryPill}>
-                        {item.product_type || "—"}
+                        {item.product_type || "â€”"}
                       </span>
                     </td>
 
@@ -749,7 +769,7 @@ export default function StockInventory() {
                     <td className={styles.tdNum}>{(item.reserved ?? 0).toLocaleString("en-IN")}</td>
                     <td className={styles.tdNum}>{(item.incoming ?? 0).toLocaleString("en-IN")}</td>
 
-                    {/* Stock Level – bar + percentage */}
+                    {/* Stock Level â€“ bar + percentage */}
                     <td className={styles.tdLevel}>
                       <div className={styles.levelCell}>
                         <StockBar pct={pct} />
@@ -765,7 +785,7 @@ export default function StockInventory() {
                       </span>
                     </td>
 
-                    {/* Actions – edit + overflow menu */}
+                    {/* Actions â€“ edit + overflow menu */}
                     <td className={styles.tdActions}>
                       <button className={styles.actionBtn} title="Edit" aria-label={`Edit ${item.product_title}`}>
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -788,9 +808,9 @@ export default function StockInventory() {
         </table>
       </div>
 
-      {/* ════════════════════════════════════════════════════════════════════
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           5. Pagination
-         ════════════════════════════════════════════════════════════════════ */}
+         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <div className={styles.pagination}>
 
         {/* Rows-per-page selector */}
@@ -809,7 +829,7 @@ export default function StockInventory() {
             ))}
           </select>
           <span className={styles.paginationInfo}>
-            Showing {Math.min((page - 1) * rowsPerPage + 1, filtered.length)}–
+            Showing {Math.min((page - 1) * rowsPerPage + 1, filtered.length)}â€“
             {Math.min(page * rowsPerPage, filtered.length)} of {filtered.length}
           </span>
         </div>
@@ -823,7 +843,7 @@ export default function StockInventory() {
             disabled={page === 1}
             aria-label="Previous page"
           >
-            ‹
+            â€¹
           </button>
 
           {/* Page numbers (max 4 visible) */}
@@ -845,14 +865,14 @@ export default function StockInventory() {
             disabled={page === totalPages}
             aria-label="Next page"
           >
-            ›
+            â€º
           </button>
         </div>
       </div>
 
-      {/* ════════════════════════════════════════════════════════════════════
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           6. Distribute Modal (rendered into the same DOM tree via React)
-         ════════════════════════════════════════════════════════════════════ */}
+         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       {distributeItem && (
         <DistributeModal
           item={distributeItem}
