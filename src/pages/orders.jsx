@@ -1055,46 +1055,45 @@ export default function Orders() {
         </div>
       </section>
 
-      {/* ── Filter Pills Bar ───────────────────────────────────── */}
-      <div className={styles.filterPillsRow}>
-        <button
-          className={`${styles.filterPill} ${activeTab === "All" ? styles.filterPillActive : ""}`}
-          onClick={() => setActiveTab("All")}
-        >
-          All {counts.all}
-        </button>
+      {/* ── Filter Pills & Search Bar (In One Line) ─────────────── */}
+      <div className={styles.controlsBar}>
+        <div className={styles.filterPillsRow}>
+          <button
+            className={`${styles.filterPill} ${activeTab === "All" ? styles.filterPillActive : ""}`}
+            onClick={() => setActiveTab("All")}
+          >
+            All {counts.all}
+          </button>
 
-        <button
-          className={`${styles.filterPill} ${activeTab === "Processing" ? styles.filterPillActive : ""}`}
-          onClick={() => setActiveTab("Processing")}
-        >
-          Processing {counts.processing}
-        </button>
+          <button
+            className={`${styles.filterPill} ${activeTab === "Processing" ? styles.filterPillActive : ""}`}
+            onClick={() => setActiveTab("Processing")}
+          >
+            Processing {counts.processing}
+          </button>
 
-        <button
-          className={`${styles.filterPill} ${activeTab === "Ready to ship" ? styles.filterPillActive : ""}`}
-          onClick={() => setActiveTab("Ready to ship")}
-        >
-          Ready to ship {counts.readyToShip}
-        </button>
+          <button
+            className={`${styles.filterPill} ${activeTab === "Ready to ship" ? styles.filterPillActive : ""}`}
+            onClick={() => setActiveTab("Ready to ship")}
+          >
+            Ready to ship {counts.readyToShip}
+          </button>
 
-        <button
-          className={`${styles.filterPill} ${activeTab === "Shipped" ? styles.filterPillActive : ""}`}
-          onClick={() => setActiveTab("Shipped")}
-        >
-          Shipped {counts.shipped}
-        </button>
+          <button
+            className={`${styles.filterPill} ${activeTab === "Shipped" ? styles.filterPillActive : ""}`}
+            onClick={() => setActiveTab("Shipped")}
+          >
+            Shipped {counts.shipped}
+          </button>
 
-        <button
-          className={`${styles.filterPill} ${activeTab === "Delivered" ? styles.filterPillActive : ""}`}
-          onClick={() => setActiveTab("Delivered")}
-        >
-          Delivered {counts.delivered}
-        </button>
-      </div>
+          <button
+            className={`${styles.filterPill} ${activeTab === "Delivered" ? styles.filterPillActive : ""}`}
+            onClick={() => setActiveTab("Delivered")}
+          >
+            Delivered {counts.delivered}
+          </button>
+        </div>
 
-      {/* ── Search Bar ─────────────────────────────────────────── */}
-      <div className={styles.searchContainer}>
         <div className={styles.searchBox}>
           <img src={searchIcon} alt="Search" className={styles.searchIcon} />
           <input

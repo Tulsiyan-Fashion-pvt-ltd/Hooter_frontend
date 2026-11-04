@@ -1,0 +1,274 @@
+/* ═══════════════════════════════════════════════════════════
+   Integrations.module.css
+   Modern styling for the Integrations dashboard
+   ═══════════════════════════════════════════════════════════ */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #111827;
+}
+
+/* ─── Header ─────────────────────────────────────────────── */
+.headerSection {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pageTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.pageSubtitle {
+  font-size: 13.5px;
+  color: #6B7280;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* ─── Top 3 Summary Cards Grid ───────────────────────────── */
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.summaryCard {
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.summaryCard:hover {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
+}
+
+.summaryIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.iconMarketplaces {
+  background-color: #1D4ED8;
+}
+
+.iconPayments {
+  background-color: #059669;
+}
+
+.iconShipping {
+  background-color: #B45309;
+}
+
+.summaryText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.summaryCount {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.summaryLabel {
+  font-size: 12.5px;
+  color: #6B7280;
+  margin: 0;
+}
+
+/* ─── Integrations Cards Grid (3 columns) ─────────────────── */
+.integrationsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: box-shadow 0.15s ease;
+}
+
+.card:hover {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
+}
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.cardIdentity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logoBox {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.cardInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cardTitle {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.cardSubtitle {
+  font-size: 12px;
+  color: #6B7280;
+  margin: 0;
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.badgeConnected {
+  background-color: #ECFDF5;
+  color: #059669;
+}
+
+.badgeNotConnected {
+  background-color: #F3F4F6;
+  color: #6B7280;
+}
+
+/* Divider */
+.cardDivider {
+  height: 1px;
+  background-color: #F1F5F9;
+  margin: 0 -20px 14px -20px;
+}
+
+/* Card Footer */
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.activityText {
+  font-size: 12px;
+  color: #94A3B8;
+  margin: 0;
+}
+
+/* Action Buttons */
+.btnManage {
+  border: 1px solid #E2E8F0;
+  background-color: #FFFFFF;
+  color: #374151;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 6px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  outline: none;
+}
+
+.btnManage:hover {
+  background-color: #F8FAFC;
+  border-color: #CBD5E1;
+  color: #111827;
+}
+
+.btnConnect {
+  border: 1px solid #1D4ED8;
+  background-color: #1D4ED8;
+  color: #FFFFFF;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 6px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  outline: none;
+}
+
+.btnConnect:hover {
+  background-color: #1E40AF;
+  border-color: #1E40AF;
+}
+
+/* ─── Responsive ─────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .summaryGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .integrationsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 680px) {
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+  .integrationsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+

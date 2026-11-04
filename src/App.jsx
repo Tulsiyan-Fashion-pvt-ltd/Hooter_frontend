@@ -22,6 +22,7 @@ import Inventory from "./pages/inventory";
 import InwardEntry from "./pages/inward-entry";
 import EditInventory from "./pages/edit-catalog";
 import ProductDetails from "./pages/product-details";
+import Integrations from "./pages/integrations";
 
 
 
@@ -72,6 +73,8 @@ function App() {
           <Route path="/orders" element={<Orders />} />
           <Route path="/orders/active-orders" element={<Orders />} />
           <Route path="/orders/all-orders" element={<Orders />} />
+          <Route path="/integrations" element={<Integrations />} />
+          <Route path="/settings/integrations" element={<Integrations />} />
         </Route>
         
         {/* To enter the inwards this is why it is seperate from the layout */}

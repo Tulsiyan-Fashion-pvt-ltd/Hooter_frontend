@@ -112,11 +112,20 @@
   color: #DC2626;
 }
 
-/* ─── Filter Pills Bar ───────────────────────────────────── */
+/* ─── Controls Bar (Filter Pills + Search in one line) ────── */
+.controlsBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
 .filterPillsRow {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
@@ -151,17 +160,11 @@
 }
 
 /* ─── Search Bar ─────────────────────────────────────────── */
-.searchContainer {
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
-
 .searchBox {
   display: flex;
   align-items: center;
   gap: 10px;
-  height: 38px;
+  height: 36px;
   padding: 0 14px;
   background: #ffffff;
   border: 1px solid #E5E7EB;

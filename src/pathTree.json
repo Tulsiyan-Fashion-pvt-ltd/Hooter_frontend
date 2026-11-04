@@ -79,6 +79,22 @@
             "path": "/brand/register",
             "name": "Select brand",
             "children": []
+        },
+        {
+            "path": "/integrations",
+            "name": "Integrations",
+            "children": []
+        },
+        {
+            "path": "/settings",
+            "name": "Settings",
+            "children": [
+                {
+                    "path": "/integrations",
+                    "name": "Integrations",
+                    "children": []
+                }
+            ]
         }
     ]
 }
