@@ -3,8 +3,8 @@
  * ─────────────────────────────────────────────────────────────────────────────
  * Reusable summary-stats strip used across Inventory sub-pages (Stock, GRN).
  *
- * Renders a row of individually bordered, gap-separated stat cards instead of
- * the old flush "shared-border" layout, so cards are visually distinct.
+ * Renders a row of individually bordered, gap-separated stat cards that match
+ * the catalog page design — each card has an icon box in the top-right corner.
  *
  * Props:
  *  cards   Array<{
@@ -12,6 +12,8 @@
  *    value    : string|number   – large primary metric
  *    sub      : string          – smaller supporting line (optional)
  *    subClass : string          – extra className for coloured sub text (optional)
+ *    icon     : ReactNode       – icon element for the top-right icon box (optional)
+ *    iconClass: string          – extra className for icon box background (optional)
  *  }>
  *
  * Usage:
@@ -30,10 +32,17 @@ import styles from "../css/pages/inventory.Inventory.module.css";
 
 /* ─── Individual card ─────────────────────────────────────────────────────── */
 
-function StatCard({ label, value, sub, subClass }) {
+function StatCard({ label, value, sub, subClass, icon, iconClass }) {
   return (
     <div className={styles.statCard}>
-      <p className={styles.statLabel}>{label}</p>
+      <div className={styles.statCardTop}>
+        <p className={styles.statLabel}>{label}</p>
+        {icon && (
+          <div className={`${styles.statIconBox} ${iconClass || ""}`}>
+            {icon}
+          </div>
+        )}
+      </div>
       <h2 className={styles.statValue}>{value}</h2>
       {sub && (
         <p className={`${styles.statSub} ${subClass || ""}`}>{sub}</p>
@@ -54,9 +63,10 @@ export default function StatCardsRow({ cards = [] }) {
           value={card.value}
           sub={card.sub}
           subClass={card.subClass}
+          icon={card.icon}
+          iconClass={card.iconClass}
         />
       ))}
     </section>
   );
 }
-
