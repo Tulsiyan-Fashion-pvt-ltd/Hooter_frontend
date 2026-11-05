@@ -1,17 +1,17 @@
-/**
+﻿/**
  * StockInventory Component
  * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  * Renders the full Inventory tab content:
  *
- *  1. Stats Row        â€“ Total SKUs / In stock / Low stock / Out of stock / Value
- *  2. Filter Toolbar   â€“ Quick-filter pills, category & warehouse dropdowns,
+ *  1. Stats Row        &ndash; Total SKUs / In stock / Low stock / Out of stock / Value
+ *  2. Filter Toolbar   &ndash; Quick-filter pills, category & warehouse dropdowns,
  *                        search input, Export button, Adjust stock button
- *  3. Selection Banner â€“ Contextual bulk-actions when rows are checked
- *  4. Data Table       â€“ Scrollable grid with thumbnail, SKU, category,
+ *  3. Selection Banner &ndash; Contextual bulk-actions when rows are checked
+ *  4. Data Table       &ndash; Scrollable grid with thumbnail, SKU, category,
  *                        warehouse, available/reserved/incoming counts,
  *                        stock-level bar, status badge, and row action buttons
- *  5. Pagination       â€“ Rows-per-page selector + page number controls
- *  6. DistributeModal  â€“ Popup to allocate units to sales channels
+ *  5. Pagination       &ndash; Rows-per-page selector + page number controls
+ *  6. DistributeModal  &ndash; Popup to allocate units to sales channels
  *                        (opens when the product name is clicked)
  *
  * Mock data is used as a fallback whenever the API returns an empty list or
@@ -27,7 +27,7 @@ import InventoryFilterBar  from "./InventoryFilterBar";
 const url = import.meta.env.VITE_BASEAPI;
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   MOCK DATA  â€“  shown when the API returns empty (offline / demo mode)
+   MOCK DATA  &ndash;  shown when the API returns empty (offline / demo mode)
    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 /**
@@ -46,9 +46,9 @@ const MOCK_STOCKS = {
  * Seven SKUs covering every status tier (In stock / Low stock / Out of stock /
  * Overstocked) and all three warehouses.  Matches the design screenshot.
  *
- * _pct        â€“ overrides the calculated stock-level percentage so the bar
+ * _pct        &ndash; overrides the calculated stock-level percentage so the bar
  *               matches the screenshot exactly (real items use derived value).
- * _thumbColor â€“ plain CSS colour used as the product thumbnail placeholder.
+ * _thumbColor &ndash; plain CSS colour used as the product thumbnail placeholder.
  */
 const MOCK_ITEMS = [
   {
@@ -145,7 +145,7 @@ const MOCK_ITEMS = [
 ];
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   DISTRIBUTION CHANNELS  â€“  used inside DistributeModal
+   DISTRIBUTION CHANNELS  &ndash;  used inside DistributeModal
    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 /**
@@ -192,7 +192,7 @@ function statusClass(status, s) {
  * Colour tracks the same thresholds as `deriveStatus`.
  *
  * Props:
- *  pct   number   0â€“âˆž  (capped to 100 % visually)
+ *  pct   number   0&ndash;âˆž  (capped to 100 % visually)
  */
 function StockBar({ pct }) {
   const capped   = Math.min(pct, 100);
@@ -240,7 +240,7 @@ function DistributeModal({ item, onClose }) {
     setAllocations((prev) => ({ ...prev, [channelId]: val }));
   }
 
-  /** Confirm and close â€” hook up to real API when ready. */
+  /** Confirm and close — hook up to real API when ready. */
   function handleConfirm() {
     console.info("[DistributeModal] Confirmed allocations for", item.sku_id, allocations);
     onClose();
@@ -345,7 +345,7 @@ export default function StockInventory() {
   /* â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
   const [stocks, setStocks] = useState({
-    total: "â€”", sellable: "â€”", oos: "â€”", low: "â€”",
+    total: "—", sellable: "—", oos: "—", low: "—",
   });
 
   const [items,           setItems]           = useState([]);        // full fetched / mock data
@@ -376,7 +376,7 @@ export default function StockInventory() {
           low:      data.low      ?? MOCK_STOCKS.low,
         });
       } catch (err) {
-        console.warn("[StockInventory] /stocks request failed â€“ using mock counts.", err);
+        console.warn("[StockInventory] /stocks request failed &ndash; using mock counts.", err);
         setStocks(MOCK_STOCKS);
       }
     }
@@ -425,7 +425,7 @@ export default function StockInventory() {
               return pct <= 0; // "Out of stock"
             });
           default:
-            return rows; // "total" â€“ show everything
+            return rows; // "total" &ndash; show everything
         }
       }
 
@@ -443,7 +443,7 @@ export default function StockInventory() {
         setPage(1);              // reset to first page on filter change
         setSelected(new Set()); // clear selection on filter change
       } catch (err) {
-        console.warn("[StockInventory] /inventory request failed â€“ using mock items.", err);
+        console.warn("[StockInventory] /inventory request failed &ndash; using mock items.", err);
         setItems(applyFilter(MOCK_ITEMS));
         setPage(1);
         setSelected(new Set());
@@ -675,8 +675,8 @@ export default function StockInventory() {
 
                 /*
                  * Stock percentage:
-                 *  â€“ Real API items: derived from product_stock / 400 (approximate max).
-                 *  â€“ Mock items:     use the pre-set _pct field for accuracy.
+                 *  &ndash; Real API items: derived from product_stock / 400 (approximate max).
+                 *  &ndash; Mock items:     use the pre-set _pct field for accuracy.
                  */
                 const maxStock  = 400;
                 const pct       = item._pct !== undefined
@@ -710,7 +710,7 @@ export default function StockInventory() {
                       />
                     </td>
 
-                    {/* Product â€“ thumbnail + clickable title + SKU */}
+                    {/* Product &ndash; thumbnail + clickable title + SKU */}
                     <td className={styles.tdProduct}>
                       <div className={styles.productCell}>
                         {/* Thumbnail: real image > colour swatch > grey placeholder */}
@@ -733,7 +733,7 @@ export default function StockInventory() {
 
                         <div className={styles.productInfo}>
                           {/*
-                           * Product name â€“ rendered as a button so it is keyboard-
+                           * Product name &ndash; rendered as a button so it is keyboard-
                            * accessible without interfering with the row checkbox.
                            * Clicking it opens the Distribute modal.
                            */}
@@ -752,7 +752,7 @@ export default function StockInventory() {
                     {/* Category */}
                     <td className={styles.tdCell}>
                       <span className={styles.categoryPill}>
-                        {item.product_type || "â€”"}
+                        {item.product_type || "—"}
                       </span>
                     </td>
 
@@ -769,7 +769,7 @@ export default function StockInventory() {
                     <td className={styles.tdNum}>{(item.reserved ?? 0).toLocaleString("en-IN")}</td>
                     <td className={styles.tdNum}>{(item.incoming ?? 0).toLocaleString("en-IN")}</td>
 
-                    {/* Stock Level â€“ bar + percentage */}
+                    {/* Stock Level &ndash; bar + percentage */}
                     <td className={styles.tdLevel}>
                       <div className={styles.levelCell}>
                         <StockBar pct={pct} />
@@ -785,7 +785,7 @@ export default function StockInventory() {
                       </span>
                     </td>
 
-                    {/* Actions â€“ edit + overflow menu */}
+                    {/* Actions &ndash; edit + overflow menu */}
                     <td className={styles.tdActions}>
                       <button className={styles.actionBtn} title="Edit" aria-label={`Edit ${item.product_title}`}>
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -829,7 +829,7 @@ export default function StockInventory() {
             ))}
           </select>
           <span className={styles.paginationInfo}>
-            Showing {Math.min((page - 1) * rowsPerPage + 1, filtered.length)}â€“
+            Showing {Math.min((page - 1) * rowsPerPage + 1, filtered.length)}&ndash;
             {Math.min(page * rowsPerPage, filtered.length)} of {filtered.length}
           </span>
         </div>
@@ -843,7 +843,7 @@ export default function StockInventory() {
             disabled={page === 1}
             aria-label="Previous page"
           >
-            â€¹
+            &lsaquo;
           </button>
 
           {/* Page numbers (max 4 visible) */}
@@ -865,7 +865,7 @@ export default function StockInventory() {
             disabled={page === totalPages}
             aria-label="Next page"
           >
-            â€º
+            &rsaquo;
           </button>
         </div>
       </div>
