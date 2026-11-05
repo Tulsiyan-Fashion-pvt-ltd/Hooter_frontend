@@ -7,7 +7,7 @@
  *   • GrnInventory    (status filters + supplier + warehouse)
  *
  * Layout  ┌──────────────────────────────────────────────────────────┐
- *         │  [Tab] [Tab] [Tab] ...  [Dropdown ▾]   Search □  Export │
+ *         │  [Tab] [Tab] [Tab] ...  [Dropdown ▾]   Search □  Export  │
  *         └──────────────────────────────────────────────────────────┘
  *
  * Props
@@ -43,7 +43,7 @@ import styles from "../css/pages/inventory.Inventory.module.css";
 
 /* ─── Internal: single dropdown with open/close state ───────────────────────── */
 function FilterDropdown({ label, options, onChange }) {
-  const [open,     setOpen]     = useState(false);
+  const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState(""); // "" means "All"
   const ref = useRef(null);
 
@@ -131,12 +131,12 @@ function FilterDropdown({ label, options, onChange }) {
 
 /* ─── Main exported component ────────────────────────────────────────────────── */
 export default function InventoryFilterBar({
-  tabs             = [],
+  tabs = [],
   activeTab,
   onTabChange,
-  dropdowns        = [],
+  dropdowns = [],
   onDropdownChange,
-  searchValue      = "",
+  searchValue = "",
   searchPlaceholder = "Search…",
   onSearchChange,
   onExport,

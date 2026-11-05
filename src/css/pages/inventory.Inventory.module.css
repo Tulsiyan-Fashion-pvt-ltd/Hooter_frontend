@@ -201,7 +201,7 @@
 
 .tabContent {
   flex: 1;
-  padding: 0;
+  padding: 20px 0 0 0; /* top gap between tab nav and Overview section */
   background: #f8fafc;
 }
 
