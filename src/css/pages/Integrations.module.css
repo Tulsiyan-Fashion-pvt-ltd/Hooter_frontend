@@ -35,10 +35,10 @@
   font-weight: 400;
 }
 
-/* ─── Top 3 Summary Cards Grid ───────────────────────────── */
+/* ─── Top Summary Cards ───────────────────────────────────── */
 .summaryGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 16px;
   width: 100%;
   box-sizing: border-box;
@@ -54,6 +54,8 @@
   gap: 14px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  flex: 0 1 320px;
+  min-width: 260px;
 }
 
 .summaryCard:hover {
@@ -103,10 +105,10 @@
   margin: 0;
 }
 
-/* ─── Integrations Cards Grid (3 columns) ─────────────────── */
+/* ─── Integrations Cards Grid ────────────────────────────── */
 .integrationsGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 16px;
   width: 100%;
   box-sizing: border-box;
@@ -270,5 +272,58 @@
   .integrationsGrid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ─── Loading & Empty States ─────────────────────────────── */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 14px;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #E5E7EB;
+  border-top-color: #1D4ED8;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingText {
+  font-size: 14px;
+  color: #6B7280;
+  margin: 0;
+}
+
+.emptyState {
+  background: #ffffff;
+  border: 1px dashed #D1D5DB;
+  border-radius: 12px;
+  padding: 48px 24px;
+  text-align: center;
+  margin-top: 8px;
+}
+
+.emptyTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 6px 0;
+}
+
+.emptySubtitle {
+  font-size: 13.5px;
+  color: #6B7280;
+  margin: 0;
 }
 
