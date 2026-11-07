@@ -673,7 +673,7 @@ const Homepage = () => {
                 : `${arrow} ${absChange}${card.unit}`;    // e.g. "↑ 14.2%" / "↓ 0.6pp"
 
               return (
-                <div key={card.id} className={styles.kpiCard} id={`kpi-${card.id}`}>
+                <div key={card.id} className={styles.kpiCard + " tiles"} id={`kpi-${card.id}`}>
                   {/* Metric label */}
                   <span className={styles.kpiLabel}>{card.label}</span>
 

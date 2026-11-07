@@ -67,3 +67,35 @@ body{
   }
 
 }
+
+
+/* ═══════════════════════════════════════════════════════════
+   .tiles — Global Stat Tile Standard
+   Applied to every overview / KPI stat card across all pages
+   (Catalog, Inventory, Orders, Homepage).
+
+   ⚠  This class ONLY defines shared structural appearance:
+      background, border, radius, padding, shadow, and hover.
+      Width / flex / grid layout is left to each page's own
+      module CSS so grid systems are not disrupted.
+
+   Usage:
+      Add  className="tiles"  (or append to an existing
+      className string) on each stat card root <div>.
+═══════════════════════════════════════════════════════════ */
+.tiles {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.tiles:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}

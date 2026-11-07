@@ -1,19 +1,17 @@
 /**
  * StatCardsRow
- * ─────────────────────────────────────────────────────────────────────────────
  * Reusable summary-stats strip used across Inventory sub-pages (Stock, GRN).
- *
  * Renders a row of individually bordered, gap-separated stat cards that match
- * the catalog page design — each card has an icon box in the top-right corner.
+ * the catalog page design â€” each card has an icon box in the top-right corner.
  *
  * Props:
  *  cards   Array<{
- *    label    : string          – card heading  (e.g. "Total SKUs")
- *    value    : string|number   – large primary metric
- *    sub      : string          – smaller supporting line (optional)
- *    subClass : string          – extra className for coloured sub text (optional)
- *    icon     : ReactNode       – icon element for the top-right icon box (optional)
- *    iconClass: string          – extra className for icon box background (optional)
+ *    label    : string          â€“ card heading  (e.g. "Total SKUs")
+ *    value    : string|number   â€“ large primary metric
+ *    sub      : string          â€“ smaller supporting line (optional)
+ *    subClass : string          â€“ extra className for coloured sub text (optional)
+ *    icon     : ReactNode       â€“ icon element for the top-right icon box (optional)
+ *    iconClass: string          â€“ extra className for icon box background (optional)
  *  }>
  *
  * Usage:
@@ -24,17 +22,15 @@
  *    { label: "In Stock",      value: 1062, sub: "82.7% of catalog" },
  *    { label: "Low Stock",     value: 146,  sub: "Below reorder level", subClass: styles.subWarn },
  *    { label: "Out of Stock",  value: 75,   sub: "Needs restock",       subClass: styles.subDanger },
- *    { label: "Stock Value",   value: "₹1.86Cr", sub: "At cost price" },
+ *    { label: "Stock Value",   value: "â‚¹1.86Cr", sub: "At cost price" },
  *  ]} />
  */
 
 import styles from "../css/pages/inventory.Inventory.module.css";
 
-/* ─── Individual card ─────────────────────────────────────────────────────── */
-
 function StatCard({ label, value, sub, subClass, icon, iconClass }) {
   return (
-    <div className={styles.statCard}>
+    <div className={styles.statCard + " tiles"}>
       <div className={styles.statCardTop}>
         <p className={styles.statLabel}>{label}</p>
         {icon && (
@@ -51,7 +47,7 @@ function StatCard({ label, value, sub, subClass, icon, iconClass }) {
   );
 }
 
-/* ─── Row wrapper ─────────────────────────────────────────────────────────── */
+
 
 export default function StatCardsRow({ cards = [] }) {
   return (
