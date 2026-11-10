@@ -75,6 +75,7 @@ function App() {
           <Route path="/orders/all-orders" element={<Orders />} />
           <Route path="/integrations" element={<Integrations />} />
           <Route path="/settings/integrations" element={<Integrations />} />
+          <Route path="/platforms/flipkart/auth/callback" element={<Integrations />} />
         </Route>
         
         {/* To enter the inwards this is why it is seperate from the layout */}

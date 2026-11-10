@@ -20,6 +20,9 @@
  */
 
 import { useState, useEffect, useMemo } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchCsrf } from "../store/slices/csrfSlice";
+import { getInventoryStocksOverview, getInventoryStocks } from "../services/inventoryService";
 import styles from "../css/pages/inventory.Inventory.module.css";
 import StatCardsRow        from "./StatCardsRow";
 import InventoryFilterBar  from "./InventoryFilterBar";
@@ -35,10 +38,10 @@ const url = import.meta.env.VITE_BASEAPI;
  * Fallback aggregate counts for the five stat cards.
  */
 const MOCK_STOCKS = {
-  total:    1284,
-  sellable: 1062,
-  oos:      75,
-  low:      146,
+  total: 0,
+  sellable: 0,
+  oos: 0,
+  low: 0,
 };
 
 /**
@@ -50,99 +53,7 @@ const MOCK_STOCKS = {
  *               matches the screenshot exactly (real items use derived value).
  * _thumbColor &ndash; plain CSS colour used as the product thumbnail placeholder.
  */
-const MOCK_ITEMS = [
-  {
-    usku_id:       "mock-1",
-    product_title: "Red casual kurta - M",
-    sku_id:        "SKU-7741-RED-M",
-    product_type:  "Kurta",
-    warehouse:     "Bhiwandi WH-1",
-    product_stock: 312,
-    reserved:      28,
-    incoming:      150,
-    _pct:          82,
-    _thumbColor:   "#7f1d1d",
-    image_url:     null,
-  },
-  {
-    usku_id:       "mock-2",
-    product_title: "Forest green kurta - L",
-    sku_id:        "SKU-7741-GRN-L",
-    product_type:  "Kurta",
-    warehouse:     "Bhiwandi WH-1",
-    product_stock: 18,
-    reserved:      6,
-    incoming:      0,
-    _pct:          22,
-    _thumbColor:   "#14532d",
-    image_url:     null,
-  },
-  {
-    usku_id:       "mock-3",
-    product_title: "Sky blue linen kurta - S",
-    sku_id:        "SKU-7742-BLU-S",
-    product_type:  "Kurta",
-    warehouse:     "Gurugram WH-2",
-    product_stock: 0,
-    reserved:      0,
-    incoming:      240,
-    _pct:          0,
-    _thumbColor:   "#93c5fd",
-    image_url:     null,
-  },
-  {
-    usku_id:       "mock-4",
-    product_title: "Classic zipper jacket - M",
-    sku_id:        "SKU-6202-BLK-M",
-    product_type:  "Jacket",
-    warehouse:     "Bhiwandi WH-1",
-    product_stock: 153,
-    reserved:      12,
-    incoming:      0,
-    _pct:          76,
-    _thumbColor:   "#111827",
-    image_url:     null,
-  },
-  {
-    usku_id:       "mock-5",
-    product_title: "Slim fit denim jacket - L",
-    sku_id:        "SKU-6103-BLU-L",
-    product_type:  "Jacket",
-    warehouse:     "Gurugram WH-2",
-    product_stock: 642,
-    reserved:      40,
-    incoming:      0,
-    _pct:          128,
-    _thumbColor:   "#1e3a5f",
-    image_url:     null,
-  },
-  {
-    usku_id:       "mock-6",
-    product_title: "Cotton kurta set - beige, M",
-    sku_id:        "SKU-7900-BEI-M",
-    product_type:  "Kurta set",
-    warehouse:     "Bengaluru WH-3",
-    product_stock: 3,
-    reserved:      0,
-    incoming:      500,
-    _pct:          5,
-    _thumbColor:   "#c9a87c",
-    image_url:     null,
-  },
-  {
-    usku_id:       "mock-7",
-    product_title: "Navy running shoes - UK 9",
-    sku_id:        "SKU-9021-NVY-9",
-    product_type:  "Footwear",
-    warehouse:     "Bengaluru WH-3",
-    product_stock: 80,
-    reserved:      4,
-    incoming:      0,
-    _pct:          64,
-    _thumbColor:   "#0a1628",
-    image_url:     null,
-  },
-];
+const MOCK_ITEMS = [];
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    DISTRIBUTION CHANNELS  &ndash;  used inside DistributeModal
@@ -163,7 +74,36 @@ const CHANNELS = [
    STATUS HELPERS
    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-/** Converts a stock-level percentage â†’ one of our four status strings. */
+/** Formats monetary stock value with Indian numbering system. */
+function formatStockValue(stocksData) {
+  let val = null;
+  let sub = "At cost price";
+
+  if (stocksData?.stock_value_at_purchasing_cost != null && stocksData.stock_value_at_purchasing_cost !== "") {
+    val = Number(stocksData.stock_value_at_purchasing_cost);
+    sub = "At cost price";
+  } else if (stocksData?.stock_value_at_selling_price != null && stocksData.stock_value_at_selling_price !== "") {
+    val = Number(stocksData.stock_value_at_selling_price);
+    sub = "At selling price";
+  } else if (stocksData?.stock_value_at_mrp != null && stocksData.stock_value_at_mrp !== "") {
+    val = Number(stocksData.stock_value_at_mrp);
+    sub = "At MRP";
+  }
+
+  if (val == null || isNaN(val)) {
+    return { formatted: "₹0", sub: "At cost price" };
+  }
+
+  if (val >= 10000000) {
+    return { formatted: `₹${(val / 10000000).toFixed(2)}Cr`, sub };
+  }
+  if (val >= 100000) {
+    return { formatted: `₹${(val / 100000).toFixed(2)}L`, sub };
+  }
+  return { formatted: `₹${val.toLocaleString("en-IN")}`, sub };
+}
+
+/** Converts a stock-level percentage → one of our four status strings. */
 function deriveStatus(pct) {
   if (pct <= 0)   return "Out of stock";
   if (pct <= 20)  return "Low stock";
@@ -171,7 +111,19 @@ function deriveStatus(pct) {
   return "In stock";
 }
 
-/** Maps a status string â†’ the CSS module class name for its badge colour. */
+/** Normalizes backend status values into standard display strings. */
+function normalizeStatus(backendStatus, pct) {
+  if (backendStatus) {
+    const s = String(backendStatus).toLowerCase().replace(/_/g, " ").replace(/-/g, " ");
+    if (s === "in stock" || s === "sellable") return "In stock";
+    if (s === "low stock") return "Low stock";
+    if (s === "out of stock" || s === "oos") return "Out of stock";
+    if (s === "overstocked") return "Overstocked";
+  }
+  return deriveStatus(pct);
+}
+
+/** Maps a status string → the CSS module class name for its badge colour. */
 function statusClass(status, s) {
   switch (status) {
     case "In stock":     return s.badgeInStock;
@@ -180,6 +132,65 @@ function statusClass(status, s) {
     case "Overstocked":  return s.badgeOverstock;
     default:             return "";
   }
+}
+
+/** Formats item stock value (at selling price or MRP). */
+function formatRowStockValue(item) {
+  const price =
+    item.stock_value_at_selling_price ??
+    item.stock_value_at_mrp ??
+    item.stock_value_at_purchasing_cost;
+
+  if (price == null || price === "") return "₹0.00";
+  const num = Number(price);
+  if (isNaN(num)) return `₹${price}`;
+  return `₹${num.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+/** Formats updated_at timestamp into human readable date. */
+function formatUpdatedAt(dateStr) {
+  if (!dateStr) return "—";
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  } catch {
+    return dateStr;
+  }
+}
+
+/**
+ * Product thumbnail with resilient image error fallback.
+ */
+function ProductThumb({ src, title }) {
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    setHasError(false);
+  }, [src]);
+
+  const initial = (title?.trim()?.charAt(0) || "P").toUpperCase();
+
+  return (
+    <div className={styles.productThumb}>
+      {src && !hasError ? (
+        <img
+          src={src}
+          alt=""
+          className={styles.thumbImg}
+          onError={() => setHasError(true)}
+        />
+      ) : (
+        <div className={styles.thumbFallback} title={title}>
+          <span>{initial}</span>
+        </div>
+      )}
+    </div>
+  );
 }
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -345,7 +356,13 @@ export default function StockInventory() {
   /* â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
   const [stocks, setStocks] = useState({
-    total: "—", sellable: "—", oos: "—", low: "—",
+    total: "—",
+    sellable: "—",
+    oos: "—",
+    low: "—",
+    stock_value_at_mrp: null,
+    stock_value_at_purchasing_cost: null,
+    stock_value_at_selling_price: null,
   });
 
   const [items,           setItems]           = useState([]);        // full fetched / mock data
@@ -354,105 +371,83 @@ export default function StockInventory() {
   const [selected,        setSelected]        = useState(new Set()); // checked row IDs
   const [distributeItem,  setDistributeItem]  = useState(null);      // product to distribute (popup)
   const [page,            setPage]            = useState(1);
-  const [rowsPerPage,     setRowsPerPage]     = useState(7);
+  const [rowsPerPage,     setRowsPerPage]     = useState(10);
+  const [fetchingItems,   setFetchingItems]   = useState(false);
 
-  /* â”€â”€ Data fetching â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  const csrfToken = useSelector((state) => state.csrf?.csrf);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (!csrfToken) {
+      dispatch(fetchCsrf());
+    }
+  }, [csrfToken, dispatch]);
+
+  /* ── Data fetching ──────────────────────────────────────────────────────── */
 
   /**
-   * Fetch aggregate counts for the stat cards.
-   * Falls back to MOCK_STOCKS when the API fails or returns nothing.
+   * Fetch aggregate counts for the stat cards via GET /inventory/stocks/overview.
    */
   useEffect(() => {
     async function fetchCounts() {
       try {
-        const res  = await fetch(`${url}/inventory/stocks`, { credentials: "include" });
-        const data = await res.json();
-
-        /* Use real data if present, otherwise fall back to mock */
-        setStocks({
-          total:    data.total    ?? MOCK_STOCKS.total,
-          sellable: data.sellable ?? MOCK_STOCKS.sellable,
-          oos:      data.oos      ?? MOCK_STOCKS.oos,
-          low:      data.low      ?? MOCK_STOCKS.low,
-        });
+        const res = await getInventoryStocksOverview(csrfToken);
+        if (res.ok && res.data) {
+          const data = res.data;
+          setStocks({
+            total: Number(data.total ?? 0),
+            sellable: Number(data.in_stock ?? data.sellable ?? 0),
+            low: Number(data.low_stock ?? data.low ?? 0),
+            oos: Number(data.out_of_stock ?? data.oos ?? 0),
+            stock_value_at_mrp: data.stock_value_at_mrp,
+            stock_value_at_purchasing_cost: data.stock_value_at_purchasing_cost,
+            stock_value_at_selling_price: data.stock_value_at_selling_price,
+          });
+        }
       } catch (err) {
-        console.warn("[StockInventory] /stocks request failed &ndash; using mock counts.", err);
-        setStocks(MOCK_STOCKS);
+        console.warn("[StockInventory] /inventory/stocks/overview request failed:", err);
       }
     }
     fetchCounts();
-  }, []);
+  }, [csrfToken]);
 
   /**
-   * Fetch inventory rows, re-run whenever the active filter changes.
-   * Falls back to MOCK_ITEMS when the API fails or returns an empty array.
+   * Fetch inventory rows via GET /inventory/stocks.
+   * Re-runs whenever filter, page, rowsPerPage, or csrfToken changes.
    */
   useEffect(() => {
     async function fetchItems() {
-      const filterMap = {
-        total:    "",
-        sellable: "?filter=sellable",
-        oos:      "?filter=oos",
-        low:      "?filter=low-stock",
-      };
-
-      /**
-       * Apply the active quick-filter to a list of mock / API items so that
-       * the pills work even when the API is offline or returns an empty list.
-       */
-      function applyFilter(rows) {
-        const maxStock = 400;
-        switch (filter) {
-          case "sellable":
-            return rows.filter((item) => {
-              const pct = item._pct !== undefined
-                ? item._pct
-                : Math.round((Number(item.product_stock ?? 0) / maxStock) * 100);
-              return pct > 20 && pct <= 120; // "In stock"
-            });
-          case "low":
-            return rows.filter((item) => {
-              const pct = item._pct !== undefined
-                ? item._pct
-                : Math.round((Number(item.product_stock ?? 0) / maxStock) * 100);
-              return pct > 0 && pct <= 20; // "Low stock"
-            });
-          case "oos":
-            return rows.filter((item) => {
-              const pct = item._pct !== undefined
-                ? item._pct
-                : Math.round((Number(item.product_stock ?? 0) / maxStock) * 100);
-              return pct <= 0; // "Out of stock"
-            });
-          default:
-            return rows; // "total" &ndash; show everything
-        }
-      }
-
+      setFetchingItems(true);
       try {
-        const res  = await fetch(`${url}/inventory${filterMap[filter]}`, { credentials: "include" });
-        const data = await res.json();
+        const res = await getInventoryStocks(
+          {
+            filter,
+            records: rowsPerPage,
+            page,
+          },
+          csrfToken
+        );
 
-        // If the API returned real data, use it directly (server already filtered).
-        // If the API returned empty / failed, fall back to client-filtered mock data.
-        const rows = Array.isArray(data) && data.length > 0
-          ? data
-          : applyFilter(MOCK_ITEMS);
-
-        setItems(rows);
-        setPage(1);              // reset to first page on filter change
-        setSelected(new Set()); // clear selection on filter change
-      } catch (err) {
-        console.warn("[StockInventory] /inventory request failed &ndash; using mock items.", err);
-        setItems(applyFilter(MOCK_ITEMS));
-        setPage(1);
+        if (res.ok && Array.isArray(res.data)) {
+          setItems(res.data);
+        } else if (res.ok && res.data && Array.isArray(res.data.items)) {
+          setItems(res.data.items);
+        } else {
+          setItems([]);
+        }
         setSelected(new Set());
+      } catch (err) {
+        console.warn("[StockInventory] /inventory/stocks request failed:", err);
+        setItems([]);
+        setSelected(new Set());
+      } finally {
+        setFetchingItems(false);
       }
     }
     fetchItems();
-  }, [filter]);
+  }, [filter, page, rowsPerPage, csrfToken]);
 
-  /* â”€â”€ Derived / memoised values â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Derived / memoised values ───────────────────────────────────────────── */
 
   /** Items after client-side search filtering. */
   const filtered = useMemo(() => {
@@ -461,30 +456,47 @@ export default function StockInventory() {
     return items.filter(
       (item) =>
         item.product_title?.toLowerCase().includes(q) ||
-        item.sku_id?.toLowerCase().includes(q)
+        item.sku_id?.toLowerCase().includes(q) ||
+        item.usku_id?.toLowerCase().includes(q) ||
+        item.type_name?.toLowerCase().includes(q)
     );
   }, [items, search]);
 
-  /** Current page slice. */
+  /** Current page slice (if backend already paginates, items.length <= rowsPerPage). */
   const pageItems = useMemo(() => {
+    if (filtered.length <= rowsPerPage) {
+      return filtered;
+    }
     const start = (page - 1) * rowsPerPage;
     return filtered.slice(start, start + rowsPerPage);
   }, [filtered, page, rowsPerPage]);
 
-  const totalPages = Math.ceil(filtered.length / rowsPerPage) || 1;
+  const activeCount = useMemo(() => {
+    if (filter === "sellable" || filter === "in-stock") return Number(stocks.sellable || 0);
+    if (filter === "low" || filter === "low-stock") return Number(stocks.low || 0);
+    if (filter === "oos" || filter === "out-of-stock") return Number(stocks.oos || 0);
+    return Number(stocks.total || 0);
+  }, [filter, stocks]);
+
+  const totalPages = useMemo(() => {
+    if (activeCount > 0) {
+      return Math.ceil(activeCount / rowsPerPage);
+    }
+    return Math.max(1, Math.ceil(filtered.length / rowsPerPage));
+  }, [activeCount, filtered.length, rowsPerPage]);
 
   /* â”€â”€ Selection helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
   const allPageSelected =
-    pageItems.length > 0 && pageItems.every((i) => selected.has(i.usku_id));
+    pageItems.length > 0 && pageItems.every((i) => selected.has(i.usku_id || i.sku_id));
 
   function toggleAll() {
     setSelected((prev) => {
       const next = new Set(prev);
       if (allPageSelected) {
-        pageItems.forEach((i) => next.delete(i.usku_id));
+        pageItems.forEach((i) => next.delete(i.usku_id || i.sku_id));
       } else {
-        pageItems.forEach((i) => next.add(i.usku_id));
+        pageItems.forEach((i) => next.add(i.usku_id || i.sku_id));
       }
       return next;
     });
@@ -498,7 +510,11 @@ export default function StockInventory() {
     });
   }
 
-  /* -- Filter tabs ï¿½ passed to the shared InventoryFilterBar component --- */
+  const stockValueInfo = useMemo(() => {
+    return formatStockValue(stocks);
+  }, [stocks]);
+
+  /* ── Filter tabs ─────────────────────────────────────────────────────────── */
   const PILLS = [
     { id: "total",    label: "All",          count: stocks.total    },
     { id: "sellable", label: "In stock",     count: stocks.sellable },
@@ -524,7 +540,7 @@ export default function StockInventory() {
         {
           label: "Total SKUs",
           value: stocks.total,
-          sub: "Across 3 warehouses",
+          sub: "Across all warehouses",
           iconClass: styles.iconBoxBlue,
           icon: (
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -537,7 +553,10 @@ export default function StockInventory() {
         {
           label: "In Stock",
           value: stocks.sellable,
-          sub: "82.7% of catalog",
+          sub:
+            typeof stocks.total === "number" && stocks.total > 0 && typeof stocks.sellable === "number"
+              ? `${((stocks.sellable / stocks.total) * 100).toFixed(1)}% of catalog`
+              : "—",
           iconClass: styles.iconBoxGreen,
           icon: (
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -575,8 +594,8 @@ export default function StockInventory() {
         },
         {
           label: "Stock Value",
-          value: "Rs. 1.86Cr",
-          sub: "At cost price",
+          value: stockValueInfo.formatted,
+          sub: stockValueInfo.sub,
           iconClass: styles.iconBoxPurple,
           icon: (
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -596,16 +615,6 @@ export default function StockInventory() {
         tabs={PILLS}
         activeTab={filter}
         onTabChange={(id) => { setFilter(id); setPage(1); }}
-        dropdowns={[
-          {
-            label: "Warehouse",
-            options: [
-              { value: "wh1", label: "Bhiwandi WH-1"   },
-              { value: "wh2", label: "Gurugram WH-2"  },
-              { value: "wh3", label: "Bengaluru WH-3" },
-            ],
-          },
-        ]}
         searchValue={search}
         searchPlaceholder="Search by SKU ID"
         onSearchChange={(val) => { setSearch(val); setPage(1); }}
@@ -634,7 +643,7 @@ export default function StockInventory() {
       <div className={styles.tableWrapper} role="region" aria-label="Inventory table">
         <table className={styles.dataTable}>
 
-          {/* â”€â”€ Column Headers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          {/* ── Column Headers ────────────────────────────────────────── */}
           <thead>
             <tr className={styles.tableHead}>
               <th className={styles.thCheck}>
@@ -648,51 +657,54 @@ export default function StockInventory() {
               </th>
               <th className={styles.thProduct}>PRODUCT</th>
               <th className={styles.thCell}>CATEGORY</th>
-              <th className={styles.thCell}>WAREHOUSE</th>
-              <th className={styles.thNum}>AVAILABLE</th>
-              <th className={styles.thNum}>RESERVED</th>
-              <th className={styles.thNum}>INCOMING</th>
+              <th className={styles.thNum}>STOCK</th>
+              <th className={styles.thNum}>STOCK VALUE</th>
               <th className={styles.thLevel}>STOCK LEVEL</th>
               <th className={styles.thCell}>STATUS</th>
-              <th className={styles.thActions}>ACTIONS</th>
+              <th className={styles.thCell}>LAST UPDATED</th>
             </tr>
           </thead>
 
-          {/* â”€â”€ Table Body â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          {/* ── Table Body ────────────────────────────────────────────── */}
           <tbody>
-            {pageItems.length === 0 ? (
+            {fetchingItems ? (
+              <tr>
+                <td colSpan={8} className={styles.emptyRow}>
+                  Loading inventory items...
+                </td>
+              </tr>
+            ) : pageItems.length === 0 ? (
               /* Empty state */
               <tr>
-                <td colSpan={10} className={styles.emptyRow}>
+                <td colSpan={8} className={styles.emptyRow}>
                   No inventory items found.
                 </td>
               </tr>
             ) : (
-              pageItems.map((item) => {
-                const id        = item.usku_id;
+              pageItems.map((item, index) => {
+                const id        = item.usku_id || item.sku_id || `row-${index}`;
                 const isChecked = selected.has(id);
-                const stock     = Number(item.product_stock ?? 0);
+                const stock     = Number(item.stock ?? item.product_stock ?? 0);
 
-                /*
-                 * Stock percentage:
-                 *  &ndash; Real API items: derived from product_stock / 400 (approximate max).
-                 *  &ndash; Mock items:     use the pre-set _pct field for accuracy.
-                 */
                 const maxStock  = 400;
                 const pct       = item._pct !== undefined
                   ? item._pct
-                  : Math.round((stock / maxStock) * 100);
+                  : Math.max(0, Math.min(100, Math.round((stock / maxStock) * 100)));
 
-                const status    = deriveStatus(pct);
+                const status    = normalizeStatus(item.status, pct);
                 const badgeCls  = statusClass(status, styles);
 
-                /* Build image URL from API data (falls back to colour swatch) */
-                let imageUrl = "";
-                try {
-                  imageUrl = item.image_url
-                    ? `${url}${JSON.parse(item.image_url).webp_card}`
-                    : "";
-                } catch { /* leave empty on parse error */ }
+                /* Build image URL from API data */
+                let imageUrl = item.main_image || "";
+                if (!imageUrl && item.image_url) {
+                  try {
+                    imageUrl = item.image_url.startsWith("http")
+                      ? item.image_url
+                      : `${url}${JSON.parse(item.image_url).webp_card || item.image_url}`;
+                  } catch {
+                    imageUrl = item.image_url;
+                  }
+                }
 
                 return (
                   <tr
@@ -706,30 +718,17 @@ export default function StockInventory() {
                         className={styles.checkbox}
                         checked={isChecked}
                         onChange={() => toggleRow(id)}
-                        aria-label={`Select ${item.product_title}`}
+                        aria-label={`Select ${item.product_title || "item"}`}
                       />
                     </td>
 
-                    {/* Product &ndash; thumbnail + clickable title + SKU */}
+                    {/* Product – thumbnail + clickable title + SKU */}
                     <td className={styles.tdProduct}>
                       <div className={styles.productCell}>
-                        {/* Thumbnail: real image > colour swatch > grey placeholder */}
-                        <div className={styles.productThumb}>
-                          {imageUrl ? (
-                            <img
-                              src={imageUrl}
-                              alt={item.product_title || "product"}
-                              className={styles.thumbImg}
-                            />
-                          ) : item._thumbColor ? (
-                            <div
-                              className={styles.thumbPlaceholder}
-                              style={{ background: item._thumbColor }}
-                            />
-                          ) : (
-                            <div className={styles.thumbPlaceholder} />
-                          )}
-                        </div>
+                        <ProductThumb
+                          src={imageUrl}
+                          title={item.product_title || "Product"}
+                        />
 
                         <div className={styles.productInfo}>
                           {/*
@@ -740,11 +739,11 @@ export default function StockInventory() {
                           <button
                             className={styles.productNameBtn}
                             onClick={() => setDistributeItem(item)}
-                            title={`Distribute stock for ${item.product_title}`}
+                            title={`Distribute stock for ${item.product_title || "item"}`}
                           >
                             {item.product_title || "Untitled"}
                           </button>
-                          <span className={styles.productSku}>{item.sku_id}</span>
+                          <span className={styles.productSku}>{item.sku_id || item.usku_id || "—"}</span>
                         </div>
                       </div>
                     </td>
@@ -752,24 +751,17 @@ export default function StockInventory() {
                     {/* Category */}
                     <td className={styles.tdCell}>
                       <span className={styles.categoryPill}>
-                        {item.product_type || "—"}
+                        {item.type_name || item.product_type || "—"}
                       </span>
                     </td>
 
-                    {/* Warehouse */}
-                    <td className={styles.tdCell}>
-                      <div className={styles.warehouseCell}>
-                        <span className={styles.warehouseDot} />
-                        {item.warehouse || "Bhiwandi WH-1"}
-                      </div>
-                    </td>
-
-                    {/* Numeric columns */}
+                    {/* Available Stock */}
                     <td className={styles.tdNum}>{stock.toLocaleString("en-IN")}</td>
-                    <td className={styles.tdNum}>{(item.reserved ?? 0).toLocaleString("en-IN")}</td>
-                    <td className={styles.tdNum}>{(item.incoming ?? 0).toLocaleString("en-IN")}</td>
 
-                    {/* Stock Level &ndash; bar + percentage */}
+                    {/* Stock Value */}
+                    <td className={styles.tdNum}>{formatRowStockValue(item)}</td>
+
+                    {/* Stock Level – bar + percentage */}
                     <td className={styles.tdLevel}>
                       <div className={styles.levelCell}>
                         <StockBar pct={pct} />
@@ -785,20 +777,11 @@ export default function StockInventory() {
                       </span>
                     </td>
 
-                    {/* Actions &ndash; edit + overflow menu */}
-                    <td className={styles.tdActions}>
-                      <button className={styles.actionBtn} title="Edit" aria-label={`Edit ${item.product_title}`}>
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                          <path d="M9.5 2L12 4.5 5 11.5H2.5V9L9.5 2z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
-                        </svg>
-                      </button>
-                      <button className={styles.actionBtn} title="More actions" aria-label="More actions">
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                          <circle cx="7" cy="3"  r="1" fill="currentColor"/>
-                          <circle cx="7" cy="7"  r="1" fill="currentColor"/>
-                          <circle cx="7" cy="11" r="1" fill="currentColor"/>
-                        </svg>
-                      </button>
+                    {/* Last Updated */}
+                    <td className={styles.tdCell}>
+                      <span className={styles.updatedCell}>
+                        {formatUpdatedAt(item.updated_at)}
+                      </span>
                     </td>
                   </tr>
                 );
@@ -824,13 +807,13 @@ export default function StockInventory() {
             value={rowsPerPage}
             onChange={(e) => { setRowsPerPage(Number(e.target.value)); setPage(1); }}
           >
-            {[7, 10, 15, 20, 50].map((n) => (
+            {[10, 15, 20, 30, 50].map((n) => (
               <option key={n} value={n}>{n}</option>
             ))}
           </select>
           <span className={styles.paginationInfo}>
-            Showing {Math.min((page - 1) * rowsPerPage + 1, filtered.length)}&ndash;
-            {Math.min(page * rowsPerPage, filtered.length)} of {filtered.length}
+            Showing {filtered.length === 0 ? 0 : (page - 1) * rowsPerPage + 1}–
+            {Math.min(page * rowsPerPage, activeCount > 0 ? activeCount : (page - 1) * rowsPerPage + filtered.length)} of {activeCount > 0 ? activeCount : filtered.length}
           </span>
         </div>
 
@@ -843,7 +826,7 @@ export default function StockInventory() {
             disabled={page === 1}
             aria-label="Previous page"
           >
-            &lsaquo;
+            ‹
           </button>
 
           {/* Page numbers (max 4 visible) */}
@@ -862,10 +845,10 @@ export default function StockInventory() {
           <button
             className={styles.pageBtn}
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
+            disabled={page >= totalPages}
             aria-label="Next page"
           >
-            &rsaquo;
+            ›
           </button>
         </div>
       </div>
