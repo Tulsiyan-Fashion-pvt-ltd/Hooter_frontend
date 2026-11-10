@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import styles from "../css/pages/Catalog.module.css";
 import { Link } from "react-router-dom";
-import imageNA from "../assets/icons/imagena.png";
 import {
   getProducts,
   deleteProduct,
@@ -10,7 +9,7 @@ import {
 } from "../services/catalogService";
 import DeleteConfirmModal from "../components/DeleteConfirmModal";
 
-const route = import.meta.env.VITE_BASEAPI;
+
 
 // SVG Icons
 const SearchIcon = () => (
@@ -708,7 +707,7 @@ export default function Catalog() {
                         {p.image_url ? (
                           <img
                             className={styles.productImage}
-                            src={`${route}/${p.image_url}`}
+                            src={p.image_url}
                             alt={p.product_title || "product"}
                           />
                         ) : (

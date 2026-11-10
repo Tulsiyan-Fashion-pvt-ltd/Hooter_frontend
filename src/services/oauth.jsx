@@ -5,7 +5,7 @@ const url = import.meta.env.VITE_BASEAPI;
 
 
 /**
-    * OAuth handling for the shopify and other platforms
+  * OAuth handling for the shopify and other platforms
 */
 export default function OAuthComponent(){
     const [searchParams] = useSearchParams();

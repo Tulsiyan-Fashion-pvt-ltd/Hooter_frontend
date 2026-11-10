@@ -15,10 +15,6 @@ import { toSnakeCase, toPascalCase, toNameCase } from "../services/textFormate";
 import styles from "../css/pages/ProductDetails.module.css";
 import { toastContext } from "../appContext";
 
-const route = import.meta.env.VITE_BASEAPI
-
-
-
 
 
 export default function ProductDetails() {
@@ -50,8 +46,7 @@ export default function ProductDetails() {
   const showToast = useContext(toastContext);
   const uskuId = searchParams.get("usku-id") || searchParams.get("id");
   const typeId = searchParams.get("type") || searchParams.get("type-id");
-  // console.log(imageAttributes)
-  // console.log(customAttributes)
+  console.log(images)
 
 
   /**
@@ -59,8 +54,9 @@ export default function ProductDetails() {
    */
   useEffect(() => {
     const handleBeforeUnload = (event) => {
-          if (isEditing && (Object.keys(newImageFiles).length != 0 || Object.keys(formData).length != 0)) return;
-
+      console.log('working')
+        if (!isEditing || (isEditing && (Object.keys(newImageFiles).length == 0 && Object.keys(formData).length == 0))) return;
+          console.log(!isEditing || (isEditing && (Object.keys(newImageFiles).length == 0 && Object.keys(formData).length == 0)))
           event.preventDefault();
           event.returnValue = "";
       };
@@ -70,7 +66,7 @@ export default function ProductDetails() {
       return () => {
           window.removeEventListener("beforeunload", handleBeforeUnload);
       };
-  }, [isEditing]);
+  }, [isEditing, formData, newImageFiles]);
 
 
 
@@ -1152,16 +1148,12 @@ export default function ProductDetails() {
       <div className={styles.content}>
         <div className={styles.topSection}>
           {/* Image Gallery */}
-          {imageAttributes.length > 0 && currentImage ? (
+          {imageAttributes.length > 0 ? (
             <div className={styles.gallery}>
               <div className={styles.thumbnails} ref={thumbnailsRef}>
                 {
                   imageAttributes.map((attribute, idx) => {
-                    const imageURL = images[attribute.field] ? 
-                                      images[attribute.field]?.image_urls?.webp_card.match(/^blob:/) ?  
-                                        images[attribute.field]?.image_urls?.webp_card
-                                      :`${route}/${images[attribute.field]?.image_urls?.webp_card}`
-                                    : camera;
+                    const imageURL = images[attribute.field] ? images[attribute.field]?.image_urls?.webp_card: camera;
                     const isCustom = attribute.key == 'custom';
                     return (
                       <div
@@ -1216,11 +1208,7 @@ export default function ProductDetails() {
 
               <div className={styles.mainImage}>
                 <img
-                  src={images[selectedImageType] ? 
-                        images[selectedImageType]?.image_urls?.webp_card.match(/^blob:/) ?  
-                          images[selectedImageType]?.image_urls?.webp_card
-                        :`${route}/${images[selectedImageType]?.image_urls?.webp_card}`
-                      : camera}
+                  src={images[selectedImageType] ? images[selectedImageType]?.image_urls?.webp_card: camera}
                   alt={currentImage || product_title}
                   onError={(e) => {
                     e.currentTarget.onerror = null;
@@ -1230,12 +1218,11 @@ export default function ProductDetails() {
 
                 {isEditing && (
                   <div className={styles.imageTypeBadge}>
-                    <span>{currentImage.type || `Image ${selectedImageType}`}</span>
+                    <span>{`Image ${selectedImageType}`}</span>
                     {(() => {
                       const matchedMeta = imageAttributes.find(
                         (a) =>
-                          (a.type || a.field || "").toLowerCase() ===
-                          (currentImage.type || "").toLowerCase()
+                          a.field == selectedImageType
                       );
                       return matchedMeta?.required ? (
                         <span className={styles.imageRequiredBadge}>Required</span>
@@ -1305,14 +1292,14 @@ export default function ProductDetails() {
                   </div>
                 )}
 
-                {currentImage.originalUrl && !isEditing && (
+                {images[selectedImageType]?.image_urls && !isEditing && (
                   <button
                     type="button"
                     className={styles.zoomIcon}
                     title="Open full resolution image"
                     onClick={() =>
                       window.open(
-                        currentImage.originalUrl,
+                        images[selectedImageType]?.image_urls.original,
                         "_blank",
                         "noopener,noreferrer",
                       )
