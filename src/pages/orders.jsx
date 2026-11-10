@@ -1024,31 +1024,31 @@ export default function Orders() {
 
       {/* ── KPI Summary Cards ──────────────────────────────────── */}
       <section className={styles.kpiGrid}>
-        <div className={styles.kpiCard}>
+        <div className={styles.kpiCard + " tiles"}>
           <p className={styles.kpiLabel}>Total orders</p>
           <p className={styles.kpiValue}>{counts.all}</p>
           <p className={`${styles.kpiSub} ${styles.subMuted}`}>All stages</p>
         </div>
 
-        <div className={styles.kpiCard}>
+        <div className={styles.kpiCard + " tiles"}>
           <p className={styles.kpiLabel}>Processing</p>
           <p className={styles.kpiValue}>{counts.processing}</p>
           <p className={`${styles.kpiSub} ${styles.subOrange}`}>Needs action</p>
         </div>
 
-        <div className={styles.kpiCard}>
+        <div className={styles.kpiCard + " tiles"}>
           <p className={styles.kpiLabel}>Shipped</p>
           <p className={styles.kpiValue}>{counts.shipped}</p>
           <p className={`${styles.kpiSub} ${styles.subMuted}`}>In transit</p>
         </div>
 
-        <div className={styles.kpiCard}>
+        <div className={styles.kpiCard + " tiles"}>
           <p className={styles.kpiLabel}>Delivered</p>
           <p className={styles.kpiValue}>{counts.delivered}</p>
           <p className={`${styles.kpiSub} ${styles.subGreen}`}>Eligible for returns</p>
         </div>
 
-        <div className={styles.kpiCard}>
+        <div className={styles.kpiCard + " tiles"}>
           <p className={styles.kpiLabel}>Needs attention</p>
           <p className={styles.kpiValue}>{counts.needsAttention}</p>
           <p className={`${styles.kpiSub} ${styles.subRed}`}>Stock mismatch</p>

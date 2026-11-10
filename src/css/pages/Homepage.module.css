@@ -191,17 +191,12 @@
   /* visible space between every card */
 }
 
-/* Individual KPI card — own border, shadow and rounded corners */
+/* Individual KPI card — layout only; appearance handled by global .tiles */
 .kpiCard {
   display: flex;
   flex-direction: column;
   gap: 10px;
   /* breathing room between label / value / badge */
-  padding: 18px 20px 16px;
-  background: var(--hp-surface);
-  border: 1px solid var(--hp-border);
-  border-radius: var(--hp-radius-lg);
-  box-shadow: var(--hp-shadow-sm);
 }
 
 /* Muted label sitting above the main value */

@@ -393,7 +393,7 @@ export default function Catalog() {
 
         {/* Top Metric Cards */}
         <div className={styles.cards}>
-          <div className={styles.card}>
+          <div className={styles.card + " tiles"}>
             <div className={styles.cardTop}>
               <span className={styles.cardTitle}>Total uploads done</span>
               <div className={`${styles.cardIconBox} ${styles.iconBoxBlue}`}>
@@ -416,7 +416,7 @@ export default function Catalog() {
             <div className={styles.cardValue}>{stats.total}</div>
           </div>
 
-          <div className={styles.card}>
+          <div className={styles.card + " tiles"}>
             <div className={styles.cardTop}>
               <span className={styles.cardTitle}>Pending uploads</span>
               <div className={`${styles.cardIconBox} ${styles.iconBoxPurple}`}>
@@ -439,7 +439,7 @@ export default function Catalog() {
             <div className={styles.cardValue}>{stats.pending}</div>
           </div>
 
-          <div className={styles.card}>
+          <div className={styles.card + " tiles"}>
             <div className={styles.cardTop}>
               <span className={styles.cardTitle}>Completed uploads</span>
               <div className={`${styles.cardIconBox} ${styles.iconBoxGreen}`}>
@@ -919,3 +919,4 @@ export default function Catalog() {
     </div>
   );
 }
+

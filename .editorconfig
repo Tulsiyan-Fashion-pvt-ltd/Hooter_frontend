@@ -1,0 +1,23 @@
+# EditorConfig — https://editorconfig.org
+# Enforces consistent encoding/formatting for every editor/IDE that respects this file.
+# VS Code: needs the "EditorConfig for VS Code" extension (dbaeumer.editorconfig).
+# WebStorm/IntelliJ: built-in support, no plugin needed.
+
+root = true
+
+# ── All files ─────────────────────────────────────────────────────────────────
+[*]
+charset             = utf-8          # NEVER Latin-1 / Windows-1252
+end_of_line         = lf             # Unix line endings (consistent across OS)
+indent_style        = space
+indent_size         = 2
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# ── Markdown ──────────────────────────────────────────────────────────────────
+[*.md]
+trim_trailing_whitespace = false     # trailing spaces are intentional in MD
+
+# ── Windows batch / PowerShell (keep CRLF if ever added) ─────────────────────
+[*.{bat,cmd,ps1}]
+end_of_line = crlf

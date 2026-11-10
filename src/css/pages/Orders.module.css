@@ -60,20 +60,12 @@
 }
 
 .kpiCard {
-  background: #ffffff;
-  border: 1px solid #E5E7EB;
-  border-radius: 12px;
-  padding: 18px 20px;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  /* appearance (bg, border, radius, shadow, hover) handled by global .tiles */
 }
 
-.kpiCard:hover {
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
-}
 
 .kpiLabel {
   font-size: 13px;
