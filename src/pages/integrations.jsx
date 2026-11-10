@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import styles from "../css/pages/Integrations.module.css";
 import { SpinnerContext, toastContext } from "../appContext";
@@ -194,9 +195,11 @@ export default function Integrations() {
     }
   }, [csrfToken]);
 
+  const location = useLocation();
+
   useEffect(() => {
     loadIntegrations();
-  }, [loadIntegrations]);
+  }, [loadIntegrations, location.search]);
 
   // Authorize Flipkart account via GET /platforms/flipkart/auth/authorize
   const handleFlipkartAuthorize = async () => {

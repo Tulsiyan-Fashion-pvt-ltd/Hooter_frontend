@@ -60,3 +60,32 @@ export const authorizeFlipkart = async (token) => {
   };
 };
 
+/**
+ * GET /platforms/flipkart/auth/callback?code=...&state=...
+ * Handles Flipkart OAuth callback, validates state, exchanges authorization code for tokens,
+ * and saves the account for the selected brand.
+ */
+export const handleFlipkartCallback = async (code, state, token) => {
+  const csrf = token || getCSRFToken();
+  const headers = {
+    Accept: "application/json",
+  };
+  if (csrf) {
+    headers["X-CSRF-Token"] = csrf;
+  }
+
+  const queryParams = new URLSearchParams({ code, state }).toString();
+  const response = await fetch(`${BASE_URL}/platforms/flipkart/auth/callback?${queryParams}`, {
+    method: "GET",
+    credentials: "include",
+    headers,
+  });
+
+  const data = await response.json().catch(() => ({}));
+  return {
+    status: response.status,
+    ok: response.ok,
+    data,
+  };
+};
+
