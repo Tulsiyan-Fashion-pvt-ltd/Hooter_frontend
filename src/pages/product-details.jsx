@@ -1208,8 +1208,8 @@ export default function ProductDetails() {
 
               <div className={styles.mainImage}>
                 <img
-                  src={images[selectedImageType] ? images[selectedImageType]?.image_urls?.webp_card: camera}
-                  alt={currentImage || product_title}
+                  src={images[selectedImageType] ? images[selectedImageType]?.image_urls?.high_resol_webp: camera}
+                  alt={selectedImageType || product_title}
                   onError={(e) => {
                     e.currentTarget.onerror = null;
                     e.currentTarget.src = imageNA;
