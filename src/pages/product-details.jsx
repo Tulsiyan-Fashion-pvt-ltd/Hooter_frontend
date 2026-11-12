@@ -55,17 +55,17 @@ export default function ProductDetails() {
   useEffect(() => {
     const handleBeforeUnload = (event) => {
       console.log('working')
-        if (!isEditing || (isEditing && (Object.keys(newImageFiles).length == 0 && Object.keys(formData).length == 0))) return;
-          console.log(!isEditing || (isEditing && (Object.keys(newImageFiles).length == 0 && Object.keys(formData).length == 0)))
-          event.preventDefault();
-          event.returnValue = "";
-      };
+      if (!isEditing || (isEditing && (Object.keys(newImageFiles).length == 0 && Object.keys(formData).length == 0))) return;
+      console.log(!isEditing || (isEditing && (Object.keys(newImageFiles).length == 0 && Object.keys(formData).length == 0)))
+      event.preventDefault();
+      event.returnValue = "";
+    };
 
-      window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
-      return () => {
-          window.removeEventListener("beforeunload", handleBeforeUnload);
-      };
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
   }, [isEditing, formData, newImageFiles]);
 
 
@@ -73,13 +73,13 @@ export default function ProductDetails() {
   /**
    * SETTING THE DEFAULT SELECTED IMAGE AS THE FIRST IMAGE OF THE ATTRIBUTE 
    */
-  useEffect(()=> {
+  useEffect(() => {
     setSelectedImageType(imageAttributes[0]?.field);
   }, [imageAttributes])
 
-    /**
-   * SETTING PRODUCT DATA, `listing_attributes`, `category_attributes`
-   */
+  /**
+ * SETTING PRODUCT DATA, `listing_attributes`, `category_attributes`
+ */
   useEffect(() => {
     if (uskuId) {
       fetchProductDetails();
@@ -88,7 +88,7 @@ export default function ProductDetails() {
 
   }, [uskuId]);
 
-  useEffect(()=>{
+  useEffect(() => {
     listCustomImages();
   }, [listingAttributes, images])
 
@@ -120,7 +120,7 @@ export default function ProductDetails() {
       setAttributeData(data);
       if (data?.listing_attributes) {
         setListingAttributes(data.listing_attributes);
-      } 
+      }
       if (data?.category_attributes) {
         setCategoryAttributes(data.category_attributes);
       }
@@ -173,11 +173,11 @@ export default function ProductDetails() {
   /**
    * Add custom images to the imageAttributes
    */
-  const listCustomImages = ()=>{
-     setImageAttributes((prev)=>{
+  const listCustomImages = () => {
+    setImageAttributes((prev) => {
       // const unmatchedImages = Object.keys(images);
       const customImages = []
-      const attributeFields = prev.map((attr)=>{
+      const attributeFields = prev.map((attr) => {
         return attr.field;
       })
 
@@ -188,12 +188,12 @@ export default function ProductDetails() {
 
       return [
         ...prev,
-        ...customImages.map((image)=>({
+        ...customImages.map((image) => ({
           description: `Custom ${image} image`,
           field: image,
           handle: image,
           name: toNameCase(image),
-          order: images[image].image_order || prev.length+1,
+          order: images[image].image_order || prev.length + 1,
           required: false
         }))
       ]
@@ -216,7 +216,7 @@ export default function ProductDetails() {
 
     setFormData((prev) => ({
       ...prev,
-      "category_attributes": {...prev["category_attributes"], "": ""} // setting emtpy field and value
+      "category_attributes": { ...prev["category_attributes"], "": "" } // setting emtpy field and value
     }))
   };
 
@@ -244,17 +244,17 @@ export default function ProductDetails() {
 
 
     // changing the field in the formdata aswell
-    setFormData((prev)=>{
+    setFormData((prev) => {
       let prevField;
-      for (let i = 0; i<customAttributes.length; i++){
-        if (customAttributes[i].id == id) prevField=customAttributes[i].field;
+      for (let i = 0; i < customAttributes.length; i++) {
+        if (customAttributes[i].id == id) prevField = customAttributes[i].field;
       }
 
-      const {[prevField]: prevValue, ...remainingAttributes} = prev.category_attributes?? {};
+      const { [prevField]: prevValue, ...remainingAttributes } = prev.category_attributes ?? {};
 
       return {
         ...prev,
-        "category_attributes": {...remainingAttributes, [newField]: prevValue}
+        "category_attributes": { ...remainingAttributes, [newField]: prevValue }
       }
     });
   };
@@ -300,15 +300,15 @@ export default function ProductDetails() {
     // 2. Max length check
     const maxLen = attrMeta?.max_length || (
       key === "sku_id" ? 100 :
-      key === "product_title" ? 200 :
-      key === "product_desc" || key === "description" ? 5000 :
-      key === "brand_name" || key === "vendor" ? 255 :
-      key === "tags" ? 500 :
-      key === "upc" ? 12 :
-      key === "ean" || key === "isbn" ? 13 :
-      key === "gtin" ? 14 :
-      key === "hsn_code" || key === "hsn" ? 8 :
-      null
+        key === "product_title" ? 200 :
+          key === "product_desc" || key === "description" ? 5000 :
+            key === "brand_name" || key === "vendor" ? 255 :
+              key === "tags" ? 500 :
+                key === "upc" ? 12 :
+                  key === "ean" || key === "isbn" ? 13 :
+                    key === "gtin" ? 14 :
+                      key === "hsn_code" || key === "hsn" ? 8 :
+                        null
     );
 
     if (maxLen && strVal.length > maxLen) {
@@ -410,7 +410,7 @@ export default function ProductDetails() {
     setFormData((prev) => {
       const next = {
         ...prev,
-        [attType]: {...prev[attType], [key]: value}
+        [attType]: { ...prev[attType], [key]: value }
       };
       return next;
     });
@@ -449,7 +449,7 @@ export default function ProductDetails() {
     }
 
     // finding image order
-    imageAttributes.map(attr=>{
+    imageAttributes.map(attr => {
       if (attr.field == imageType) imageOrder = attr.order;
     })
 
@@ -460,7 +460,7 @@ export default function ProductDetails() {
     }));
 
 
-    setImages((prev)=>({
+    setImages((prev) => ({
       ...prev,
       [imageType]: {
         image_order: imageOrder,
@@ -478,8 +478,8 @@ export default function ProductDetails() {
 
 
   const handleAddMoreImages = async () => {
-    await setImageAttributes((prev)=> {
-      if (prev[prev.length-1].field === "custom"){
+    await setImageAttributes((prev) => {
+      if (prev[prev.length - 1].field === "custom") {
         showToast("Rename custom Image key");
         return prev;
       }
@@ -490,7 +490,7 @@ export default function ProductDetails() {
           field: 'custom',
           key: 'custom',
           name: 'Custom',
-          order: prev.length+1,
+          order: prev.length + 1,
           required: false
         }
       ]
@@ -508,11 +508,11 @@ export default function ProductDetails() {
    * @param {*} key 
    * @param {*} newKey 
    */
-  const renameCustomImageKey = (key, newKey)=>{
+  const renameCustomImageKey = (key, newKey) => {
     const newField = toSnakeCase(newKey);
     const newName = toNameCase(newKey);
 
-    setImageAttributes((prev)=>{
+    setImageAttributes((prev) => {
       prev.map(attr => {
         if (attr.field == key && attr.key == 'custom') {
           attr.field = newField;
@@ -523,15 +523,15 @@ export default function ProductDetails() {
       return [...prev];
     })
 
-    
-    setNewImageFiles((prev)=>{
-      if (key in prev){
+
+    setNewImageFiles((prev) => {
+      if (key in prev) {
         const prevValue = prev[key];
         delete prev[key];
-        return {...prev, [newField]: prevValue}
+        return { ...prev, [newField]: prevValue }
       }
-      
-      return {...prev};
+
+      return { ...prev };
     })
   }
 
@@ -551,7 +551,7 @@ export default function ProductDetails() {
     // listing attributes validation
     if (listingAttributes.length > 0) {
       listingAttributes.forEach((attr) => {
-          if (attr.field in formData){
+        if (attr.field in formData) {
           const val = formData[attr.field];
           const err = validateField(attr.field, val, attr);
           if (err) newErrors[attr.field] = err;
@@ -562,7 +562,7 @@ export default function ProductDetails() {
     // category attributes validation
     if (categoryAttributes.length > 0) {
       categoryAttributes.forEach((attr) => {
-        if (attr.field in formData){
+        if (attr.field in formData) {
           const val = formData[attr.field];
           const err = validateField(attr.field, val, attr);
           if (err) newErrors[attr.field] = err;
@@ -633,11 +633,11 @@ export default function ProductDetails() {
       setProduct((prev) => {
         const newProduct = {};
 
-        formData.listing_attributes && Object.keys(formData.listing_attributes)?.map(key=> {
+        formData.listing_attributes && Object.keys(formData.listing_attributes)?.map(key => {
           newProduct[key] = formData.listing_attributes[key];
         })
 
-        formData.category_attributes && Object.keys(formData.category_attributes)?.map(key=> {
+        formData.category_attributes && Object.keys(formData.category_attributes)?.map(key => {
           newProduct[key] = formData.category_attributes[key];
         })
 
@@ -672,7 +672,7 @@ export default function ProductDetails() {
   /**
    * FINDING CUSTOM ATTRIBUTE
    */
-  const displayData =  product;
+  const displayData = product;
 
   const {
     product_title,
@@ -697,7 +697,7 @@ export default function ProductDetails() {
     displayData.category_name ||
     displayData.type ||
     displayData.category ||
-    displayData.type_name||
+    displayData.type_name ||
     searchParams.get("type-name") ||
     searchParams.get("type") ||
     "";
@@ -718,8 +718,8 @@ export default function ProductDetails() {
   const discountPercent =
     comparedPriceNum && currentPriceNum && comparedPriceNum > currentPriceNum
       ? Math.round(
-          ((comparedPriceNum - currentPriceNum) / comparedPriceNum) * 100,
-        )
+        ((comparedPriceNum - currentPriceNum) / comparedPriceNum) * 100,
+      )
       : 0;
 
 
@@ -757,14 +757,14 @@ export default function ProductDetails() {
         fieldKey: attr.field,
         type:
           attr.type === "decimal" ||
-          attr.type === "integer" ||
-          attr.type === "number"
+            attr.type === "integer" ||
+            attr.type === "number"
             ? "number"
             : "text",
         unit: getUnit(attr.field),
         attrMeta: attr,
       }));
-  } 
+  }
 
 
   // 2. Dynamic Listing Attributes (excluding fields featured in header / commercial summary)
@@ -789,8 +789,8 @@ export default function ProductDetails() {
         fieldKey: attr.field,
         type:
           attr.type === "decimal" ||
-          attr.type === "integer" ||
-          attr.type === "number"
+            attr.type === "integer" ||
+            attr.type === "number"
             ? "number"
             : "text",
         unit: getUnit(attr.field),
@@ -943,15 +943,14 @@ export default function ProductDetails() {
                     fieldKey === "category_name" ||
                     fieldKey === "type_id"
                   }
-                  className={`${styles.editSpecInput} ${
-                    fieldKey === "type_name" ||
-                    fieldKey === "product_type" ||
-                    fieldKey === "type" ||
-                    fieldKey === "category_name" ||
-                    fieldKey === "type_id"
+                  className={`${styles.editSpecInput} ${fieldKey === "type_name" ||
+                      fieldKey === "product_type" ||
+                      fieldKey === "type" ||
+                      fieldKey === "category_name" ||
+                      fieldKey === "type_id"
                       ? styles.editSpecInputDisabled
                       : ""
-                  } ${hasError ? styles.inputError : ""}`}
+                    } ${hasError ? styles.inputError : ""}`}
                   value={currentVal}
                   onChange={(e) => handleInputChange(attType, fieldKey, e.target.value)}
                   placeholder={placeholder}
@@ -971,8 +970,8 @@ export default function ProductDetails() {
         ) : (
           <span className={styles.specValue}>
             {product[fieldKey] !== undefined &&
-            product[fieldKey] !== null &&
-            product[fieldKey] !== ""
+              product[fieldKey] !== null &&
+              product[fieldKey] !== ""
               ? `${product[fieldKey]}${unit ? ` ${unit}` : ""}`
               : "-"}
           </span>
@@ -989,32 +988,6 @@ export default function ProductDetails() {
       <div className={styles.header}>
         <div className={styles.titleSection}>
           <div className={styles.titleLeft}>
-            {isEditing ? (
-              <div className={styles.titleInputWrap}>
-                <label className={styles.headerFieldLabel}>
-                  Product Title <span className={styles.requiredStar}>*</span>
-                </label>
-                <input
-                  type="text"
-                  className={`${styles.titleInput} ${errors.product_title ? styles.inputError : ""}`}
-                  value={formData.listing_attributes?.product_title ?? product.product_title ?? ""}
-                  maxLength={200}
-                  onChange={(e) =>
-                    handleInputChange("listing_attributes", "product_title", e.target.value)
-                  }
-                  placeholder="Enter product title *"
-                />
-                {errors.product_title && (
-                  <div className={styles.headerErrorText}>
-                    ⚠ {errors.product_title}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <h1 className={styles.title}>
-                {product_title || "Untitled Product"}
-              </h1>
-            )}
 
             {/* Non-editable Type Name */}
             {productTypeName && (
@@ -1037,28 +1010,6 @@ export default function ProductDetails() {
               )}
               <span className={styles.statusBadge}>{status}</span>
             </div>
-
-            {isEditing ? (
-              <div className={styles.skuInputWrap}>
-                <label className={styles.headerFieldLabel}>
-                  SKU ID <span className={styles.requiredStar}>*</span>
-                </label>
-                <input
-                  type="text"
-                  className={`${styles.skuInput} ${errors.sku_id ? styles.inputError : ""}`}
-                  value={formData.listing_attributes?.sku_id ?? product.sku_id ?? ""}
-                  maxLength={100}
-                  onChange={(e) => handleInputChange("listing_attributes", "sku_id", e.target.value)}
-                  placeholder="SKU ID *"
-                  title="SKU ID"
-                />
-                {errors.sku_id && (
-                  <div className={styles.headerErrorText}>⚠ {errors.sku_id}</div>
-                )}
-              </div>
-            ) : (
-              <span className={styles.skuBadge}>{prodSkuId}</span>
-            )}
           </div>
           <div className={styles.titleRight}>
             {isEditing ? (
@@ -1153,7 +1104,7 @@ export default function ProductDetails() {
               <div className={styles.thumbnails} ref={thumbnailsRef}>
                 {
                   imageAttributes.map((attribute, idx) => {
-                    const imageURL = images[attribute.field] ? images[attribute.field]?.image_urls?.webp_card: camera;
+                    const imageURL = images[attribute.field] ? images[attribute.field]?.image_urls?.webp_card : camera;
                     const isCustom = attribute.key == 'custom';
                     return (
                       <div
@@ -1179,21 +1130,21 @@ export default function ProductDetails() {
                       >
                         {
                           isCustom && isEditing ?
-                          <input type="text"
-                            title="Change the image key"
-                            value={attribute.name ?? "Custom"}
-                            onChange={(e)=>{renameCustomImageKey(attribute.field, e.target.value)}}
-                            className={styles.imageTab}
-                            style={isCustom && {"border": "1px solid var(--second-color-50)"}}
-                          />
-                          :
-                          <p className={styles.imageTab}>{attribute.name || "Custom"}{attribute.required == true?<span style={{"color": "red"}}>*</span>: ""}</p>
+                            <input type="text"
+                              title="Change the image key"
+                              value={attribute.name ?? "Custom"}
+                              onChange={(e) => { renameCustomImageKey(attribute.field, e.target.value) }}
+                              className={styles.imageTab}
+                              style={isCustom && { "border": "1px solid var(--second-color-50)" }}
+                            />
+                            :
+                            <p className={styles.imageTab}>{attribute.name || "Custom"}{attribute.required == true ? <span style={{ "color": "red" }}>*</span> : ""}</p>
                         }
                         <div className={styles.thumbnailPreviewContainer}>
                           <img
                             src={imageURL}
                             alt={attribute.field || `Thumbnail ${idx + 1}`}
-                            className={images[attribute.field]? styles.imageThumbnailPreview: styles.noImageCamera}
+                            className={images[attribute.field] ? styles.imageThumbnailPreview : styles.noImageCamera}
                             onError={(e) => {
                               e.currentTarget.onerror = null;
                               e.currentTarget.src = imageNA;
@@ -1208,7 +1159,7 @@ export default function ProductDetails() {
 
               <div className={styles.mainImage}>
                 <img
-                  src={images[selectedImageType] ? images[selectedImageType]?.image_urls?.high_resol_webp: camera}
+                  src={images[selectedImageType] ? images[selectedImageType]?.image_urls?.high_resol_webp : camera}
                   alt={selectedImageType || product_title}
                   onError={(e) => {
                     e.currentTarget.onerror = null;
@@ -1370,157 +1321,207 @@ export default function ProductDetails() {
             </div>
           )}
 
-          {/* Commercial Summary */}
-          <div className={styles.commercialSummary}>
-            <h2 className={styles.sectionTitle}>Commercial Summary</h2>
-            <div className={styles.pricingRow}>
-              <div>
-                <div className={styles.label}>
-                  Current Price <span className={styles.requiredStar}>*</span>
+          {/* Listing Summary */}
+          <div className={styles.listingSummary}>
+            <h2 className={styles.sectionTitle}>Listing Summary</h2>
+            <div className={styles.listingSummaryData}>
+              {isEditing ? (
+                <div className={styles.skuInputWrap}>
+                  <label className={styles.headerFieldLabel}>
+                    SKU ID <span className={styles.requiredStar}>*</span>
+                  </label>
+                  <input
+                    type="text"
+                    className={`${styles.skuInput} ${errors.sku_id ? styles.inputError : ""}`}
+                    value={formData.listing_attributes?.sku_id ?? product.sku_id ?? ""}
+                    maxLength={100}
+                    onChange={(e) => handleInputChange("listing_attributes", "sku_id", e.target.value)}
+                    placeholder="SKU ID *"
+                    title="SKU ID"
+                  />
+                  {errors.sku_id && (
+                    <div className={styles.headerErrorText}>⚠ {errors.sku_id}</div>
+                  )}
                 </div>
-                {isEditing ? (
-                  <div className={styles.currencyInputWrapContainer}>
-                    <div
-                      className={`${styles.currencyInputWrap} ${errors.price ? styles.inputErrorWrap : ""}`}
-                    >
-                      <span className={styles.currencySymbol}>₹</span>
-                      <input
-                        type="number"
-                        step="1.00"
-                        className={styles.editInputPrice}
-                        value={formData.listing_attributes?.price ?? product.price ?? 0.00}
-                        onChange={(e) =>
-                          handleInputChange("listing_attributes", "price", e.target.value)
-                        }
-                        placeholder="0.00"
-                      />
-                    </div>
-                    {errors.price && (
-                      <div className={styles.fieldErrorText}>
-                        ⚠ {errors.price}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className={styles.valueLarge}>
-                    ₹{price ? parseInt(price).toLocaleString("en-IN") : "-"}
-                  </div>
-                )}
-              </div>
-              <div>
-                <div className={styles.label}>
-                  Compared Price <span className={styles.requiredStar}>*</span>
-                </div>
-                {isEditing ? (
-                  <div className={styles.currencyInputWrapContainer}>
-                    <div
-                      className={`${styles.currencyInputWrap} ${errors.compared_price ? styles.inputErrorWrap : ""}`}
-                    >
-                      <span className={styles.currencySymbol}>₹</span>
-                      <input
-                        type="number"
-                        step="0.01"
-                        className={styles.editInputCompared}
-                        value={formData.listing_attributes?.compared_price ?? product.compared_price ?? 0.00}
-                        onChange={(e) =>
-                          handleInputChange("listing_attributes", "compared_price", e.target.value)
-                        }
-                        placeholder="0.00"
-                      />
-                    </div>
-                    {errors.compared_price && (
-                      <div className={styles.fieldErrorText}>
-                        ⚠ {errors.compared_price}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className={styles.valueStrikethrough}>
-                    ₹
-                    {compared_price
-                      ? parseInt(compared_price).toLocaleString("en-IN")
-                      : "-"}
-                  </div>
-                )}
-              </div>
-              {discountPercent > 0 && (
-                <div className={styles.discountBadge}>
-                  {discountPercent}% OFF
-                </div>
+              ) : (
+                <span className={styles.skuBadge}>{prodSkuId}</span>
               )}
-              <div className={styles.divider}></div>
-              <div>
-                <div className={styles.label}>Purchasing Cost</div>
-                {isEditing ? (
-                  <div className={styles.currencyInputWrapContainer}>
-                    <div
-                      className={`${styles.currencyInputWrap} ${errors.purchasing_cost ? styles.inputErrorWrap : ""}`}
-                    >
-                      <span className={styles.currencySymbol}>₹</span>
-                      <input
-                        type="number"
-                        step="0.01"
-                        className={styles.editInputCompared}
-                        value={formData.listing_attributes?.purchasing_cost ?? product.purchasing_cost?? 0.00}
-                        onChange={(e) =>
-                          handleInputChange("listing_attributes", "purchasing_cost", e.target.value)
-                        }
-                        placeholder="0.00"
-                      />
-                    </div>
-                    {errors.purchasing_cost && (
-                      <div className={styles.fieldErrorText}>
-                        ⚠ {errors.purchasing_cost}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className={styles.valueMedium}>
-                    ₹
-                    {purchasing_cost
-                      ? parseInt(purchasing_cost).toLocaleString("en-IN")
-                      : "-"}
-                  </div>
-                )}
-              </div>
-              <div className={styles.divider}></div>
-              <div>
-                <div className={styles.label}>Margin</div>
-                <div className={styles.valueGreen}>
-                  ₹{parseInt(margin).toLocaleString("en-IN")} (
-                  {marginPercentage}%)
-                </div>
-              </div>
-            </div>
 
-            <div className={styles.attributesGrid}>
-              <div>
-                <div className={styles.label}>
-                  Brand <span className={styles.requiredStar}>*</span>
+              {isEditing ? (
+                <div className={styles.titleInputWrap}>
+                  <label className={styles.headerFieldLabel}>
+                    Product Title <span className={styles.requiredStar}>*</span>
+                  </label>
+                  <input
+                    type="text"
+                    className={`${styles.titleInput} ${errors.product_title ? styles.inputError : ""}`}
+                    value={formData.listing_attributes?.product_title ?? product.product_title ?? ""}
+                    maxLength={200}
+                    onChange={(e) =>
+                      handleInputChange("listing_attributes", "product_title", e.target.value)
+                    }
+                    placeholder="Enter product title *"
+                  />
+                  {errors.product_title && (
+                    <div className={styles.headerErrorText}>
+                      ⚠ {errors.product_title}
+                    </div>
+                  )}
                 </div>
-                {isEditing ? (
-                  <div className={styles.editInputGroup}>
-                    <input
-                      type="text"
-                      className={`${styles.editInputSmall} ${errors.brand_name ? styles.inputError : ""}`}
-                      value={formData.listing_attributes?.brand_name ?? product.brand_name ?? ""}
-                      maxLength={255}
-                      onChange={(e) =>
-                        handleInputChange("listing_attributes", "brand_name", e.target.value)
-                      }
-                      placeholder="Brand name *"
-                    />
-                    {errors.brand_name && (
-                      <div className={styles.fieldErrorText}>
-                        ⚠ {errors.brand_name}
-                      </div>
-                    )}
+              ) : (
+                <h1 className={styles.title}>
+                  {product_title || "Untitled Product"}
+                </h1>
+              )}
+
+              <div className={styles.pricingRow}>
+                <div>
+                  <div className={styles.label}>
+                    Current Price <span className={styles.requiredStar}>*</span>
                   </div>
-                ) : (
-                  <div className={styles.value}>{brand_name || "-"}</div>
+                  {isEditing ? (
+                    <div className={styles.currencyInputWrapContainer}>
+                      <div
+                        className={`${styles.currencyInputWrap} ${errors.price ? styles.inputErrorWrap : ""}`}
+                      >
+                        <span className={styles.currencySymbol}>₹</span>
+                        <input
+                          type="number"
+                          step="1.00"
+                          className={styles.editInputPrice}
+                          value={formData.listing_attributes?.price ?? product.price ?? 0.00}
+                          onChange={(e) =>
+                            handleInputChange("listing_attributes", "price", e.target.value)
+                          }
+                          placeholder="0.00"
+                        />
+                      </div>
+                      {errors.price && (
+                        <div className={styles.fieldErrorText}>
+                          ⚠ {errors.price}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className={styles.valueLarge}>
+                      ₹{price ? parseInt(price).toLocaleString("en-IN") : "-"}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <div className={styles.label}>
+                    Compared Price <span className={styles.requiredStar}>*</span>
+                  </div>
+                  {isEditing ? (
+                    <div className={styles.currencyInputWrapContainer}>
+                      <div
+                        className={`${styles.currencyInputWrap} ${errors.compared_price ? styles.inputErrorWrap : ""}`}
+                      >
+                        <span className={styles.currencySymbol}>₹</span>
+                        <input
+                          type="number"
+                          step="0.01"
+                          className={styles.editInputCompared}
+                          value={formData.listing_attributes?.compared_price ?? product.compared_price ?? 0.00}
+                          onChange={(e) =>
+                            handleInputChange("listing_attributes", "compared_price", e.target.value)
+                          }
+                          placeholder="0.00"
+                        />
+                      </div>
+                      {errors.compared_price && (
+                        <div className={styles.fieldErrorText}>
+                          ⚠ {errors.compared_price}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className={styles.valueStrikethrough}>
+                      ₹
+                      {compared_price
+                        ? parseInt(compared_price).toLocaleString("en-IN")
+                        : "-"}
+                    </div>
+                  )}
+                </div>
+                {discountPercent > 0 && (
+                  <div className={styles.discountBadge}>
+                    {discountPercent}% OFF
+                  </div>
                 )}
+                <div className={styles.divider}></div>
+                <div>
+                  <div className={styles.label}>Purchasing Cost</div>
+                  {isEditing ? (
+                    <div className={styles.currencyInputWrapContainer}>
+                      <div
+                        className={`${styles.currencyInputWrap} ${errors.purchasing_cost ? styles.inputErrorWrap : ""}`}
+                      >
+                        <span className={styles.currencySymbol}>₹</span>
+                        <input
+                          type="number"
+                          step="0.01"
+                          className={styles.editInputCompared}
+                          value={formData.listing_attributes?.purchasing_cost ?? product.purchasing_cost ?? 0.00}
+                          onChange={(e) =>
+                            handleInputChange("listing_attributes", "purchasing_cost", e.target.value)
+                          }
+                          placeholder="0.00"
+                        />
+                      </div>
+                      {errors.purchasing_cost && (
+                        <div className={styles.fieldErrorText}>
+                          ⚠ {errors.purchasing_cost}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className={styles.valueMedium}>
+                      ₹
+                      {purchasing_cost
+                        ? parseInt(purchasing_cost).toLocaleString("en-IN")
+                        : "-"}
+                    </div>
+                  )}
+                </div>
+                <div className={styles.divider}></div>
+                <div>
+                  <div className={styles.label}>Margin</div>
+                  <div className={styles.valueGreen}>
+                    ₹{parseInt(margin).toLocaleString("en-IN")} (
+                    {marginPercentage}%)
+                  </div>
+                </div>
               </div>
-              {/* <div>
+
+              <div className={styles.attributesGrid}>
+                <div>
+                  <div className={styles.label}>
+                    Brand <span className={styles.requiredStar}>*</span>
+                  </div>
+                  {isEditing ? (
+                    <div className={styles.editInputGroup}>
+                      <input
+                        type="text"
+                        className={`${styles.editInputSmall} ${errors.brand_name ? styles.inputError : ""}`}
+                        value={formData.listing_attributes?.brand_name ?? product.brand_name ?? ""}
+                        maxLength={255}
+                        onChange={(e) =>
+                          handleInputChange("listing_attributes", "brand_name", e.target.value)
+                        }
+                        placeholder="Brand name *"
+                      />
+                      {errors.brand_name && (
+                        <div className={styles.fieldErrorText}>
+                          ⚠ {errors.brand_name}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className={styles.value}>{brand_name || "-"}</div>
+                  )}
+                </div>
+                {/* <div>
                 <div className={styles.label}>Collection</div>
                 {isEditing ? (
                   <input
@@ -1536,45 +1537,33 @@ export default function ProductDetails() {
                   <div className={styles.value}>{collection_id || "-"}</div>
                 )}
               </div> */}
-              <div>
-                <div className={styles.label}>Vendor</div>
-                {isEditing ? (
-                  <div className={styles.editInputGroup}>
-                    <input
-                      type="text"
-                      className={`${styles.editInputSmall} ${errors.vendor ? styles.inputError : ""}`}
-                      value={formData.listing_attributes?.vendor ?? product.vendor ?? ""}
-                      maxLength={255}
-                      onChange={(e) =>
-                        handleInputChange("listing_attributes", "vendor", e.target.value)
-                      }
-                      placeholder="Vendor"
-                    />
-                    {errors.vendor && (
-                      <div className={styles.fieldErrorText}>
-                        ⚠ {errors.vendor}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className={styles.value}>{vendor || "-"}</div>
-                )}
+                <div>
+                  <div className={styles.label}>Vendor</div>
+                  {isEditing ? (
+                    <div className={styles.editInputGroup}>
+                      <input
+                        type="text"
+                        className={`${styles.editInputSmall} ${errors.vendor ? styles.inputError : ""}`}
+                        value={formData.listing_attributes?.vendor ?? product.vendor ?? ""}
+                        maxLength={255}
+                        onChange={(e) =>
+                          handleInputChange("listing_attributes", "vendor", e.target.value)
+                        }
+                        placeholder="Vendor"
+                      />
+                      {errors.vendor && (
+                        <div className={styles.fieldErrorText}>
+                          ⚠ {errors.vendor}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className={styles.value}>{vendor || "-"}</div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Tabs */}
-        <div className={styles.tabsContainer}>
-          {["Overview"].map((tab) => (
-            <button
-              key={tab}
-              className={`${styles.tabBtn} ${activeTab === tab ? styles.tabBtnActive : ""}`}
-              onClick={() => setActiveTab(tab)}
-            >
-              {tab}
-            </button>
-          ))}
         </div>
 
         {activeTab === "Overview" && (
@@ -1680,7 +1669,7 @@ export default function ProductDetails() {
 
             {/* Listing Information Box */}
             {listingItems.length > 0 && (
-              <div className={styles.specsBox} style={{ marginTop: "24px" }}>
+              <div className={styles.specsBox}>
                 <h2 className={styles.sectionTitle}>Listing Information</h2>
                 <p className={styles.sectionSubhead}>
                   Marketplace identifiers, packaging weights, and listing properties
@@ -1707,7 +1696,7 @@ export default function ProductDetails() {
 
             {/* Additional Attributes Box (includes Custom Attributes in Edit Mode) */}
             {(extraItems.length > 0 || isEditing) && (
-              <div className={styles.specsBox} style={{ marginTop: "24px" }}>
+              <div className={styles.specsBox}>
                 <h2 className={styles.sectionTitle}>Additional Details</h2>
                 <p className={styles.sectionSubhead}>
                   Custom and supplemental product specifications
