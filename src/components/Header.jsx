@@ -25,9 +25,25 @@ const route = import.meta.env.VITE_BASEAPI;
  * @returns {object} path
  */
 const getBreadcrumbs = (pathname) => {
-  
   if (pathname == "/"){
-    return [{"path": pathTree.path, "name": pathTree.name}]
+    return [
+      {"path": "/", "name": "Dashboard"},
+      {"path": "/", "name": "Overview"}
+    ];
+  }
+
+  if (pathname === "/shipping" || pathname === "/shipping/all-shipments") {
+    return [
+      { "path": "/shipping", "name": "Shipping" },
+      { "path": "/shipping", "name": "All shipments" }
+    ];
+  }
+
+  if (pathname === "/payments" || pathname === "/payments/transactions") {
+    return [
+      { "path": "/payments", "name": "Payments" },
+      { "path": "/payments", "name": "Transactions" }
+    ];
   }
 
   const pathArray = pathname.split('/').filter(Boolean);  // array of pathnames only without emtpy string
@@ -146,10 +162,34 @@ export default function Header() {
         }
       </div>
 
+      {/* Center: Search */}
+      <div className={styles.searchWrapper}>
+        <span className={styles.searchIcon}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </span>
+        <input
+          type="text"
+          className={styles.searchInput}
+          placeholder="Search orders, SKUs, customers, or run a report"
+        />
+        <kbd className={styles.kbdShortcut}>⌘K</kbd>
+      </div>
+
       {/* Right: Clock, Notification, Avatar */}
       <div className={styles.headerRight}>
         {/* Action icons & Profile */}
         <div className={styles.actionsGroup}>
+          {/* Clock / Recent History */}
+          <button className={styles.iconBtn} title="Recent Activity" type="button">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </button>
+
           {/* Bell / Notification icon with badge */}
           <button className={styles.iconBtn} title="Notifications" type="button">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -161,7 +201,7 @@ export default function Header() {
 
           {/* User Avatar Initials */}
           <div className={styles.avatar} title="User Profile" onClick={() => setShowProfilDropdown(prev => !prev)}>
-            {imagePlaceholder}
+            {imagePlaceholder || "AK"}
           </div>
 
           {showProfileDropdown && <ProfileDropDownMenu userProfile={userProfile} imagePlaceholder={imagePlaceholder}/>}

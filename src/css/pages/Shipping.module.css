@@ -1,0 +1,733 @@
+/* ============================================================================
+   Shipping.module.css — High-Fidelity Shipments Dashboard
+   ============================================================================ */
+
+.pageRoot {
+  min-height: 100%;
+  background-color: transparent;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, Helvetica, Arial, sans-serif;
+  color: #0f172a;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── 1. Header ────────────────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* ── 2. Top Pill Badges Row ───────────────────────────────────────────────── */
+.pillsRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pillBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.pillPrimaryActive {
+  background-color: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
+.pillPrimary {
+  background-color: #ffffff;
+  color: #0f172a;
+  border-color: #e2e8f0;
+}
+
+.pillWarning {
+  background-color: #fef3c7;
+  color: #b45309;
+  border-color: #fde68a;
+}
+
+.pillNeutral {
+  background-color: #ffffff;
+  color: #475569;
+  border-color: #e2e8f0;
+}
+
+.pillCount {
+  font-weight: 600;
+}
+
+/* ── 3. Six Metric Overview Cards ─────────────────────────────────────────── */
+.metricsContainer {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  overflow: hidden;
+}
+
+.metricCard {
+  padding: 14px 18px;
+  border-right: 1px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.metricCard:last-child {
+  border-right: none;
+}
+
+.metricLabel {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.metricValue {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.metricSub {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.subDanger {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.subWarning {
+  color: #d97706;
+  font-weight: 500;
+}
+
+/* ── 4. Horizontal Navigation Tabs ────────────────────────────────────────── */
+.tabsStrip {
+  border-bottom: 1px solid #e2e8f0;
+  margin-top: 4px;
+}
+
+.tabList {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  align-items: center;
+}
+
+.tabList::-webkit-scrollbar {
+  display: none;
+}
+
+.tabBtn {
+  background: none;
+  border: none;
+  padding: 8px 0 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  position: relative;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+
+.tabBtn:hover {
+  color: #0f172a;
+}
+
+.tabBtnActive {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.tabBtnActive::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #2563eb;
+  border-radius: 2px;
+}
+
+/* ── 5. Toolbar ───────────────────────────────────────────────────────────── */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.toolbarLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0 10px;
+  height: 32px;
+  width: 270px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.searchInput {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 12px;
+  color: #0f172a;
+  width: 100%;
+  margin-left: 6px;
+}
+
+.searchInput::placeholder {
+  color: #94a3b8;
+  font-size: 11.5px;
+}
+
+.filterBtn {
+  height: 32px;
+  padding: 0 10px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #334155;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  transition: all 0.15s ease;
+}
+
+.filterBtn:hover {
+  border-color: #cbd5e1;
+  background-color: #f8fafc;
+}
+
+.caret {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-left: 2px;
+}
+
+.channelDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #f97316;
+}
+
+.courierDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #b45309;
+}
+
+.paymentIcon {
+  font-size: 11px;
+}
+
+.badgeDark {
+  background: #0f172a;
+  color: #ffffff;
+  border-radius: 9999px;
+  font-size: 10px;
+  padding: 1px 6px;
+  font-weight: 600;
+}
+
+.toolbarRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.viewToggleGroup {
+  display: flex;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 2px;
+}
+
+.viewBtn {
+  background: none;
+  border: none;
+  padding: 4px 6px;
+  border-radius: 4px;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.viewBtnActive {
+  background: #0f172a;
+  color: #ffffff;
+}
+
+.actionOutlineBtn {
+  height: 32px;
+  padding: 0 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #334155;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.actionOutlineBtn:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.actionPrimaryBtn {
+  height: 32px;
+  padding: 0 14px;
+  background: #2563eb;
+  border: 1px solid #2563eb;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2);
+  transition: background-color 0.15s ease;
+}
+
+.actionPrimaryBtn:hover {
+  background: #1d4ed8;
+}
+
+/* ── 6. Table Card ────────────────────────────────────────────────────────── */
+.tableCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  overflow: hidden;
+}
+
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tableWrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.tableWrapper::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+.tableWrapper::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.tableWrapper::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1250px;
+}
+
+.theadRow {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.theadRow th {
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-align: left;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+}
+
+.thCheck {
+  width: 36px;
+  text-align: center !important;
+}
+
+.checkbox {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  accent-color: #2563eb;
+  vertical-align: middle;
+}
+
+.trRow {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.1s ease;
+}
+
+.trRow:hover {
+  background: #f8fafc;
+}
+
+.trRowSelected {
+  background: #eff6ff;
+}
+
+.trRow td {
+  padding: 10px 14px;
+  font-size: 12px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.tdCheck {
+  text-align: center;
+}
+
+/* Order cell */
+.tdOrder {
+  min-width: 150px;
+}
+
+.orderId {
+  color: #0f172a;
+  font-weight: 600;
+  display: block;
+}
+
+.channelRef {
+  color: #94a3b8;
+  font-size: 11px;
+  display: block;
+  margin-top: 1px;
+}
+
+/* Customer cell */
+.tdCustomer {
+  min-width: 170px;
+}
+
+.customerCell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.customerAvatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.customerInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.customerName {
+  color: #0f172a;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.customerLoc {
+  color: #64748b;
+  font-size: 11px;
+}
+
+/* Channel / Courier cell */
+.tdChannel {
+  min-width: 150px;
+}
+
+.channelCell {
+  display: flex;
+  flex-direction: column;
+}
+
+.channelRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.statusDotSmall {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.channelName {
+  color: #0f172a;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.courierName {
+  color: #64748b;
+  font-size: 11px;
+}
+
+/* AWB cell */
+.tdAwb {
+  min-width: 120px;
+}
+
+.awbCode {
+  font-family: monospace;
+  font-size: 11.5px;
+  color: #475569;
+  font-weight: 500;
+}
+
+/* Payment cell */
+.tdPayment {
+  min-width: 130px;
+}
+
+.paymentCell {
+  display: flex;
+  flex-direction: column;
+}
+
+.paymentTop {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.paymentType {
+  color: #0f172a;
+  font-weight: 500;
+}
+
+.paymentAmt {
+  color: #64748b;
+  font-size: 11.5px;
+}
+
+.paymentSub {
+  color: #94a3b8;
+  font-size: 10.5px;
+}
+
+.strikeAmt {
+  text-decoration: line-through;
+}
+
+/* Status cell */
+.tdStatus {
+  min-width: 130px;
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Location cell */
+.tdLocation {
+  min-width: 220px;
+}
+
+.locationCell {
+  display: flex;
+  flex-direction: column;
+}
+
+.locationHub {
+  color: #0f172a;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.locationScan {
+  color: #64748b;
+  font-size: 11px;
+}
+
+/* SLA cell */
+.tdSla {
+  min-width: 100px;
+}
+
+.slaBadge {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* COD / Recon cell */
+.tdCodRecon {
+  min-width: 140px;
+}
+
+.reconText {
+  font-size: 11.5px;
+  color: #475569;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 40px 16px;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+/* ── 7. Table Footer Pagination ───────────────────────────────────────────── */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 18px;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.paginationRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pageNavBtns {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pageNavBtn {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 10px;
+  color: #475569;
+  transition: all 0.15s ease;
+}
+
+.pageNavBtn:hover:not(:disabled) {
+  border-color: #cbd5e1;
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+.pageNavBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 1200px) {
+  .metricsContainer {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .metricCard:nth-child(3) {
+    border-right: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .metricsContainer {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .metricCard:nth-child(2),
+  .metricCard:nth-child(4) {
+    border-right: none;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+

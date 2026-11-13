@@ -1,0 +1,290 @@
+/* ============================================================================
+   Payments.module.css — High-Fidelity Payments & Settlements Dashboard
+   ============================================================================ */
+
+.pageRoot {
+  min-height: 100%;
+  background-color: transparent;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, Helvetica, Arial, sans-serif;
+  color: #0f172a;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── 1. Page Header ───────────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* ── 2. Five Metric Overview Cards ────────────────────────────────────────── */
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+}
+
+.metricCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.metricLabel {
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+  line-height: 1.2;
+}
+
+.metricValue {
+  font-size: 21px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.metricSub {
+  font-size: 11.5px;
+  color: #64748b;
+  line-height: 1.2;
+}
+
+.subWarning {
+  color: #d97706;
+  font-weight: 500;
+}
+
+.subSuccess {
+  color: #16a34a;
+  font-weight: 500;
+}
+
+.subDanger {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+/* ── 3. Recent Transactions Card ─────────────────────────────────────────── */
+.card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  overflow: hidden;
+}
+
+.cardHeader {
+  padding: 16px 24px 12px;
+  border-bottom: 1px solid #f8fafc;
+}
+
+.cardTitle {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+}
+
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tableWrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.tableWrapper::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+.tableWrapper::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.tableWrapper::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.theadRow {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.theadRow th {
+  padding: 10px 24px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-align: left;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.trRow {
+  border-bottom: 1px solid #f8fafc;
+  transition: background 0.1s ease;
+  cursor: pointer;
+}
+
+.trRow:last-child {
+  border-bottom: none;
+}
+
+.trRow:hover {
+  background: #f8fafc;
+}
+
+.trRowSelected {
+  background: #eff6ff;
+}
+
+.trRow td {
+  padding: 13px 24px;
+  font-size: 12.5px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.tdTxn {
+  min-width: 130px;
+}
+
+.txnId {
+  color: #2563eb;
+  font-weight: 500;
+}
+
+.tdOrder {
+  min-width: 130px;
+}
+
+.orderId {
+  color: #334155;
+  font-weight: 500;
+}
+
+.tdChannel {
+  min-width: 140px;
+}
+
+.channelCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.channelDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.channelName {
+  color: #0f172a;
+  font-weight: 500;
+}
+
+.tdAmount {
+  min-width: 120px;
+}
+
+.amountText {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.tdStatus {
+  min-width: 130px;
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 500;
+  width: fit-content;
+}
+
+.statusDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tdDate {
+  min-width: 150px;
+}
+
+.dateText {
+  color: #475569;
+  font-size: 12px;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .metricsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .metricsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .trRow td,
+  .theadRow th {
+    padding: 10px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .metricsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+

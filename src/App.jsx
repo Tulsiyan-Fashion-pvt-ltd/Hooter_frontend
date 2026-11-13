@@ -23,6 +23,8 @@ import InwardEntry from "./pages/inward-entry";
 import EditInventory from "./pages/edit-catalog";
 import ProductDetails from "./pages/product-details";
 import Integrations from "./pages/integrations";
+import Shipping from "./pages/shipping";
+import Payments from "./pages/payments";
 
 
 
@@ -73,6 +75,10 @@ function App() {
           <Route path="/orders" element={<Orders />} />
           <Route path="/orders/active-orders" element={<Orders />} />
           <Route path="/orders/all-orders" element={<Orders />} />
+          <Route path="/shipping" element={<Shipping />} />
+          <Route path="/shipping/all-shipments" element={<Shipping />} />
+          <Route path="/payments" element={<Payments />} />
+          <Route path="/payments/transactions" element={<Payments />} />
           <Route path="/integrations" element={<Integrations />} />
           <Route path="/settings/integrations" element={<Integrations />} />
           <Route path="/platforms/flipkart/auth/callback" element={<Integrations />} />

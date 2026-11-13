@@ -61,6 +61,28 @@
             "children": []
         },
         {
+            "path": "/shipping",
+            "name": "Shipping",
+            "children": [
+                {
+                    "path": "/all-shipments",
+                    "name": "All shipments",
+                    "children": []
+                }
+            ]
+        },
+        {
+            "path": "/payments",
+            "name": "Payments",
+            "children": [
+                {
+                    "path": "/transactions",
+                    "name": "Transactions",
+                    "children": []
+                }
+            ]
+        },
+        {
             "path": "/login",
             "name": "Log in",
             "children": []

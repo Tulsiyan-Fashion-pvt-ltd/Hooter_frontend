@@ -1,4 +1,4 @@
-import { Children, useRef, useState, useEffect, } from "react";
+import { useRef, useState, useEffect } from "react";
 import React from "react";
 import clsx from "clsx";
 import styles from "../css/layout/sidebar.module.css";
@@ -7,14 +7,12 @@ import { createPortal } from "react-dom";
 import { useSelector } from "react-redux";
 import { useContext } from "react";
 import { toastContext } from "../appContext";
+
 const host = import.meta.env.VITE_BASEAPI;
 
-
-
 const Sidebar = () => {
-  const [brandProfile, setBrandProfile] = useState({});  // brand data to show the sidebar
-  const csrfToken = useSelector(state => state.csrf.csrf);
-  // notification toast
+  const [brandProfile, setBrandProfile] = useState({});
+  const csrfToken = useSelector((state) => state.csrf.csrf);
   const showToast = useContext(toastContext);
 
   const [collapsed, setCollapsed] = useState(() => {
@@ -25,13 +23,10 @@ const Sidebar = () => {
   const [hoveredItem, setHoveredItem] = useState(null);
   const closeTimer = useRef(null);
 
-  // setting up the indicator as per the current location
   const path = useLocation();
   const navigate = useNavigate();
-  const [indicator, setIndicator] = useState(`/${path.pathname.split("/")[1]}`); // indicator stores the values of the items' keys.
-  //  and we can match currently on which item in the sidebar menu we are in
+  const [indicator, setIndicator] = useState(`/${path.pathname.split("/")[1]}`);
   const [flyoutPos, setFlyoutPos] = useState({ top: 0, left: 0 });
-
 
   const openFlyout = (item, e) => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
@@ -45,7 +40,7 @@ const Sidebar = () => {
   };
 
   useEffect(() => {
-    if (!openMenu) return; // don't bother attaching a listener if nothing's open
+    if (!openMenu) return;
 
     const handleClickOutside = (e) => {
       if (sidebarRef.current && !sidebarRef.current.contains(e.target)) {
@@ -73,38 +68,38 @@ const Sidebar = () => {
     Integrations: { path: "/integrations" },
   };
 
+  useEffect(() => {
+    async function fetchBrandProfile() {
+      try {
+        const response = await fetch(`${host}/brand/profile`, {
+          credentials: "include",
+        });
 
-
-  useEffect(()=>{
-    async function fetchBrandProfile(){
-      const response = await fetch(`${host}/brand/profile`,
-        {
-          credentials: "include"
+        const data = await response.json();
+        if (response.status !== 200) {
+          console.error(data ? data.message : "Error: could not fetch brand profile");
         }
-      );
 
-      const data = await response.json()
-      if (response.status !== 200){
-        console.error(data ? data.message: "Error: could not fetch the brand profile");
+        setBrandProfile({
+          ...data,
+          image_url: data?.image_url ? `${host}${data.image_url}` : null,
+        });
+      } catch (err) {
+        console.warn("Brand profile fetch error:", err);
       }
-
-      await setBrandProfile({...data, ['image_url']: `${data.image_url? `${host}${data.image_url}`: null}`});
     }
 
     fetchBrandProfile();
-  }, [])
-
+  }, []);
 
   async function uploadBrandImage() {
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = 'image/*';
-    console.log(fileInput)
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*";
     fileInput.click();
 
     fileInput.onchange = async (event) => {
       const file = event.target.files[0];
-
       if (!file) return;
 
       try {
@@ -113,31 +108,28 @@ const Sidebar = () => {
           headers: {
             "X-CSRF-Token": csrfToken,
             "Content-Type": "application/octet-stream",
-            "X-Filename": file.name
+            "X-Filename": file.name,
           },
           credentials: "include",
-          body: file
-        })
+          body: file,
+        });
 
-        const data = await response.json()
+        const data = await response.json();
 
-        if (!response.ok) showToast(data? data: "Failed to upload image", "red");
+        if (!response.ok) showToast(data ? data : "Failed to upload image", "red");
 
         const imageUrl = URL.createObjectURL(file);
-
         setBrandProfile((prev) => ({
           ...prev,
-          ['image_url']: imageUrl
+          image_url: imageUrl,
         }));
 
         showToast(data.message, "green");
-      }
-      catch (e) {
+      } catch (e) {
         showToast("Failed to upload image", "red");
       }
-    }
+    };
   }
-
 
   return (
     <aside
@@ -151,18 +143,35 @@ const Sidebar = () => {
           setCollapsed((prev) => !prev);
           setOpenMenu(null);
         }}
+        title="Toggle sidebar"
+        type="button"
       ></button>
 
       {/* Header */}
       <div className={styles.sidebarHeader}>
-        <div className={styles.icon} style={{"backgroundImage": `url(${brandProfile.image_url})`}}>
+        <div
+          className={styles.icon}
+          style={{ backgroundImage: `url(${brandProfile.image_url})` }}
+        >
           <div className={styles.brandProfileEditContainer} onClick={uploadBrandImage}>
-            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+            <svg
+              width="16"
+              height="16"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+              ></path>
             </svg>
           </div>
         </div>
         {!collapsed && (
-          <span className={styles.sidebarTitle}>{brandProfile.brand_name}</span>
+          <span className={styles.sidebarTitle}>{brandProfile.brand_name || "Hooter"}</span>
         )}
       </div>
 
@@ -195,28 +204,29 @@ const Sidebar = () => {
                   ></div>
 
                   <div className={styles.navMenu}>
-                  <span
-                    className={clsx(
-                      styles.itemIcons,
-                      indicator === items[item].path
-                        ? styles.acitveItemIcons
-                        : "",
-                    )}
-                  />
-                  {!collapsed && (
                     <span
                       className={clsx(
-                        styles.sidebarLabel,
-                        indicator === items[item].path ? styles.activeText : "",
+                        styles.itemIcons,
+                        indicator === items[item].path
+                          ? styles.acitveItemIcons
+                          : "",
                       )}
-                    >
-                      {item}
-                    </span>
-                  )}
+                    />
+                    {!collapsed && (
+                      <span
+                        className={clsx(
+                          styles.sidebarLabel,
+                          indicator === items[item].path ? styles.activeText : "",
+                        )}
+                      >
+                        {item}
+                      </span>
+                    )}
                   </div>
                 </NavLink>
               );
             }
+
             return (
               <div
                 key={item}
@@ -360,9 +370,7 @@ const Sidebar = () => {
         <hr />
       </nav>
 
-      {/* <div className={clsx(styles.sidebarUnderline, styles.bottom)} /> */}
       <div className={styles.sidebarFooterContainer}>
-        {/* <div className={styles.sidebarFooterIcon}></div> */}
         {!collapsed && (
           <div className={styles.sidebarFooter}>© Powered by Hooter</div>
         )}
