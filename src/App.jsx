@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate, useLocation} from "react-router-dom";
-import { useContext } from 'react'
 import { SpinnerContext, toastContext } from "./appContext";
 import { Spinner } from "./components/spinner";
 import useToast from "./hooks/useToast";
