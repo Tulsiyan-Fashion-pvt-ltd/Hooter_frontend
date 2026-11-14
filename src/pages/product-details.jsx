@@ -14,11 +14,13 @@ import imageNA from "../assets/icons/imagena.png";
 import { toSnakeCase, toPascalCase, toNameCase } from "../services/textFormate";
 import styles from "../css/pages/ProductDetails.module.css";
 import { toastContext } from "../appContext";
+const host = import.meta.env.VITE_BASEAPI;
+
 
 
 
 export default function ProductDetails() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [product, setProduct] = useState(null);
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(true);
@@ -42,12 +44,19 @@ export default function ProductDetails() {
   const [attributesLoading, setAttributesLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
+  const [variants, setVariants] = useState([]);
+  const [uploadVariants, setUploadVariants] = useState([]);
+
   const thumbnailsRef = useRef(null);
   const showToast = useContext(toastContext);
-  const uskuId = searchParams.get("usku-id") || searchParams.get("id");
+  const [uskuId, setUskuId] = useState(searchParams.get("usku-id") || searchParams.get("id"));
   const typeId = searchParams.get("type") || searchParams.get("type-id");
-  console.log(images)
+  console.log(formData)  
 
+  /** Fetch variants only once */
+  useEffect(()=>{
+      fetchProductVariants();
+  }, [])
 
   /**
    * Prevents the tab from closing by mistake
@@ -169,6 +178,22 @@ export default function ProductDetails() {
   };
 
 
+  async function fetchProductVariants() {
+    try {
+      const response = await fetch(`${host}/catalog/variants/${uskuId}`, {
+        "credentials": "include"
+      })
+      const data = await response.json();
+
+      if (!response.ok) showToast(data?.message ?? "Could not fetch the product variants", "red");
+
+      setVariants(data)
+    }
+    catch (e) {
+      console.error(e);
+      showToast('Failed to get product variants', 'red');
+    }
+  }
 
   /**
    * Add custom images to the imageAttributes
@@ -536,6 +561,27 @@ export default function ProductDetails() {
   }
 
 
+  /**
+   * Add new variant to the uploadVariants list to upload new variants
+   */
+  const addNewVariant = ()=> {
+    setUploadVariants(prev=>{
+      return [
+        ...prev,
+        {"sku_id": "something soemthing"}
+      ]
+    })
+  }
+
+  const setVariantField = (variantIndex, prevField, newField) => {
+
+  }
+
+
+  const setVariantValue = (variantIndex, prevField, newField) => {
+
+  }
+
 
 
   /**
@@ -571,7 +617,7 @@ export default function ProductDetails() {
     }
 
     // image attributes validation
-    if (imageAttributes.length > 0) {
+    if (imageAttributes?.length > 0) {
       const existingImageTypes = new Set(Object.keys(images));
       const newUploadedTypes = new Set(
         Object.keys(newImageFiles).map((k) => k.toLowerCase())
@@ -661,7 +707,18 @@ export default function ProductDetails() {
 
 
   if (loading) {
-    return <div className={styles.loading}>Loading product details...</div>;
+    return (
+      <div className={styles.skeleton}>
+        <div className={styles.TopSkeleton}>
+          <div className={`${styles.leftBox} skeletonLoading`}></div>
+          <div className={`${styles.rightBox} skeletonLoading`}></div>
+        </div>
+
+        <div className={`${styles.skeletonSection} skeletonLoading`}></div>
+
+        <div className={`${styles.skeletonSection} skeletonLoading`}></div>
+      </div>
+    );
   }
 
 
@@ -702,8 +759,7 @@ export default function ProductDetails() {
     searchParams.get("type") ||
     "";
 
-
-  const currentImage = images[selectedImageType] || images.main || null;
+    
   const currentPriceNum = price ? Number(price) : 0;
   const purchasingCostNum = purchasing_cost ? Number(purchasing_cost) : 0;
   const comparedPriceNum = compared_price ? Number(compared_price) : 0;
@@ -1159,7 +1215,7 @@ export default function ProductDetails() {
 
               <div className={styles.mainImage}>
                 <img
-                  src={images[selectedImageType] ? images[selectedImageType]?.image_urls?.high_resol_webp : camera}
+                  src={images[selectedImageType] ? images[selectedImageType]?.image_urls?.low_resol_webp : camera}
                   alt={selectedImageType || product_title}
                   onError={(e) => {
                     e.currentTarget.onerror = null;
@@ -1446,7 +1502,11 @@ export default function ProductDetails() {
                 </div>
                 {discountPercent > 0 && (
                   <div className={styles.discountBadge}>
-                    {discountPercent}% OFF
+                    {isEditing? (
+                      (((formData.listing_attributes?.compared_price ?? product.compared_price)
+                      /
+                      (formData.listing_attributes?.price ?? product.price)
+                      )*100).toFixed(2)): discountPercent}% OFF
                   </div>
                 )}
                 <div className={styles.divider}></div>
@@ -1566,7 +1626,7 @@ export default function ProductDetails() {
           </div>
         </div>
 
-        {activeTab === "Overview" && (
+        {(
           <>
             {/* Product Description */}
             <div className={styles.descriptionBox}>
@@ -1724,6 +1784,15 @@ export default function ProductDetails() {
                 {/* Custom Attributes inside Additional Details */}
                 {isEditing && (
                   <>
+                    <button
+                      type="button"
+                      onClick={addCustomAttribute}
+                      className={styles.addAttributeBttn}
+                    >
+                      <span className={styles.addBtnIcon}>+</span>
+                      Add Custom Attribute
+                    </button>
+
                     {customAttributes.length > 0 && (
                       <div
                         className={styles.customAttrsContainer}
@@ -1748,7 +1817,7 @@ export default function ProductDetails() {
                             <div className={styles.customAttrValueWrap}>
                               <input
                                 type="text"
-                                placeholder="Enter the attribute description"
+                                placeholder="Value"
                                 value={formData.category_attributes?.[attr.field] ?? product.value ?? ""}
                                 onChange={(e) =>
                                   handleInputChange(
@@ -1773,21 +1842,96 @@ export default function ProductDetails() {
                         ))}
                       </div>
                     )}
-
-                    <button
-                      type="button"
-                      onClick={addCustomAttribute}
-                      className={styles.addCustomAttrBtn}
-                    >
-                      <span className={styles.addBtnIcon}>+</span>
-                      Add Custom Attribute
-                    </button>
                   </>
                 )}
               </div>
             )}
 
-            {/* Bottom Cards */}
+
+            {/* Variants section */}
+            <div className={styles.specsBox}>
+              <h3 className={styles.sectionTitle}>Variants</h3>
+
+              {/* Selection indicator */}
+              {variants?.length > 0 && <div className={styles.variantSelector} style={{positionAnchor: `--${uskuId}`}}>
+
+              </div>}
+
+              <div className={styles.variants}>
+                {
+                  variants.length > 0 &&
+                  variants.map((variant, idx) => {
+                    return (
+                      <div className={styles.variantCard} key={idx} style={{anchorName: `--${variant.usku_id}`}}
+                        onClick={()=>{setUskuId(variant.usku_id)}}
+                      >
+                        <p className={styles.variantCardTitle}>SKU ID</p>
+                        <p className={styles.variantSku}>{variant.sku_id}</p>
+                        <div className={styles.variantImage}>
+                          <img src={variant.main_image ?? camera} style={variant.main_image == null ? {"width": "35%"}: {}} alt="product-image" />
+                        </div>
+                        <p className={styles.variantPrice}>₹ {parseInt(variant.price).toLocaleString("en-IN")}</p>
+                        <p className={styles.variantTitle}>{variant.product_title}</p>
+                      </div>
+                    )
+                  })
+                }
+              </div>
+
+              {/* Variants Input */}
+              {
+                isEditing&& 
+                <div className={styles.variantInput}>
+                  <button className={styles.addAttributeBttn}>+ Add variant</button>
+
+                  <div className={styles.newVariantContainer}>
+                    <div className={styles.customAttrRow} >
+                            <input
+                              type="text"
+                              placeholder="Attribute name"
+                              value={""}
+                              maxLength={100}
+                              onChange={(e) => {}}
+                              className={styles.customAttrNameInput}
+                              list='attributes'
+                            />
+
+                            <div className={styles.customAttrValueWrap}>
+                              <input
+                                type="text"
+                                placeholder="Value"
+                                value={""}
+                                onChange={(e) =>{}}
+                                className={styles.customAttrValueInput}
+                              />
+
+                              <button
+                                type="button"
+                                onClick={() => {}}
+                                title="Remove attribute"
+                                className={styles.removeAttrBtn}
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          </div>
+                      <datalist id="attributes">
+                        {
+                          listingAttributes?.map((attr)=>{
+                            return (
+                              <option value={attr.field} id={attr.handle}>{attr.name}</option>
+                            )
+                          })
+                        }
+                      </datalist>
+                  </div>
+                </div>
+              }
+
+
+            </div>
+
+
             <div className={styles.bottomCardsGrid}>
               <div className={styles.cardSync}>
                 <h3 className={styles.cardTitle}>

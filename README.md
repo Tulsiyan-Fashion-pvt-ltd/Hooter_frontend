@@ -155,3 +155,16 @@ const response = await fetch(`${BASE_URL}/some/endpoint`, {
 
 
 ## Reusable components
+
+
+
+
+
+## Skeleton Loading
+
+Some sort of loading visual is required while the data is getting downloaded. The best way to do that in my finding is the skeleton loading.
+
+The idea is simple, draw the skeleton of the page and create an animation in the skeleton.
+
+The class with the name `.skeletonSection` as present in the `App.css` file.
+Just define the size of the box and rest will be handled
