@@ -1610,6 +1610,9 @@
   top: anchor(top);
   left: anchor(left);
   right: anchor(right);
+  transition: left 0.2s 0.5s ease-out;
+  /* transition: right 2s ease; */
+  /* transition: top 2s ease; */
 }
 
 
@@ -1620,4 +1623,21 @@
     padding: 1rem;
     margin-top: 16px;
     border-radius: 8px;
+      display: flex;
+    flex-flow: column;
+    gap: 9px;
+}
+
+.removeVariant{
+      align-self: end;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    border-radius: 100px;
+}
+
+.removeVariant:hover{
+  background-color: var(--second-color-50);
 }
