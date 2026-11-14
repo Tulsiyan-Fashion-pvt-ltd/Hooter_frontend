@@ -618,13 +618,21 @@ export default function ProductDetails() {
   const setVariantField = (variantIndex, attributeType, prevField, newField) => {
     // Store prev value, delte the prev field and add the new field with the prev value
     // tada you've got your old value with new field name
-    console.log(variantIndex, attributeType, prevField, toSnakeCase(newField))
+    console.log(variantIndex, attributeType, prevField, newField)
     setUploadVariants((prev)=> {
       const newArray = [...prev];
       const prevValue = prev[variantIndex][attributeType][prevField]
 
       delete newArray[variantIndex][attributeType][prevField];
-      newArray[variantIndex][attributeType][toSnakeCase(newField)] = prevValue  // storing the snake_case_field_name
+
+      console.log(listingAttributes.filter((attr)=> attr.field == newField))
+      // if the field belongs to listing attribute 
+      if (listingAttributes.filter((attr)=> attr.field == newField).length > 0){
+        newArray[variantIndex]["listing_attributes"][newField] = prevValue
+      }else{
+        newArray[variantIndex]["category_attributes"][newField] = prevValue  // storing the snake_case_field_name
+      }
+      
       console.log(newArray)
       return newArray;
     })
@@ -1971,7 +1979,7 @@ export default function ProductDetails() {
                                     placeholder="Attribute name"
                                     value={attr?.name ?? toNameCase(field)} // when the user is still typing the name and it's not matching with any attribute then go back to the typing field format
                                     maxLength={100}
-                                    onChange={(e) => {setVariantField(index, "listing_attributes", field, e.target.value)}}
+                                    onChange={(e) => {setVariantField(index, "listing_attributes", field, toSnakeCase(e.target.value))}}
                                     className={styles.customAttrNameInput}
                                     disabled={field == "sku_id" ? true : false}
                                     list='attributes'
@@ -1991,7 +1999,7 @@ export default function ProductDetails() {
                                       onClick={() => {removeVariantField(index, "listing_atributes", field)}}
                                       title="Remove attribute"
                                       className={styles.removeAttrBtn}
-                                      style={field == "sku_id" && { "visibility": "hidden" }}
+                                      style={field == "sku_id"? {"visibility": "hidden" }: {}}
                                     >
                                       ✕
                                     </button>
@@ -2015,7 +2023,7 @@ export default function ProductDetails() {
                                     placeholder="Attribute name"
                                     value={attr?.name ?? toNameCase(field)}
                                     maxLength={100}
-                                    onChange={(e) => {setVariantField(index, "category_attributes", field, e.target.value)}}
+                                    onChange={(e) => {setVariantField(index, "category_attributes", field, toSnakeCase(e.target.value))}}
                                     className={styles.customAttrNameInput}
                                     list='attributes'
                                   />
@@ -2046,7 +2054,8 @@ export default function ProductDetails() {
                           {/* Add one more field in the upload variant*/}
                           <button className={styles.addAttributeBttn} onClick={() => addVariantField(index)}
                           style={{"width": "fit-content"}}
-                          >+ Add variant field</button>
+                          >+ Add variant field
+                          </button>
 
                           <datalist id="attributes">
                             {
