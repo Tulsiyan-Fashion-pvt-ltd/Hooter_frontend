@@ -1641,3 +1641,56 @@
 .removeVariant:hover{
   background-color: var(--second-color-50);
 }
+
+
+.variantFieldSelectionList {
+  border-radius: 8px;
+  border: var(--container-border);
+  box-shadow: var(--container-shadow);
+  padding: 10px 14px;
+    position: absolute;
+    background: white;
+    max-height: 30rem;
+    overflow: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    /* box-sizing: content-box; */
+    min-width: 18rem;
+  position-anchor: --add-attribute-bttn;
+  left: anchor(right);
+  bottom: anchor(bottom);
+}
+
+.variantFieldsList hr{
+  width: 90%;
+  margin: 10px auto;
+}
+
+.variantFieldsList li{
+  list-style: none;
+  padding: 4px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.variantFieldsList li:hover{
+  background-color: var(--second-color-50);
+}
+
+
+.addMoreVariantFieldBttn {
+  background: var(--main-color);
+  border: var(--container-border);
+  /* box-shadow: var(--container-shadow); */
+  width: 100%;
+  line-height: 1.5rem;
+  border-radius: 8px;
+  margin-top: 20px;
+  font-family: 'inter-semi-bold';
+  cursor: pointer;
+}
+
+
+.addMoreVariantFieldBttn:hover{
+  background-color: var(--second-color-50);
+}

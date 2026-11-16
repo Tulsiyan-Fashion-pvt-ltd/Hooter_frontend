@@ -45,17 +45,28 @@ export default function ProductDetails() {
   const [errors, setErrors] = useState({});
 
   const [variants, setVariants] = useState([]);
-  const [uploadVariants, setUploadVariants] = useState([]);
+  const [uploadVariants, setUploadVariants] = useState([]);  // product attr schema and value combined e.g. [{"field": "", "name": "", "value": "", *constraints}]
+  const [showVariantFieldSelectionList, setShowVariantFieldSelectionList] = useState({
+    "show": false,    // hide or show for false or true
+    "varaintIndex": 0,   // which varaint called the variantds fields selection list
+    "positionAnchor": null,
+    "customInput": false   // sets whether to show custom field input or show list
+  });
 
+  
   const thumbnailsRef = useRef(null);
   const showToast = useContext(toastContext);
   const [uskuId, setUskuId] = useState(searchParams.get("usku-id") || searchParams.get("id"));
   const typeId = searchParams.get("type") || searchParams.get("type-id");
-  console.log(uploadVariants)  
+  // console.log(uploadVariants)
+
+
+
+
 
   /** Fetch variants only once */
-  useEffect(()=>{
-      fetchProductVariants();
+  useEffect(() => {
+    fetchProductVariants();
   }, [])
 
   /**
@@ -564,33 +575,34 @@ export default function ProductDetails() {
   /**
    * Add new variant to the uploadVariants list to upload new variants
    */
-  const addNewVariant = ()=> {
-    const  getSuggestedSkuId = async() => {
-      try{
+  const addNewVariant = () => {
+    const getSuggestedSkuId = async () => {
+      try {
         const response = await fetch(`${host}/catalog/variants/suggested-sku/${uskuId}`, {
           "credentials": 'include'
         })
 
-        const data= await response.json();
+        const data = await response.json();
 
         if (!response.ok) showToast(data?.message ?? "Unable to fetch suggested SKU ID", 'red')
         console.log(data)
 
-        setUploadVariants(prev=>{
-        return [
-          ...prev,
-          {
-            "listing_attributes": {
-              "sku_id": `${data.sku_id}-${prev.length + 1}`
-            },
-            "category_attributes": {
-              "": ""
+        setUploadVariants(prev => {
+          return [
+            ...prev,
+            {
+              "listing_attributes": [
+                {
+                  ...listingAttributes.filter((attr) => attr.field == "sku_id")[0],
+                  "value": `${data.sku_id}-${prev.length + 1}`
+                }
+              ],
+              "category_attributes": []
             }
-          }
-        ]
-    });
+          ]
+        });
       }
-      catch(e){
+      catch (e) {
         console.error(e);
       }
     }
@@ -599,61 +611,107 @@ export default function ProductDetails() {
   }
 
 
-  const addVariantField = (variantIndex) => {
-    setUploadVariants((prev)=>{
+  /**
+   * Removes the new variant from the upload variant state
+   * @param {number} variantIndex 
+   */
+  const removeVariant = (variantIndex) => {
+    setUploadVariants((prev) => {
       const newArray = [...prev];
-
-      newArray[variantIndex] = {
-        ...newArray[variantIndex],
-        "category_attributes": {
-            ...prev[variantIndex].category_attributes,
-            "": ""
-          }
-      }
+      newArray.splice(variantIndex, 1);
       return newArray;
     })
   }
 
 
-  const setVariantField = (variantIndex, attributeType, prevField, newField) => {
+  /**
+   * Add a variant attribute
+   * @param {number} variantIndex 
+   * @param {string} attributeType 
+   * @param {object} attr 
+   * @param {string} field 
+   */
+  const addVariantAttribute = (variantIndex, attributeType, {attr = null, field = null}) => {
+
+    if (attr == null && field == null) {
+      console.error('attribute and field both can not be null');
+      return;
+    }
+
+    let attributeObj;
+    if (attr == null) {
+      attributeObj = {
+        "field": toSnakeCase(field),
+        "name": toNameCase(field)
+      }
+    }
+    else {
+      attributeObj = attr
+    }
+    console.log(uploadVariants)
+    setUploadVariants((prev) => {
+      const newArray = [...prev];
+
+      newArray[variantIndex] = {
+        ...(prev.length > 0 ? prev[variantIndex] : {}),
+        [attributeType]: [
+          ...(prev.length > 0 && prev[variantIndex][attributeType]?.length > 0 ? prev[variantIndex][attributeType] : []),
+          attributeObj
+        ]
+      }
+
+      console.log(newArray)
+      return newArray;
+    });
+
+    setShowVariantFieldSelectionList((prev) => ({
+      ...prev,
+      ["show"]: false
+    }));
+  }
+
+
+
+  const setCustomVariantField = (variantIndex, field) => {
     // Store prev value, delte the prev field and add the new field with the prev value
     // tada you've got your old value with new field name
     console.log(variantIndex, attributeType, prevField, newField)
-    setUploadVariants((prev)=> {
+    setUploadVariants((prev) => {
       const newArray = [...prev];
       const prevValue = prev[variantIndex][attributeType][prevField]
 
       delete newArray[variantIndex][attributeType][prevField];
 
-      console.log(listingAttributes.filter((attr)=> attr.field == newField))
+      console.log(listingAttributes.filter((attr) => attr.field == newField))
       // if the field belongs to listing attribute 
-      if (listingAttributes.filter((attr)=> attr.field == newField).length > 0){
+      if (listingAttributes.filter((attr) => attr.field == newField).length > 0) {
         newArray[variantIndex]["listing_attributes"][newField] = prevValue
-      }else{
+      } else {
         newArray[variantIndex]["category_attributes"][newField] = prevValue  // storing the snake_case_field_name
       }
-      
+
       console.log(newArray)
       return newArray;
     })
   }
 
 
-  const setVariantValue = (variantIndex, attributeType, field, value) => {
-    setUploadVariants((prev)=> {
+  const setVariantValue = (variantIndex, attributeType, attributeIndex, value) => {
+    setUploadVariants((prev) => {
       const newArray = [...prev];
-      newArray[variantIndex][attributeType][toSnakeCase(field)] = value;
 
+      // adding the value to the attribute
+      newArray[variantIndex][attributeType][attributeIndex].value = value;
       return newArray;
     })
   }
 
 
-  const removeVariantField = (variantIndex, attributeType, field) => {
+  const removeVariantField = (variantIndex, attributeType, attributeIndex) => {
     setUploadVariants(prev => {
       const newArray = [...prev];
 
-      delete newArray[variantIndex][attributeType][field];
+      newArray[variantIndex][attributeType].splice(attributeIndex, 1);
       return newArray;
     })
   }
@@ -782,7 +840,7 @@ export default function ProductDetails() {
   };
 
 
-  if (loading && !product) {
+  if (loading) {
     return (
       <div className={styles.skeleton}>
         <div className={styles.TopSkeleton}>
@@ -835,7 +893,7 @@ export default function ProductDetails() {
     searchParams.get("type") ||
     "";
 
-    
+
   const currentPriceNum = price ? Number(price) : 0;
   const purchasingCostNum = purchasing_cost ? Number(purchasing_cost) : 0;
   const comparedPriceNum = compared_price ? Number(compared_price) : 0;
@@ -1076,12 +1134,12 @@ export default function ProductDetails() {
                     fieldKey === "type_id"
                   }
                   className={`${styles.editSpecInput} ${fieldKey === "type_name" ||
-                      fieldKey === "product_type" ||
-                      fieldKey === "type" ||
-                      fieldKey === "category_name" ||
-                      fieldKey === "type_id"
-                      ? styles.editSpecInputDisabled
-                      : ""
+                    fieldKey === "product_type" ||
+                    fieldKey === "type" ||
+                    fieldKey === "category_name" ||
+                    fieldKey === "type_id"
+                    ? styles.editSpecInputDisabled
+                    : ""
                     } ${hasError ? styles.inputError : ""}`}
                   value={currentVal}
                   onChange={(e) => handleInputChange(attType, fieldKey, e.target.value)}
@@ -1111,7 +1169,6 @@ export default function ProductDetails() {
       </div>
     );
   };
-
 
 
   return (
@@ -1578,11 +1635,11 @@ export default function ProductDetails() {
                 </div>
                 {discountPercent > 0 && (
                   <div className={styles.discountBadge}>
-                    {isEditing? (
+                    {isEditing ? (
                       (((formData.listing_attributes?.compared_price ?? product.compared_price)
-                      /
-                      (formData.listing_attributes?.price ?? product.price)
-                      )*100).toFixed(2)): discountPercent}% OFF
+                        /
+                        (formData.listing_attributes?.price ?? product.price)
+                      ) * 100).toFixed(2)) : discountPercent}% OFF
                   </div>
                 )}
                 <div className={styles.divider}></div>
@@ -1929,7 +1986,7 @@ export default function ProductDetails() {
               <h3 className={styles.sectionTitle}>Variants</h3>
 
               {/* Selection indicator */}
-              {variants?.length > 0 && <div className={styles.variantSelector} style={{positionAnchor: `--${uskuId}`}}>
+              {variants?.length > 0 && <div className={styles.variantSelector} style={{ positionAnchor: `--${uskuId}` }}>
 
               </div>}
 
@@ -1938,13 +1995,13 @@ export default function ProductDetails() {
                   variants.length > 0 &&
                   variants.map((variant, idx) => {
                     return (
-                      <div className={styles.variantCard} key={idx} style={{anchorName: `--${variant.usku_id}`}}
-                        onClick={()=>{setUskuId(variant.usku_id)}}
+                      <div className={styles.variantCard} key={idx} style={{ anchorName: `--${variant.usku_id}` }}
+                        onClick={() => { setUskuId(variant.usku_id) }}
                       >
                         <p className={styles.variantCardTitle}>SKU ID</p>
                         <p className={styles.variantSku}>{variant.sku_id}</p>
                         <div className={styles.variantImage}>
-                          <img src={variant.main_image ?? camera} style={variant.main_image == null ? {"width": "35%"}: {}} alt="product-image" />
+                          <img src={variant.main_image ?? camera} style={variant.main_image == null ? { "width": "35%" } : {}} alt="product-image" />
                         </div>
                         <p className={styles.variantPrice}>₹ {parseInt(variant.price).toLocaleString("en-IN")}</p>
                         <p className={styles.variantTitle}>{variant.product_title}</p>
@@ -1956,7 +2013,7 @@ export default function ProductDetails() {
 
               {/* Variants Input */}
               {
-                isEditing&& 
+                isEditing &&
                 <div className={styles.variantInput}>
                   <button className={styles.addAttributeBttn} onClick={addNewVariant}>+ Add variant</button>
 
@@ -1964,42 +2021,34 @@ export default function ProductDetails() {
                     uploadVariants?.map((variant, index) => {
                       return (
                         <div className={styles.newVariantContainer} key={index}>
-                          <button className={styles.removeVariant}>X</button>
+                          <button className={styles.removeVariant} onClick={() => removeVariant(index)}>X</button>
                           {
                             variant.listing_attributes &&
-                            Object.entries(variant.listing_attributes).map(([field, value]) => {
-                              // Just finding the product attriute schema from the listingAttributes
-                              let attr = listingAttributes.filter((attr) => attr.field == field);
-                              attr = attr[0];
-
+                            variant.listing_attributes.map((attr, listingIndex) => {
                               return (
                                 <div className={styles.customAttrRow} >
-                                  <input
-                                    type="text"
-                                    placeholder="Attribute name"
-                                    value={attr?.name ?? toNameCase(field)} // when the user is still typing the name and it's not matching with any attribute then go back to the typing field format
-                                    maxLength={100}
-                                    onChange={(e) => {setVariantField(index, "listing_attributes", field, toSnakeCase(e.target.value))}}
+                                  <div
                                     className={styles.customAttrNameInput}
-                                    disabled={field == "sku_id" ? true : false}
-                                    list='attributes'
-                                  />
+                                  >
+                                    {attr?.name ?? ""} {attr.required && <span style={{ color: "red" }}>*</span>}
+                                  </div>
 
                                   <div className={styles.customAttrValueWrap}>
                                     <input
-                                      type="text"
+                                      type={attr.type in ["decimal", "number", "integer"] ? "number" : "text"}
                                       placeholder="Value"
-                                      value={value}
-                                      onChange={(e) => {setVariantValue(index, 'listing_attributes', field, e.target.value)}}
+                                      value={attr.value ?? ""}
+                                      onChange={(e) => { setVariantValue(index, 'listing_attributes', listingIndex, e.target.value) }}
                                       className={styles.customAttrValueInput}
+                                      max_length={attr.max_length}
                                     />
 
                                     <button
                                       type="button"
-                                      onClick={() => {removeVariantField(index, "listing_atributes", field)}}
+                                      onClick={() => { removeVariantField(index, "listing_attributes", listingIndex) }}
                                       title="Remove attribute"
                                       className={styles.removeAttrBtn}
-                                      style={field == "sku_id"? {"visibility": "hidden" }: {}}
+                                      style={attr.field == "sku_id" ? { "visibility": "hidden" } : {}}
                                     >
                                       ✕
                                     </button>
@@ -2012,34 +2061,27 @@ export default function ProductDetails() {
                           {/* Seperated the category attribute of a variant with listing one */}
                           {
                             variant.category_attributes &&
-                            Object.entries(variant.category_attributes).map(([field, value]) => {
-                              console.log(field)                                
-                              const attr = categoryAttributes.filter((attr) => attr.field == field)[0];
-
+                            variant.category_attributes.map((attr, categoryIndex) => {
                               return (
                                 <div className={styles.customAttrRow} >
-                                  <input
-                                    type="text"
-                                    placeholder="Attribute name"
-                                    value={attr?.name ?? toNameCase(field)}
-                                    maxLength={100}
-                                    onChange={(e) => {setVariantField(index, "category_attributes", field, toSnakeCase(e.target.value))}}
+                                  <div
                                     className={styles.customAttrNameInput}
-                                    list='attributes'
-                                  />
+                                  >
+                                    {attr?.name ?? ""} {attr.required && <span style={{ color: "red" }}>*</span>}
+                                  </div>
 
                                   <div className={styles.customAttrValueWrap}>
                                     <input
-                                      type="text"
+                                      type={attr.type in ["decimal", "number", "integer"] ? "number" : "text"}
                                       placeholder="Value"
-                                      value={value ?? ""}
-                                      onChange={(e) => {setVariantValue(index, "category_attributes", field, e.target.value)}}
+                                      value={attr.value ?? ""}
+                                      onChange={(e) => { setVariantValue(index, "category_attributes", categoryIndex, e.target.value) }}
                                       className={styles.customAttrValueInput}
                                     />
 
                                     <button
                                       type="button"
-                                      onClick={() => {removeVariantField(index, 'category_attributes', field)}}
+                                      onClick={() => { removeVariantField(index, 'category_attributes', categoryIndex) }}
                                       title="Remove attribute"
                                       className={styles.removeAttrBtn}
                                     >
@@ -2052,38 +2094,110 @@ export default function ProductDetails() {
                           }
 
                           {/* Add one more field in the upload variant*/}
-                          <button className={styles.addAttributeBttn} onClick={() => addVariantField(index)}
-                          style={{"width": "fit-content"}}
+                          <button className={styles.addAttributeBttn} onClick={
+                            () => setShowVariantFieldSelectionList(
+                              (prev) => ({ ...prev, "show": !prev.show, ["varaintIndex"]: index, positionAnchor: `--variant-${index}`, customInput: false }) // customInput has to be false since it only needs to be true when explicetely click the bttn for it
+                            )
+                          }
+                            style={{ "width": "fit-content", anchorName: `--variant-${index}` }}
                           >+ Add variant field
                           </button>
-
-                          <datalist id="attributes">
-                            {
-                              listingAttributes?.map((attr) => {
-                                if (attr.field == "sku_id") return ;
-                                return (
-                                  <option id={attr.handle}>{attr.name}</option>
-                                )
-                              })
-                            }
-                            <hr />
-                            {
-                              categoryAttributes?.map((attr) => {
-                                return (
-                                  <option value={attr.name} id={attr.handle}></option>
-                                )
-                              })
-                            }
-                            <button>+ Custom attribute</button>
-                          </datalist>
                         </div>
                       )
                     })
                   }
+
+                  {/* List of fields */}
+                  {
+                    showVariantFieldSelectionList?.show &&
+                    <div className={styles.variantFieldSelectionList} style={{ positionAnchor: showVariantFieldSelectionList.positionAnchor }}>
+                      {showVariantFieldSelectionList?.customInput == false ?
+                        <>
+                          <ul id="variantFieldslist" className={styles.variantFieldsList}>
+                            {
+                              listingAttributes?.map((attr) => {
+                                if (attr.field == "sku_id") return; // sku id doesn't need to be displayed cuz it's already added by default
+
+                                return (
+                                  <li id={attr.field} onClick={() => addVariantAttribute(
+                                    showVariantFieldSelectionList.varaintIndex,
+                                    "listing_attributes",
+                                    {attr: attr}
+                                  )}>{attr.name}</li>
+                                )
+                              })
+                            }
+                            {categoryAttributes.length > 0 && <hr />}
+                            {
+                              categoryAttributes?.map((attr) => {
+                                return (
+                                  <li id={attr.field}
+                                    onClick={() => {
+                                      addVariantAttribute(showVariantFieldSelectionList.varaintIndex,
+                                        "category_attributes",
+                                        {attr: attr}
+                                      )
+                                    }}
+                                  >{attr.name}</li>
+                                )
+                              })
+                            }
+                            {customAttributes.length > 0 && <hr />}
+                            {
+                              customAttributes?.map((attr) => {
+                                return (
+                                  <li id={attr.field}
+                                    onClick={() => {
+                                      addVariantAttribute(showVariantFieldSelectionList.varaintIndex,
+                                        "category_attributes",
+                                        {attr: attr}
+                                      )
+                                    }}>{attr.name}</li>
+                                )
+                              })
+                            }
+                            {extraItems.length > 0 && <hr />}
+                            {
+                              extraItems?.map((attr) => {
+                                return (
+                                  <li id={attr.fieldKey}
+                                    onClick={() => {
+                                      addVariantAttribute(showVariantFieldSelectionList.varaintIndex,
+                                        "category_attributes",
+                                        {field: attr.fieldKey}
+                                      )
+                                    }}>{attr.label}</li>
+                                )
+                              })
+                            }
+                          </ul>
+
+
+                          {/* <hr /> */}
+                          <div>
+                            <button
+                              className={styles.addMoreVariantFieldBttn}
+                              onClick={() => setShowVariantFieldSelectionList((prev) => ({ ...prev, customInput: true }))}
+                            >
+                              + Custom attribute
+                            </button>
+                          </div>
+                        </> : 
+                          <input type="text" placeholder="Field name" 
+                            className={styles.customAttrNameInput}
+                            onKeyDown={(e)=> {
+                              if (e.key == "Escape") setShowVariantFieldSelectionList((prev) => ({...prev, customInput: false}));
+
+                              if (e.key == "Enter") addVariantAttribute(showVariantFieldSelectionList.varaintIndex, "category_attributes", {field: e.target.value});
+                            }}
+                            autoFocus
+                            autoCapitalize="on"
+                          />
+                      }
+                    </div>
+                  }
                 </div>
               }
-
-
             </div>
 
 
