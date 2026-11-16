@@ -48,17 +48,17 @@ export default function ProductDetails() {
   const [uploadVariants, setUploadVariants] = useState([]);  // product attr schema and value combined e.g. [{"field": "", "name": "", "value": "", *constraints}]
   const [showVariantFieldSelectionList, setShowVariantFieldSelectionList] = useState({
     "show": false,    // hide or show for false or true
-    "varaintIndex": 0,   // which varaint called the variantds fields selection list
+    "variantIndex": 0,   // which varaint called the variantds fields selection list
     "positionAnchor": null,
     "customInput": false   // sets whether to show custom field input or show list
   });
 
-  
+
   const thumbnailsRef = useRef(null);
   const showToast = useContext(toastContext);
   const [uskuId, setUskuId] = useState(searchParams.get("usku-id") || searchParams.get("id"));
   const typeId = searchParams.get("type") || searchParams.get("type-id");
-  // console.log(uploadVariants)
+  // console.log(showVariantFieldSelectionList)
 
 
 
@@ -74,9 +74,9 @@ export default function ProductDetails() {
    */
   useEffect(() => {
     const handleBeforeUnload = (event) => {
-      console.log('working')
+      // console.log('working')
       if (!isEditing || (isEditing && (Object.keys(newImageFiles).length == 0 && Object.keys(formData).length == 0))) return;
-      console.log(!isEditing || (isEditing && (Object.keys(newImageFiles).length == 0 && Object.keys(formData).length == 0)))
+
       event.preventDefault();
       event.returnValue = "";
     };
@@ -585,7 +585,6 @@ export default function ProductDetails() {
         const data = await response.json();
 
         if (!response.ok) showToast(data?.message ?? "Unable to fetch suggested SKU ID", 'red')
-        console.log(data)
 
         setUploadVariants(prev => {
           return [
@@ -601,6 +600,8 @@ export default function ProductDetails() {
             }
           ]
         });
+
+        setShowVariantFieldSelectionList((prev)=>({...prev, show: true, variantIndex: (uploadVariants.length), positionAnchor: `--variant-${uploadVariants.length}`}))
       }
       catch (e) {
         console.error(e);
@@ -621,6 +622,8 @@ export default function ProductDetails() {
       newArray.splice(variantIndex, 1);
       return newArray;
     })
+
+    setShowVariantFieldSelectionList((prev)=>({...prev, show: false}))
   }
 
 
@@ -648,7 +651,7 @@ export default function ProductDetails() {
     else {
       attributeObj = attr
     }
-    console.log(uploadVariants)
+
     setUploadVariants((prev) => {
       const newArray = [...prev];
 
@@ -660,7 +663,7 @@ export default function ProductDetails() {
         ]
       }
 
-      console.log(newArray)
+
       return newArray;
     });
 
@@ -671,29 +674,6 @@ export default function ProductDetails() {
   }
 
 
-
-  const setCustomVariantField = (variantIndex, field) => {
-    // Store prev value, delte the prev field and add the new field with the prev value
-    // tada you've got your old value with new field name
-    console.log(variantIndex, attributeType, prevField, newField)
-    setUploadVariants((prev) => {
-      const newArray = [...prev];
-      const prevValue = prev[variantIndex][attributeType][prevField]
-
-      delete newArray[variantIndex][attributeType][prevField];
-
-      console.log(listingAttributes.filter((attr) => attr.field == newField))
-      // if the field belongs to listing attribute 
-      if (listingAttributes.filter((attr) => attr.field == newField).length > 0) {
-        newArray[variantIndex]["listing_attributes"][newField] = prevValue
-      } else {
-        newArray[variantIndex]["category_attributes"][newField] = prevValue  // storing the snake_case_field_name
-      }
-
-      console.log(newArray)
-      return newArray;
-    })
-  }
 
 
   const setVariantValue = (variantIndex, attributeType, attributeIndex, value) => {
@@ -2096,7 +2076,7 @@ export default function ProductDetails() {
                           {/* Add one more field in the upload variant*/}
                           <button className={styles.addAttributeBttn} onClick={
                             () => setShowVariantFieldSelectionList(
-                              (prev) => ({ ...prev, "show": !prev.show, ["varaintIndex"]: index, positionAnchor: `--variant-${index}`, customInput: false }) // customInput has to be false since it only needs to be true when explicetely click the bttn for it
+                              (prev) => ({ ...prev, "show": !prev.show, ["variantIndex"]: index, positionAnchor: `--variant-${index}`, customInput: false }) // customInput has to be false since it only needs to be true when explicetely click the bttn for it
                             )
                           }
                             style={{ "width": "fit-content", anchorName: `--variant-${index}` }}
@@ -2120,7 +2100,7 @@ export default function ProductDetails() {
 
                                 return (
                                   <li id={attr.field} onClick={() => addVariantAttribute(
-                                    showVariantFieldSelectionList.varaintIndex,
+                                    showVariantFieldSelectionList.variantIndex,
                                     "listing_attributes",
                                     {attr: attr}
                                   )}>{attr.name}</li>
@@ -2133,7 +2113,7 @@ export default function ProductDetails() {
                                 return (
                                   <li id={attr.field}
                                     onClick={() => {
-                                      addVariantAttribute(showVariantFieldSelectionList.varaintIndex,
+                                      addVariantAttribute(showVariantFieldSelectionList.variantIndex,
                                         "category_attributes",
                                         {attr: attr}
                                       )
@@ -2148,7 +2128,7 @@ export default function ProductDetails() {
                                 return (
                                   <li id={attr.field}
                                     onClick={() => {
-                                      addVariantAttribute(showVariantFieldSelectionList.varaintIndex,
+                                      addVariantAttribute(showVariantFieldSelectionList.variantIndex,
                                         "category_attributes",
                                         {attr: attr}
                                       )
@@ -2162,7 +2142,7 @@ export default function ProductDetails() {
                                 return (
                                   <li id={attr.fieldKey}
                                     onClick={() => {
-                                      addVariantAttribute(showVariantFieldSelectionList.varaintIndex,
+                                      addVariantAttribute(showVariantFieldSelectionList.variantIndex,
                                         "category_attributes",
                                         {field: attr.fieldKey}
                                       )
@@ -2188,7 +2168,7 @@ export default function ProductDetails() {
                             onKeyDown={(e)=> {
                               if (e.key == "Escape") setShowVariantFieldSelectionList((prev) => ({...prev, customInput: false}));
 
-                              if (e.key == "Enter") addVariantAttribute(showVariantFieldSelectionList.varaintIndex, "category_attributes", {field: e.target.value});
+                              if (e.key == "Enter") addVariantAttribute(showVariantFieldSelectionList.variantIndex, "category_attributes", {field: e.target.value});
                             }}
                             autoFocus
                             autoCapitalize="on"
