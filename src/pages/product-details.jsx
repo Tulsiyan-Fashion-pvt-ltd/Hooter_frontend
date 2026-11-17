@@ -9,6 +9,7 @@ import {
   updateProductImages,
   getAttributeFields,
 } from "../services/catalogService";
+import { uploadProductVariants, fetchProductVariants } from "../services/variantsService";
 import { getFieldPlaceholder } from "../services/fieldPlaceholders";
 import imageNA from "../assets/icons/imagena.png";
 import { toSnakeCase, toPascalCase, toNameCase } from "../services/textFormate";
@@ -20,12 +21,12 @@ const host = import.meta.env.VITE_BASEAPI;
 
 
 export default function ProductDetails() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [product, setProduct] = useState(null);
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState("Overview");
+  // const [activeTab, setActiveTab] = useState("Overview");
   const [images, setImages] = useState([]);
   const [selectedImageType, setSelectedImageType] = useState();
   const [imagesLoading, setImagesLoading] = useState(false);
@@ -58,15 +59,11 @@ export default function ProductDetails() {
   const showToast = useContext(toastContext);
   const [uskuId, setUskuId] = useState(searchParams.get("usku-id") || searchParams.get("id"));
   const typeId = searchParams.get("type") || searchParams.get("type-id");
-  // console.log(showVariantFieldSelectionList)
-
-
-
 
 
   /** Fetch variants only once */
   useEffect(() => {
-    fetchProductVariants();
+    displayVariants();
   }, [])
 
   /**
@@ -189,22 +186,15 @@ export default function ProductDetails() {
   };
 
 
-  async function fetchProductVariants() {
-    try {
-      const response = await fetch(`${host}/catalog/variants/${uskuId}`, {
-        "credentials": "include"
-      })
-      const data = await response.json();
-
-      if (!response.ok) showToast(data?.message ?? "Could not fetch the product variants", "red");
-
-      setVariants(data)
-    }
-    catch (e) {
-      console.error(e);
-      showToast('Failed to get product variants', 'red');
+  const displayVariants = async () => {
+    try{
+      const variants = await fetchProductVariants(uskuId);
+      setVariants(variants);
+    }catch(e){
+      showToast(e, 'red');
     }
   }
+
 
   /**
    * Add custom images to the imageAttributes
@@ -300,8 +290,10 @@ export default function ProductDetails() {
     setCustomAttributes((prev) => prev.filter((attr) => attr.id !== id));
   };
 
+
   const formatFieldName = (key) =>
     key ? key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "";
+
 
 
   /**
@@ -312,14 +304,7 @@ export default function ProductDetails() {
    * @returns 
    */
   const validateField = (key, value, attrMeta = null) => {
-    const isRequired = Boolean(
-      attrMeta?.required ||
-      key === "sku_id" ||
-      key === "product_title" ||
-      key === "price" ||
-      key === "compared_price" ||
-      key === "brand_name"
-    );
+    const isRequired = Boolean(attrMeta?.required);
 
     const strVal = value !== undefined && value !== null ? String(value).trim() : "";
 
@@ -334,18 +319,7 @@ export default function ProductDetails() {
     }
 
     // 2. Max length check
-    const maxLen = attrMeta?.max_length || (
-      key === "sku_id" ? 100 :
-        key === "product_title" ? 200 :
-          key === "product_desc" || key === "description" ? 5000 :
-            key === "brand_name" || key === "vendor" ? 255 :
-              key === "tags" ? 500 :
-                key === "upc" ? 12 :
-                  key === "ean" || key === "isbn" ? 13 :
-                    key === "gtin" ? 14 :
-                      key === "hsn_code" || key === "hsn" ? 8 :
-                        null
-    );
+    const maxLen = attrMeta?.max_length;
 
     if (maxLen && strVal.length > maxLen) {
       const label = attrMeta?.name || formatFieldName(key);
@@ -356,15 +330,7 @@ export default function ProductDetails() {
     const isNumeric =
       attrMeta?.type === "decimal" ||
       attrMeta?.type === "integer" ||
-      attrMeta?.type === "number" ||
-      [
-        "price",
-        "compared_price",
-        "purchasing_cost",
-        "net_weight_kg",
-        "dead_weight_kg",
-        "volumetric_weight_kg",
-      ].includes(key);
+      attrMeta?.type === "number"
 
     if (isNumeric) {
       const num = Number(strVal);
@@ -681,7 +647,9 @@ export default function ProductDetails() {
       const newArray = [...prev];
 
       // adding the value to the attribute
+      const error = validateField(newArray[variantIndex][attributeType][attributeIndex].field, value, validateField(newArray[variantIndex][attributeType][attributeIndex]));
       newArray[variantIndex][attributeType][attributeIndex].value = value;
+      newArray[variantIndex][attributeType][attributeIndex].error = error;
       return newArray;
     })
   }
@@ -691,7 +659,13 @@ export default function ProductDetails() {
     setUploadVariants(prev => {
       const newArray = [...prev];
 
-      newArray[variantIndex][attributeType].splice(attributeIndex, 1);
+      newArray[variantIndex] = {
+        ...newArray[variantIndex],
+        [attributeType]: newArray[variantIndex][attributeType].filter(
+          (_, index) => index !== attributeIndex
+        )
+      }
+
       return newArray;
     })
   }
@@ -767,12 +741,14 @@ export default function ProductDetails() {
 
     try {
       setSaving(true);
-      await updateProduct(
-        uskuId,
-        typeId,
-        formData
-      );
 
+      if (formData && Object.keys(formData).length > 0) {
+        await updateProduct(
+          uskuId,
+          typeId,
+          formData
+        );
+      }
 
       if (Object.keys(newImageFiles).length > 0) {
         console.log("Uploading the image");
@@ -787,6 +763,12 @@ export default function ProductDetails() {
         } catch (imgErr) {
           console.warn("Image upload warning:", imgErr);
         }
+      }
+
+      //upload variants
+      if (uploadVariants.length > 0){
+        await uploadProductVariants(uploadVariants, uskuId);
+        displayVariants();
       }
 
       // setting the updated data to the product so client won't have to refresh in order to get the latest data
@@ -2006,33 +1988,36 @@ export default function ProductDetails() {
                             variant.listing_attributes &&
                             variant.listing_attributes.map((attr, listingIndex) => {
                               return (
-                                <div className={styles.customAttrRow} >
-                                  <div
-                                    className={styles.customAttrNameInput}
-                                  >
-                                    {attr?.name ?? ""} {attr.required && <span style={{ color: "red" }}>*</span>}
-                                  </div>
-
-                                  <div className={styles.customAttrValueWrap}>
-                                    <input
-                                      type={attr.type in ["decimal", "number", "integer"] ? "number" : "text"}
-                                      placeholder="Value"
-                                      value={attr.value ?? ""}
-                                      onChange={(e) => { setVariantValue(index, 'listing_attributes', listingIndex, e.target.value) }}
-                                      className={styles.customAttrValueInput}
-                                      max_length={attr.max_length}
-                                    />
-
-                                    <button
-                                      type="button"
-                                      onClick={() => { removeVariantField(index, "listing_attributes", listingIndex) }}
-                                      title="Remove attribute"
-                                      className={styles.removeAttrBtn}
-                                      style={attr.field == "sku_id" ? { "visibility": "hidden" } : {}}
+                                <div>
+                                  <div className={styles.customAttrRow} >
+                                    <div
+                                      className={styles.customAttrNameInput}
                                     >
-                                      ✕
-                                    </button>
+                                      {attr?.name ?? ""} {attr.required && <span style={{ color: "red" }}>*</span>}
+                                    </div>
+
+                                    <div className={styles.customAttrValueWrap}>
+                                      <input
+                                        type={["decimal", "number", "integer"].includes(attr.type) ? "number" : "text"}
+                                        placeholder="Value"
+                                        value={attr.value ?? ""}
+                                        onChange={(e) => { setVariantValue(index, 'listing_attributes', listingIndex, e.target.value) }}
+                                        className={`${styles.customAttrValueInput} ${attr.error && 'input-error'}`}
+                                        maxLength={attr.max_length}
+                                      />
+
+                                      <button
+                                        type="button"
+                                        onClick={() => { removeVariantField(index, "listing_attributes", listingIndex) }}
+                                        title="Remove attribute"
+                                        className={styles.removeAttrBtn}
+                                        style={attr.field == "sku_id" ? { "visibility": "hidden" } : {}}
+                                      >
+                                        ✕
+                                      </button>
+                                    </div>
                                   </div>
+                                  {attr.error && <p className={styles.fieldErrorText}>⚠ {attr.error}</p>}
                                 </div>
                               )
                             })
@@ -2043,31 +2028,35 @@ export default function ProductDetails() {
                             variant.category_attributes &&
                             variant.category_attributes.map((attr, categoryIndex) => {
                               return (
-                                <div className={styles.customAttrRow} >
-                                  <div
-                                    className={styles.customAttrNameInput}
-                                  >
-                                    {attr?.name ?? ""} {attr.required && <span style={{ color: "red" }}>*</span>}
-                                  </div>
-
-                                  <div className={styles.customAttrValueWrap}>
-                                    <input
-                                      type={attr.type in ["decimal", "number", "integer"] ? "number" : "text"}
-                                      placeholder="Value"
-                                      value={attr.value ?? ""}
-                                      onChange={(e) => { setVariantValue(index, "category_attributes", categoryIndex, e.target.value) }}
-                                      className={styles.customAttrValueInput}
-                                    />
-
-                                    <button
-                                      type="button"
-                                      onClick={() => { removeVariantField(index, 'category_attributes', categoryIndex) }}
-                                      title="Remove attribute"
-                                      className={styles.removeAttrBtn}
+                                <div>
+                                  <div className={styles.customAttrRow} >
+                                    <div
+                                      className={styles.customAttrNameInput}
                                     >
-                                      ✕
-                                    </button>
+                                      {attr?.name ?? ""} {attr.required && <span style={{ color: "red" }}>*</span>}
+                                    </div>
+
+                                    <div className={styles.customAttrValueWrap}>
+                                      <input
+                                        type={["decimal", "number", "integer"].includes(attr.type) ? "number" : "text"}
+                                        placeholder="Value"
+                                        value={attr.value ?? ""}
+                                        onChange={(e) => { setVariantValue(index, "category_attributes", categoryIndex, e.target.value) }}
+                                        className={`${styles.customAttrValueInput} ${attr.error && 'input-error'}`}
+                                        maxLength={attr.max_length}
+                                      />
+
+                                      <button
+                                        type="button"
+                                        onClick={() => { removeVariantField(index, 'category_attributes', categoryIndex) }}
+                                        title="Remove attribute"
+                                        className={styles.removeAttrBtn}
+                                      >
+                                        ✕
+                                      </button>
+                                    </div>
                                   </div>
+                                  {attr.error && <p className={styles.fieldErrorText}>⚠ {attr.error}</p>}
                                 </div>
                               )
                             })

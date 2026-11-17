@@ -14,7 +14,7 @@ import { useState, useRef } from 'react';
  *   showToast("Saved!", "green");
  *   // in JSX: <Toast toast={toast} />
  */
-export default function useToast(duration = 2000) {
+export default function useToast(duration = 5000) {
   const [toast, setToast] = useState({ message: '', type: '', visible: false });
 
   /* Holds the auto-dismiss setTimeout ID so we can cancel a pending dismiss

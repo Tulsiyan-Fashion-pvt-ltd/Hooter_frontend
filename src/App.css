@@ -75,18 +75,29 @@ Add the product details through an Excel file and we will process them for you
 
 
 hr{
-    border-top: 1px solid #e2e8f0;;
+    border-top: 1px solid #e2e8f0;
 }
 
+
+/* Error classes */
 
 .incorrect-input{
     outline: 1px solid red;
 }
 
+
 .errorMessage{
     font-size: 14px;
     color: red;
 }
+
+.input-error{
+  border-color: #ef4444 !important;
+  background-color: #fef2f2 !important;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.4) !important;
+}
+
+
 
 @keyframes logo-spin {
   from {
