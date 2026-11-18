@@ -648,8 +648,18 @@ export default function ProductDetails() {
 
       // adding the value to the attribute
       const error = validateField(newArray[variantIndex][attributeType][attributeIndex].field, value, validateField(newArray[variantIndex][attributeType][attributeIndex]));
-      newArray[variantIndex][attributeType][attributeIndex].value = value;
-      newArray[variantIndex][attributeType][attributeIndex].error = error;
+      newArray[variantIndex] = {
+        ...newArray[variantIndex],
+        [attributeType]: newArray[variantIndex][attributeType].map((attr, index) => {
+          if (index == attributeIndex){
+            return {
+              ...newArray[variantIndex][attributeType][attributeIndex],
+              "value": value,
+              "error": error
+            }
+          }
+        })
+      }
       return newArray;
     })
   }
