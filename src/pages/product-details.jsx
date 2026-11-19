@@ -1976,7 +1976,18 @@ export default function ProductDetails() {
                           <img src={variant.main_image ?? camera} style={variant.main_image == null ? { "width": "35%" } : {}} alt="product-image" />
                         </div>
                         <p className={styles.variantPrice}>₹ {parseInt(variant.price).toLocaleString("en-IN")}</p>
-                        <p className={styles.variantTitle}>{variant.product_title}</p>
+                        <div className={styles.variationAttributes}>
+                          {
+                            Object.keys(variant.variations).map((variationKey) => {
+                              return (
+                                <div className={styles.variationRow}>
+                                  <p>{variationKey}</p>
+                                  <p>{variant.variations[variationKey]}</p>
+                                </div>
+                              )
+                            })
+                          }
+                        </div>
                       </div>
                     )
                   })

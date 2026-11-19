@@ -522,6 +522,7 @@
   max-width: 150px;
   padding-top: 6px;
   word-break: break-word;
+  margin-right: 1rem;
 }
 
 .specRow:not(.specRowEditing) .specLabel {
@@ -1546,14 +1547,14 @@
 .variants {
   display: flex;
   row-gap: 20px;
-  column-gap: 24px;
+  /* column-gap: 24px; */
   flex-flow: row wrap;
 
 }
 
 .variantCard{
   display: inline-block;
-  width: 150px;
+  min-width: 150px;
   font-size: 14px;
   padding: 10px;
   cursor: pointer;
@@ -1599,9 +1600,21 @@
     /* font-family: 'inter-semi-bold'; */
 }
 
+.variationAttributes{
+      display: grid;
+    grid-template-columns: 1fr;
+      margin-top: 10px;
+}
+
+.variationRow{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+
 .variantSelector {
   width: 150px;
-  height: 294px;
+  height: 286px;
   padding: 10px;
   box-sizing: content-box;
   outline: 1px solid var(--second-color-50);
