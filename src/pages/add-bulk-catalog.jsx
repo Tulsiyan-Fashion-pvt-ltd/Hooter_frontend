@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import styles from "../css/pages/add-bulk-catalog.module.css";
 import useCatalogForm from "../hooks/useCatalogForm";
-import CatalogSelector from "../components/CatalogSelector";
+import CatalogSelector from "../components/catalogSelector";
 import {
   getBulkExcelSheet,
   uploadBulkCatalog,

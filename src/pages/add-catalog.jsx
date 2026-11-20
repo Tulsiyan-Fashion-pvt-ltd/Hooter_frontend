@@ -2,7 +2,7 @@
 import { toastContext } from "../appContext";
 import styles from "../css/pages/add-catalog.module.css";
 import useCatalogForm from "../hooks/useCatalogForm";
-import CatalogSelector from "../components/CatalogSelector";
+import CatalogSelector from "../components/catalogSelector";
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import camera from "../assets/icons/upload_photo.svg";

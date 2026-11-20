@@ -1,5 +1,4 @@
 import { Children, useRef, useState, useEffect, } from "react";
-import React from "react";
 import clsx from "clsx";
 import styles from "../css/layout/sidebar.module.css";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
@@ -44,34 +43,84 @@ const Sidebar = () => {
     closeTimer.current = setTimeout(() => setHoveredItem(null), 150);
   };
 
-  useEffect(() => {
-    if (!openMenu) return; // don't bother attaching a listener if nothing's open
+  // useEffect(() => {
+  //   if (!openMenu) return; // don't bother attaching a listener if nothing's open
 
-    const handleClickOutside = (e) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(e.target)) {
-        setOpenMenu(null);
-      }
-    };
+  //   const handleClickOutside = (e) => {
+  //     if (sidebarRef.current && !sidebarRef.current.contains(e.target)) {
+  //       setOpenMenu(null);
+  //     }
+  //   };
 
-    document.addEventListener("mousedown", handleClickOutside, true);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside, true);
-  }, [openMenu]);
+  //   document.addEventListener("mousedown", handleClickOutside, true);
+  //   return () =>
+  //     document.removeEventListener("mousedown", handleClickOutside, true);
+  // }, [openMenu]);
 
   useEffect(() => {
     localStorage.setItem("sidebarCollapsed", collapsed);
   }, [collapsed]);
 
-  const items = {
-    Home: { path: "/" },
-    Catalog: { path: "/catalog" },
-    Inventory: { path: "/inventory" },
-    Order: { path: "/orders" },
-    Shipping: { path: "/shipping" },
-    Payments: { path: "/payments" },
-    Stats: { path: "/stats" },
-    Integrations: { path: "/integrations" },
-  };
+  console.log(indicator)
+
+  const items = [
+    {
+      label: "Home",
+      path: "/"
+    },
+    {
+      label: "Catalog",
+      path: "/catalog"
+    },
+    {
+      label: "Inventory",
+      path: "/inventory/stocks",
+      children: [
+        {
+          label: "Stocks",
+        path: "/inventory/stocks",
+        },
+        {
+          label: "Consignment",
+          path: "/inventory/consignment"
+        }
+      ]
+    },
+    {
+      label: "Order",
+      path: "/all-orders",
+      children: [
+        {
+          label: "All orders",
+          path: "/all-orders",
+        },
+        {
+          label: "Process order",
+          path: "/orders/processing"
+        },
+        {
+          label: "Returns",
+          path: "/orders/processing"
+        }
+      ]
+    },
+    {
+      label: "Shipping",
+      path: "/shipping"
+    },
+    {
+      label: "Payments",
+      path: "/payments"
+    },
+    {
+      label: "Stats",
+      path: "/stats"
+    },
+    {
+      label: "Integrations",
+      path: "/integrations"
+    },
+  ]
 
 
 
@@ -88,7 +137,7 @@ const Sidebar = () => {
         console.error(data ? data.message: "Error: could not fetch the brand profile");
       }
 
-      await setBrandProfile({...data, ['image_url']: `${data.image_url? `${host}${data.image_url}`: null}`});
+      setBrandProfile({...data, ['image_url']: `${data.image_url? `${host}${data.image_url}`: null}`});
     }
 
     fetchBrandProfile();
@@ -170,17 +219,17 @@ const Sidebar = () => {
       <nav className={styles.sidebarMenu}>
         <hr />
         <div className={styles.navigation}>
-          {Object.keys(items).map((item) => {
-            const hasChildren = items[item].children;
+          {items.map((item, index) => {
+            const hasChildren = item.children;
 
             if (!hasChildren) {
               return (
                 <NavLink
-                  key={item}
-                  to={items[item].path}
-                  data-item={item}
+                  key={index}
+                  to={item.path}
+                  data-item={item.label}
                   onClick={() => {
-                    setIndicator(items[item].path);
+                    setIndicator(item.path);
                     setOpenMenu(null);
                   }}
                   className={clsx(styles.sidebarItem, styles.noUnderline)}
@@ -188,7 +237,7 @@ const Sidebar = () => {
                   <div
                     className={clsx(
                       styles.indicator,
-                      indicator === items[item].path
+                      indicator === item.path
                         ? styles.activeIndicator
                         : styles.inactiveIndicator,
                     )}
@@ -198,7 +247,7 @@ const Sidebar = () => {
                   <span
                     className={clsx(
                       styles.itemIcons,
-                      indicator === items[item].path
+                      indicator === item.path
                         ? styles.acitveItemIcons
                         : "",
                     )}
@@ -207,36 +256,39 @@ const Sidebar = () => {
                     <span
                       className={clsx(
                         styles.sidebarLabel,
-                        indicator === items[item].path ? styles.activeText : "",
+                        indicator === item.path ? styles.activeText : "",
                       )}
                     >
-                      {item}
+                      {item.label}
                     </span>
                   )}
                   </div>
                 </NavLink>
               );
             }
+
+            // if has children
             return (
               <div
-                key={item}
+                // key={index}/
                 className={styles.parentWrapper}
                 onMouseEnter={(e) => collapsed && openFlyout(item, e)}
                 onMouseLeave={() => collapsed && scheduleCloseFlyout()}
               >
-                <div
+                <NavLink
                   className={styles.sidebarItem}
-                  data-item={item}
+                  data-item={item.label}
                   onClick={() => {
-                    setOpenMenu(openMenu === item ? null : item);
-                    setIndicator(items[item].path);
+                    setOpenMenu(item.label);
+                    setIndicator(item.path);
                   }}
+                  to="/inventory/stocks"
                 >
                   <div
                     className={clsx(
                       styles.indicator,
-                      indicator === items[item].path ||
-                        Object.values(items[item].children).some(
+                      indicator === item.path ||
+                        item.children.some(
                           (child) => child.path === indicator,
                         )
                         ? styles.activeIndicator
@@ -247,8 +299,8 @@ const Sidebar = () => {
                     <span
                       className={clsx(
                         styles.itemIcons,
-                        indicator === items[item].path ||
-                          Object.values(items[item].children).some(
+                        indicator === item.path ||
+                          item.children.some(
                             (child) => child.path === indicator,
                           )
                           ? styles.acitveItemIcons
@@ -259,49 +311,41 @@ const Sidebar = () => {
                       <span
                         className={clsx(
                           styles.sidebarLabel,
-                          indicator === items[item].path ||
-                            Object.values(items[item].children).some(
+                          indicator === item.path ||
+                            item.children.some(
                               (child) => child.path === indicator,
                             )
                             ? styles.activeText
                             : "",
                         )}
                       >
-                        {item}
+                        {item.label}
                       </span>
                     )}
                   </div>
-                </div>
+                </NavLink>
 
                 {/* Inline submenu — expanded sidebar */}
-                {!collapsed && openMenu === item && (
+                {!collapsed && openMenu === item.label && (
                   <div
                     className={styles.subMenu}
-                    style={{ paddingLeft: items[item].subMenuIndent ?? 40 }}
                   >
-                    {Object.keys(items[item].children).map((childKey) => {
-                      const child = items[item].children[childKey];
+                    {item.children.map((child, index) => {
+                      console.log('children', child)
                       return (
                         <NavLink
-                          key={childKey}
+                          key={index}
                           to={child.path}
                           className={clsx(
                             styles.subMenuItem,
                             styles.noUnderline,
-                            indicator === child.path ? styles.activeText : "",
+                            indicator === child.path ? `${styles.subMenuItemActive} ${styles.activeText}` : "",
                           )}
+                          data-item={child.label}
                           onClick={() => {
                             setIndicator(child.path);
                           }}
                         >
-                          <span
-                            className={clsx(
-                              styles.subIndicator,
-                              indicator === child.path
-                                ? styles.subIndicatorActive
-                                : "",
-                            )}
-                          />
                           {child.label}
                         </NavLink>
                       );
@@ -322,11 +366,11 @@ const Sidebar = () => {
                       onMouseLeave={scheduleCloseFlyout}
                     >
                       <div className={styles.flyoutTitle}>{item}</div>
-                      {Object.keys(items[item].children).map((childKey) => {
-                        const child = items[item].children[childKey];
+                      {item.children.map((child, index) => {
+                        // const child = items.children[childKey];
                         return (
                           <NavLink
-                            key={childKey}
+                            key={index}
                             to={child.path}
                             className={clsx(
                               styles.subMenuItem,

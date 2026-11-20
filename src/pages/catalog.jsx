@@ -388,8 +388,8 @@ export default function Catalog() {
       </div>
 
       <div className={styles.pageBody}>
-        {/* Overview Header */}
-        <h2 className={styles.overviewHeading}>Overview</h2>
+        {/* Overview Header
+        <h2 className={styles.overviewHeading}>Overview</h2> */}
 
         {/* Top Metric Cards */}
         <div className={styles.cards}>

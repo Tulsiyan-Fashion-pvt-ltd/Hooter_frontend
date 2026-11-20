@@ -81,7 +81,7 @@ position: absolute;
 }
 
 
-.sidebarItem:hover{
+.sidebarItem:hover, .subMenu .subMenuItem:hover{
   background-color: var(--accent-color-950);
 }
 
@@ -188,6 +188,8 @@ letter-spacing: 0%;
   /* position: relative; */
   anchor-name: --navigations;
   cursor: pointer;
+  font-style: none;
+  text-decoration: none;
 }
 
 .navMenu{
@@ -203,35 +205,22 @@ letter-spacing: 0%;
 .subMenu {
   display: flex;
   flex-flow: column nowrap;
-  padding-left: 40px;
+  /* padding-left: 40px; */
+  font-size: 14px;
 }
 
 .subMenuItem {
   position: relative;
   opacity: 0.6;
-  margin-bottom: 20px;
-  padding-left: 20px;
+  /* margin-bottom: 20px; */
+  padding-left: 57px;
   transition: opacity 0.2s ease, color 0.2s ease;
   cursor: pointer;
 }
 
-.subIndicator {
-  content: "";
-  /* position: absolute; */
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 4px;
-  height: 0px;
-  background-color: white;
-  opacity: 0;
-  border-radius: 0 2px 2px 0;
-  transition: opacity 0.3s ease, height 0.3s ease;
-}
-
-.subIndicatorActive {
-  opacity: 1;
-  height: 16px;
+.subMenuItemActive{
+  background-color: var(--accent-color-950);
+  color: white;
 }
 
 

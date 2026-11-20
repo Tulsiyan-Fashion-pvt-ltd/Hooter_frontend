@@ -17,11 +17,12 @@ import Catalog from "./pages/catalog";
 import Orders from "./pages/orders";
 import AddCatalog from "./pages/add-catalog";
 import AddBulkCatalog from "./pages/add-bulk-catalog";
-import Inventory from "./pages/inventory";
+import Inventory from "./components/inventoryTab";
 import InwardEntry from "./pages/inward-entry";
 import EditInventory from "./pages/edit-catalog";
 import ProductDetails from "./pages/product-details";
 import Integrations from "./pages/integrations";
+import StockInventory from "./pages/stockInventory";
 
 
 
@@ -66,7 +67,7 @@ function App() {
 
           {/* Redirect /inventory to default tab /inventory/stock */}
           <Route path="/inventory" element={<Navigate to="/inventory/stock" replace />} />
-          <Route path="/inventory/stock" element={<Inventory tab={"inventory"} />} />
+          <Route path="/inventory/stocks" element={<StockInventory/>} />
           <Route path="/inventory/inward" element={<Inventory tab={"inward"} />} />
           <Route path="/inventory/grn" element={<Inventory tab={"grn"} />} />
           <Route path="/orders" element={<Orders />} />

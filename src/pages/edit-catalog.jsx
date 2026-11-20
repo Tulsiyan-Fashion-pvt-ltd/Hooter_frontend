@@ -11,7 +11,7 @@ import {
   deleteProductImages
 } from "../services/catalogService";
 
-export default function EditInventory() {
+export default function EditCatalog() {
   const fixedFields = [
     { key: "sku_id", label: "SKU ID", required: true },
     { key: "product_title", label: "Product Title", required: true },
