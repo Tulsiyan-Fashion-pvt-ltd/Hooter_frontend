@@ -96,15 +96,7 @@ function parseIntegrationsResponse(data) {
       letterColor: "#2563EB",
     };
 
-    const isConnected =
-      val === true ||
-      val === "connected" ||
-      val === "active" ||
-      (typeof val === "string" && val.toLowerCase() === "connected") ||
-      val?.connected === true ||
-      val?.status === "connected" ||
-      val?.status === "active" ||
-      val?.is_active === true;
+    const isConnected = (val === "connected" || val === true);
 
     return {
       id: normKey,
@@ -422,13 +414,13 @@ export default function Integrations() {
                     <button
                       type="button"
                       className={item.connected ? styles.btnManage : styles.btnConnect}
-                      disabled={isFlipkartLoading}
-                      onClick={() => handleAction(item)}
+                      disabled={isFlipkartLoading || item.connected}
+                      onClick={() => { if (!item.connected) handleAction(item)}}
                     >
                       {isFlipkartLoading
                         ? "Connecting..."
                         : item.connected
-                        ? "Manage"
+                        ? "Connected"
                         : "Connect"}
                     </button>
                   </div>

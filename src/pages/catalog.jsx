@@ -132,6 +132,8 @@ export default function Catalog() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
 
+  const [showProductSync, setShowProductSync] = useState();
+
   // Delete modal state
   const [deleteModal, setDeleteModal] = useState({
     isOpen: false,
@@ -569,7 +571,7 @@ export default function Catalog() {
         </div>
 
         {error && <div className={styles.errorState}>{error}</div>}
-            
+
         {/* Table Area */}
         <div className={styles.tableWrapper}>
           {/* Selection Action Bar */}
@@ -581,248 +583,266 @@ export default function Catalog() {
               <div className={styles.selectionActions}>
                 <button className={styles.actionBtn}>Activate</button>
                 <button className={styles.actionBtn}>Pause</button>
-                <button className={styles.actionBtn}>Assign category</button>
                 <button
                   className={`${styles.actionBtn} ${styles.actionBtnDelete}`}
                   onClick={openBulkDeleteModal}
                 >
                   Delete
                 </button>
+                <button className={styles.actionBtn}>Sync</button>
               </div>
             </div>
           )}
 
-          {/* Table Header */}
-          <div
-            className={`${styles.listHeader} ${selectedProducts.length > 0 ? styles.listHeaderWithSelection : ""}`}
-          >
-            <div className={styles.checkboxCell}>
-              <input
-                type="checkbox"
-                className={styles.checkbox}
-                checked={
-                  selectedProducts.length === filteredProducts.length &&
-                  filteredProducts.length > 0
-                }
-                onChange={toggleSelectAll}
-              />
+          <div className={styles.tableContent}>
+            {/* Table Header */}
+            <div
+              className={styles.listHeader}
+            >
+              <div className={styles.checkboxCell}>
+                <input
+                  type="checkbox"
+                  className={styles.checkbox}
+                  checked={
+                    selectedProducts.length === filteredProducts.length &&
+                    filteredProducts.length > 0
+                  }
+                  onChange={toggleSelectAll}
+                />
+              </div>
+              <div>PRODUCT</div>
+              <div>CATEGORY</div>
+              <div>STATUS</div>
+              <div>COMPARED PRICE</div>
+              <div>PRICE</div>
+              <div>PURCHASING COST</div>
+              <div className={styles.headerSortable}>
+                <span>UPDATED AT</span>
+                <svg
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="#9ca3af"
+                  stroke="#9ca3af"
+                  strokeWidth="1"
+                >
+                  <path d="M7 10l5 5 5-5z" />
+                </svg>
+              </div>
+              <div className={styles.headerSortable}>
+                <span>CREATED AT</span>
+                <svg
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="#9ca3af"
+                  stroke="#9ca3af"
+                  strokeWidth="1"
+                >
+                  <path d="M7 10l5 5 5-5z" />
+                </svg>
+              </div>
+              <div style={{ textAlign: "center" }}>ACTIONS</div>
             </div>
-            <div>PRODUCT</div>
-            <div>CATEGORY</div>
-            <div>STATUS</div>
-            <div>COMPARED PRICE</div>
-            <div>PRICE</div>
-            <div>PURCHASING COST</div>
-            <div className={styles.headerSortable}>
-              <span>UPDATED AT</span>
-              <svg
-                width="10"
-                height="10"
-                viewBox="0 0 24 24"
-                fill="#9ca3af"
-                stroke="#9ca3af"
-                strokeWidth="1"
-              >
-                <path d="M7 10l5 5 5-5z" />
-              </svg>
-            </div>
-            <div className={styles.headerSortable}>
-              <span>CREATED AT</span>
-              <svg
-                width="10"
-                height="10"
-                viewBox="0 0 24 24"
-                fill="#9ca3af"
-                stroke="#9ca3af"
-                strokeWidth="1"
-              >
-                <path d="M7 10l5 5 5-5z" />
-              </svg>
-            </div>
-            <div style={{ textAlign: "right" }}>ACTIONS</div>
-          </div>
 
-          {loading ? (
-            <div className={styles.emptyState}>Loading catalogs...</div>
-          ) : products.length === 0 ? (
-            <div className={styles.emptyState}>No products found.</div>
-          ) : (
-            <div className={styles.list}>
-              {currentProducts.map((p, index) => {
-                const isSelected = selectedProducts.includes(p.usku_id);
-                const statusInfo = getStatusDisplay(p.status);
+            {loading ? (
+              <div className={styles.emptyState}>Loading catalogs...</div>
+            ) : products.length === 0 ? (
+              <div className={styles.emptyState}>No products found.</div>
+            ) : (
+              <div className={styles.list}>
+                {currentProducts.map((p, index) => {
+                  const isSelected = selectedProducts.includes(p.usku_id);
+                  const statusInfo = getStatusDisplay(p.status);
 
-                // Color dots matching design mockups:
-                // Kurta 1: blue, pink, amber
-                // Kurta 2: amber, green
-                // Kurta 3: pink
-                // Jacket 1: pink, amber
-                // Jacket 2: blue
-                // Kurta set: blue, pink, amber
-                // Shoes: pink
-                // Loafers: purple
-                const marketplaceColorSets = [
-                  ["#3b82f6", "#ec4899", "#f59e0b"],
-                  ["#f59e0b", "#22c55e"],
-                  ["#ec4899"],
-                  ["#ec4899", "#f59e0b"],
-                  ["#3b82f6"],
-                  ["#3b82f6", "#ec4899", "#f59e0b"],
-                  ["#ec4899"],
-                  ["#a855f7"],
-                ];
-                const marketplaceColors =
-                  marketplaceColorSets[index % marketplaceColorSets.length];
+                  // Color dots matching design mockups:
+                  // Kurta 1: blue, pink, amber
+                  // Kurta 2: amber, green
+                  // Kurta 3: pink
+                  // Jacket 1: pink, amber
+                  // Jacket 2: blue
+                  // Kurta set: blue, pink, amber
+                  // Shoes: pink
+                  // Loafers: purple
+                  const marketplaceColorSets = [
+                    ["#3b82f6", "#ec4899", "#f59e0b"],
+                    ["#f59e0b", "#22c55e"],
+                    ["#ec4899"],
+                    ["#ec4899", "#f59e0b"],
+                    ["#3b82f6"],
+                    ["#3b82f6", "#ec4899", "#f59e0b"],
+                    ["#ec4899"],
+                    ["#a855f7"],
+                  ];
+                  const marketplaceColors =
+                    marketplaceColorSets[index % marketplaceColorSets.length];
 
-                // Color swatches to match mockup items if image not present
-                const mockImageColors = [
-                  "#991b1b", // red casual kurta
-                  "#166534", // forest green kurta
-                  "#93c5fd", // sky blue linen kurta
-                  "#171717", // classic zipper jacket
-                  "#1e3a8a", // slim fit denim jacket
-                  "#e7dec8", // cotton kurta set - beige
-                  "#1e293b", // navy running shoes
-                  "#785338", // suede loafers - tan
-                ];
-                const imgColor =
-                  mockImageColors[index % mockImageColors.length];
+                  // Color swatches to match mockup items if image not present
+                  const mockImageColors = [
+                    "#991b1b", // red casual kurta
+                    "#166534", // forest green kurta
+                    "#93c5fd", // sky blue linen kurta
+                    "#171717", // classic zipper jacket
+                    "#1e3a8a", // slim fit denim jacket
+                    "#e7dec8", // cotton kurta set - beige
+                    "#1e293b", // navy running shoes
+                    "#785338", // suede loafers - tan
+                  ];
+                  const imgColor =
+                    mockImageColors[index % mockImageColors.length];
 
-                return (
-                  <div
-                    className={`${styles.listItem} ${isSelected ? styles.listItemSelected : ""}`}
-                    key={p.usku_id || index}
-                  >
-                    <div className={styles.checkboxCell}>
-                      <input
-                        type="checkbox"
-                        className={styles.checkbox}
-                        checked={isSelected}
-                        onChange={() => toggleSelect(p.usku_id)}
-                      />
-                    </div>
-
-                    <div className={styles.productCell}>
-                      <div className={styles.productImageWrap}>
-                        {p.image_url ? (
-                          <img
-                            className={styles.productImage}
-                            src={p.image_url}
-                            alt={p.product_title || "product"}
-                          />
-                        ) : (
-                          <div
-                            className={styles.colorBox}
-                            style={{ backgroundColor: imgColor }}
-                          ></div>
-                        )}
+                  return (
+                    <div
+                      className={`${styles.listItem} ${isSelected ? styles.listItemSelected : ""}`}
+                      key={p.usku_id || index}
+                    >
+                      <div className={styles.checkboxCell}>
+                        <input
+                          type="checkbox"
+                          className={styles.checkbox}
+                          checked={isSelected}
+                          onChange={() => toggleSelect(p.usku_id)}
+                        />
                       </div>
-                      <div className={styles.productDetails}>
-                        <Link
-                          to={`/catalog/product?usku-id=${p.usku_id}${p.type_id ? `&type=${encodeURIComponent(p.type_id)}` : ""}${p.vertical ? `&vertical=${encodeURIComponent(p.vertical)}` : ""}`}
-                          className={styles.productSku}
-                          style={{
-                            textDecoration: "none",
-                            fontWeight: "bolder",
-                          }}
+
+                      <div className={styles.productCell}>
+                        <div className={styles.productImageWrap}>
+                          {p.image_url ? (
+                            <img
+                              className={styles.productImage}
+                              src={p.image_url}
+                              alt={p.product_title || "product"}
+                            />
+                          ) : (
+                            <div
+                              className={styles.colorBox}
+                              style={{ backgroundColor: imgColor }}
+                            ></div>
+                          )}
+                        </div>
+                        <div className={styles.productDetails}>
+                          <Link
+                            to={`/catalog/product?usku-id=${p.usku_id}${p.type_id ? `&type=${encodeURIComponent(p.type_id)}` : ""}${p.vertical ? `&vertical=${encodeURIComponent(p.vertical)}` : ""}`}
+                            className={styles.productSku}
+                            style={{
+                              textDecoration: "none",
+                              fontWeight: "bolder",
+                            }}
+                          >
+                            <span className={styles.productTitle}>
+                              {p.product_title || "Untitled Product"}
+                            </span><br></br>
+                            {p.sku_id || p.usku_id}
+                          </Link>
+                        </div>
+                      </div>
+
+                      <div className={styles.cellText}>
+                        <span
+                          className={styles.categoryTag}
+                          title={
+                            p.type_name ||
+                            snakeToPlainText(p.product_type) ||
+                            "Kurta"
+                          }
                         >
-                          <span className={styles.productTitle}>
-                            {p.product_title || "Untitled Product"}
-                          </span><br></br>
-                          {p.sku_id || p.usku_id}
+                          {p.type_name ||
+                            snakeToPlainText(p.product_type) ||
+                            "Kurta"}
+                        </span>
+                      </div>
+
+                      <div>
+                        <span
+                          className={`${styles.statusBadge} ${statusInfo.className}`}
+                        >
+                          <span className={styles.statusDot}></span>
+                          {statusInfo.text}
+                        </span>
+                      </div>
+
+                      <div className={styles.cellText}>
+                        ₹
+                        {p.compared_price
+                          ? parseInt(p.compared_price).toLocaleString("en-IN")
+                          : "-"}
+                      </div>
+
+                      <div className={styles.cellText}>
+                        ₹
+                        {p.price
+                          ? parseInt(p.price).toLocaleString("en-IN")
+                          : "1,299"}
+                      </div>
+
+                      <div className={styles.cellText}>
+                        ₹
+                        {p.purchasing_cost
+                          ? parseInt(p.purchasing_cost).toLocaleString("en-IN")
+                          : "1,299"}
+                      </div>
+
+                      <div className={styles.cellText}>
+                        {p.updated_at
+                          ? new Date(p.updated_at).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })
+                          : getMockDate(index)}
+                      </div>
+
+                      <div className={styles.cellText}>
+                        {p.created_at
+                          ? new Date(p.created_at).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })
+                          : getMockDate(index)}
+                      </div>
+
+                      <div className={styles.actionsCell}>
+                        <Link
+                          to={`/catalog/product?usku-id=${p.usku_id}${p.type_id ? `&type=${encodeURIComponent(p.type_id)}` : ""}${p.vertical ? `&vertical=${encodeURIComponent(p.vertical)}` : ""}&edit=true`}
+                          className={styles.iconBtn}
+                          title="Edit"
+                        >
+                          <EditIcon />
                         </Link>
+                        <button
+                          className={styles.iconBtn}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            openSingleDeleteModal(p);
+                          }}
+                          title="Delete"
+                        >
+                          <TrashIcon />
+                        </button>
+
+                        <button 
+                          className={`${styles.syncProduct} ${styles.iconBtn}`} 
+                          style={{anchorName: `--${p.usku_id}`}}
+                          onClick={()=> setShowProductSync((prev) => (prev == null || prev != p.usku_id? p.usku_id: null))}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg"
+                            viewBox="1 1 18 18" height="18px" width="18px"
+                            strokeWidth={2}
+                          // fill="var(--accent-color-950)"
+                          >
+                            <path d="M6.73,17.02q-1.54,0-2.63-1.09T3.02,13.29q0-0.73 0.28-1.42t0.8-1.21L6.85,7.92L7.92,8.98L5.17,11.73q-0.31,0.31-0.49,0.72T4.5,13.29q0,0.94 0.65,1.57T6.73,15.5q0.44,0 0.83-0.17t0.71-0.48l2.77-2.75l1.06,1.06L9.33,15.92q-0.52,0.54-1.2,0.82T6.73,17.02ZM8.56,12.5L7.5,11.44L11.44,7.5L12.5,8.56L8.56,12.5Zm4.58-0.42l-1.06-1.06l2.77-2.75q0.31-0.29 0.47-0.7t0.16-0.82q0-0.94-0.64-1.58T13.27,4.52q-0.44,0-0.83,0.16T11.73,5.15L8.98,7.92L7.92,6.85l2.75-2.77q0.52-0.54 1.21-0.81T13.29,3q1.54,0 2.61,1.08t1.07,2.65q0,0.73-0.27,1.41t-0.79,1.2l-2.77,2.75Z" />
+                          </svg>
+                        </button>
+
+                        {showProductSync == p.usku_id && <ProductSync positionAnchor={`--${p.usku_id}`}/>}
                       </div>
                     </div>
-
-                    <div className={styles.cellText}>
-                      <span
-                        className={styles.categoryTag}
-                        title={
-                          p.type_name ||
-                          snakeToPlainText(p.product_type) ||
-                          "Kurta"
-                        }
-                      >
-                        {p.type_name ||
-                          snakeToPlainText(p.product_type) ||
-                          "Kurta"}
-                      </span>
-                    </div>
-
-                    <div>
-                      <span
-                        className={`${styles.statusBadge} ${statusInfo.className}`}
-                      >
-                        <span className={styles.statusDot}></span>
-                        {statusInfo.text}
-                      </span>
-                    </div>
-
-                    <div className={styles.cellText}>
-                      ₹
-                      {p.compared_price
-                        ? parseInt(p.compared_price).toLocaleString("en-IN")
-                        : "-"}
-                    </div>
-
-                    <div className={styles.cellText}>
-                      ₹
-                      {p.price
-                        ? parseInt(p.price).toLocaleString("en-IN")
-                        : "1,299"}
-                    </div>
-
-                    <div className={styles.cellText}>
-                      ₹
-                      {p.purchasing_cost
-                        ? parseInt(p.purchasing_cost).toLocaleString("en-IN")
-                        : "1,299"}
-                    </div>
-
-                    <div className={styles.cellText}>
-                      {p.updated_at
-                        ? new Date(p.updated_at).toLocaleDateString("en-GB", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          })
-                        : getMockDate(index)}
-                    </div>
-
-                    <div className={styles.cellText}>
-                      {p.created_at
-                        ? new Date(p.created_at).toLocaleDateString("en-GB", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          })
-                        : getMockDate(index)}
-                    </div>
-
-                    <div className={styles.actionsCell}>
-                      <Link
-                        to={`/catalog/product?usku-id=${p.usku_id}${p.type_id ? `&type=${encodeURIComponent(p.type_id)}` : ""}${p.vertical ? `&vertical=${encodeURIComponent(p.vertical)}` : ""}&edit=true`}
-                        className={styles.iconBtn}
-                        title="Edit"
-                      >
-                        <EditIcon />
-                      </Link>
-                      <button
-                        className={styles.iconBtn}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          openSingleDeleteModal(p);
-                        }}
-                        title="Delete"
-                      >
-                        <TrashIcon />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Footer / Pagination */}
@@ -920,3 +940,32 @@ export default function Catalog() {
   );
 }
 
+
+function ProductSync({positionAnchor}) {
+  const platforms = [
+    {label: "Shopify", platform: 'shopify'},
+    {label: "Flipkart", platform: 'flipkart'},
+    {label: "Amazon", platform: 'amazon'}
+  ]
+
+
+  return (
+    <div className={styles.productSyncBox} style={{positionAnchor: positionAnchor}}>
+      <h4>Sync product</h4>
+
+      {
+        platforms.map((platform) => {
+          return (
+            <div class={styles.platform}>
+              <img src="" alt="" />
+              <p>{platform.label}</p>
+              <div className={styles.switchBox}>
+                <div className={styles.switch}></div>
+              </div>
+            </div>
+          )
+        })
+      }
+    </div>
+  )
+}

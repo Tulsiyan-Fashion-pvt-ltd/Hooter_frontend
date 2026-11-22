@@ -81,8 +81,8 @@ const Sidebar = () => {
         path: "/inventory/stocks",
         },
         {
-          label: "Consignment",
-          path: "/inventory/consignment"
+          label: "Consignments",
+          path: "/inventory/consignments"
         }
       ]
     },

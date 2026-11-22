@@ -23,6 +23,7 @@ import EditInventory from "./pages/edit-catalog";
 import ProductDetails from "./pages/product-details";
 import Integrations from "./pages/integrations";
 import StockInventory from "./pages/stockInventory";
+import ConsignmentsInventory from "./pages/consignmentsInventory";
 
 
 
@@ -68,7 +69,7 @@ function App() {
           {/* Redirect /inventory to default tab /inventory/stock */}
           <Route path="/inventory" element={<Navigate to="/inventory/stock" replace />} />
           <Route path="/inventory/stocks" element={<StockInventory/>} />
-          <Route path="/inventory/inward" element={<Inventory tab={"inward"} />} />
+          <Route path="/inventory/consignments" element={<ConsignmentsInventory />} />
           <Route path="/inventory/grn" element={<Inventory tab={"grn"} />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/orders/active-orders" element={<Orders />} />

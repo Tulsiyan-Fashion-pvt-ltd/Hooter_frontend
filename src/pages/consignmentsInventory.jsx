@@ -1,30 +1,8 @@
-/**
- * InwardInventory Component
- * ─────────────────────────────────────────────────────────────────────────────
- * Renders the full "Inward" tab inside the Inventory page.
- *
- * Layout (mirrors the /stocks design from stockInventory.jsx):
- *  1. Subtitle bar      – total records + supplier/warehouse summary
- *  2. Filter Toolbar    – status pills (All / Completed / Pending / Partial /
- *                         Draft), Supplier & Warehouse dropdowns, date-range
- *                         filter, Search input, Export button, Create inward
- *  3. Selection Banner  – contextual bulk-action links when rows are checked
- *  4. Data Table        – checkbox, Inward ID (opens detail modal), Status
- *                         badge, Supplier avatar+name, SKUs, Quantity,
- *                         Warehouse, Created date, Last updated by, Actions
- *  5. Pagination        – rows-per-page selector + page number controls
- *  6. InwardDetailModal – popup showing per-SKU breakdown, opened by clicking
- *                         the Inward ID link in any row
- *
- * Mock data is used as a fallback when the API returns empty or fails.
- * The Create Inward popup is wired to the "+ Create inward" button.
- */
-
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate }                  from "react-router-dom";
 
 import styles            from "../css/pages/inventory.Inventory.module.css";
-import CreateInwardPopup from "./createInwardPopup";
+import CreateInwardPopup from "../components/createInwardPopup";
 
 /* ─── Base API URL ───────────────────────────────────────────────────────── */
 const BASE_URL = import.meta.env.VITE_BASEAPI;
@@ -576,7 +554,7 @@ function InwardDetailModal({ row, onClose }) {
    MAIN COMPONENT
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export default function InwardInventory() {
+export default function ConsignmentsInventory() {
 
   /* ── State ──────────────────────────────────────────────────────────────── */
 

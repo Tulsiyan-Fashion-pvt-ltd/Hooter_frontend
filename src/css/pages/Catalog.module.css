@@ -442,11 +442,15 @@
 
 /* Table Card Wrapper */
 :root {
-  --table-grid: 44px minmax(240px, 2fr) minmax(150px, 1fr) minmax(120px, 1fr) minmax(130px, 1fr) minmax(110px, 0.9fr) minmax(140px, 1fr) minmax(125px, 0.9fr) minmax(125px, 0.9fr) 85px;
+  --table-grid: 44px minmax(240px, 2fr) minmax(120px, 1fr) minmax(120px, 1fr) minmax(130px, 1fr) minmax(110px, 0.9fr) minmax(140px, 1fr) minmax(125px, 0.9fr) minmax(125px, 0.9fr) 100px;
 }
 
 .table{
   width: 100%;
+}
+
+.tableContent{
+  overflow-x: auto;
 }
 
 .tableWrapper {
@@ -470,18 +474,17 @@
   font-weight: 600;
   color: #64748b;
   letter-spacing: 0.04em;
-  min-width: 1179px;
+  min-width: fit-content;
   width: 100%;
   box-sizing: border-box;
   position: sticky;
   top: 0;
   z-index: 2;
-  gap: 10px;
 }
 
-.listHeaderWithSelection {
+/* .listHeaderWithSelection {
   border-bottom: 2px dashed #3b82f6;
-}
+} */
 
 .headerSortable {
   display: flex;
@@ -502,7 +505,7 @@
   border-bottom: 1px solid #f1f5f9;
   transition: background-color 0.1s ease;
   font-size: 14px;
-  min-width: 1179px;
+  min-width: fit-content;
   width: 100%;
   box-sizing: border-box;
 }
@@ -731,18 +734,27 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  color: #94a3b8;
+  color: var(--accent-color-950);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 3px;
   border-radius: 4px;
   transition: color 0.15s ease;
+  fill: var(--accent-color-950);
 }
 
 .iconBtn:hover {
   color: #475569;
+  fill: #475569;
 }
+
+.syncProduct{
+  background-color: transparent;
+  border: none;
+  display: flex;
+}
+
 
 /* Footer / Pagination */
 .footer {
@@ -878,4 +890,21 @@
   border-radius: 6px;
   margin-bottom: 16px;
   border: 1px solid #fca5a5;
+}
+
+
+
+/* PRODUCT SYNC COMPONENT */
+.productSyncBox {
+  position: absolute;
+  background: var(--main-color);
+  padding: 1rem;
+  box-shadow: var(--container-shadow);
+  border: var(--container-border);
+  border-radius: 13px;
+  right: anchor(left);
+  top: anchor(top);
+  z-index: 100;
+  /* transition: transform 0.2s ease; */
+  animation: pop 0.14s ease-out;
 }
