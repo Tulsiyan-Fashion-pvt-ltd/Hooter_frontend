@@ -135,7 +135,7 @@ export default function Catalog() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
 
-  const [showProductSync, setShowProductSync] = useState();
+  const [showProductSync, setShowProductSync] = useState(null);
 
   // Delete modal state
   const [deleteModal, setDeleteModal] = useState({
@@ -584,16 +584,24 @@ export default function Catalog() {
                 {selectedProducts.length} products selected
               </div>
               <div className={styles.selectionActions}>
-                <button className={styles.actionBtn}>Activate</button>
-                <button className={styles.actionBtn}>Pause</button>
+                {/* <button className={styles.actionBtn}>Activate</button>
+                <button className={styles.actionBtn}>Pause</button> */}
                 <button
                   className={`${styles.actionBtn} ${styles.actionBtnDelete}`}
                   onClick={openBulkDeleteModal}
                 >
                   Delete
                 </button>
-                <button className={styles.actionBtn}>Sync</button>
-              </div>
+                <button id='syncProducts' 
+                  className={styles.actionBtn} 
+                  onClick={() => setShowProductSync((prev) => (prev == null || prev != 'syncProducts'? 'syncProducts': null))}
+                  style={{anchorName: '--syncProducts'}}
+                >
+                  Sync
+                </button>
+
+                {showProductSync == 'syncProducts' && <ProductSync positionAnchor='--syncProducts'/>}
+              </div> 
             </div>
           )}
 

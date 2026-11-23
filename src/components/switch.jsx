@@ -13,7 +13,7 @@ export function Switch(){
     }
 
     const nob = {
-        animation: `${value === true? styles['slider-right']: styles['slider-left']} .3s ease-out forwards`
+        animation: `${value === true? styles['slider-right']: styles['slider-left']} .2s ease-out forwards`
     }
 
 
