@@ -43,25 +43,11 @@ const Sidebar = () => {
     closeTimer.current = setTimeout(() => setHoveredItem(null), 150);
   };
 
-  // useEffect(() => {
-  //   if (!openMenu) return; // don't bother attaching a listener if nothing's open
-
-  //   const handleClickOutside = (e) => {
-  //     if (sidebarRef.current && !sidebarRef.current.contains(e.target)) {
-  //       setOpenMenu(null);
-  //     }
-  //   };
-
-  //   document.addEventListener("mousedown", handleClickOutside, true);
-  //   return () =>
-  //     document.removeEventListener("mousedown", handleClickOutside, true);
-  // }, [openMenu]);
 
   useEffect(() => {
     localStorage.setItem("sidebarCollapsed", collapsed);
   }, [collapsed]);
 
-  console.log(indicator)
 
   const items = [
     {
@@ -148,7 +134,6 @@ const Sidebar = () => {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = 'image/*';
-    console.log(fileInput)
     fileInput.click();
 
     fileInput.onchange = async (event) => {
@@ -331,7 +316,6 @@ const Sidebar = () => {
                     className={styles.subMenu}
                   >
                     {item.children.map((child, index) => {
-                      console.log('children', child)
                       return (
                         <NavLink
                           key={index}

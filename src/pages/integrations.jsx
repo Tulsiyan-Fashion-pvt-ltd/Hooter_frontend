@@ -414,8 +414,9 @@ export default function Integrations() {
                     <button
                       type="button"
                       className={item.connected ? styles.btnManage : styles.btnConnect}
-                      disabled={isFlipkartLoading || item.connected}
+                      disabled={isFlipkartLoading || item.connected || item.id === 'shopify'}
                       onClick={() => { if (!item.connected) handleAction(item)}}
+                      style={item.id == 'shopify'? {opacity: '60%'}: {}}
                     >
                       {isFlipkartLoading
                         ? "Connecting..."

@@ -600,7 +600,7 @@ export default function Catalog() {
                   Sync
                 </button>
 
-                {showProductSync == 'syncProducts' && <ProductSync positionAnchor='--syncProducts'/>}
+                {showProductSync == 'syncProducts' && <SyncBulkProducts positionAnchor='--syncProducts'/>}
               </div> 
             </div>
           )}
@@ -963,6 +963,42 @@ function ProductSync({positionAnchor}) {
   return (
     <div className={styles.productSyncBox} style={{positionAnchor: positionAnchor}}>
       <h4>Sync product</h4>
+
+      <div className={styles.platformsContainer}>
+        {
+          platforms.map((platform) => {
+            return (
+              <div class={styles.platform}>
+                <div className={styles.leftSection}>
+                  <img src={platform.icon} alt={platform.platform} />
+                  <p>{platform.label}</p>
+                </div>
+
+                <div className={styles.rightSection}>
+                  <Switch/>
+                </div>
+              </div>
+            )
+          })
+        }
+      </div>
+    </div>
+  )
+}
+
+
+
+function SyncBulkProducts({positionAnchor}) {
+  const platforms = [
+    {label: "Shopify", platform: 'shopify', icon: ShopifyIcon},
+    {label: "Flipkart", platform: 'flipkart', icon: FlipkartIcon},
+    {label: "Amazon", platform: 'amazon', icon: AmazonIcon}
+  ]
+
+
+  return (
+    <div className={styles.productSyncBox} style={{positionAnchor: positionAnchor}}>
+      <h4>Sync products</h4>
 
       <div className={styles.platformsContainer}>
         {

@@ -1,4 +1,4 @@
-import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
+import { useSearchParams, useNavigate, useLocation, UNSAFE_ErrorResponseImpl } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useRef, useContext } from "react";
 import { SpinnerContext, toastContext } from "../appContext";
@@ -11,7 +11,7 @@ const url = import.meta.env.VITE_BASEAPI;
  * OAuth handling for Shopify, Flipkart, and other platforms
  */
 export default function OAuthComponent() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -26,6 +26,8 @@ export default function OAuthComponent() {
   const processedCodeRef = useRef("");
   const isExecutingRef = useRef(false);
 
+
+
   // Ensure CSRF token is available
   useEffect(() => {
     if (!csrf) {
@@ -33,16 +35,31 @@ export default function OAuthComponent() {
     }
   }, [csrf, dispatch]);
 
+
+
   // Running the OAuth callback handlers
   useEffect(() => {
     // 1. Shopify OAuth Callback
-    if (params["request-platform"] === "shopify" && params["request-type"] === "oauth") {
-      if (!params.shop || !params.hmac) {
+    if (params["request-platform"] === "shopify") {
+
+      if (params["request-type"] === "oauth") {
+        if (!params.shop || !params.hmac) {
+          showToast('Shopify oauth failed', 'red');
+        }
+        sendShopifyRedirect();
         return;
       }
-      sendShopifyRedirect();
-      return;
+
+      if (params['request-type'] === 'oauth-callback'){
+        if (!params.shop || !params.code){
+          showToast('Invalid shopify OAuth params', 'red');
+          return;
+        }
+
+        shopifyAuthCallback();
+      }
     }
+
 
     // 2. Flipkart OAuth Error
     if (params.error && (params.state || location.pathname.includes("flipkart"))) {
@@ -56,6 +73,7 @@ export default function OAuthComponent() {
       navigate("/integrations", { replace: true });
       return;
     }
+
 
     // 3. Flipkart OAuth Callback (code + state)
     if (params.code && params.state && !params.shop) {
@@ -71,6 +89,11 @@ export default function OAuthComponent() {
       sendFlipkartCallback(params.code, params.state);
     }
   }, [searchParams, csrf]);
+
+
+
+
+
 
   async function sendFlipkartCallback(code, state) {
     if (typeof setShowSpinner === "function") {
@@ -112,6 +135,10 @@ export default function OAuthComponent() {
     }
   }
 
+
+
+
+
   async function sendShopifyRedirect() {
     try {
       const response = await fetch(`${url}/platforms/shopify/auth/install-store`, {
@@ -137,6 +164,34 @@ export default function OAuthComponent() {
     } catch (error) {
       console.error("Shopify OAuth request failed:", error);
       navigate("/", { replace: true });
+    }
+  }
+
+
+  async function shopifyAuthCallback(){
+    try{
+      const response = await fetch(`${url}/platforms/shopify/auth/callback?${searchParams.toString()}`,{
+        headers: {
+          "X-CSRF-Token": csrf
+        },
+        credentials: 'include'
+      })
+
+      const data = await response.json()
+
+      if (response.status > 400){
+        showToast(data.message ?? "Shopify Connection failed", 'red');
+        setSearchParams({});
+        return;
+      }
+
+      showToast(data.message ?? "Shopify store Connected", 'green')
+    }catch (e){
+      console.error(e)
+      showToast('Shopify Authenticaton failed', 'red')
+    }
+    finally{
+      setSearchParams({});
     }
   }
 
