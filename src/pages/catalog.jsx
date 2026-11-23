@@ -8,7 +8,10 @@ import {
   getProductCounts,
 } from "../services/catalogService";
 import DeleteConfirmModal from "../components/DeleteConfirmModal";
-
+import AmazonIcon from '../assets/icons/brands/amazon.jpg';
+import FlipkartIcon from '../assets/icons/brands/flipkart.jpg';
+import ShopifyIcon from '../assets/icons/brands/shopify.jpg';
+import { Switch } from "../components/switch";
 
 
 // SVG Icons
@@ -943,9 +946,9 @@ export default function Catalog() {
 
 function ProductSync({positionAnchor}) {
   const platforms = [
-    {label: "Shopify", platform: 'shopify'},
-    {label: "Flipkart", platform: 'flipkart'},
-    {label: "Amazon", platform: 'amazon'}
+    {label: "Shopify", platform: 'shopify', icon: ShopifyIcon},
+    {label: "Flipkart", platform: 'flipkart', icon: FlipkartIcon},
+    {label: "Amazon", platform: 'amazon', icon: AmazonIcon}
   ]
 
 
@@ -953,19 +956,24 @@ function ProductSync({positionAnchor}) {
     <div className={styles.productSyncBox} style={{positionAnchor: positionAnchor}}>
       <h4>Sync product</h4>
 
-      {
-        platforms.map((platform) => {
-          return (
-            <div class={styles.platform}>
-              <img src="" alt="" />
-              <p>{platform.label}</p>
-              <div className={styles.switchBox}>
-                <div className={styles.switch}></div>
+      <div className={styles.platformsContainer}>
+        {
+          platforms.map((platform) => {
+            return (
+              <div class={styles.platform}>
+                <div className={styles.leftSection}>
+                  <img src={platform.icon} alt={platform.platform} />
+                  <p>{platform.label}</p>
+                </div>
+
+                <div className={styles.rightSection}>
+                  <Switch/>
+                </div>
               </div>
-            </div>
-          )
-        })
-      }
+            )
+          })
+        }
+      </div>
     </div>
   )
 }

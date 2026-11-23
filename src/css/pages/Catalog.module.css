@@ -908,3 +908,43 @@
   /* transition: transform 0.2s ease; */
   animation: pop 0.14s ease-out;
 }
+
+.platformsContainer{
+  display: flex;
+  flex-flow: column nowrap;
+  margin-top: 20px;
+  font-size: 16px;
+  gap: 8px;
+}
+
+.productSyncBox .platform{
+  display: flex;
+    gap: 26px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.leftSection{
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.switchBox{
+  height: 18px;
+  width: 36px;
+  border: var(--container-border);
+  background-color: var(--main-color);
+  border-radius: 100px;
+  box-sizing: content-box;
+  padding: 2px;
+}
+
+.switch{
+  width: 18px;
+  height: 18px;
+  border-radius: 100%;
+  border: var(--container-border);
+  box-shadow: var(--container-shadow);
+  cursor: pointer;
+}
