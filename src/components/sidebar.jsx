@@ -27,23 +27,10 @@ const Sidebar = () => {
   // setting up the indicator as per the current location
   const path = useLocation();
   const navigate = useNavigate();
-  const [indicator, setIndicator] = useState(`/${path.pathname.split("/")[1]}`); // indicator stores the values of the items' keys.
-  //  and we can match currently on which item in the sidebar menu we are in
-  // const [flyoutPos, setFlyoutPos] = useState({ top: 0, left: 0 });
+  const [indicator, setIndicator] = useState(`${path.pathname}`); // indicator stores the values of the items' keys.
 
 
-  // const openFlyout = (item, e) => {
-  //   if (closeTimer.current) clearTimeout(closeTimer.current);
-  //   const rect = e.currentTarget.getBoundingClientRect();
-  //   setFlyoutPos({ top: rect.top, left: rect.right + 12 });
-  //   setHoveredItem(item);
-  // };
 
-  // const scheduleCloseFlyout = () => {
-  //   closeTimer.current = setTimeout(() => setHoveredItem(null), 150);
-  // };
-
-  console.log(hoveredItem, collapsed)
   useEffect(() => {
     localStorage.setItem("sidebarCollapsed", collapsed);
   }, [collapsed]);
@@ -107,6 +94,20 @@ const Sidebar = () => {
       path: "/integrations"
     },
   ]
+
+
+  // Open the submenu if the submenu path is opened
+  useEffect(()=> {
+    setOpenMenu(() => {
+      for (const item of items){
+        if (item.children){
+          for (const child of item.children){
+            if (child.path == path.pathname) return item.label;
+          }
+        }
+      }
+    })
+  }, [path])
 
 
 
@@ -183,7 +184,7 @@ const Sidebar = () => {
         className={styles.collapseToggle}
         onClick={() => {
           setCollapsed((prev) => !prev);
-          setOpenMenu(null);
+          // setOpenMenu(null);
         }}
       ></button>
 
@@ -255,10 +256,10 @@ const Sidebar = () => {
             // if has children
             return (
               <div
-                // key={index}/
-                className={styles.parentWrapper}
-                onMouseEnter={(e) => collapsed && setHoveredItem(item.label)}
-                onMouseLeave={() => collapsed && setHoveredItem()}
+                key={index}
+                className={`${styles.parentWrapper} ${(openMenu === item.label || hoveredItem == item.label) ? styles.parentWrapperOpen: styles.parentWrapperClose}`}
+                onMouseEnter={(e) => setHoveredItem(item.label)}
+                onMouseLeave={() => setHoveredItem()}
                 style={{anchorName: `--${item.label}`}}
               >
                 <NavLink
@@ -312,7 +313,7 @@ const Sidebar = () => {
                 </NavLink>
 
                 {/* Inline submenu — expanded sidebar */}
-                {!collapsed && openMenu === item.label && (
+                {!collapsed && (
                   <div
                     className={styles.subMenu}
                   >
