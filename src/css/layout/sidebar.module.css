@@ -7,7 +7,7 @@
 {
   height: 100%;
   background-color: var(--accent-color-1000);
-  width: 240px;
+  min-width: 200px;
   border-radius: 0px 8px 8px 0px;
   /* transition: width 0.3s ease-in; */
   align-items: start;
@@ -50,7 +50,7 @@ position: absolute;
 
 .collapsed
 {
-  width: 76px;
+  min-width: 76px;
 }
 .collapsed .collapseToggle
 {
@@ -160,17 +160,21 @@ h2
   overflow-y: auto;
   scrollbar-width: none;       /* Firefox */
   -ms-overflow-style: none;    /* old Edge/IE */
+  gap: 5px;
 }
+
 .navigation::-webkit-scrollbar {
   display: none;               /* Chrome, Safari, newer Edge */
 }
+
+
 .navigation a span,
 .navigation .sidebarItem span
 {
   font-family: 'inter';
 font-weight: 400;
 font-style: Regular;
-font-size: 16px;
+font-size: 14px;
 /* line-height: 100%; */
 letter-spacing: 0%;
 }
@@ -179,7 +183,7 @@ letter-spacing: 0%;
 
 .navigation .sidebarItem, .subMenuItem
 {
-  line-height:2.5rem;
+  /* line-height:2.5rem; */
   height: fit-content;
   background-repeat: no-repeat;
   background-size: contain;
@@ -200,17 +204,17 @@ letter-spacing: 0%;
   padding-left: calc(var(--layout-side-padding) - 5px);
   width: 100%;
   gap: 10px;
-  height: 50px;
+  height: 40px;
 }
 
 
 .parentWrapper{
-  transition: max-height .5s cubic-bezier(0, 0.97, 0, 0.97);
+  transition: max-height 0.8s ease;
   overflow: hidden;
 }
 
 .parentWrapperClose{
-  max-height: 50px;
+  max-height: 40px;
 }
 
 .parentWrapperOpen{
@@ -222,7 +226,7 @@ letter-spacing: 0%;
   display: flex;
   flex-flow: column nowrap;
   font-size: 14px;
-  margin: 8px 0px;
+  margin-bottom: 8px;
 }
 
 
@@ -233,11 +237,27 @@ letter-spacing: 0%;
   padding-left: 57px;
   transition: opacity 0.2s ease, color 0.2s ease;
   cursor: pointer;
+  height: 35px;
+  animation: slide 2s ease-out;
+  animation-timeline: view();
+  animation-range: entry 0;
 }
 
 .subMenuItemActive{
-  background-color: var(--accent-color-100);
+  background-color: var(--accent-color-950);
   color: white;
+}
+
+
+@keyframes slide {
+  from{
+    padding-left: 0px;
+    /* opacity: 0%; */
+  }
+  to{
+    padding-left: 57px;
+    /* opacity: 1; */
+  }
 }
 
 
@@ -365,7 +385,7 @@ letter-spacing: 0%;
 .activeIndicator
 {
   background-color: white;
-  height: 50px;
+  height: 40px;
   opacity: 1;
 }
 
