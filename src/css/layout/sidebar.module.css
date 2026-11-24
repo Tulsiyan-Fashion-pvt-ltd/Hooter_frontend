@@ -175,8 +175,8 @@ letter-spacing: 0%;
 }
 
 
-.navigation a,
-.navigation .sidebarItem
+
+.navigation .sidebarItem, .subMenuItem
 {
   line-height:3rem;
   height: fit-content;
@@ -227,16 +227,44 @@ letter-spacing: 0%;
 .flyoutMenu {
   position: absolute;
   left: 100%;
-  top: 0;
+  top: anchor(top);
   margin-left: 12px;
-  background-color: var(--second-color);
+  background-color: var(--accent-color-1000);
   border-radius: 8px;
-  padding: 16px 20px;
+  padding: 9px 8px;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.3);
   white-space: nowrap;
   z-index: 10;
   display: flex;
   flex-flow: column nowrap;
+  anchor-name: --flyout-menu;
+  isolation: isolate;
+}
+
+
+.flyoutMenu::before {
+    content: '';
+    position: absolute;
+    width: 4rem;
+    height: 4rem;
+    left: -17px;
+    top: 0px;
+    /* transform: rotate(45deg); */
+    background-color: transparent;
+    z-index: -1;
+}
+
+
+.flyoutMenu::after {
+  content: '';
+  position: absolute;
+  width: 1rem;
+  height: 1rem;
+  left: -8px;
+  top: 17px;
+  transform: rotate(45deg);
+  background-color: var(--accent-color-1000);
+  z-index: -1;
 }
 
 .flyoutTitle {
@@ -244,6 +272,17 @@ letter-spacing: 0%;
   opacity: 0.5;
   font-size: 14px;
   margin-bottom: 10px;
+}
+
+.hoveredItems{
+      font-size: 14px;
+  line-height: 1rem;
+    padding: 8px;
+  opacity: 0.6;
+}
+
+.hoveredItems:hover{
+  background-color: var(--accent-color-950);
 }
 
 .indicator

@@ -22,28 +22,28 @@ const Sidebar = () => {
   const [openMenu, setOpenMenu] = useState(null);
   const sidebarRef = useRef(null);
   const [hoveredItem, setHoveredItem] = useState(null);
-  const closeTimer = useRef(null);
+  // const closeTimer = useRef(null);
 
   // setting up the indicator as per the current location
   const path = useLocation();
   const navigate = useNavigate();
   const [indicator, setIndicator] = useState(`/${path.pathname.split("/")[1]}`); // indicator stores the values of the items' keys.
   //  and we can match currently on which item in the sidebar menu we are in
-  const [flyoutPos, setFlyoutPos] = useState({ top: 0, left: 0 });
+  // const [flyoutPos, setFlyoutPos] = useState({ top: 0, left: 0 });
 
 
-  const openFlyout = (item, e) => {
-    if (closeTimer.current) clearTimeout(closeTimer.current);
-    const rect = e.currentTarget.getBoundingClientRect();
-    setFlyoutPos({ top: rect.top, left: rect.right + 12 });
-    setHoveredItem(item);
-  };
+  // const openFlyout = (item, e) => {
+  //   if (closeTimer.current) clearTimeout(closeTimer.current);
+  //   const rect = e.currentTarget.getBoundingClientRect();
+  //   setFlyoutPos({ top: rect.top, left: rect.right + 12 });
+  //   setHoveredItem(item);
+  // };
 
-  const scheduleCloseFlyout = () => {
-    closeTimer.current = setTimeout(() => setHoveredItem(null), 150);
-  };
+  // const scheduleCloseFlyout = () => {
+  //   closeTimer.current = setTimeout(() => setHoveredItem(null), 150);
+  // };
 
-
+  console.log(hoveredItem, collapsed)
   useEffect(() => {
     localStorage.setItem("sidebarCollapsed", collapsed);
   }, [collapsed]);
@@ -257,8 +257,9 @@ const Sidebar = () => {
               <div
                 // key={index}/
                 className={styles.parentWrapper}
-                onMouseEnter={(e) => collapsed && openFlyout(item, e)}
-                onMouseLeave={() => collapsed && scheduleCloseFlyout()}
+                onMouseEnter={(e) => collapsed && setHoveredItem(item.label)}
+                onMouseLeave={() => collapsed && setHoveredItem()}
+                style={{anchorName: `--${item.label}`}}
               >
                 <NavLink
                   className={styles.sidebarItem}
@@ -338,49 +339,46 @@ const Sidebar = () => {
                 )}
 
                 {/* Flyout submenu — collapsed sidebar, on hover */}
-                {collapsed &&
-                  hoveredItem === item &&
-                  createPortal(
-                    <div
-                      className={styles.flyoutMenu}
-                      style={{ top: flyoutPos.top, left: flyoutPos.left }}
-                      onMouseEnter={() =>
-                        closeTimer.current && clearTimeout(closeTimer.current)
-                      }
-                      onMouseLeave={scheduleCloseFlyout}
-                    >
-                      <div className={styles.flyoutTitle}>{item}</div>
-                      {item.children.map((child, index) => {
-                        // const child = items.children[childKey];
-                        return (
-                          <NavLink
-                            key={index}
-                            to={child.path}
+                {
+                  collapsed &&
+                  (hoveredItem == item.label) &&
+                  <div
+                    className={styles.flyoutMenu}
+                    style={{ positionAnchor: `--${hoveredItem}` }}
+                    onMouseEnter={(e) =>
+                      e.preventDefault()
+                    }
+                  // onMouseLeave={scheduleCloseFlyout}
+                  >
+                    {item.children.map((child, index) => {
+                      return (
+                        <NavLink
+                          key={index}
+                          to={child.path}
+                          className={clsx(
+                            styles.hoveredItems,
+                            styles.noUnderline,
+                            indicator === child.path ? styles.activeText : "",
+                          )}
+                          onClick={() => {
+                            setIndicator(child.path);
+                            // setHoveredItem(null);
+                          }}
+                        >
+                          <span
                             className={clsx(
-                              styles.subMenuItem,
-                              styles.noUnderline,
-                              indicator === child.path ? styles.activeText : "",
+                              styles.subIndicator,
+                              indicator === child.path
+                                ? styles.subIndicatorActive
+                                : "",
                             )}
-                            onClick={() => {
-                              setIndicator(child.path);
-                              setHoveredItem(null);
-                            }}
-                          >
-                            <span
-                              className={clsx(
-                                styles.subIndicator,
-                                indicator === child.path
-                                  ? styles.subIndicatorActive
-                                  : "",
-                              )}
-                            />
-                            {child.label}
-                          </NavLink>
-                        );
-                      })}
-                    </div>,
-                    document.body,
-                  )}
+                          />
+                          {child.label}
+                        </NavLink>
+                      );
+                    })}
+                  </div>
+                }
               </div>
             );
           })}
